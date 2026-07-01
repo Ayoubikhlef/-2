@@ -15,6 +15,6 @@ export default async function handler(_req: VercelRequest, res: VercelResponse) 
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
-    database: dbOk ? 'connected' : `not configured (${dbError})`,
+    database: dbOk ? 'connected' : `error: ${dbError}`,
   });
 }

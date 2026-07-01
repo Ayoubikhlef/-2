@@ -1,50 +1,56 @@
 import { neon } from '@neondatabase/serverless';
+import bcrypt from 'bcryptjs';
 
 let sql: ReturnType<typeof neon> | null = null;
 
 function getSql() {
   if (!sql) {
     const url = process.env.POSTGRES_URL || process.env.DATABASE_URL;
-    if (!url) throw new Error('No database URL. Create Postgres in Vercel Dashboard → Storage.');
+    if (!url) throw new Error('Database not configured');
     sql = neon(url);
   }
   return sql;
 }
 
 export async function ensureTables() {
-  try {
-    const db = getSql();
+  const db = getSql();
+  await db`
+    CREATE TABLE IF NOT EXISTS aos_orders (
+      id TEXT PRIMARY KEY,
+      customer TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      email TEXT NOT NULL DEFAULT '',
+      wilaya TEXT NOT NULL DEFAULT '',
+      municipality TEXT NOT NULL DEFAULT '',
+      address TEXT NOT NULL DEFAULT '',
+      note TEXT NOT NULL DEFAULT '',
+      items JSONB NOT NULL DEFAULT '[]',
+      total REAL NOT NULL DEFAULT 0,
+      source TEXT NOT NULL DEFAULT 'form',
+      status TEXT NOT NULL DEFAULT 'new',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+  await db`
+    CREATE TABLE IF NOT EXISTS aos_users (
+      id TEXT PRIMARY KEY,
+      email TEXT UNIQUE NOT NULL,
+      password_hash TEXT NOT NULL,
+      name TEXT NOT NULL,
+      phone TEXT DEFAULT '',
+      role TEXT NOT NULL DEFAULT 'CUSTOMER',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+  // Seed admin user if not exists
+  const existing = await db`SELECT id FROM aos_users WHERE email = ${'admin@aos.dz'}`;
+  if (existing.length === 0) {
+    const hash = await bcrypt.hash('admin123', 10);
     await db`
-      CREATE TABLE IF NOT EXISTS aos_orders (
-        id TEXT PRIMARY KEY,
-        customer TEXT NOT NULL,
-        phone TEXT NOT NULL,
-        email TEXT NOT NULL DEFAULT '',
-        wilaya TEXT NOT NULL DEFAULT '',
-        municipality TEXT NOT NULL DEFAULT '',
-        address TEXT NOT NULL DEFAULT '',
-        note TEXT NOT NULL DEFAULT '',
-        items JSONB NOT NULL DEFAULT '[]',
-        total REAL NOT NULL DEFAULT 0,
-        source TEXT NOT NULL DEFAULT 'form',
-        status TEXT NOT NULL DEFAULT 'new',
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-      )
+      INSERT INTO aos_users (id, email, password_hash, name, role)
+      VALUES (${crypto.randomUUID()}, ${'admin@aos.dz'}, ${hash}, ${'Admin AOS'}, ${'SUPER_ADMIN'})
     `;
-    await db`
-      CREATE TABLE IF NOT EXISTS aos_users (
-        id TEXT PRIMARY KEY,
-        email TEXT UNIQUE NOT NULL,
-        password_hash TEXT NOT NULL,
-        name TEXT NOT NULL,
-        phone TEXT DEFAULT '',
-        role TEXT NOT NULL DEFAULT 'CUSTOMER',
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-      )
-    `;
-  } catch (err: any) {
-    console.error('[DB] init error:', err.message);
   }
 }
 
