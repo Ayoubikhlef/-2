@@ -46,6 +46,7 @@ export function saveOrder(order: Omit<OrderRecord, 'id' | 'createdAt' | 'status'
   const current = getOrders();
   const next = [record, ...current];
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  window.dispatchEvent(new CustomEvent('aos:data-changed'));
   return record;
 }
 

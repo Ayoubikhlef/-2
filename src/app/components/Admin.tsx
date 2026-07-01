@@ -166,7 +166,8 @@ export function Admin() {
     if (!isAuthenticated) return;
     loadOrders();
     const interval = setInterval(loadOrders, 5000);
-    return () => clearInterval(interval);
+    window.addEventListener('aos:data-changed', loadOrders);
+    return () => { clearInterval(interval); window.removeEventListener('aos:data-changed', loadOrders); };
   }, [isAuthenticated, loadOrders]);
 
   const handleStatusChange = (id: string, status: OrderStatus) => {
