@@ -12,7 +12,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const payload = jwt.verify(auth.slice(7), JWT_SECRET) as { userId: string; role: string };
     await ensureTables();
     const db = getDb();
-    const users: any[] = await db`SELECT id, email, name, role, phone FROM aos_users WHERE id = ${payload.userId}`;
+    const users: any = await db`SELECT id, email, name, role, phone FROM aos_users WHERE id = ${payload.userId}`;
     if (users.length === 0) return res.status(404).json({ error: 'User not found' });
     res.json(users[0]);
   } catch {

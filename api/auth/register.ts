@@ -15,7 +15,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     await ensureTables();
     const db = getDb();
 
-    const existing: any[] = await db`SELECT id FROM aos_users WHERE email = ${email}`;
+    const existing: any = await db`SELECT id FROM aos_users WHERE email = ${email}`;
     if (existing.length > 0) return res.status(409).json({ error: 'Email already registered' });
 
     const hash = await bcrypt.hash(password, 10);
