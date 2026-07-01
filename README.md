@@ -1,33 +1,35 @@
+# Ayoub Office Services - Tech Store
 
-  # Ayoub’s Work & Tech Store (Community)
+متجر إلكتروني متكامل لبيع منتجات الإعلام الآلي والخدمات المكتبية في الجزائر.
 
-  This is a code bundle for Ayoub’s Work & Tech Store (Community). The original project is available at https://www.figma.com/design/WBrgNgATVPa2IyqeYsTpJZ/Ayoub%E2%80%99s-Work---Tech-Store--Community-.
+## التقنيات
+- **Frontend**: React + TypeScript + Vite + Tailwind CSS v4 + shadcn/ui
+- **Backend**: Node.js + Express + TypeScript + Prisma (SQLite)
+- **AI**: RAG pipeline with Transformers.js (semantic search)
+- **Real-time**: Socket.io (live dashboard)
+- **PWA**: Offline support + Service Worker
 
-  ## Running the code
+## التشغيل
 
-Run `npm install` to install dependencies.
-
-Start the development server with:
-
+### Frontend
 ```bash
+npm install
 npm run dev
 ```
 
-Build the production bundle with:
-
+### Backend
 ```bash
-npm run build
+cd server
+npm install
+npm run dev
 ```
 
-Preview the build locally with:
-
-```bash
-npm run preview
-```
-
-Type-check the project with:
-
-```bash
-npm run typecheck
-```
-  
+## المميزات
+- 3 لغات (العربية / Français / English)
+- واجهة تفاعلية مع خلفية متحركة
+- مساعد AI ذكي مع RAG
+- بحث بالصورة
+- لوحة تحكم كاملة (إدارة المنتجات/الخدمات/الطلبات)
+- PWA مع دعم offline
+- سلة مشتريات ومفضلة
+- مقارنة المنتجات
