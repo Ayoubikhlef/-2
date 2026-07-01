@@ -1,17 +1,20 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { getPool, ensureTables } from './lib/db';
+import { getDb, ensureTables } from './lib/db';
 
 export default async function handler(_req: VercelRequest, res: VercelResponse) {
   let dbOk = false;
+  let dbError = '';
   try {
     await ensureTables();
-    const { rows } = await getPool().sql`SELECT 1 AS ok`;
-    dbOk = rows[0]?.ok === 1;
-  } catch {}
+    const result = await getDb()`SELECT 1 AS ok`;
+    dbOk = result[0]?.ok === 1;
+  } catch (err: any) {
+    dbError = err.message;
+  }
 
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
-    database: dbOk ? 'connected' : 'not configured (create Postgres in Vercel Dashboard → Storage)',
+    database: dbOk ? 'connected' : `not configured (${dbError})`,
   });
 }

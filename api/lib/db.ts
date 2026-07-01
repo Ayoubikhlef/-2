@@ -1,16 +1,20 @@
-import { createPool } from '@vercel/postgres';
+import { neon } from '@neondatabase/serverless';
 
-let pool: ReturnType<typeof createPool> | null = null;
+let sql: ReturnType<typeof neon> | null = null;
 
-export function getPool() {
-  if (!pool) pool = createPool();
-  return pool;
+function getSql() {
+  if (!sql) {
+    const url = process.env.POSTGRES_URL || process.env.DATABASE_URL;
+    if (!url) throw new Error('No database URL. Create Postgres in Vercel Dashboard → Storage.');
+    sql = neon(url);
+  }
+  return sql;
 }
 
 export async function ensureTables() {
   try {
-    const p = getPool();
-    await p.sql`
+    const db = getSql();
+    await db`
       CREATE TABLE IF NOT EXISTS aos_orders (
         id TEXT PRIMARY KEY,
         customer TEXT NOT NULL,
@@ -28,7 +32,7 @@ export async function ensureTables() {
         updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
       )
     `;
-    await p.sql`
+    await db`
       CREATE TABLE IF NOT EXISTS aos_users (
         id TEXT PRIMARY KEY,
         email TEXT UNIQUE NOT NULL,
@@ -42,6 +46,10 @@ export async function ensureTables() {
   } catch (err: any) {
     console.error('[DB] init error:', err.message);
   }
+}
+
+export function getDb() {
+  return getSql();
 }
 
 export function mapOrder(row: any) {
