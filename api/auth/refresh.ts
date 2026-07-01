@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import jwt from 'jsonwebtoken';
-import { query, ensureTables } from '../lib/db';
+import { query, ensureTables } from '../../shared/db';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'aos-jwt-secret-change-in-production';
 

@@ -1,4 +1,4 @@
-import { query } from './lib/db';
+import { query } from '../shared/db';
 
 export default async function handler(_req: any, res: any) {
   try {
