@@ -1,10 +1,10 @@
-import { query } from './lib/db';
-
 export default async function handler(_req: any, res: any) {
   try {
-    const result = await query(`SELECT 1 AS ok`);
-    res.json({ ok: true, row: result.rows[0] });
+    const url = process.env.POSTGRES_URL;
+    const tls = process.env.NODE_TLS_REJECT_UNAUTHORIZED;
+    const keys = Object.keys(process.env).filter(k => k.includes('POSTGRES') || k.includes('SUPABASE') || k.includes('TLS'));
+    res.json({ env: { url: url ? 'yes' : 'no', tls, keys, node: process.version } });
   } catch (err: any) {
-    res.json({ ok: false, error: err.message, stack: err.stack?.split('\n').slice(0, 3).join('; ') });
+    res.json({ error: err.message });
   }
 }
