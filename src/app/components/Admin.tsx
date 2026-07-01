@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { getOrders, clearOrders, updateOrderStatus, getOrderStats, loadOrdersFromServer, OrderRecord, OrderStatus } from '../utils/orderStorage';
+import { getOrders, clearOrders, updateOrderStatus, removeOrder, getOrderStats, loadOrdersFromServer, OrderRecord, OrderStatus } from '../utils/orderStorage';
 import { getStoredProducts, initializeProducts } from '../utils/productStorage';
 import { products as defaultProducts, type Product } from '../data/products';
 import { ManageProductsTab } from './ManageProductsTab';
@@ -198,6 +198,14 @@ export function Admin() {
         fr: `Statut de la commande mis à jour`,
         en: `Order status updated`,
       })
+    );
+  };
+
+  const handleDeleteOrder = async (id: string) => {
+    await removeOrder(id);
+    await loadOrders();
+    toast.success(
+      t({ ar: 'تم حذف الطلب', fr: 'Commande supprimée', en: 'Order deleted' })
     );
   };
 
@@ -664,6 +672,17 @@ export function Admin() {
                           </>
                         )}
                       </div>
+
+                      {/* Delete */}
+                      <button
+                        onClick={() => {
+                          if (confirm(t({ ar: 'تأكيد حذف هذا الطلب؟', fr: 'Confirmer la suppression de cette commande ?', en: 'Confirm delete this order?' })))
+                            handleDeleteOrder(order.id);
+                        }}
+                        className="p-3 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-400 transition-all border border-red-500/20"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
 
                       {/* Expand/Collapse */}
                       <button

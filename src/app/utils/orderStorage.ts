@@ -99,6 +99,21 @@ export async function updateOrderStatus(id: string, status: OrderStatus): Promis
   return orders[index];
 }
 
+export async function removeOrder(id: string): Promise<void> {
+  const orders = getOrders().filter((o) => o.id !== id);
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
+  log('info', `Removed order ${id} from localStorage`);
+
+  try {
+    await api.orders.remove(id);
+    log('info', `Order ${id} deleted from server`);
+  } catch (err: any) {
+    log('warn', `Failed to delete order ${id} from server`, err?.message);
+  }
+
+  window.dispatchEvent(new CustomEvent('aos:data-changed'));
+}
+
 export async function loadOrdersFromServer(): Promise<OrderRecord[]> {
   try {
     const serverOrders = await api.orders.list();

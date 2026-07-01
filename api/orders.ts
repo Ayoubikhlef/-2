@@ -47,6 +47,12 @@ export default async function handler(req: any, res: any) {
       return res.status(201).json(mapOrder(r.rows[0]));
     }
 
+    if (req.method === 'DELETE' && parts.length === 1) {
+      const result = await query(`DELETE FROM aos_orders WHERE id = $1 RETURNING id`, [parts[0]]);
+      if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
+      return res.json({ deleted: true, id: parts[0] });
+    }
+
     if (req.method === 'GET') {
       const r = await query(`SELECT * FROM aos_orders ORDER BY created_at DESC`);
       return res.json(r.rows.map(mapOrder));
