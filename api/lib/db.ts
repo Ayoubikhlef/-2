@@ -7,7 +7,11 @@ function getPool(): Pool {
   if (!pool) {
     const url = process.env.POSTGRES_URL || process.env.DATABASE_URL;
     if (!url) throw new Error('Database not configured');
-    pool = new Pool({ connectionString: url, max: 5 });
+    pool = new Pool({
+      connectionString: url,
+      max: 5,
+      ssl: { rejectUnauthorized: false },
+    });
   }
   return pool;
 }
