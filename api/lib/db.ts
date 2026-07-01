@@ -43,9 +43,8 @@ export async function ensureTables() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `;
-  // Seed admin user if not exists
-  const existing = await db`SELECT id FROM aos_users WHERE email = ${'admin@aos.dz'}`;
-  if (existing.length === 0) {
+  const existing: any = await db`SELECT id FROM aos_users WHERE email = ${'admin@aos.dz'}`;
+  if (!existing.length) {
     const hash = await bcrypt.hash('admin123', 10);
     await db`
       INSERT INTO aos_users (id, email, password_hash, name, role)

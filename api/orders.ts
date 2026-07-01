@@ -5,22 +5,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const url = new URL(req.url!, `http://${req.headers.host}`);
   const parts = url.pathname.replace(/^\/api\/orders\/?/, '').split('/').filter(Boolean);
 
-  let db: ReturnType<typeof getDb>;
   try {
     await ensureTables();
-    db = getDb();
-  } catch (err: any) {
-    return res.status(500).json({ error: err.message || 'Database not configured' });
-  }
+    const db = getDb();
 
-  try {
     // PATCH /api/orders/:id/status
     if (req.method === 'PATCH' && parts.length === 2 && parts[1] === 'status') {
       const id = parts[0];
       const { status } = req.body || {};
       if (!status) return res.status(400).json({ error: 'Missing status' });
 
-      const result = await db`UPDATE aos_orders SET status = ${status}, updated_at = NOW() WHERE id = ${id} RETURNING *`;
+      const result: any[] = await db`UPDATE aos_orders SET status = ${status}, updated_at = NOW() WHERE id = ${id} RETURNING *`;
       if (result.length === 0) return res.status(404).json({ error: 'Order not found' });
       return res.json(mapOrder(result[0]));
     }
@@ -31,7 +26,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!customer || !phone) return res.status(400).json({ error: 'Missing required fields' });
 
       const id = crypto.randomUUID();
-      const result = await db`
+      const result: any[] = await db`
         INSERT INTO aos_orders (id, customer, phone, email, wilaya, municipality, address, note, items, total, source)
         VALUES (${id}, ${customer}, ${phone}, ${email || ''}, ${wilaya || ''}, ${municipality || ''}, ${address || ''}, ${note || ''}, ${JSON.stringify(items || [])}, ${total || 0}, ${source || 'form'})
         RETURNING *
@@ -41,7 +36,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // GET /api/orders
     if (req.method === 'GET') {
-      const rows = await db`SELECT * FROM aos_orders ORDER BY created_at DESC`;
+      const rows: any[] = await db`SELECT * FROM aos_orders ORDER BY created_at DESC`;
       return res.json(rows.map(mapOrder));
     }
 

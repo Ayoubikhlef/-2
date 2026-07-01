@@ -15,7 +15,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     await ensureTables();
     const db = getDb();
 
-    const users = await db`SELECT * FROM aos_users WHERE email = ${email}`;
+    const users: any[] = await db`SELECT * FROM aos_users WHERE email = ${email}`;
     if (users.length === 0) return res.status(401).json({ error: 'Invalid credentials' });
 
     const user = users[0];
