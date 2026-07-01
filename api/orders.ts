@@ -47,7 +47,7 @@ export default async function handler(req: any, res: any) {
       return res.status(201).json(mapOrder(r.rows[0]));
     }
 
-    if (req.method === 'DELETE' && parts.length === 1) {
+    if ((req.method === 'DELETE' || req.method === 'POST') && parts.length === 2 && parts[1] === 'delete') {
       const result = await query(`DELETE FROM aos_orders WHERE id = $1 RETURNING id`, [parts[0]]);
       if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
       return res.json({ deleted: true, id: parts[0] });

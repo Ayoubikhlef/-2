@@ -99,6 +99,6 @@ export const api = {
     updateStatus: (id: string, status: string) =>
       request<any>(`/orders/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
     remove: (id: string) =>
-      request<{ deleted: boolean }>(`/orders/${id}`, { method: 'DELETE' }),
+      request<{ deleted: boolean }>(`/orders/${id}/delete`, { method: 'POST' }),
   },
 };
