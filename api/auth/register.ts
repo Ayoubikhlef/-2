@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { getDb, ensureTables } from '../lib/db';
+import { query, ensureTables } from '../lib/db';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'aos-jwt-secret-change-in-production';
 
@@ -13,17 +13,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     await ensureTables();
-    const db = getDb();
 
-    const existing: any = await db`SELECT id FROM aos_users WHERE email = ${email}`;
-    if (existing.length > 0) return res.status(409).json({ error: 'Email already registered' });
+    const existing = await query(`SELECT id FROM aos_users WHERE email = $1`, [email]);
+    if (existing.rows.length > 0) return res.status(409).json({ error: 'Email already registered' });
 
     const hash = await bcrypt.hash(password, 10);
     const id = crypto.randomUUID();
-    await db`
-      INSERT INTO aos_users (id, email, password_hash, name, phone, role)
-      VALUES (${id}, ${email}, ${hash}, ${name}, ${phone || ''}, ${'CUSTOMER'})
-    `;
+    await query(
+      `INSERT INTO aos_users (id, email, password_hash, name, phone, role) VALUES ($1, $2, $3, $4, $5, $6)`,
+      [id, email, hash, name, phone || '', 'CUSTOMER']
+    );
 
     const accessToken = jwt.sign({ userId: id, role: 'CUSTOMER' }, JWT_SECRET, { expiresIn: '15m' as any });
 

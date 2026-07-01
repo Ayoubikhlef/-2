@@ -1,20 +1,28 @@
-import { neon } from '@neondatabase/serverless';
+import { Pool } from 'pg';
 import bcrypt from 'bcryptjs';
 
-let sql: ReturnType<typeof neon> | null = null;
+let pool: Pool | null = null;
 
-function getSql() {
-  if (!sql) {
+function getPool(): Pool {
+  if (!pool) {
     const url = process.env.POSTGRES_URL || process.env.DATABASE_URL;
     if (!url) throw new Error('Database not configured');
-    sql = neon(url);
+    pool = new Pool({ connectionString: url, max: 5 });
   }
-  return sql;
+  return pool;
+}
+
+export async function query(text: string, params?: any[]) {
+  const client = await getPool().connect();
+  try {
+    return await client.query(text, params);
+  } finally {
+    client.release();
+  }
 }
 
 export async function ensureTables() {
-  const db = getSql();
-  await db`
+  await query(`
     CREATE TABLE IF NOT EXISTS aos_orders (
       id TEXT PRIMARY KEY,
       customer TEXT NOT NULL,
@@ -31,8 +39,8 @@ export async function ensureTables() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
-  `;
-  await db`
+  `);
+  await query(`
     CREATE TABLE IF NOT EXISTS aos_users (
       id TEXT PRIMARY KEY,
       email TEXT UNIQUE NOT NULL,
@@ -42,19 +50,15 @@ export async function ensureTables() {
       role TEXT NOT NULL DEFAULT 'CUSTOMER',
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
-  `;
-  const existing: any = await db`SELECT id FROM aos_users WHERE email = ${'admin@aos.dz'}`;
-  if (!existing.length) {
+  `);
+  const existing = await query(`SELECT id FROM aos_users WHERE email = $1`, ['admin@aos.dz']);
+  if (existing.rows.length === 0) {
     const hash = await bcrypt.hash('admin123', 10);
-    await db`
-      INSERT INTO aos_users (id, email, password_hash, name, role)
-      VALUES (${crypto.randomUUID()}, ${'admin@aos.dz'}, ${hash}, ${'Admin AOS'}, ${'SUPER_ADMIN'})
-    `;
+    await query(
+      `INSERT INTO aos_users (id, email, password_hash, name, role) VALUES ($1, $2, $3, $4, $5)`,
+      [crypto.randomUUID(), 'admin@aos.dz', hash, 'Admin AOS', 'SUPER_ADMIN']
+    );
   }
-}
-
-export function getDb() {
-  return getSql();
 }
 
 export function mapOrder(row: any) {

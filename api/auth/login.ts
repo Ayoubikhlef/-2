@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { getDb, ensureTables } from '../lib/db';
+import { query, ensureTables } from '../lib/db';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'aos-jwt-secret-change-in-production';
 
@@ -13,12 +13,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     await ensureTables();
-    const db = getDb();
 
-    const users: any = await db`SELECT * FROM aos_users WHERE email = ${email}`;
-    if (users.length === 0) return res.status(401).json({ error: 'Invalid credentials' });
+    const result = await query(`SELECT * FROM aos_users WHERE email = $1`, [email]);
+    if (result.rows.length === 0) return res.status(401).json({ error: 'Invalid credentials' });
 
-    const user = users[0];
+    const user = result.rows[0];
     const valid = await bcrypt.compare(password, user.password_hash);
     if (!valid) return res.status(401).json({ error: 'Invalid credentials' });
 
