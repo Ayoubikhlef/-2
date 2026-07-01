@@ -62,19 +62,16 @@ export async function saveOrder(order: Omit<OrderRecord, 'id' | 'createdAt' | 's
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   log('info', `Saved order ${record.id} to localStorage`);
 
-  // Try to save to backend API
-  try {
-    const serverOrder = await api.orders.create(order);
-    log('info', `Order ${record.id} synced to server (server id: ${serverOrder.id})`);
-    // Use server ID and timestamp
-    record.id = serverOrder.id;
-    record.createdAt = serverOrder.createdAt;
-    // Update localStorage with server data
-    const updated = getOrders().map(o => o.id === record.id ? { ...o, id: serverOrder.id, createdAt: serverOrder.createdAt } : o);
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-  } catch (err: any) {
-    log('warn', `Failed to sync order to server (offline?)`, err?.message);
-  }
+  // Sync to API in background (don't await — show success immediately)
+  api.orders.create(order)
+    .then((serverOrder) => {
+      log('info', `Order ${record.id} synced to server (server id: ${serverOrder.id})`);
+      const updated = getOrders().map(o => o.id === record.id ? { ...o, id: serverOrder.id, createdAt: serverOrder.createdAt } : o);
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    })
+    .catch((err: any) => {
+      log('warn', `Failed to sync order to server (offline?)`, err?.message);
+    });
 
   window.dispatchEvent(new CustomEvent('aos:data-changed'));
   return record;
