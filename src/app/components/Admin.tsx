@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { getOrders, clearOrders, updateOrderStatus, getOrderStats, OrderRecord, OrderStatus } from '../utils/orderStorage';
+import { getOrders, clearOrders, updateOrderStatus, getOrderStats, loadOrdersFromServer, OrderRecord, OrderStatus } from '../utils/orderStorage';
 import { getStoredProducts, initializeProducts } from '../utils/productStorage';
 import { products as defaultProducts, type Product } from '../data/products';
 import { ManageProductsTab } from './ManageProductsTab';
@@ -158,8 +158,9 @@ export function Admin() {
     document.body.setAttribute('data-on', String(next));
   };
 
-  const loadOrders = useCallback(() => {
-    setOrders(getOrders());
+  const loadOrders = useCallback(async () => {
+    const serverOrders = await loadOrdersFromServer();
+    setOrders(serverOrders);
   }, []);
 
   useEffect(() => {
@@ -170,9 +171,9 @@ export function Admin() {
     return () => { clearInterval(interval); window.removeEventListener('aos:data-changed', loadOrders); };
   }, [isAuthenticated, loadOrders]);
 
-  const handleStatusChange = (id: string, status: OrderStatus) => {
-    updateOrderStatus(id, status);
-    loadOrders();
+  const handleStatusChange = async (id: string, status: OrderStatus) => {
+    await updateOrderStatus(id, status);
+    await loadOrders();
     setOpenDropdown(null);
     toast.success(
       t({

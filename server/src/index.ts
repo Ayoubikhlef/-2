@@ -5,6 +5,7 @@ import http from 'http';
 import { authRouter } from './routes/auth';
 import { chatRouter } from './routes/chat';
 import { productRouter } from './routes/products';
+import { orderRouter } from './routes/orders';
 import { errorHandler } from './middleware/errorHandler';
 import { initLive } from './services/live';
 import { initRAG } from './services/rag';
@@ -21,6 +22,7 @@ app.use(cookieParser());
 app.use('/api/auth', authRouter);
 app.use('/api/chat', chatRouter);
 app.use('/api/products', productRouter);
+app.use('/api/orders', orderRouter);
 
 app.get('/', (_req, res) => {
   res.json({ name: 'AOS API Server', version: '1.0.0', status: 'running' });

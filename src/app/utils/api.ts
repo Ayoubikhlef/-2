@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:3001/api';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 function getAccessToken(): string | null {
   return localStorage.getItem('aos_access_token');
@@ -30,7 +30,10 @@ async function request<T>(
   };
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  const res = await fetch(`${BASE_URL}${path}`, {
+  const url = `${BASE_URL}${path}`;
+  console.log(`[API] ${options.method || 'GET'} ${url}`);
+
+  const res = await fetch(url, {
     ...options,
     headers,
     credentials: 'include',
@@ -88,4 +91,12 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ products }),
     }),
+
+  orders: {
+    create: (data: any) =>
+      request<any>('/orders', { method: 'POST', body: JSON.stringify(data) }),
+    list: () => request<any[]>('/orders'),
+    updateStatus: (id: string, status: string) =>
+      request<any>(`/orders/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+  },
 };

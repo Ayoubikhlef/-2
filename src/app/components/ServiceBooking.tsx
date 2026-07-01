@@ -20,7 +20,7 @@ export function ServiceBooking() {
     return () => window.removeEventListener('aos:data-changed', refresh);
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.phone) {
       toast.error(t({ ar: 'الرجاء ملء الحقول الأساسية', fr: 'Veuillez remplir les champs requis', en: 'Please fill the required fields' }));
@@ -33,7 +33,7 @@ export function ServiceBooking() {
 
     const option = serviceOptions.find((s) => s.value === form.service)!;
 
-    saveOrder({
+    await saveOrder({
       customer: form.name,
       phone: form.phone,
       email: '',

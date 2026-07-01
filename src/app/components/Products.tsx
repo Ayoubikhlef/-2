@@ -140,7 +140,7 @@ export function Products() {
     setOrderData((prev) => ({ ...prev, [name]: name === 'quantity' ? Math.max(1, Number(value)) : value }));
   };
 
-  const handleOrderSubmit = (e: React.FormEvent) => {
+  const handleOrderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!orderData.fullName || !orderData.phone || !orderData.address) {
@@ -161,7 +161,7 @@ export function Products() {
       name: productName,
     });
 
-    const record = saveOrder({
+    const record = await saveOrder({
       customer: orderData.fullName,
       phone: orderData.phone,
       email: orderData.email,
