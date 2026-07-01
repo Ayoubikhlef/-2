@@ -1,46 +1,60 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { query, ensureTables, mapOrder } from '../shared/db';
+import { Pool } from 'pg';
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+let pool: Pool | null = null;
+function getPool() {
+  if (!pool) pool = new Pool({ connectionString: process.env.POSTGRES_URL, max: 3 });
+  return pool;
+}
+
+async function query(text: string, params?: any[]) {
+  const c = await getPool().connect();
+  try { return await c.query(text, params); } finally { c.release(); }
+}
+
+async function ensureTables() {
+  await query(`CREATE TABLE IF NOT EXISTS aos_orders (id TEXT PRIMARY KEY, customer TEXT NOT NULL, phone TEXT NOT NULL, email TEXT DEFAULT '', wilaya TEXT DEFAULT '', municipality TEXT DEFAULT '', address TEXT DEFAULT '', note TEXT DEFAULT '', items JSONB DEFAULT '[]', total REAL DEFAULT 0, source TEXT DEFAULT 'form', status TEXT DEFAULT 'new', created_at TIMESTAMPTZ DEFAULT NOW(), updated_at TIMESTAMPTZ DEFAULT NOW())`);
+}
+
+function mapOrder(row: any) {
+  return {
+    id: row.id, createdAt: row.created_at?.toISOString?.() ?? row.created_at,
+    customer: row.customer, phone: row.phone, email: row.email || '',
+    wilaya: row.wilaya || '', municipality: row.municipality || '', address: row.address || '',
+    note: row.note || '', items: typeof row.items === 'string' ? JSON.parse(row.items) : (row.items || []),
+    total: row.total || 0, source: row.source || 'form', status: row.status || 'new',
+  };
+}
+
+export default async function handler(req: any, res: any) {
   const url = new URL(req.url!, `http://${req.headers.host}`);
   const parts = url.pathname.replace(/^\/api\/orders\/?/, '').split('/').filter(Boolean);
 
   try {
     await ensureTables();
 
-    // PATCH /api/orders/:id/status
     if (req.method === 'PATCH' && parts.length === 2 && parts[1] === 'status') {
-      const id = parts[0];
-      const { status } = req.body || {};
-      if (!status) return res.status(400).json({ error: 'Missing status' });
-
-      const result = await query(`UPDATE aos_orders SET status = $1, updated_at = NOW() WHERE id = $2 RETURNING *`, [status, id]);
-      if (result.rows.length === 0) return res.status(404).json({ error: 'Order not found' });
+      const result = await query(`UPDATE aos_orders SET status = $1, updated_at = NOW() WHERE id = $2 RETURNING *`, [req.body.status, parts[0]]);
+      if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
       return res.json(mapOrder(result.rows[0]));
     }
 
-    // POST /api/orders
     if (req.method === 'POST') {
-      const { customer, phone, email, wilaya, municipality, address, note, items, total, source } = req.body || {};
-      if (!customer || !phone) return res.status(400).json({ error: 'Missing required fields' });
-
+      const b = req.body || {};
+      if (!b.customer || !b.phone) return res.status(400).json({ error: 'Missing fields' });
       const id = crypto.randomUUID();
-      const result = await query(
-        `INSERT INTO aos_orders (id, customer, phone, email, wilaya, municipality, address, note, items, total, source) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *`,
-        [id, customer, phone, email || '', wilaya || '', municipality || '', address || '', note || '', JSON.stringify(items || []), total || 0, source || 'form']
-      );
-      return res.status(201).json(mapOrder(result.rows[0]));
+      const r = await query(`INSERT INTO aos_orders (id,customer,phone,email,wilaya,municipality,address,note,items,total,source) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *`,
+        [id, b.customer, b.phone, b.email||'', b.wilaya||'', b.municipality||'', b.address||'', b.note||'', JSON.stringify(b.items||[]), b.total||0, b.source||'form']);
+      return res.status(201).json(mapOrder(r.rows[0]));
     }
 
-    // GET /api/orders
     if (req.method === 'GET') {
-      const result = await query(`SELECT * FROM aos_orders ORDER BY created_at DESC`);
-      return res.json(result.rows.map(mapOrder));
+      const r = await query(`SELECT * FROM aos_orders ORDER BY created_at DESC`);
+      return res.json(r.rows.map(mapOrder));
     }
 
-    return res.status(405).json({ error: 'Method not allowed' });
+    res.status(405).json({ error: 'Method not allowed' });
   } catch (err: any) {
     console.error('[Orders]', err);
-    return res.status(500).json({ error: err.message || 'Internal error' });
+    res.status(500).json({ error: err.message });
   }
 }
