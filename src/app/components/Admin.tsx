@@ -626,7 +626,7 @@ export function Admin() {
                         <p className="text-sm text-muted-foreground">
                           {t({ ar: 'المجموع', fr: 'Total', en: 'Total' })}
                         </p>
-                        <p className="text-2xl font-bold text-primary">{order.total.toLocaleString()} د.ج</p>
+                        <p className="text-2xl font-bold text-primary">{(Number(order.total) || 0).toLocaleString()} د.ج</p>
                       </div>
 
                       {/* Status Dropdown */}
@@ -676,15 +676,8 @@ export function Admin() {
                   </div>
 
                   {/* Expanded Details */}
-                  <AnimatePresence>
-                    {expandedId === order.id && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="overflow-hidden"
-                      >
-                        <div className="mt-6 pt-6 border-t border-white/10">
+                  {expandedId === order.id && (
+                    <div className="overflow-hidden mt-6 pt-6 border-t border-white/10">
                           <div className="grid gap-4 md:grid-cols-2">
                             <div className="rounded-2xl bg-slate-800/50 p-4">
                               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
@@ -734,20 +727,25 @@ export function Admin() {
                               {t({ ar: 'المنتجات', fr: 'Produits', en: 'Items' })}
                             </p>
                             <div className="space-y-2">
-                              {order.items.map((item, index) => (
+                              {Array.isArray(order.items) ? order.items.map((item, index) => {
+                                const price = Number(item.price) || 0;
+                                const total = Number(item.total) || 0;
+                                return (
                                 <div
                                   key={index}
                                   className="flex items-center justify-between rounded-xl bg-slate-900/50 px-4 py-3"
                                 >
                                   <div>
-                                    <p className="font-medium">{item.name}</p>
+                                    <p className="font-medium">{item.name || ''}</p>
                                     <p className="text-sm text-muted-foreground">
-                                      {item.quantity} × {item.price.toLocaleString()} د.ج
+                                      {item.quantity || 0} × {price.toLocaleString()} د.ج
                                     </p>
                                   </div>
-                                  <p className="font-semibold">{item.total.toLocaleString()} د.ج</p>
+                                  <p className="font-semibold">{total.toLocaleString()} د.ج</p>
                                 </div>
-                              ))}
+                              )}) : (
+                                <p className="text-sm text-muted-foreground">{t({ ar: 'لا توجد منتجات', fr: 'Aucun produit', en: 'No items' })}</p>
+                              )}
                             </div>
                           </div>
 
@@ -761,9 +759,7 @@ export function Admin() {
                               {t({ ar: 'اتصال', fr: 'Appeler', en: 'Call' })}
                             </a>
                             <a
-                              href={`https://wa.me/${order.phone.startsWith('+') ? order.phone : '+213' + order.phone.replace(/^0/, '')}?text=${encodeURIComponent(
-                                t({ ar: 'مرحباً، بخصوص طلبك من Ayoub Office Services', fr: 'Bonjour, concerne votre commande chez Ayoub Office Services', en: 'Hello, regarding your order from Ayoub Office Services' })
-                              )}`}
+                              href={`https://wa.me/${order.phone.startsWith('+') ? order.phone : '213' + order.phone.slice(order.phone.startsWith('0') ? 1 : 0)}?text=${encodeURIComponent(t({ ar: 'مرحباً، بخصوص طلبك من Ayoub Office Services', fr: 'Bonjour, concerne votre commande chez Ayoub Office Services', en: 'Hello, regarding your order from Ayoub Office Services' }))}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-2 rounded-full bg-emerald-500/20 text-emerald-400 px-5 py-2.5 text-sm font-semibold hover:bg-emerald-500/30 transition-all"
@@ -772,10 +768,8 @@ export function Admin() {
                               WhatsApp
                             </a>
                           </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                    </div>
+                  )}
                 </motion.div>
               ))}
             </AnimatePresence>
