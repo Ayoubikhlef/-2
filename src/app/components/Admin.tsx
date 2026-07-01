@@ -116,6 +116,7 @@ export function Admin() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [isOn, setIsOn] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [tab, setTab] = useState<'dashboard' | 'products' | 'services' | 'manage-products' | 'manage-services' | 'customers' | 'coupons'>('dashboard');
   const [manageProducts, setManageProducts] = useState<Product[]>([]);
   const [manageServices, setManageServices] = useState<ServiceCategory[]>([]);
@@ -162,6 +163,22 @@ export function Admin() {
     const serverOrders = await loadOrdersFromServer();
     setOrders(serverOrders);
   }, []);
+
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      await loadOrders();
+      toast.success(
+        t({ ar: 'تم تحميل الطلبات الجديدة', fr: 'Nouvelles commandes chargées', en: 'New orders loaded' })
+      );
+    } catch (error) {
+      toast.error(
+        t({ ar: 'فشل تحديث الطلبات، سيتم عرض البيانات المحلية', fr: 'Échec de la mise à jour des commandes, affichage des données locales', en: 'Failed to refresh orders, showing local data' })
+      );
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [loadOrders, t]);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -373,11 +390,14 @@ export function Admin() {
             </div>
             <div className="flex items-center gap-3">
               <button
-                onClick={loadOrders}
-                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-900 px-5 py-3 text-sm font-semibold hover:bg-slate-800 transition-all"
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-slate-900 px-5 py-3 text-sm font-semibold hover:bg-slate-800 transition-all disabled:cursor-not-allowed disabled:opacity-60"
               >
-                <RefreshCw className="w-4 h-4" />
-                {t({ ar: 'تحديث', fr: 'Actualiser', en: 'Refresh' })}
+                <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                {isRefreshing
+                  ? t({ ar: 'جاري التحديث...', fr: 'Actualisation...', en: 'Refreshing...' })
+                  : t({ ar: 'تحديث', fr: 'Actualiser', en: 'Refresh' })}
               </button>
               <button
                 onClick={handleClear}
@@ -526,14 +546,15 @@ export function Admin() {
                   <p className="text-[10px] text-white/40">{t({ ar: 'خصم جديد', fr: 'Nouveau code', en: 'New coupon' })}</p>
                 </div>
               </button>
-              <button onClick={() => { toast.success(t({ ar: 'تم التحديث', fr: 'Actualisé', en: 'Refreshed' })); }}
-                className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-900/60 p-4 hover:bg-slate-800/80 transition-all text-white text-left">
+              <button onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-900/60 p-4 hover:bg-slate-800/80 transition-all text-white text-left disabled:cursor-not-allowed disabled:opacity-60">
                 <div className="w-10 h-10 rounded-xl bg-rose-500/20 flex items-center justify-center flex-shrink-0">
-                  <RefreshCw className="w-5 h-5 text-rose-400" />
+                  <RefreshCw className={`w-5 h-5 text-rose-400 ${isRefreshing ? 'animate-spin' : ''}`} />
                 </div>
                 <div>
                   <p className="text-sm font-bold">{t({ ar: 'تحديث', fr: 'Actualiser', en: 'Refresh' })}</p>
-                  <p className="text-[10px] text-white/40">{t({ ar: 'تحديث البيانات', fr: 'Mettre à jour', en: 'Update data' })}</p>
+                  <p className="text-[10px] text-white/40">{t({ ar: 'تحديث الطلبات الجديدة', fr: 'Actualiser les nouvelles commandes', en: 'Refresh new orders' })}</p>
                 </div>
               </button>
             </div>
