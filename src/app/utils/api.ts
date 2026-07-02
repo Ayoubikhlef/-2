@@ -99,12 +99,10 @@ export const api = {
     updateStatus: (id: string, status: string) =>
       request<any>(`/orders/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
     remove: async (id: string) => {
-      try {
-        return await request<{ deleted: boolean }>(`/orders/${id}`, { method: 'DELETE' });
-      } catch (err) {
-        console.warn('[API] DELETE /orders fallback to POST /orders/:id/delete', err);
-        return request<{ deleted: boolean }>(`/orders/${id}/delete`, { method: 'POST' });
-      }
+      return request<{ deleted: boolean }>('/orders/delete', {
+        method: 'POST',
+        body: JSON.stringify({ id }),
+      });
     },
   },
 };

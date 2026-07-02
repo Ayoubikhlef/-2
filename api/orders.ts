@@ -44,6 +44,14 @@ export default async function handler(req: any, res: any) {
       return res.json({ deleted: true, id: parts[0] });
     }
 
+    if (req.method === 'POST' && parts.length === 1 && parts[0] === 'delete') {
+      const id = req.body?.id;
+      if (!id) return res.status(400).json({ error: 'Missing id' });
+      const result = await query(`DELETE FROM aos_orders WHERE id = $1 RETURNING id`, [id]);
+      if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
+      return res.json({ deleted: true, id });
+    }
+
     if (req.method === 'POST' && parts.length === 2 && parts[1] === 'delete') {
       const result = await query(`DELETE FROM aos_orders WHERE id = $1 RETURNING id`, [parts[0]]);
       if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
