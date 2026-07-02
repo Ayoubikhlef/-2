@@ -202,11 +202,18 @@ export function Admin() {
   };
 
   const handleDeleteOrder = async (id: string) => {
-    await removeOrder(id);
-    await loadOrders();
-    toast.success(
-      t({ ar: 'تم حذف الطلب', fr: 'Commande supprimée', en: 'Order deleted' })
-    );
+    try {
+      await removeOrder(id);
+      await loadOrders();
+      toast.success(
+        t({ ar: 'تم حذف الطلب', fr: 'Commande supprimée', en: 'Order deleted' })
+      );
+    } catch (err: any) {
+      console.error(err);
+      toast.error(
+        t({ ar: 'فشل حذف الطلب، حاول مرة أخرى', fr: 'Échec de la suppression de la commande, veuillez réessayer', en: 'Failed to delete order, please try again' })
+      );
+    }
   };
 
   const handleClear = () => {
