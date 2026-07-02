@@ -97,3 +97,18 @@ orderRouter.patch('/:id/status', async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to update order status' });
   }
 });
+
+orderRouter.delete('/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    await prisma.order.delete({ where: { id } });
+    console.log(`[Orders] Deleted order ${id}`);
+    res.json({ deleted: true, id });
+  } catch (err: any) {
+    if (err?.code === 'P2025') {
+      return res.status(404).json({ error: 'Not found' });
+    }
+    console.error('[Orders] Delete error:', err);
+    res.status(500).json({ error: 'Failed to delete order' });
+  }
+});

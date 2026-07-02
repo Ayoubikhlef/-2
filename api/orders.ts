@@ -38,6 +38,18 @@ export default async function handler(req: any, res: any) {
       return res.json(mapOrder(result.rows[0]));
     }
 
+    if (req.method === 'DELETE' && parts.length === 1) {
+      const result = await query(`DELETE FROM aos_orders WHERE id = $1 RETURNING id`, [parts[0]]);
+      if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
+      return res.json({ deleted: true, id: parts[0] });
+    }
+
+    if (req.method === 'POST' && parts.length === 2 && parts[1] === 'delete') {
+      const result = await query(`DELETE FROM aos_orders WHERE id = $1 RETURNING id`, [parts[0]]);
+      if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
+      return res.json({ deleted: true, id: parts[0] });
+    }
+
     if (req.method === 'POST') {
       const b = req.body || {};
       if (!b.customer || !b.phone) return res.status(400).json({ error: 'Missing fields' });
@@ -45,12 +57,6 @@ export default async function handler(req: any, res: any) {
       const r = await query(`INSERT INTO aos_orders (id,customer,phone,email,wilaya,municipality,address,note,items,total,source) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *`,
         [id, b.customer, b.phone, b.email||'', b.wilaya||'', b.municipality||'', b.address||'', b.note||'', JSON.stringify(b.items||[]), b.total||0, b.source||'form']);
       return res.status(201).json(mapOrder(r.rows[0]));
-    }
-
-    if (req.method === 'GET' && parts.length === 2 && parts[1] === 'delete') {
-      const result = await query(`DELETE FROM aos_orders WHERE id = $1 RETURNING id`, [parts[0]]);
-      if (!result.rows.length) return res.status(404).json({ error: 'Not found' });
-      return res.json({ deleted: true, id: parts[0] });
     }
 
     if (req.method === 'GET') {
