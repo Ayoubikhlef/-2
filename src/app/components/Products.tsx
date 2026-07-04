@@ -48,7 +48,7 @@ export function Products() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [visualSearchOpen, setVisualSearchOpen] = useState(false);
-  const perPage = 6;
+  const perPage = 12;
 
   useEffect(() => {
     const refresh = () => setProducts(loadProducts());
