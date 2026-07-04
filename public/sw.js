@@ -17,6 +17,22 @@ self.addEventListener('activate', (e) => {
   self.clients.claim();
 });
 
+self.addEventListener('push', function(event) {
+  const data = event.data ? event.data.json() : {};
+  const options = {
+    body: data.body || 'New update from Ayoub Office Services',
+    icon: data.icon || '/icon.png',
+    badge: data.badge || '/icon.png',
+    vibrate: [200, 100, 200],
+  };
+  event.waitUntil(self.registration.showNotification(data.title || 'Ayoub Tech Store', options));
+});
+
+self.addEventListener('notificationclick', function(event) {
+  event.notification.close();
+  event.waitUntil(clients.openWindow('/'));
+});
+
 self.addEventListener('fetch', (e) => {
   if (e.request.mode === 'navigate') {
     e.respondWith(

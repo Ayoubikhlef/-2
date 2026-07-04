@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { SkeletonGrid } from './SkeletonCard';
 import { getWishlist, toggleWishlist, isInWishlist } from '../utils/wishlistStorage';
 import { VisualSearch } from './VisualSearch';
+import { Reviews } from './Reviews';
 
 function loadProducts() {
   return getStoredProducts(defaultProducts);
@@ -446,6 +447,8 @@ export function Products() {
                   </div>
                 ))}
               </div>
+
+              <Reviews productId={viewingProduct.id} />
 
               <div className="flex flex-col sm:flex-row gap-3">
                 <button

@@ -7,6 +7,9 @@ import { authRouter } from './routes/auth';
 import { chatRouter } from './routes/chat';
 import { productRouter } from './routes/products';
 import { orderRouter } from './routes/orders';
+import { reviewRouter } from './routes/reviews';
+import { newsletterRouter } from './routes/newsletter';
+import { loyaltyRouter } from './routes/loyalty';
 import { errorHandler } from './middleware/errorHandler';
 import { initLive } from './services/live';
 import { initRAG } from './services/rag';
@@ -24,6 +27,9 @@ app.use('/api/auth', authRouter);
 app.use('/api/chat', chatRouter);
 app.use('/api/products', productRouter);
 app.use('/api/orders', orderRouter);
+app.use('/api/reviews', reviewRouter);
+app.use('/api/newsletter', newsletterRouter);
+app.use('/api/loyalty', loyaltyRouter);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

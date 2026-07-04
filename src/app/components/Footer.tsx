@@ -1,5 +1,6 @@
 import { Phone, MapPin } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { NewsletterForm } from './NewsletterForm';
 
 export function Footer() {
   const { t, language } = useLanguage();
@@ -7,7 +8,7 @@ export function Footer() {
   return (
     <footer className="bg-gradient-to-br from-primary via-primary to-blue-900 dark:from-blue-950 dark:via-blue-900 dark:to-blue-950 text-white py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           {/* About */}
           <div>
             <div className={`flex items-center space-x-2 ${language === 'ar' ? 'space-x-reverse' : ''} mb-4`}>
@@ -75,6 +76,11 @@ export function Footer() {
               </li>
 
             </ul>
+          </div>
+
+          {/* Newsletter */}
+          <div>
+            <NewsletterForm />
           </div>
         </div>
 

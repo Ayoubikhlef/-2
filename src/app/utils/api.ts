@@ -92,6 +92,10 @@ export const api = {
       body: JSON.stringify({ products }),
     }),
 
+  newsletter: {
+    subscribe: (email: string) => request<{ ok: boolean }>('/newsletter', { method: 'POST', body: JSON.stringify({ email }) }),
+  },
+
   orders: {
     create: (data: any) =>
       request<any>('/orders', { method: 'POST', body: JSON.stringify(data) }),
@@ -104,5 +108,16 @@ export const api = {
         body: JSON.stringify({ id }),
       });
     },
+  },
+
+  reviews: {
+    list: (productId: number) => request<any[]>(`/reviews/${productId}`),
+    create: (data: any) => request<any>('/reviews', { method: 'POST', body: JSON.stringify(data) }),
+  },
+
+  loyalty: {
+    get: (phone: string) => request<any>(`/loyalty/${encodeURIComponent(phone)}`),
+    addPoints: (phone: string, name: string, amount: number) => request<any>('/loyalty/add', { method: 'POST', body: JSON.stringify({ phone, name, amount }) }),
+    redeem: (phone: string, points: number) => request<{ success: boolean; discount: number }>('/loyalty/redeem', { method: 'POST', body: JSON.stringify({ phone, points }) }),
   },
 };

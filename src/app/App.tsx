@@ -1,4 +1,5 @@
-import { Suspense, lazy, useState } from 'react';
+import { Suspense, lazy, useState, useEffect } from 'react';
+import { isMaintenanceMode } from './utils/maintenanceStorage';
 import { Toaster } from 'sonner';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
@@ -22,6 +23,7 @@ import { SkeletonCard } from './components/SkeletonCard';
 import { ParticlesBg } from './components/ParticlesBg';
 import { LoginPage } from './components/LoginPage';
 import { AIAssistant } from './components/AIAssistant';
+import { OrderTracking } from './components/OrderTracking';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 
 const Admin = lazy(() => import('./components/Admin').then(m => ({ default: m.Admin })));
@@ -43,6 +45,28 @@ function AdminFallback() {
 export default function App() {
   const is404 = typeof window !== 'undefined' && window.location.hash && !['#products', '#booking', '#services', '#admin', '#contact', '#checkout'].includes(window.location.hash);
   const [showLogin, setShowLogin] = useState(false);
+  const [maintenance, setMaintenance] = useState(false);
+
+  useEffect(() => {
+    setMaintenance(isMaintenanceMode());
+    const check = () => setMaintenance(isMaintenanceMode());
+    window.addEventListener('aos:data-changed', check);
+    return () => window.removeEventListener('aos:data-changed', check);
+  }, []);
+
+  if (maintenance && typeof window !== 'undefined' && window.location.hash !== '#admin') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
+        <div className="text-center px-4">
+          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-amber-500/20 flex items-center justify-center">
+            <span className="text-4xl">🔧</span>
+          </div>
+          <h1 className="text-4xl font-bold mb-4">Maintenance Mode</h1>
+          <p className="text-lg text-muted-foreground">We'll be back soon!</p>
+        </div>
+      </div>
+    );
+  }
 
   if (is404) return <NotFound />;
   return (
@@ -72,6 +96,7 @@ export default function App() {
                 <Suspense fallback={<div className="py-20 text-center text-muted-foreground animate-pulse">Loading...</div>}>
                   <OrderForm />
                 </Suspense>
+                <OrderTracking />
                 <Footer />
               </main>
               <ScrollToTop />
