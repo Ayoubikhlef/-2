@@ -26,31 +26,32 @@ export type OrderRecord = {
 };
 
 const STORAGE_KEY = 'ayoubtech-orders';
-const DELETED_KEY = 'ayoubtech-deleted-ids';
-
-function getDeletedIds(): Set<string> {
-  if (typeof window === 'undefined') return new Set();
-  const raw = window.localStorage.getItem(DELETED_KEY);
-  return new Set(raw ? JSON.parse(raw) : []);
-}
-
-function persistDeletedIds(ids: Set<string>) {
-  if (typeof window === 'undefined') return;
-  window.localStorage.setItem(DELETED_KEY, JSON.stringify([...ids]));
-}
+const SOFT_DELETE_KEY = 'ayoubtech-soft-delete';
 
 function log(level: 'info' | 'warn' | 'error', msg: string, data?: any) {
   const prefix = `[Orders]`;
-  if (level === 'info') console.log(prefix, msg, data || '');
-  else if (level === 'warn') console.warn(prefix, msg, data || '');
-  else console.error(prefix, msg, data || '');
+  const line = `${prefix} ${msg} ${data ? JSON.stringify(data) : ''}`;
+  if (level === 'info') console.log(line);
+  else if (level === 'warn') console.warn(line);
+  else console.error(line);
+}
+
+function getSoftDeletedIds(): Set<string> {
+  try {
+    const raw = localStorage.getItem(SOFT_DELETE_KEY);
+    return new Set<string>(raw ? JSON.parse(raw) : []);
+  } catch { return new Set(); }
+}
+
+function saveSoftDeletedIds(ids: Set<string>) {
+  localStorage.setItem(SOFT_DELETE_KEY, JSON.stringify([...ids]));
 }
 
 export function getOrders(): OrderRecord[] {
   if (typeof window === 'undefined') return [];
-  const raw = window.localStorage.getItem(STORAGE_KEY);
-  if (!raw) return [];
   try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
     const parsed = JSON.parse(raw) as OrderRecord[];
     log('info', `Read ${parsed.length} orders from localStorage`);
     return parsed;
@@ -68,18 +69,16 @@ export async function saveOrder(order: Omit<OrderRecord, 'id' | 'createdAt' | 's
     status: 'new',
   };
 
-  // Save to localStorage first (fast, always works)
   const current = getOrders();
   const next = [record, ...current];
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   log('info', `Saved order ${record.id} to localStorage`);
 
-  // Sync to API in background (don't await — show success immediately)
   api.orders.create(order)
     .then((serverOrder) => {
       log('info', `Order ${record.id} synced to server (server id: ${serverOrder.id})`);
       const updated = getOrders().map(o => o.id === record.id ? { ...o, id: serverOrder.id, createdAt: serverOrder.createdAt } : o);
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
     })
     .catch((err: any) => {
       log('warn', `Failed to sync order to server (offline?)`, err?.message);
@@ -97,7 +96,7 @@ export function updateOrderStatus(id: string, status: OrderStatus): OrderRecord 
     return null;
   }
   orders[index] = { ...orders[index], status };
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
   log('info', `Updated order ${id} status to ${status} in localStorage`);
 
   api.orders.updateStatus(id, status)
@@ -111,19 +110,20 @@ export function updateOrderStatus(id: string, status: OrderStatus): OrderRecord 
 export function removeOrder(id: string): void {
   const orders = getOrders();
   const next = orders.filter((o) => o.id !== id);
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   log('info', `Removed order ${id} from localStorage`);
 
-  const deleted = getDeletedIds();
+  const deleted = getSoftDeletedIds();
   deleted.add(id);
-  persistDeletedIds(deleted);
+  saveSoftDeletedIds(deleted);
+  log('info', `Added ${id} to soft-delete set (${deleted.size} total)`);
 
   api.orders.remove(id)
     .then(() => {
-      log('info', `Order ${id} deleted from server`);
-      const ids = getDeletedIds();
+      log('info', `Server confirmed deletion of ${id}`);
+      const ids = getSoftDeletedIds();
       ids.delete(id);
-      persistDeletedIds(ids);
+      saveSoftDeletedIds(ids);
     })
     .catch((err: any) => log('warn', `Failed to delete order ${id} from server`, err?.message));
 
@@ -134,16 +134,18 @@ export async function loadOrdersFromServer(): Promise<OrderRecord[]> {
   try {
     const serverOrders = await api.orders.list();
     log('info', `Loaded ${serverOrders.length} orders from server`);
-    const excluded = getDeletedIds();
-    const localOrders = getOrders().filter(o => !excluded.has(o.id));
+    const deleted = getSoftDeletedIds();
+    log('info', `Soft-deleted IDs: ${[...deleted].join(', ') || '(none)'}`);
+    const localOrders = getOrders();
     const merged = [...serverOrders as OrderRecord[]];
     for (const local of localOrders) {
       if (!merged.some(m => m.id === local.id)) {
         merged.push(local);
       }
     }
-    const filtered = merged.filter(o => !excluded.has(o.id));
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+    const filtered = merged.filter(o => !deleted.has(o.id));
+    log('info', `After filtering soft-deleted: ${filtered.length} orders`);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
     return filtered;
   } catch (err: any) {
     log('warn', 'Failed to load orders from server, using local', err?.message);
@@ -153,8 +155,9 @@ export async function loadOrdersFromServer(): Promise<OrderRecord[]> {
 
 export function clearOrders() {
   if (typeof window === 'undefined') return [];
-  window.localStorage.removeItem(STORAGE_KEY);
-  log('info', 'Cleared all orders');
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(SOFT_DELETE_KEY);
+  log('info', 'Cleared all orders and soft-delete list');
   return [];
 }
 

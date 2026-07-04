@@ -209,7 +209,7 @@ export function Admin() {
 
   const handleClear = () => {
     clearOrders();
-    loadOrders();
+    setOrders([]);
     toast.success(
       t({ ar: 'تم مسح جميع الطلبات', fr: 'Toutes les commandes effacées', en: 'All orders cleared' })
     );
