@@ -11,6 +11,7 @@ import { FAQ } from './components/FAQ';
 import { Contact } from './components/Contact';
 import { Wishlist } from './components/Wishlist';
 import { Footer } from './components/Footer';
+import { NewsletterForm } from './components/NewsletterForm';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { CartProvider } from './contexts/CartContext';
@@ -97,6 +98,7 @@ export default function App() {
                   <OrderForm />
                 </Suspense>
                 <OrderTracking />
+                <NewsletterForm />
                 <Footer />
               </main>
               <ScrollToTop />
