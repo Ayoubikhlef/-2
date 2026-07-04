@@ -188,32 +188,23 @@ export function Admin() {
     return () => { clearInterval(interval); window.removeEventListener('aos:data-changed', loadOrders); };
   }, [isAuthenticated, loadOrders]);
 
-  const handleStatusChange = async (id: string, status: OrderStatus) => {
-    await updateOrderStatus(id, status);
-    await loadOrders();
+  const handleStatusChange = (id: string, status: OrderStatus) => {
+    updateOrderStatus(id, status);
     setOpenDropdown(null);
     toast.success(
       t({
-        ar: `تم تحديث حالة الطلب`,
-        fr: `Statut de la commande mis à jour`,
-        en: `Order status updated`,
+        ar: 'تم تحديث حالة الطلب',
+        fr: 'Statut de la commande mis à jour',
+        en: 'Order status updated',
       })
     );
   };
 
-  const handleDeleteOrder = async (id: string) => {
-    try {
-      await removeOrder(id);
-      await loadOrders();
-      toast.success(
-        t({ ar: 'تم حذف الطلب', fr: 'Commande supprimée', en: 'Order deleted' })
-      );
-    } catch (err: any) {
-      console.error(err);
-      toast.error(
-        t({ ar: 'فشل حذف الطلب، حاول مرة أخرى', fr: 'Échec de la suppression de la commande, veuillez réessayer', en: 'Failed to delete order, please try again' })
-      );
-    }
+  const handleDeleteOrder = (id: string) => {
+    removeOrder(id);
+    toast.success(
+      t({ ar: 'تم حذف الطلب', fr: 'Commande supprimée', en: 'Order deleted' })
+    );
   };
 
   const handleClear = () => {
@@ -682,10 +673,7 @@ export function Admin() {
 
                       {/* Delete */}
                       <button
-                        onClick={() => {
-                          if (confirm(t({ ar: 'تأكيد حذف هذا الطلب؟', fr: 'Confirmer la suppression de cette commande ?', en: 'Confirm delete this order?' })))
-                            handleDeleteOrder(order.id);
-                        }}
+                        onClick={() => handleDeleteOrder(order.id)}
                         className="p-3 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-400 transition-all border border-red-500/20"
                       >
                         <Trash2 className="w-4 h-4" />

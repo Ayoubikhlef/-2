@@ -77,7 +77,7 @@ export async function saveOrder(order: Omit<OrderRecord, 'id' | 'createdAt' | 's
   return record;
 }
 
-export async function updateOrderStatus(id: string, status: OrderStatus): Promise<OrderRecord | null> {
+export function updateOrderStatus(id: string, status: OrderStatus): OrderRecord | null {
   const orders = getOrders();
   const index = orders.findIndex((o) => o.id === id);
   if (index === -1) {
@@ -88,30 +88,23 @@ export async function updateOrderStatus(id: string, status: OrderStatus): Promis
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
   log('info', `Updated order ${id} status to ${status} in localStorage`);
 
-  try {
-    await api.orders.updateStatus(id, status);
-    log('info', `Order ${id} status synced to server`);
-  } catch (err: any) {
-    log('warn', `Failed to sync status update to server`, err?.message);
-  }
+  api.orders.updateStatus(id, status)
+    .then(() => log('info', `Order ${id} status synced to server`))
+    .catch((err: any) => log('warn', `Failed to sync status update to server`, err?.message));
 
   window.dispatchEvent(new CustomEvent('aos:data-changed'));
   return orders[index];
 }
 
-export async function removeOrder(id: string): Promise<void> {
+export function removeOrder(id: string): void {
   const orders = getOrders();
-
-  try {
-    await api.orders.remove(id);
-    log('info', `Order ${id} deleted from server`);
-  } catch (err: any) {
-    log('warn', `Failed to delete order ${id} from server, removing locally only`, err?.message);
-  }
-
   const next = orders.filter((o) => o.id !== id);
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   log('info', `Removed order ${id} from localStorage`);
+
+  api.orders.remove(id)
+    .then(() => log('info', `Order ${id} deleted from server`))
+    .catch((err: any) => log('warn', `Failed to delete order ${id} from server`, err?.message));
 
   window.dispatchEvent(new CustomEvent('aos:data-changed'));
 }
