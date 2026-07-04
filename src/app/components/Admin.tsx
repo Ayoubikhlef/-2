@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getOrders, clearOrders, updateOrderStatus, removeOrder, getOrderStats, loadOrdersFromServer, OrderRecord, OrderStatus } from '../utils/orderStorage';
 import { getStoredProducts, initializeProducts } from '../utils/productStorage';
@@ -120,6 +120,7 @@ export function Admin() {
   const [tab, setTab] = useState<'dashboard' | 'products' | 'services' | 'manage-products' | 'manage-services' | 'customers' | 'coupons'>('dashboard');
   const [manageProducts, setManageProducts] = useState<Product[]>([]);
   const [manageServices, setManageServices] = useState<ServiceCategory[]>([]);
+  const deletedIds = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -161,7 +162,7 @@ export function Admin() {
 
   const loadOrders = useCallback(async () => {
     const serverOrders = await loadOrdersFromServer();
-    setOrders(serverOrders);
+    setOrders(serverOrders.filter(o => !deletedIds.current.has(o.id)));
   }, []);
 
   const handleRefresh = useCallback(async () => {
@@ -201,6 +202,7 @@ export function Admin() {
   };
 
   const handleDeleteOrder = (id: string) => {
+    deletedIds.current.add(id);
     removeOrder(id);
     setOrders(prev => prev.filter(o => o.id !== id));
     toast.success(
