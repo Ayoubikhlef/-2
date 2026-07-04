@@ -26,6 +26,18 @@ export type OrderRecord = {
 };
 
 const STORAGE_KEY = 'ayoubtech-orders';
+const DELETED_KEY = 'ayoubtech-deleted-ids';
+
+function getDeletedIds(): Set<string> {
+  if (typeof window === 'undefined') return new Set();
+  const raw = window.localStorage.getItem(DELETED_KEY);
+  return new Set(raw ? JSON.parse(raw) : []);
+}
+
+function persistDeletedIds(ids: Set<string>) {
+  if (typeof window === 'undefined') return;
+  window.localStorage.setItem(DELETED_KEY, JSON.stringify([...ids]));
+}
 
 function log(level: 'info' | 'warn' | 'error', msg: string, data?: any) {
   const prefix = `[Orders]`;
@@ -102,25 +114,35 @@ export function removeOrder(id: string): void {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   log('info', `Removed order ${id} from localStorage`);
 
+  const deleted = getDeletedIds();
+  deleted.add(id);
+  persistDeletedIds(deleted);
+
   api.orders.remove(id)
-    .then(() => log('info', `Order ${id} deleted from server`))
+    .then(() => {
+      log('info', `Order ${id} deleted from server`);
+      const ids = getDeletedIds();
+      ids.delete(id);
+      persistDeletedIds(ids);
+    })
     .catch((err: any) => log('warn', `Failed to delete order ${id} from server`, err?.message));
 
   window.dispatchEvent(new CustomEvent('aos:data-changed'));
 }
 
-export async function loadOrdersFromServer(excludeIds?: Set<string>): Promise<OrderRecord[]> {
+export async function loadOrdersFromServer(): Promise<OrderRecord[]> {
   try {
     const serverOrders = await api.orders.list();
     log('info', `Loaded ${serverOrders.length} orders from server`);
-    const localOrders = getOrders().filter(o => !excludeIds?.has(o.id));
+    const excluded = getDeletedIds();
+    const localOrders = getOrders().filter(o => !excluded.has(o.id));
     const merged = [...serverOrders as OrderRecord[]];
     for (const local of localOrders) {
       if (!merged.some(m => m.id === local.id)) {
         merged.push(local);
       }
     }
-    const filtered = excludeIds ? merged.filter(o => !excludeIds.has(o.id)) : merged;
+    const filtered = merged.filter(o => !excluded.has(o.id));
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
     return filtered;
   } catch (err: any) {
