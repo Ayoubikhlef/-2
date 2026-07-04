@@ -230,9 +230,15 @@ export function OrderTracking() {
     setLoading(true);
     setOrder(null);
 
+    // Normalize: strip # prefix, trim, lowercase
+    const normalized = id.replace(/^#/, '').trim().toLowerCase();
+
     try {
       const orders = await api.orders.list();
-      const found = orders.find((o: any) => o.id === id || o.id.startsWith(id));
+      const found = orders.find((o: any) => {
+        const oid = (o.id || '').toLowerCase();
+        return oid === normalized || oid.startsWith(normalized);
+      });
       if (found) {
         setOrder(found as OrderRecord);
       } else {

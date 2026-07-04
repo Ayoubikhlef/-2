@@ -61,7 +61,7 @@ export default async function handler(req: any, res: any) {
     if (req.method === 'POST') {
       const b = req.body || {};
       if (!b.customer || !b.phone) return res.status(400).json({ error: 'Missing fields' });
-      const id = crypto.randomUUID();
+      const id = b.id || crypto.randomUUID();
       const r = await query(`INSERT INTO aos_orders (id,customer,phone,email,wilaya,municipality,address,note,items,total,source) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *`,
         [id, b.customer, b.phone, b.email||'', b.wilaya||'', b.municipality||'', b.address||'', b.note||'', JSON.stringify(b.items||[]), b.total||0, b.source||'form']);
       return res.status(201).json(mapOrder(r.rows[0]));

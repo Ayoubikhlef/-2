@@ -560,7 +560,7 @@ export function Products() {
                       </div>
                       <div className="text-right">
                         <p className="text-xs text-muted-foreground">{t({ ar: 'رقم الطلب', fr: 'N° commande', en: 'Order ID' })}</p>
-                        <p className="font-mono font-bold text-base">#{lastOrderId?.slice(0, 10).toUpperCase()}</p>
+                        <p className="font-mono font-bold text-base break-all">#{lastOrderId?.slice(0, 12).toUpperCase()}</p>
                       </div>
                     </div>
                     <div className="space-y-3 text-base">

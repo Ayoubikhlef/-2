@@ -74,11 +74,10 @@ export async function saveOrder(order: Omit<OrderRecord, 'id' | 'createdAt' | 's
   localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   log('info', `Saved order ${record.id} to localStorage`);
 
-  api.orders.create(order)
-    .then((serverOrder) => {
-      log('info', `Order ${record.id} synced to server (server id: ${serverOrder.id})`);
-      const updated = getOrders().map(o => o.id === record.id ? { ...o, id: serverOrder.id, createdAt: serverOrder.createdAt } : o);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+  // Pass the generated ID to the server so tracking works
+  api.orders.create({ ...order, id: record.id })
+    .then(() => {
+      log('info', `Order ${record.id} synced to server`);
     })
     .catch((err: any) => {
       log('warn', `Failed to sync order to server (offline?)`, err?.message);
