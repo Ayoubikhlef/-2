@@ -22,6 +22,7 @@ import { SkeletonCard } from './components/SkeletonCard';
 import { ParticlesBg } from './components/ParticlesBg';
 import { LoginPage } from './components/LoginPage';
 import { AIAssistant } from './components/AIAssistant';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 const Admin = lazy(() => import('./components/Admin').then(m => ({ default: m.Admin })));
 const OrderForm = lazy(() => import('./components/OrderForm').then(m => ({ default: m.OrderForm })));
@@ -87,6 +88,7 @@ export default function App() {
               duration: 3000,
             }}
           />
+          <SpeedInsights />
         </CartProvider>
         </AuthProvider>
       </LanguageProvider>
