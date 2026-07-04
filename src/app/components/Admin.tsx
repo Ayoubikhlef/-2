@@ -161,8 +161,8 @@ export function Admin() {
   };
 
   const loadOrders = useCallback(async () => {
-    const serverOrders = await loadOrdersFromServer();
-    setOrders(serverOrders.filter(o => !deletedIds.current.has(o.id)));
+    const serverOrders = await loadOrdersFromServer(deletedIds.current);
+    setOrders(serverOrders);
   }, []);
 
   const handleRefresh = useCallback(async () => {

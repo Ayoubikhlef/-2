@@ -109,20 +109,20 @@ export function removeOrder(id: string): void {
   window.dispatchEvent(new CustomEvent('aos:data-changed'));
 }
 
-export async function loadOrdersFromServer(): Promise<OrderRecord[]> {
+export async function loadOrdersFromServer(excludeIds?: Set<string>): Promise<OrderRecord[]> {
   try {
     const serverOrders = await api.orders.list();
     log('info', `Loaded ${serverOrders.length} orders from server`);
-    // Merge with localStorage (server is authoritative)
-    const localOrders = getOrders();
+    const localOrders = getOrders().filter(o => !excludeIds?.has(o.id));
     const merged = [...serverOrders as OrderRecord[]];
     for (const local of localOrders) {
       if (!merged.some(m => m.id === local.id)) {
         merged.push(local);
       }
     }
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-    return merged;
+    const filtered = excludeIds ? merged.filter(o => !excludeIds.has(o.id)) : merged;
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+    return filtered;
   } catch (err: any) {
     log('warn', 'Failed to load orders from server, using local', err?.message);
     return getOrders();
