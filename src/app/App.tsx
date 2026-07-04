@@ -1,5 +1,6 @@
 import { Suspense, lazy, useState, useEffect } from 'react';
-import { isMaintenanceMode } from './utils/maintenanceStorage';
+import { isMaintenanceMode, getMaintenanceMessage } from './utils/maintenanceStorage';
+import { Wrench, Construction } from 'lucide-react';
 import { Toaster } from 'sonner';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
@@ -56,14 +57,74 @@ export default function App() {
   }, []);
 
   if (maintenance && typeof window !== 'undefined' && window.location.hash !== '#admin') {
+    const msg = getMaintenanceMessage();
+    const slogan = (msg?.ar || msg?.fr || msg?.en) || '';
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-slate-50 to-white dark:from-slate-950 dark:to-slate-900">
-        <div className="text-center px-4">
-          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-amber-500/20 flex items-center justify-center">
-            <span className="text-4xl">🔧</span>
+      <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 flex items-center justify-center">
+        {/* Animated background particles */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -left-40 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-3xl animate-pulse delay-500" />
+          {/* Grid overlay */}
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:80px_80px]" />
+        </div>
+        {/* Content */}
+        <div className="relative z-10 text-center px-6 max-w-2xl mx-auto">
+          <div className="relative mb-10">
+            <div className="w-28 h-28 mx-auto rounded-[32px] bg-gradient-to-br from-amber-500/30 to-orange-600/30 backdrop-blur-xl border border-amber-500/20 flex items-center justify-center shadow-2xl shadow-amber-500/10">
+              <Wrench className="w-14 h-14 text-amber-400 animate-bounce" />
+            </div>
+            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-20 h-1 bg-gradient-to-r from-transparent via-amber-500/50 to-transparent rounded-full blur-sm" />
           </div>
-          <h1 className="text-4xl font-bold mb-4">Maintenance Mode</h1>
-          <p className="text-lg text-muted-foreground">We'll be back soon!</p>
+          <h1 className="text-5xl sm:text-7xl font-extrabold mb-6 bg-gradient-to-r from-white via-amber-200 to-white bg-clip-text text-transparent">
+            {typeof window !== 'undefined' && navigator.language.startsWith('ar')
+              ? 'قيد الصيانة'
+              : navigator.language.startsWith('fr')
+                ? 'En Maintenance'
+                : 'Under Maintenance'}
+          </h1>
+          <div className="w-24 h-1 mx-auto mb-8 rounded-full bg-gradient-to-r from-amber-500 to-orange-500" />
+          {slogan ? (
+            <p className="text-xl sm:text-2xl text-blue-100/80 leading-relaxed mb-6 font-medium">
+              {slogan}
+            </p>
+          ) : (
+            <p className="text-lg sm:text-xl text-blue-100/60 leading-relaxed mb-6">
+              {typeof window !== 'undefined' && navigator.language.startsWith('ar')
+                ? 'نعمل على تحسين تجربتك. سنعود قريباً!'
+                : navigator.language.startsWith('fr')
+                  ? 'Nous améliorons votre expérience. À très bientôt!'
+                  : "We're improving your experience. Be back soon!"}
+            </p>
+          )}
+          <div className="flex items-center justify-center gap-3 mb-10">
+            <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+            <span className="text-blue-200/50 text-sm">
+              {typeof window !== 'undefined' && navigator.language.startsWith('ar')
+                ? 'جاري التحديث...'
+                : navigator.language.startsWith('fr')
+                  ? 'Mise à jour en cours...'
+                  : 'Updating...'}
+            </span>
+          </div>
+          <div className="inline-flex items-center gap-4 px-8 py-4 rounded-2xl bg-white/5 backdrop-blur-sm border border-white/10">
+            <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center">
+              <svg className="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+            </div>
+            <div className="text-left">
+              <p className="text-xs text-blue-300/60">
+                {typeof window !== 'undefined' && navigator.language.startsWith('ar')
+                  ? 'للتواصل'
+                  : navigator.language.startsWith('fr')
+                    ? 'Contact'
+                    : 'Contact'}
+              </p>
+              <a href="tel:0674113290" className="text-sm font-semibold text-white hover:text-amber-400 transition-colors">
+                0674 11 32 90
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     );

@@ -12,7 +12,7 @@ import { CouponsTab } from './CouponsTab';
 import { getStoredServices, initializeServices } from '../utils/serviceStorage';
 import { defaultServices, type ServiceCategory } from '../data/services';
 import { RefreshCw, Trash2, ChevronDown, Phone, MapPin, Mail, DollarSign, Package, Eye, Lightbulb, Wrench } from 'lucide-react';
-import { isMaintenanceMode, setMaintenanceMode } from '../utils/maintenanceStorage';
+import { isMaintenanceMode, setMaintenanceMode, getMaintenanceMessage, setMaintenanceMessage } from '../utils/maintenanceStorage';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -522,26 +522,48 @@ export function Admin() {
           />
         ) : tab === 'dashboard' ? (
           <>
-            <div className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-900/60 p-4 mb-6">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center flex-shrink-0">
-                  <Wrench className="w-5 h-5 text-amber-400" />
+            <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4 mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                    <Wrench className="w-5 h-5 text-amber-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold">{t({ ar: 'وضع الصيانة', fr: 'Mode maintenance', en: 'Maintenance Mode' })}</p>
+                    <p className="text-[10px] text-white/40">{t({ ar: 'منع الوصول العام', fr: 'Empêcher l\'accès public', en: 'Prevent public access' })}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-sm font-bold">{t({ ar: 'وضع الصيانة', fr: 'Mode maintenance', en: 'Maintenance Mode' })}</p>
-                  <p className="text-[10px] text-white/40">{t({ ar: 'منع الوصول العام', fr: 'Empêcher l\'accès public', en: 'Prevent public access' })}</p>
+                <button
+                  onClick={() => {
+                    const next = !isMaintenanceMode();
+                    setMaintenanceMode(next);
+                    window.dispatchEvent(new CustomEvent('aos:data-changed'));
+                  }}
+                  className={`relative w-12 h-6 rounded-full transition-all cursor-pointer ${isMaintenanceMode() ? 'bg-amber-500' : 'bg-slate-700'}`}
+                >
+                  <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-all ${isMaintenanceMode() ? 'translate-x-6' : 'translate-x-0'}`} />
+                </button>
+              </div>
+              <div className="space-y-2">
+                <p className="text-xs text-white/40">{t({ ar: 'رسالة الصيانة (اختياري)', fr: 'Message de maintenance (optionnel)', en: 'Maintenance message (optional)' })}</p>
+                <div className="flex gap-2">
+                  {(['ar', 'fr', 'en'] as const).map(lang => {
+                    const msg = getMaintenanceMessage();
+                    return (
+                      <input
+                        key={lang}
+                        value={(msg as any)[lang] || ''}
+                        onChange={(e) => {
+                          const current = getMaintenanceMessage();
+                          setMaintenanceMessage({ ...current, [lang]: e.target.value });
+                        }}
+                        placeholder={lang === 'ar' ? 'عربي' : lang === 'fr' ? 'Français' : 'English'}
+                        className="flex-1 rounded-lg bg-slate-800 border border-white/10 px-3 py-2 text-xs text-white placeholder-white/20 outline-none focus:border-amber-500/50 transition-all"
+                      />
+                    );
+                  })}
                 </div>
               </div>
-              <button
-                onClick={() => {
-                  const next = !isMaintenanceMode();
-                  setMaintenanceMode(next);
-                  window.dispatchEvent(new CustomEvent('aos:data-changed'));
-                }}
-                className={`relative w-12 h-6 rounded-full transition-all cursor-pointer ${isMaintenanceMode() ? 'bg-amber-500' : 'bg-slate-700'}`}
-              >
-                <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-all ${isMaintenanceMode() ? 'translate-x-6' : 'translate-x-0'}`} />
-              </button>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
               <button onClick={() => setTab('manage-products')}
