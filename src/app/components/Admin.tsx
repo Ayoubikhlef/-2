@@ -184,12 +184,12 @@ export function Admin() {
     if (!isAuthenticated) return;
     loadOrders();
     const interval = setInterval(loadOrders, 5000);
-    window.addEventListener('aos:data-changed', loadOrders);
-    return () => { clearInterval(interval); window.removeEventListener('aos:data-changed', loadOrders); };
+    return () => clearInterval(interval);
   }, [isAuthenticated, loadOrders]);
 
   const handleStatusChange = (id: string, status: OrderStatus) => {
     updateOrderStatus(id, status);
+    setOrders(prev => prev.map(o => o.id === id ? { ...o, status } : o));
     setOpenDropdown(null);
     toast.success(
       t({
@@ -202,6 +202,7 @@ export function Admin() {
 
   const handleDeleteOrder = (id: string) => {
     removeOrder(id);
+    setOrders(prev => prev.filter(o => o.id !== id));
     toast.success(
       t({ ar: 'تم حذف الطلب', fr: 'Commande supprimée', en: 'Order deleted' })
     );
