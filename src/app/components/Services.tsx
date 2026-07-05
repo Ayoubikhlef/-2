@@ -1,16 +1,10 @@
 import { Printer, FileText, Calendar, Wifi, Server, FileCheck, Zap, Shield } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getSiteContent } from '../utils/siteContentStorage';
-import { services } from '../data/translations';
 import { motion } from 'motion/react';
 
-const icons = [Printer, FileText, Calendar, Wifi, Server];
-
-const digitizationItems = [
-  { icon: FileCheck, color: 'from-emerald-500 to-emerald-600', title: { ar: 'تنسيقات متعددة', fr: 'Formats multiples', en: 'Multiple Formats' }, desc: { ar: 'PDF، Word، Excel وجميع التنسيقات الشائعة', fr: 'PDF, Word, Excel et tous les formats courants', en: 'PDF, Word, Excel and all common formats' } },
-  { icon: Zap, color: 'from-purple-500 to-purple-600', title: { ar: 'خدمة سريعة', fr: 'Service rapide', en: 'Fast Service' }, desc: { ar: 'إنجاز سريع دون المساس بالجودة', fr: 'Réalisation rapide sans compromettre la qualité', en: 'Fast delivery without compromising quality' } },
-  { icon: Shield, color: 'from-orange-500 to-orange-600', title: { ar: 'سرية تامة', fr: 'Confidentialité totale', en: 'Complete Confidentiality' }, desc: { ar: 'نحافظ على خصوصية وأمان مستنداتك', fr: 'Nous protégeons la confidentialité de vos documents', en: 'We protect your documents\' privacy' } },
-];
+const cardIcons = [Printer, FileText, Calendar, Wifi, Server];
+const digiIcons = [FileCheck, Zap, Shield];
 
 export function Services() {
   const { t, language } = useLanguage();
@@ -34,8 +28,8 @@ export function Services() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {services.map((service, index) => {
-            const Icon = icons[index];
+          {content.services.cards.map((service, index) => {
+            const Icon = cardIcons[index] || Printer;
             return (
               <div
                 key={service.id}
@@ -62,26 +56,29 @@ export function Services() {
             );
           })}
 
-          {digitizationItems.map((item, index) => (
-            <motion.div
-              key={`dig-${index}`}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1, duration: 0.5 }}
-              className="group relative bg-card rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-border overflow-hidden flex flex-col"
-            >
-              <div className={`h-44 bg-gradient-to-br ${item.color} flex items-center justify-center relative`}>
-                <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <item.icon className="w-8 h-8 text-white" />
+          {content.services.digitizationItems.map((item, index) => {
+            const Icon = digiIcons[index] || FileCheck;
+            return (
+              <motion.div
+                key={`dig-${index}`}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1, duration: 0.5 }}
+                className="group relative bg-card rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-border overflow-hidden flex flex-col"
+              >
+                <div className={`h-44 bg-gradient-to-br ${item.color} flex items-center justify-center relative`}>
+                  <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <Icon className="w-8 h-8 text-white" />
+                  </div>
                 </div>
-              </div>
-              <div className="p-6 flex-1 flex flex-col justify-center">
-                <h3 className="mb-2">{item.title[language]}</h3>
-                <p className="text-sm text-muted-foreground">{item.desc[language]}</p>
-              </div>
-            </motion.div>
-          ))}
+                <div className="p-6 flex-1 flex flex-col justify-center">
+                  <h3 className="mb-2">{item.title[language]}</h3>
+                  <p className="text-sm text-muted-foreground">{item.description[language]}</p>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </motion.section>

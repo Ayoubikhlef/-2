@@ -19,7 +19,7 @@ export interface FAQItem {
   answer: LangString;
 }
 
-export interface ServiceItem {
+export interface ServiceCard {
   id: string;
   title: LangString;
   description: LangString;
@@ -27,9 +27,18 @@ export interface ServiceItem {
   color: string;
 }
 
+export interface DigitizationItem {
+  title: LangString;
+  description: LangString;
+  color: string;
+}
+
 export interface SiteContent {
   hero: {
+    title: LangString;
+    brandName: LangString;
     subtitle: LangString;
+    bgImage: string;
   };
   whyUs: {
     title: LangString;
@@ -42,11 +51,14 @@ export interface SiteContent {
     items: FAQItem[];
   };
   about: {
+    title: LangString;
     content: LangString;
   };
   services: {
     title: LangString;
     subtitle: LangString;
+    cards: ServiceCard[];
+    digitizationItems: DigitizationItem[];
   };
   footer: {
     description: LangString;
@@ -55,11 +67,22 @@ export interface SiteContent {
 
 const defaultContent: SiteContent = {
   hero: {
+    title: {
+      ar: 'مرحباً بكم في',
+      fr: 'Bienvenue chez',
+      en: 'Welcome to',
+    },
+    brandName: {
+      ar: 'أيوب أوفيس سيرفيسز',
+      fr: 'Ayoub Office Services',
+      en: 'Ayoub Office Services',
+    },
     subtitle: {
       ar: 'نقدم لكم مجموعة واسعة من الخدمات ومستلزمات الإعلام الآلي',
       fr: 'Nous offrons une large gamme de services et fournitures informatiques',
       en: 'We offer a wide range of services and IT supplies',
     },
+    bgImage: '/hero-bg.png',
   },
   whyUs: {
     title: {
@@ -126,6 +149,11 @@ const defaultContent: SiteContent = {
     ],
   },
   about: {
+    title: {
+      ar: 'عن المتجر',
+      fr: 'À propos',
+      en: 'About Us',
+    },
     content: {
       ar: 'أيوب أوفيس سيرفيسز هو متجر خدمات مكتبية ومستلزمات الإعلام الآلي في بلدية الميلية، ولاية جيجل. نقدم مجموعة متكاملة من الخدمات المكتبية ومنتجات التكنولوجيا لتلبية احتياجات الأفراد والشركات.',
       fr: 'Ayoub Office Services est un magasin de services de bureau et de fournitures informatiques à El Milia, wilaya de Jijel. Nous offrons une gamme complète de services de bureau et de produits technologiques.',
@@ -139,6 +167,41 @@ const defaultContent: SiteContent = {
       fr: 'Une gamme complète de services pour simplifier votre quotidien et des solutions numériques professionnelles pour vos documents',
       en: 'A complete range of office services to simplify your daily work and professional digital solutions for your documents',
     },
+    cards: [
+      {
+        id: 'office',
+        title: { ar: 'خدمات المكتب', fr: 'Services de bureautique', en: 'Office Services' },
+        description: { ar: 'طباعة، مسح ضوئي، نسخ وتغليف المستندات', fr: 'Impression, numérisation, photocopie et plastification', en: 'Printing, scanning, photocopying and lamination' },
+        image: 'https://images.unsplash.com/photo-1650094980833-7373de26feb6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHw1fHxwcmludGVyJTIwbW9kZXJuJTIwb2ZmaWNlJTIwdGVjaG5vbG9neXxlbnwxfHx8fDE3NzY4NzA1NDd8MA&ixlib=rb-4.1.0&q=80&w=1080',
+        color: 'from-blue-500 to-blue-600',
+      },
+      {
+        id: 'documents',
+        title: { ar: 'إعداد الوثائق', fr: 'Préparation de documents', en: 'Document Preparation' },
+        description: { ar: 'مساعدة في كتابة المذكرات، الأطروحات، الأبحاث والسيرة الذاتية', fr: 'Mémoires, thèses, recherches et CV professionnels', en: 'Dissertations, theses, research and professional CVs' },
+        image: 'https://images.unsplash.com/photo-1773525911805-bebab1d3e0e4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHw0fHxwcmludGVyJTIwbW9kZXJuJTIwb2ZmaWNlJTIwdGVjaG5vbG9neXxlbnwxfHx8fDE3NzY4NzA1NDd8MA&ixlib=rb-4.1.0&q=80&w=1080',
+        color: 'from-green-500 to-green-600',
+      },
+      {
+        id: 'visa',
+        title: { ar: 'مواعيد التأشيرة', fr: 'Rendez-vous Visa', en: 'Visa Appointments' },
+        description: { ar: 'مساعدة في حجز المواعيد للإجراءات القنصلية', fr: 'Réservation de créneaux pour démarches consulaires', en: 'Booking slots for consular procedures' },
+        image: 'https://images.unsplash.com/photo-1758887248912-03a0c34a2f41?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwyfHxidXNpbmVzcyUyMHByb2Zlc3Npb25hbCUyMHNlcnZpY2VzfGVufDF8fHx8MTc3Njg3MDU1NHww&ixlib=rb-4.1.0&q=80&w=1080',
+        color: 'from-purple-500 to-purple-600',
+      },
+      {
+        id: 'it-supplies',
+        title: { ar: 'مستلزمات الإعلام الآلي', fr: 'Fournitures informatiques', en: 'IT Supplies' },
+        description: { ar: 'معدات كمبيوتر، قطع غيار، وإكسسوارات للأفراد والشركات في الجزائر', fr: 'Équipements PC, pièces et accessoires pour particuliers et entreprises en Algérie', en: 'Computer equipment, spare parts, and accessories for individuals and businesses across Algeria' },
+        image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwzfHxjb21wdXRlciUyMHdvcmstc3RhdGlvbnxlbnwwfHx8fDE3NzY4NzA1MjN8MA&ixlib=rb-4.1.0&q=80&w=1080',
+        color: 'from-cyan-500 to-blue-600',
+      },
+    ],
+    digitizationItems: [
+      { title: { ar: 'تنسيقات متعددة', fr: 'Formats multiples', en: 'Multiple Formats' }, description: { ar: 'PDF، Word، Excel وجميع التنسيقات الشائعة', fr: 'PDF, Word, Excel et tous les formats courants', en: 'PDF, Word, Excel and all common formats' }, color: 'from-emerald-500 to-emerald-600' },
+      { title: { ar: 'خدمة سريعة', fr: 'Service rapide', en: 'Fast Service' }, description: { ar: 'إنجاز سريع دون المساس بالجودة', fr: 'Réalisation rapide sans compromettre la qualité', en: 'Fast delivery without compromising quality' }, color: 'from-purple-500 to-purple-600' },
+      { title: { ar: 'سرية تامة', fr: 'Confidentialité totale', en: 'Complete Confidentiality' }, description: { ar: 'نحافظ على خصوصية وأمان مستنداتك', fr: 'Nous protégeons la confidentialité de vos documents', en: 'We protect your documents\' privacy' }, color: 'from-orange-500 to-orange-600' },
+    ],
   },
   footer: {
     description: {
@@ -156,16 +219,15 @@ function getAll(): SiteContent {
       saveAll(defaultContent);
       return defaultContent;
     }
-    const parsed = JSON.parse(raw);
-    const merged = { ...defaultContent, ...parsed };
-    if (parsed?.whyUs?.features) merged.whyUs.features = parsed.whyUs.features;
-    if (parsed?.faq?.items) merged.faq.items = parsed.faq.items;
-    if (parsed?.hero) merged.hero = { ...merged.hero, ...parsed.hero };
-    if (parsed?.whyUs) merged.whyUs = { ...merged.whyUs, ...parsed.whyUs, features: merged.whyUs.features };
-    if (parsed?.faq) merged.faq = { ...merged.faq, ...parsed.faq, items: merged.faq.items };
-    if (parsed?.about) merged.about = { ...merged.about, ...parsed.about };
-    if (parsed?.services) merged.services = { ...merged.services, ...parsed.services };
-    if (parsed?.footer) merged.footer = { ...merged.footer, ...parsed.footer };
+    const parsed = JSON.parse(raw) as Partial<SiteContent>;
+    const merged: SiteContent = {
+      hero: { ...defaultContent.hero, ...parsed.hero },
+      whyUs: { ...defaultContent.whyUs, ...parsed.whyUs, features: parsed.whyUs?.features ?? defaultContent.whyUs.features },
+      faq: { ...defaultContent.faq, ...parsed.faq, items: parsed.faq?.items ?? defaultContent.faq.items },
+      about: { ...defaultContent.about, ...parsed.about },
+      services: { ...defaultContent.services, ...parsed.services, cards: parsed.services?.cards ?? defaultContent.services.cards, digitizationItems: parsed.services?.digitizationItems ?? defaultContent.services.digitizationItems },
+      footer: { ...defaultContent.footer, ...parsed.footer },
+    };
     return merged;
   } catch {
     return defaultContent;
@@ -182,68 +244,47 @@ export function getSiteContent(): SiteContent {
 
 export function updateSiteContent(update: Partial<SiteContent>): SiteContent {
   const current = getAll();
-  const next = { ...current, ...update };
-  if (update.whyUs) next.whyUs = { ...current.whyUs, ...update.whyUs };
-  if (update.faq) next.faq = { ...current.faq, ...update.faq };
+  const next = { ...current };
   if (update.hero) next.hero = { ...current.hero, ...update.hero };
+  if (update.whyUs) next.whyUs = { ...current.whyUs, ...update.whyUs, features: update.whyUs.features ?? current.whyUs.features };
+  if (update.faq) next.faq = { ...current.faq, ...update.faq, items: update.faq.items ?? current.faq.items };
   if (update.about) next.about = { ...current.about, ...update.about };
-  if (update.services) next.services = { ...current.services, ...update.services };
+  if (update.services) next.services = { ...current.services, ...update.services, cards: update.services.cards ?? current.services.cards, digitizationItems: update.services.digitizationItems ?? current.services.digitizationItems };
   if (update.footer) next.footer = { ...current.footer, ...update.footer };
   saveAll(next);
   window.dispatchEvent(new CustomEvent('aos:data-changed'));
   return next;
 }
 
+// FAQ CRUD
 export function addFAQItem(item: FAQItem): SiteContent {
-  const current = getAll();
-  current.faq.items.push(item);
-  saveAll(current);
-  window.dispatchEvent(new CustomEvent('aos:data-changed'));
-  return current;
+  const c = getAll(); c.faq.items.push(item); saveAll(c); window.dispatchEvent(new CustomEvent('aos:data-changed')); return c;
 }
-
-export function updateFAQItem(id: string, update: Partial<FAQItem>): SiteContent {
-  const current = getAll();
-  const idx = current.faq.items.findIndex(i => i.id === id);
-  if (idx >= 0) {
-    current.faq.items[idx] = { ...current.faq.items[idx], ...update };
-    saveAll(current);
-    window.dispatchEvent(new CustomEvent('aos:data-changed'));
-  }
-  return current;
+export function updateFAQItem(id: string, upd: Partial<FAQItem>): SiteContent {
+  const c = getAll(); const i = c.faq.items.findIndex(x => x.id === id); if (i >= 0) { c.faq.items[i] = { ...c.faq.items[i], ...upd }; saveAll(c); window.dispatchEvent(new CustomEvent('aos:data-changed')); } return c;
 }
-
 export function deleteFAQItem(id: string): SiteContent {
-  const current = getAll();
-  current.faq.items = current.faq.items.filter(i => i.id !== id);
-  saveAll(current);
-  window.dispatchEvent(new CustomEvent('aos:data-changed'));
-  return current;
+  const c = getAll(); c.faq.items = c.faq.items.filter(x => x.id !== id); saveAll(c); window.dispatchEvent(new CustomEvent('aos:data-changed')); return c;
 }
 
-export function addWhyUsFeature(feature: WhyUsFeature): SiteContent {
-  const current = getAll();
-  current.whyUs.features.push(feature);
-  saveAll(current);
-  window.dispatchEvent(new CustomEvent('aos:data-changed'));
-  return current;
+// WhyUs CRUD
+export function addWhyUsFeature(f: WhyUsFeature): SiteContent {
+  const c = getAll(); c.whyUs.features.push(f); saveAll(c); window.dispatchEvent(new CustomEvent('aos:data-changed')); return c;
 }
-
-export function updateWhyUsFeature(id: string, update: Partial<WhyUsFeature>): SiteContent {
-  const current = getAll();
-  const idx = current.whyUs.features.findIndex(f => f.id === id);
-  if (idx >= 0) {
-    current.whyUs.features[idx] = { ...current.whyUs.features[idx], ...update };
-    saveAll(current);
-    window.dispatchEvent(new CustomEvent('aos:data-changed'));
-  }
-  return current;
+export function updateWhyUsFeature(id: string, upd: Partial<WhyUsFeature>): SiteContent {
+  const c = getAll(); const i = c.whyUs.features.findIndex(x => x.id === id); if (i >= 0) { c.whyUs.features[i] = { ...c.whyUs.features[i], ...upd }; saveAll(c); window.dispatchEvent(new CustomEvent('aos:data-changed')); } return c;
 }
-
 export function deleteWhyUsFeature(id: string): SiteContent {
-  const current = getAll();
-  current.whyUs.features = current.whyUs.features.filter(f => f.id !== id);
-  saveAll(current);
-  window.dispatchEvent(new CustomEvent('aos:data-changed'));
-  return current;
+  const c = getAll(); c.whyUs.features = c.whyUs.features.filter(x => x.id !== id); saveAll(c); window.dispatchEvent(new CustomEvent('aos:data-changed')); return c;
+}
+
+// Service Cards CRUD
+export function addServiceCard(card: ServiceCard): SiteContent {
+  const c = getAll(); c.services.cards.push(card); saveAll(c); window.dispatchEvent(new CustomEvent('aos:data-changed')); return c;
+}
+export function updateServiceCard(id: string, upd: Partial<ServiceCard>): SiteContent {
+  const c = getAll(); const i = c.services.cards.findIndex(x => x.id === id); if (i >= 0) { c.services.cards[i] = { ...c.services.cards[i], ...upd }; saveAll(c); window.dispatchEvent(new CustomEvent('aos:data-changed')); } return c;
+}
+export function deleteServiceCard(id: string): SiteContent {
+  const c = getAll(); c.services.cards = c.services.cards.filter(x => x.id !== id); saveAll(c); window.dispatchEvent(new CustomEvent('aos:data-changed')); return c;
 }

@@ -13,7 +13,7 @@ export function Hero() {
     <section className="relative bg-gradient-to-br from-primary via-primary to-blue-900 dark:from-blue-950 dark:via-blue-900 dark:to-blue-950 text-white pt-20 pb-48 overflow-hidden">
       <div className="absolute inset-0">
         <img
-          src="/hero-bg.png"
+          src={content.hero.bgImage}
           alt=""
           className="w-full h-full object-cover object-center"
         />
@@ -33,11 +33,7 @@ export function Hero() {
             transition={{ delay: 0.3, duration: 0.6 }}
             className="text-6xl md:text-8xl mb-8 text-white leading-tight"
           >
-            {t({
-              ar: 'مرحباً بكم في',
-              fr: 'Bienvenue chez',
-              en: 'Welcome to'
-            })}
+            {t(content.hero.title)}
             <br />
             <motion.span
               initial={{ opacity: 0, scale: 0.8, filter: 'blur(8px)' }}
@@ -85,7 +81,7 @@ export function Hero() {
                 `,
               }}
             >
-              Ayoub Office Services
+              {t(content.hero.brandName)}
             </motion.span>
           </motion.h1>
 

@@ -31,11 +31,29 @@ export interface DeliveryConfig {
   freeThreshold: number;
 }
 
+export interface NavLink {
+  href: string;
+  label: LangString;
+}
+
 export interface SiteSettings {
   siteName: string;
   logoUrl: string;
   developerName: LangString;
   developerUrl: string;
+  copyrightName: string;
+  copyrightYear: number;
+  heroGradientFrom: string;
+  heroGradientVia: string;
+  heroGradientTo: string;
+  footerGradientFrom: string;
+  footerGradientVia: string;
+  footerGradientTo: string;
+  headerNavLinks: NavLink[];
+  footerQuickLinks: NavLink[];
+  footerQuickLinksTitle: LangString;
+  footerContactTitle: LangString;
+  developerPrefix: LangString;
 }
 
 export interface SiteSettingsAll {
@@ -84,6 +102,33 @@ const defaultSettings: SiteSettings = {
   logoUrl: '/aos-logo3.png',
   developerName: { ar: 'أيوب يخلف', fr: 'Ayoub Ikhlef', en: 'Ayoub Ikhlef' },
   developerUrl: 'https://www.facebook.com/share/1BTrNWjYPx/',
+  copyrightName: 'Ayoub Office Services',
+  copyrightYear: 2026,
+  heroGradientFrom: '#2563eb',
+  heroGradientVia: '#2563eb',
+  heroGradientTo: '#1e3a8a',
+  footerGradientFrom: '#2563eb',
+  footerGradientVia: '#2563eb',
+  footerGradientTo: '#1e3a8a',
+  headerNavLinks: [
+    { href: '#products', label: { ar: 'منتجات', fr: 'Produits', en: 'Products' } },
+    { href: '#booking', label: { ar: 'احجز خدمة', fr: 'Réserver', en: 'Book a Service' } },
+    { href: '#wishlist', label: { ar: 'المفضلة', fr: 'Souhaits', en: 'Wishlist' } },
+    { href: '#faq', label: { ar: 'الأسئلة الشائعة', fr: 'FAQ', en: 'FAQ' } },
+    { href: '#contact', label: { ar: 'اتصل بنا', fr: 'Contact', en: 'Contact' } },
+  ],
+  footerQuickLinks: [
+    { href: '#services', label: { ar: 'خدماتنا', fr: 'Nos services', en: 'Our services' } },
+    { href: '#contact', label: { ar: 'اتصل بنا', fr: 'Contactez-nous', en: 'Contact us' } },
+    { href: '#about', label: { ar: 'عن المتجر', fr: 'À propos', en: 'About Us' } },
+    { href: '#terms', label: { ar: 'الشروط والأحكام', fr: 'Conditions', en: 'Terms' } },
+    { href: '#privacy', label: { ar: 'سياسة الخصوصية', fr: 'Confidentialité', en: 'Privacy' } },
+    { href: '#', label: { ar: 'طباعة ونسخ', fr: 'Impression et copie', en: 'Printing and copying' } },
+    { href: '#', label: { ar: 'خدمات الرقمنة', fr: 'Services de numérisation', en: 'Digitization services' } },
+  ],
+  footerQuickLinksTitle: { ar: 'روابط سريعة', fr: 'Liens rapides', en: 'Quick Links' },
+  footerContactTitle: { ar: 'معلومات الاتصال', fr: 'Coordonnées', en: 'Contact Info' },
+  developerPrefix: { ar: 'تم التطوير بواسطة', fr: 'Développé par', en: 'Developed by' },
 };
 
 function getContact(): ContactInfo {
@@ -92,7 +137,6 @@ function getContact(): ContactInfo {
     return raw ? { ...defaultContact, ...JSON.parse(raw) } : defaultContact;
   } catch { return defaultContact; }
 }
-
 function saveContact(data: ContactInfo): void {
   localStorage.setItem(SETTINGS_KEY + '_contact', JSON.stringify(data));
   window.dispatchEvent(new CustomEvent('aos:data-changed'));
@@ -104,7 +148,6 @@ function getDelivery(): DeliveryConfig {
     return raw ? { ...defaultDelivery, ...JSON.parse(raw) } : defaultDelivery;
   } catch { return defaultDelivery; }
 }
-
 function saveDelivery(data: DeliveryConfig): void {
   localStorage.setItem(DELIVERY_KEY, JSON.stringify(data));
   window.dispatchEvent(new CustomEvent('aos:data-changed'));
@@ -116,52 +159,31 @@ function getSettings(): SiteSettings {
     return raw ? { ...defaultSettings, ...JSON.parse(raw) } : defaultSettings;
   } catch { return defaultSettings; }
 }
-
 function saveSettings(data: SiteSettings): void {
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(data));
   window.dispatchEvent(new CustomEvent('aos:data-changed'));
 }
 
 export function getSiteSettings(): SiteSettingsAll {
-  return {
-    contact: getContact(),
-    delivery: getDelivery(),
-    settings: getSettings(),
-  };
+  return { contact: getContact(), delivery: getDelivery(), settings: getSettings() };
 }
 
 export function updateContact(data: Partial<ContactInfo>): ContactInfo {
-  const current = getContact();
-  const next = { ...current, ...data };
-  saveContact(next);
-  return next;
+  const cur = getContact(); const next = { ...cur, ...data }; saveContact(next); return next;
 }
-
 export function updateDelivery(data: Partial<DeliveryConfig>): DeliveryConfig {
-  const current = getDelivery();
-  const next = { ...current, ...data };
-  if (data.tiers) next.tiers = data.tiers;
-  saveDelivery(next);
-  return next;
+  const cur = getDelivery(); const next = { ...cur, ...data }; if (data.tiers) next.tiers = data.tiers; saveDelivery(next); return next;
 }
-
 export function updateSiteSettings(data: Partial<SiteSettings>): SiteSettings {
-  const current = getSettings();
-  const next = { ...current, ...data };
-  saveSettings(next);
-  return next;
+  const cur = getSettings(); const next = { ...cur, ...data }; saveSettings(next); return next;
 }
 
 export function getDeliveryFee(wilayaId: number): number {
   const config = getDelivery();
-  for (const tier of config.tiers) {
-    if (tier.wilayaIds.includes(wilayaId)) return tier.fee;
-  }
+  for (const tier of config.tiers) { if (tier.wilayaIds.includes(wilayaId)) return tier.fee; }
   return 600;
 }
-
 export function isFreeDelivery(subtotal: number): boolean {
   return subtotal >= getDelivery().freeThreshold;
 }
-
 export const FREE_DELIVERY_THRESHOLD = 5000;

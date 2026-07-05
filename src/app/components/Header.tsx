@@ -7,15 +7,17 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import { ThemeToggle } from './ThemeToggle';
 import { Cart } from './CartView';
 import { motion, AnimatePresence } from 'motion/react';
+import { getSiteSettings } from '../utils/siteSettingsStorage';
 
 export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [logoHits, setLogoHits] = useState(0);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { items } = useCart();
   const { user, logout, isAdmin } = useAuth();
   const itemCount = items.length;
+  const settings = getSiteSettings();
 
   const handleLogoClick = () => {
     const next = logoHits + 1;
@@ -36,30 +38,20 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
           {/* Logo */}
           <div className="flex items-center space-x-3 space-x-reverse">
             <a href="/" className="block" onClick={(e) => { e.preventDefault(); handleLogoClick(); }}>
-              <img src="/aos-logo3.png" alt="AOS" className="h-16 md:h-20 w-auto" />
+              <img src={settings.settings.logoUrl} alt="AOS" className="h-16 md:h-20 w-auto" />
             </a>
           </div>
 
           {/* Desktop Menu */}
           <nav className="hidden lg:flex items-center space-x-6 space-x-reverse">
-            <a href="#products" className="text-base font-medium hover:text-primary transition-colors">
-              {t({ ar: 'منتجات', fr: 'Produits', en: 'Products' })}
-            </a>
-            <a href="#booking" className="text-base font-medium hover:text-primary transition-colors">
-              {t({ ar: 'احجز خدمة', fr: 'Réserver', en: 'Book a Service' })}
-            </a>
-            <a href="#wishlist" className="text-base font-medium hover:text-primary transition-colors">
-              {t({ ar: 'المفضلة', fr: 'Souhaits', en: 'Wishlist' })}
-            </a>
-            <a href="#faq" className="text-base font-medium hover:text-primary transition-colors">
-              {t({ ar: 'الأسئلة الشائعة', fr: 'FAQ', en: 'FAQ' })}
-            </a>
-            <a href="#contact" className="text-base font-medium hover:text-primary transition-colors">
-              {t({ ar: 'اتصل بنا', fr: 'Contact', en: 'Contact' })}
-            </a>
+            {settings.settings.headerNavLinks.map((link, idx) => (
+              <a key={idx} href={link.href} className="text-base font-medium hover:text-primary transition-colors">
+                {t(link.label)}
+              </a>
+            ))}
             <div className="flex items-center space-x-2 space-x-reverse text-base font-medium bg-muted px-4 py-2.5 rounded-lg">
               <Phone className="w-5 h-5 text-primary" />
-              <span className="font-semibold">0674 11 32 90</span>
+              <span className="font-semibold">{settings.contact.phoneDisplay}</span>
             </div>
             <button
               onClick={() => setCartOpen(!cartOpen)}
@@ -140,41 +132,13 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
             <LanguageSwitcher />
               <ThemeToggle />
             </div>
-            <a
-              href="#products"
-              className="block py-3 text-lg font-medium hover:text-primary transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              {t({ ar: 'منتجات', fr: 'Produits', en: 'Products' })}
-            </a>
-            <a
-              href="#booking"
-              className="block py-3 text-lg font-medium hover:text-primary transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              {t({ ar: 'احجز خدمة', fr: 'Réserver', en: 'Book a Service' })}
-            </a>
-            <a
-              href="#wishlist"
-              className="block py-3 text-lg font-medium hover:text-primary transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              {t({ ar: 'المفضلة', fr: 'Souhaits', en: 'Wishlist' })}
-            </a>
-            <a
-              href="#faq"
-              className="block py-3 text-lg font-medium hover:text-primary transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              {t({ ar: 'الأسئلة الشائعة', fr: 'FAQ', en: 'FAQ' })}
-            </a>
-            <a
-              href="#contact"
-              className="block py-3 text-lg font-medium hover:text-primary transition-colors"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              {t({ ar: 'اتصل بنا', fr: 'Contact', en: 'Contact' })}
-            </a>
+            {settings.settings.headerNavLinks.map((link, idx) => (
+              <a key={idx} href={link.href}
+                className="block py-3 text-lg font-medium hover:text-primary transition-colors"
+                onClick={() => setMobileMenuOpen(false)}>
+                {t(link.label)}
+              </a>
+            ))}
           </motion.nav>
         )}
         </AnimatePresence>

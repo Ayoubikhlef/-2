@@ -1,11 +1,13 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getSiteContent } from '../utils/siteContentStorage';
+import { getSiteSettings } from '../utils/siteSettingsStorage';
 import { motion } from 'motion/react';
 
 export function FAQ() {
   const { t, language } = useLanguage();
   const content = getSiteContent();
+  const settings = getSiteSettings();
 
   return (
     <motion.section
@@ -57,11 +59,11 @@ export function FAQ() {
             <div className="space-y-3 text-sm text-muted-foreground">
               <div>
                 <span className="font-semibold text-foreground">{t({ ar: 'هاتف', fr: 'Téléphone', en: 'Phone' })}:</span>
-                <span className="block">0674 11 32 90</span>
+                <span className="block">{settings.contact.phoneDisplay}</span>
               </div>
               <div>
                 <span className="font-semibold text-foreground">{t({ ar: 'بريد إلكتروني', fr: 'Email', en: 'Email' })}:</span>
-                <span className="block">ayoub.office.services@gmail.com</span>
+                <span className="block">{settings.contact.email}</span>
               </div>
             </div>
           </div>

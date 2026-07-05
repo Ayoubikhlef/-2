@@ -12,7 +12,7 @@ export function AboutPage() {
     <section className="py-20 bg-gradient-to-b from-white/80 to-slate-50/70 dark:from-slate-950/80 dark:to-slate-900/30">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-4xl font-bold mb-8 text-center">
-          {t({ ar: 'عن المتجر', fr: 'À propos', en: 'About Us' })}
+          {t(content.about.title)}
         </h1>
         <div className="bg-card rounded-3xl border border-border p-8 space-y-6">
           <p className="text-lg leading-relaxed text-muted-foreground">
