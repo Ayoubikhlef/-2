@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, Send } from 'lucide-react';
+import { Mail, Send, CheckCircle } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { subscribe } from '../utils/newsletterStorage';
 import { toast } from 'sonner';
@@ -8,6 +8,7 @@ export function NewsletterForm() {
   const { t, language } = useLanguage();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
+  const [done, setDone] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -20,6 +21,8 @@ export function NewsletterForm() {
       subscribe(email);
       toast.success(t({ ar: 'تم الاشتراك بنجاح!', fr: 'Inscription réussie!', en: 'Subscribed successfully!' }));
       setEmail('');
+      setDone(true);
+      setTimeout(() => setDone(false), 4000);
     } catch {
       toast.error(t({ ar: 'حدث خطأ، حاول مرة أخرى', fr: 'Une erreur est survenue', en: 'An error occurred' }));
     } finally {
@@ -47,6 +50,12 @@ export function NewsletterForm() {
                   en: 'Get the latest offers and services delivered straight to your inbox'
                 })}
               </p>
+              {done ? (
+                <div className="flex items-center justify-center gap-3 text-emerald-300 bg-emerald-500/10 rounded-xl px-6 py-4 max-w-md mx-auto">
+                  <CheckCircle className="w-6 h-6 shrink-0" />
+                  <span className="font-semibold">{t({ ar: 'تم الاشتراك بنجاح ✅', fr: 'Inscription réussie ✅', en: 'Subscribed successfully ✅' })}</span>
+                </div>
+              ) : (
               <form onSubmit={handleSubmit} className={`flex flex-col sm:flex-row gap-3 sm:gap-4 w-full max-w-md mx-auto ${language === 'ar' ? 'sm:flex-row-reverse' : ''}`}>
                 <div className="relative flex-1 w-full">
                   <Mail className={`absolute top-1/2 -translate-y-1/2 w-5 h-5 text-blue-300 ${language === 'ar' ? 'right-4' : 'left-4'}`} />
@@ -71,6 +80,7 @@ export function NewsletterForm() {
                   {t({ ar: 'اشتراك', fr: "S'abonner", en: 'Subscribe' })}
                 </button>
               </form>
+              )}
             </div>
           </div>
         </div>
