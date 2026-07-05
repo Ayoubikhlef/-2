@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Phone, MapPin } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getSiteContent } from '../utils/siteContentStorage';
@@ -5,8 +6,15 @@ import { getSiteSettings } from '../utils/siteSettingsStorage';
 
 export function Footer() {
   const { t, language } = useLanguage();
-  const content = getSiteContent();
-  const settings = getSiteSettings();
+  const [content, setContent] = useState(() => getSiteContent());
+  const [settings, setSettings] = useState(() => getSiteSettings());
+
+  useEffect(() => {
+    const refresh = () => { setContent(getSiteContent()); setSettings(getSiteSettings()); };
+    window.addEventListener('aos:data-changed', refresh);
+    return () => window.removeEventListener('aos:data-changed', refresh);
+  }, []);
+
   const { contact, settings: s } = settings;
 
   return (

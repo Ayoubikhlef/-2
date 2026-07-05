@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getSiteContent } from '../utils/siteContentStorage';
@@ -6,8 +7,14 @@ import { motion } from 'motion/react';
 
 export function FAQ() {
   const { t, language } = useLanguage();
-  const content = getSiteContent();
-  const settings = getSiteSettings();
+  const [content, setContent] = useState(() => getSiteContent());
+  const [settings, setSettings] = useState(() => getSiteSettings());
+
+  useEffect(() => {
+    const refresh = () => { setContent(getSiteContent()); setSettings(getSiteSettings()); };
+    window.addEventListener('aos:data-changed', refresh);
+    return () => window.removeEventListener('aos:data-changed', refresh);
+  }, []);
 
   return (
     <motion.section

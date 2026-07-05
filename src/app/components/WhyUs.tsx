@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Award, Clock, Users, Heart } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getSiteContent } from '../utils/siteContentStorage';
@@ -7,7 +8,14 @@ const icons = [Award, Clock, Users, Heart];
 
 export function WhyUs() {
   const { t, language } = useLanguage();
-  const content = getSiteContent();
+  const [content, setContent] = useState(() => getSiteContent());
+
+  useEffect(() => {
+    const refresh = () => setContent(getSiteContent());
+    window.addEventListener('aos:data-changed', refresh);
+    return () => window.removeEventListener('aos:data-changed', refresh);
+  }, []);
+
   const { features, title, subtitle } = content.whyUs;
 
   return (

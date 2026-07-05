@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { MapPin, Phone, Mail, Facebook } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { motion } from 'motion/react';
@@ -5,7 +6,13 @@ import { getSiteSettings } from '../utils/siteSettingsStorage';
 
 export function Contact() {
   const { t } = useLanguage();
-  const settings = getSiteSettings();
+  const [settings, setSettings] = useState(() => getSiteSettings());
+
+  useEffect(() => {
+    const refresh = () => setSettings(getSiteSettings());
+    window.addEventListener('aos:data-changed', refresh);
+    return () => window.removeEventListener('aos:data-changed', refresh);
+  }, []);
 
   return (
     <motion.section
@@ -97,7 +104,7 @@ export function Contact() {
         {/* Google Maps */}
         <div className="max-w-6xl mx-auto rounded-2xl overflow-hidden shadow-lg border border-border">
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3194.56!2d6.2718334!3d36.7477532!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12f22300057e0d4b%3A0xb89044f1e5f9512e!2sAyoub+Office+Services!5e0!3m2!1sar!2sdz"
+            src={settings.contact.mapsEmbedUrl}
             width="100%"
             height="380"
             style={{ border: 0 }}

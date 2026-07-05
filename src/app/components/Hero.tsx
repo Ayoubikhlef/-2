@@ -1,10 +1,17 @@
+import { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { motion } from 'motion/react';
 import { getSiteContent } from '../utils/siteContentStorage';
 
 export function Hero() {
   const { t } = useLanguage();
-  const content = getSiteContent();
+  const [content, setContent] = useState(() => getSiteContent());
+
+  useEffect(() => {
+    const refresh = () => setContent(getSiteContent());
+    window.addEventListener('aos:data-changed', refresh);
+    return () => window.removeEventListener('aos:data-changed', refresh);
+  }, []);
   const reducedMotion = typeof window !== 'undefined'
     ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
     : false;

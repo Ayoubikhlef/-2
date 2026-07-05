@@ -1,5 +1,5 @@
 import { Phone, Menu, X, ShoppingCart, User, LogOut } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -13,11 +13,17 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [logoHits, setLogoHits] = useState(0);
+  const [settings, setSettings] = useState(() => getSiteSettings());
   const { t, language } = useLanguage();
   const { items } = useCart();
   const { user, logout, isAdmin } = useAuth();
   const itemCount = items.length;
-  const settings = getSiteSettings();
+
+  useEffect(() => {
+    const refresh = () => setSettings(getSiteSettings());
+    window.addEventListener('aos:data-changed', refresh);
+    return () => window.removeEventListener('aos:data-changed', refresh);
+  }, []);
 
   const handleLogoClick = () => {
     const next = logoHits + 1;
@@ -82,7 +88,7 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
               )}
             </button>
             <a
-              href="tel:0674113290"
+              href={`tel:${settings.contact.phone}`}
               className="bg-primary text-primary-foreground p-2 rounded-lg"
             >
               <Phone className="w-5 h-5" />

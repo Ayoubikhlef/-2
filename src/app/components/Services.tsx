@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Printer, FileText, Calendar, Wifi, Server, FileCheck, Zap, Shield } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getSiteContent } from '../utils/siteContentStorage';
@@ -8,7 +9,13 @@ const digiIcons = [FileCheck, Zap, Shield];
 
 export function Services() {
   const { t, language } = useLanguage();
-  const content = getSiteContent();
+  const [content, setContent] = useState(() => getSiteContent());
+
+  useEffect(() => {
+    const refresh = () => setContent(getSiteContent());
+    window.addEventListener('aos:data-changed', refresh);
+    return () => window.removeEventListener('aos:data-changed', refresh);
+  }, []);
 
   return (
     <motion.section

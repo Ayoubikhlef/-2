@@ -3,12 +3,18 @@ import { MessageCircle, X } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getSiteSettings } from '../utils/siteSettingsStorage';
 
-const settings = getSiteSettings();
-const PHONE = settings.contact.phoneInternational;
-
 export function WABubble() {
   const { t } = useLanguage();
   const [showTooltip, setShowTooltip] = useState(false);
+  const [settings, setSettings] = useState(() => getSiteSettings());
+
+  useEffect(() => {
+    const refresh = () => setSettings(getSiteSettings());
+    window.addEventListener('aos:data-changed', refresh);
+    return () => window.removeEventListener('aos:data-changed', refresh);
+  }, []);
+
+  const PHONE = settings.contact.phoneInternational;
 
   useEffect(() => {
     const timer = setTimeout(() => setShowTooltip(true), 3000);

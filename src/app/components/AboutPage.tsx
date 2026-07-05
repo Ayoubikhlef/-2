@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
 import { getSiteContent } from '../utils/siteContentStorage';
@@ -5,8 +6,14 @@ import { getSiteSettings } from '../utils/siteSettingsStorage';
 
 export function AboutPage() {
   const { t, language } = useLanguage();
-  const content = getSiteContent();
-  const settings = getSiteSettings();
+  const [content, setContent] = useState(() => getSiteContent());
+  const [settings, setSettings] = useState(() => getSiteSettings());
+
+  useEffect(() => {
+    const refresh = () => { setContent(getSiteContent()); setSettings(getSiteSettings()); };
+    window.addEventListener('aos:data-changed', refresh);
+    return () => window.removeEventListener('aos:data-changed', refresh);
+  }, []);
 
   return (
     <section className="py-20 bg-gradient-to-b from-white/80 to-slate-50/70 dark:from-slate-950/80 dark:to-slate-900/30">
