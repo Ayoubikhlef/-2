@@ -318,7 +318,7 @@ export function Products() {
           </div>
         ) : (
         <>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {paginatedProducts.map((product) => (
             <div
               key={product.id}
@@ -337,7 +337,7 @@ export function Products() {
                   {language === 'ar' ? 'تخفيض' : language === 'fr' ? 'SOLDE' : 'SALE'}
                 </div>
               )}
-              <div className="relative h-48 overflow-hidden bg-muted">
+              <div className="relative h-40 sm:h-48 overflow-hidden bg-muted">
                 <img
                   src={product.image}
                   alt={language === 'ar' ? product.nameAr : product.nameEn}
@@ -592,7 +592,7 @@ export function Products() {
               <div className="p-8 sm:p-12 text-center relative overflow-hidden">
                 {/* Decorative background */}
                 <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-emerald-500/5 to-transparent pointer-events-none" />
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] max-w-full bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
 
                 <div className="relative">
                   {/* Animated checkmark */}
@@ -1056,7 +1056,7 @@ export function Products() {
               <img
                 src={quickViewProduct.image}
                 alt={language === 'ar' ? quickViewProduct.nameAr : quickViewProduct.nameEn}
-                className="w-full h-56 object-contain bg-muted p-6"
+                className="w-full h-48 sm:h-56 object-contain bg-muted p-6"
               />
               <button
                 onClick={closeQuickView}

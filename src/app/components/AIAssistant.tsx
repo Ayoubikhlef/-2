@@ -458,7 +458,7 @@ export function AIAssistant() {
                 <button
                   type="submit"
                   disabled={!input.trim() || loading}
-                  className="w-10 h-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center hover:opacity-90 transition-all disabled:opacity-30 flex-shrink-0"
+                  className="w-11 h-11 rounded-xl bg-primary text-primary-foreground flex items-center justify-center hover:opacity-90 transition-all disabled:opacity-30 flex-shrink-0"
                 >
                   <Send className="w-4 h-4" />
                 </button>

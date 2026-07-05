@@ -44,7 +44,7 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
           {/* Logo */}
           <div className="flex items-center space-x-3 space-x-reverse">
             <a href="/" className="block" onClick={(e) => { e.preventDefault(); handleLogoClick(); }}>
-              <img src={settings.settings.logoUrl} alt="AOS" className="h-16 md:h-20 w-auto" />
+              <img src={settings.settings.logoUrl} alt="AOS" className="h-16 md:h-20 w-auto max-w-[50vw]" />
             </a>
           </div>
 
@@ -161,10 +161,10 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
               onClick={() => setCartOpen(false)}
             />
             <motion.div
-              initial={{ opacity: 0, x: 50 }}
+              initial={{ opacity: 0, x: language === 'ar' ? -50 : 50 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 50 }}
-              className="fixed top-20 right-0 w-full max-w-sm bg-background rounded-b-2xl shadow-2xl z-50 max-h-96 overflow-y-auto"
+              exit={{ opacity: 0, x: language === 'ar' ? -50 : 50 }}
+              className={`fixed top-20 ${language === 'ar' ? 'left-0' : 'right-0'} w-full max-w-sm bg-background rounded-b-2xl shadow-2xl z-50 max-h-96 overflow-y-auto`}
             >
               <div className="p-6">
                 <div className="flex justify-between items-center mb-4">

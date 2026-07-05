@@ -44,7 +44,7 @@ export function WhyUs() {
                 className="relative group"
               >
                 <div className="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-5 rounded-2xl transition-opacity duration-300"></div>
-                <div className="relative bg-card p-8 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 border border-border h-full">
+                <div className="relative bg-card p-4 sm:p-6 lg:p-8 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 border border-border h-full">
                   <div className={`bg-gradient-to-br ${feature.color} w-14 h-14 rounded-xl flex items-center justify-center mb-4 transform group-hover:scale-110 transition-transform duration-300`}>
                     <Icon className="w-7 h-7 text-white" />
                   </div>

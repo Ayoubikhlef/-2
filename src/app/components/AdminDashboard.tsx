@@ -141,7 +141,7 @@ export function AdminDashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0 }}
           className="rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900 to-slate-800/80 p-5 shadow-lg">
           <div className="flex items-center gap-2 mb-3">

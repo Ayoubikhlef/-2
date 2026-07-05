@@ -34,7 +34,7 @@ export function FAQ() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="rounded-[32px] border border-border bg-card p-8 shadow-lg">
+          <div className="rounded-[32px] border border-border bg-card p-4 sm:p-6 lg:p-8 shadow-lg">
             <Accordion type="single" collapsible defaultValue={content.faq.items[0]?.id} className="space-y-4">
               {content.faq.items.map((item) => (
                 <AccordionItem key={item.id} value={item.id}>
@@ -49,7 +49,7 @@ export function FAQ() {
             </Accordion>
           </div>
 
-          <div className="rounded-[32px] border border-border bg-gradient-to-br from-primary/10 to-transparent p-8 shadow-lg flex flex-col justify-center">
+          <div className="rounded-[32px] border border-border bg-gradient-to-br from-primary/10 to-transparent p-4 sm:p-6 lg:p-8 shadow-lg flex flex-col justify-center">
             <span className="inline-flex items-center rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-semibold uppercase tracking-wide mb-4">
               {t({ ar: 'دعم العملاء', fr: 'Support client', en: 'Customer Support' })}
             </span>

@@ -9,7 +9,7 @@ export function PrivacyPage() {
         <h1 className="text-4xl font-bold mb-8 text-center">
           {t({ ar: 'سياسة الخصوصية', fr: 'Politique de confidentialité', en: 'Privacy Policy' })}
         </h1>
-        <div className="bg-card rounded-3xl border border-border p-8 space-y-6 text-muted-foreground leading-relaxed">
+        <div className="bg-card rounded-3xl border border-border p-4 sm:p-6 lg:p-8 space-y-6 text-muted-foreground leading-relaxed">
           <p>{t({ ar: 'نحن في أيوب أوفيس سيرفيسز نأخذ خصوصيتك على محمل الجد. توضح هذه السياسة كيفية جمع واستخدام وحماية معلوماتك الشخصية.', fr: 'Chez Ayoub Office Services, nous prenons votre vie privée au sérieux. Cette politique explique comment nous collectons et protégeons vos données.', en: 'At Ayoub Office Services, we take your privacy seriously. This policy explains how we collect and protect your data.' })}</p>
           <div>
             <h2 className="text-xl font-bold text-foreground mb-3">{t({ ar: 'المعلومات التي نجمعها', fr: 'Informations collectées', en: 'Information We Collect' })}</h2>

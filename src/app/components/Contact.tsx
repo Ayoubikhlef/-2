@@ -36,7 +36,7 @@ export function Contact() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto mb-12">
-          <div className="bg-card p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-center border border-border group">
+          <div className="bg-card p-4 sm:p-6 lg:p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-center border border-border group">
             <div className="bg-gradient-to-br from-blue-500 to-blue-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 transform group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
               <MapPin className="w-8 h-8 text-white" />
             </div>
@@ -48,7 +48,7 @@ export function Contact() {
             </p>
           </div>
 
-          <div className="bg-card p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-center border border-border group">
+          <div className="bg-card p-4 sm:p-6 lg:p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-center border border-border group">
             <div className="bg-gradient-to-br from-green-500 to-green-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 transform group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
               <Phone className="w-8 h-8 text-white" />
             </div>
@@ -62,7 +62,7 @@ export function Contact() {
             </p>
           </div>
 
-          <div className="bg-card p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-center border border-border group">
+          <div className="bg-card p-4 sm:p-6 lg:p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-center border border-border group">
             <div className="bg-gradient-to-br from-blue-600 to-blue-800 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 transform group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
               <Facebook className="w-8 h-8 text-white" />
             </div>
@@ -81,7 +81,7 @@ export function Contact() {
             </a>
           </div>
 
-          <div className="bg-card p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-center border border-border group">
+          <div className="bg-card p-4 sm:p-6 lg:p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-center border border-border group">
             <div className="bg-gradient-to-br from-orange-500 to-orange-600 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 transform group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
               <Mail className="w-8 h-8 text-white" />
             </div>
@@ -106,7 +106,7 @@ export function Contact() {
           <iframe
             src={settings.contact.mapsEmbedUrl}
             width="100%"
-            height="380"
+            className="h-[250px] md:h-[380px]"
             style={{ border: 0 }}
             allowFullScreen
             loading="lazy"

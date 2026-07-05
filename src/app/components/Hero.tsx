@@ -17,7 +17,7 @@ export function Hero() {
     : false;
 
   return (
-    <section className="relative bg-gradient-to-br from-primary via-primary to-blue-900 dark:from-blue-950 dark:via-blue-900 dark:to-blue-950 text-white pt-20 pb-48 overflow-hidden">
+    <section className="relative bg-gradient-to-br from-primary via-primary to-blue-900 dark:from-blue-950 dark:via-blue-900 dark:to-blue-950 text-white pt-20 pb-24 sm:pb-32 lg:pb-48 overflow-hidden">
       <div className="absolute inset-0">
         <img
           src={content.hero.bgImage}
@@ -38,7 +38,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
-            className="text-6xl md:text-8xl mb-8 text-white leading-tight"
+            className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl mb-6 sm:mb-8 text-white leading-tight"
           >
             {t(content.hero.title)}
             <br />
@@ -70,7 +70,7 @@ export function Hero() {
                 z: { duration: 4, repeat: Infinity, ease: 'easeInOut' },
                 backgroundPosition: { duration: 3, repeat: Infinity, ease: 'linear' },
               }}
-              className="bg-gradient-to-br from-white via-blue-300 to-amber-300 bg-clip-text text-transparent inline-block font-black tracking-tight text-8xl md:text-9xl"
+              className="bg-gradient-to-br from-white via-blue-300 to-amber-300 bg-clip-text text-transparent inline-block font-black tracking-tight text-5xl sm:text-7xl md:text-8xl lg:text-9xl"
               style={{
                 backgroundSize: '200% 200%',
                 transformStyle: 'preserve-3d',

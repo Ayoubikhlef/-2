@@ -131,7 +131,7 @@ export function ManageProductsTab({ products, onUpdate }: { products: Product[];
 
   if (showForm) {
     return (
-      <form onSubmit={handleSave} className="rounded-[32px] border border-white/10 bg-slate-900/80 p-8 space-y-6">
+      <form onSubmit={handleSave} className="rounded-[32px] border border-white/10 bg-slate-900/80 p-4 sm:p-6 lg:p-8 space-y-6">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-2xl font-bold">
             {editing?.id
@@ -330,7 +330,7 @@ export function ManageProductsTab({ products, onUpdate }: { products: Product[];
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <p className="text-xs text-white/50 mb-1">{t({ ar: 'التسمية', fr: 'Étiquette', en: 'Label' })}</p>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                       <input placeholder="عربي" value={spec.label.ar} onChange={(e) => updateSpec(idx, 'label', 'ar', e.target.value)}
                         className="rounded-lg border border-white/10 bg-slate-800 px-3 py-2 text-xs text-white outline-none focus:border-primary text-center" />
                       <input placeholder="Français" value={spec.label.fr} onChange={(e) => updateSpec(idx, 'label', 'fr', e.target.value)}
@@ -341,7 +341,7 @@ export function ManageProductsTab({ products, onUpdate }: { products: Product[];
                   </div>
                   <div>
                     <p className="text-xs text-white/50 mb-1">{t({ ar: 'القيمة', fr: 'Valeur', en: 'Value' })}</p>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                       <input placeholder="عربي" value={spec.value.ar} onChange={(e) => updateSpec(idx, 'value', 'ar', e.target.value)}
                         className="rounded-lg border border-white/10 bg-slate-800 px-3 py-2 text-xs text-white outline-none focus:border-primary text-center" />
                       <input placeholder="Français" value={spec.value.fr} onChange={(e) => updateSpec(idx, 'value', 'fr', e.target.value)}
@@ -388,13 +388,13 @@ export function ManageProductsTab({ products, onUpdate }: { products: Product[];
 
       <div className="grid grid-cols-1 gap-3">
         {products.map((product) => (
-          <div key={product.id} className="rounded-2xl border border-white/10 bg-slate-900/80 p-4 flex items-center gap-4 hover:bg-slate-800/80 transition-all">
-            <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-800 flex-shrink-0">
+          <div key={product.id} className="rounded-2xl border border-white/10 bg-slate-900/80 p-3 sm:p-4 flex items-center gap-3 sm:gap-4 hover:bg-slate-800/80 transition-all flex-wrap sm:flex-nowrap">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl overflow-hidden bg-slate-800 flex-shrink-0">
               <img src={product.image} alt="" className="w-full h-full object-contain p-1" onError={(e) => { (e.target as HTMLImageElement).src = ''; }} />
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 order-last sm:order-none basis-full sm:basis-auto mt-2 sm:mt-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <p className="font-semibold text-white truncate">
+                <p className="font-semibold text-white truncate text-sm sm:text-base">
                   {language === 'ar' ? product.nameAr : language === 'fr' ? product.nameFr : product.nameEn}
                 </p>
                 {product.hidden && (
@@ -408,27 +408,27 @@ export function ManageProductsTab({ products, onUpdate }: { products: Product[];
                   </span>
                 )}
               </div>
-              <p className="text-sm text-white/50">
+              <p className="text-xs sm:text-sm text-white/50">
                 {product.price.toLocaleString()} د.ج · {product.brand}
                 {product.sku && <span className="ml-2 text-white/30">{product.sku}</span>}
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <button onClick={() => { toggleProductVisibility(product.id); onUpdate(); }}
-                className="p-2.5 rounded-xl bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 transition-all border border-amber-500/20">
-                {product.hidden ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                className="p-2 sm:p-2.5 rounded-xl bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 transition-all border border-amber-500/20">
+                {product.hidden ? <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <EyeOff className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
               </button>
               <button onClick={() => handleCopy(product.id)}
-                className="p-2.5 rounded-xl bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-all border border-blue-500/20">
-                <Copy className="w-4 h-4" />
+                className="p-2 sm:p-2.5 rounded-xl bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-all border border-blue-500/20">
+                <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
               <button onClick={() => handleEdit(product)}
-                className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 transition-all border border-white/10">
-                <Edit3 className="w-4 h-4" />
+                className="p-2 sm:p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 transition-all border border-white/10">
+                <Edit3 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
               <button onClick={() => handleDelete(product.id)}
-                className="p-2.5 rounded-xl bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-all border border-red-500/20">
-                <Trash2 className="w-4 h-4" />
+                className="p-2 sm:p-2.5 rounded-xl bg-red-500/20 text-red-400 hover:bg-red-500/30 transition-all border border-red-500/20">
+                <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
             </div>
           </div>

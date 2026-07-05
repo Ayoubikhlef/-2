@@ -21,7 +21,7 @@ export function AboutPage() {
         <h1 className="text-4xl font-bold mb-8 text-center">
           {t(content.about.title)}
         </h1>
-        <div className="bg-card rounded-3xl border border-border p-8 space-y-6">
+          <div className="bg-card rounded-3xl border border-border p-4 sm:p-6 lg:p-8 space-y-6">
           <p className="text-lg leading-relaxed text-muted-foreground">
             {t(content.about.content)}
           </p>

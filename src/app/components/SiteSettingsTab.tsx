@@ -11,7 +11,7 @@ function LangInput({ label, value, onChange }: { label: string; value: { ar: str
   return (
     <div className="space-y-2">
       <label className="block text-sm font-bold text-white/80">{label}</label>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
         {langs.map(l => (
           <input key={l} value={value[l]} onChange={e => onChange({ ...value, [l]: e.target.value })}
             placeholder={l === 'ar' ? 'عربي' : l === 'fr' ? 'Français' : 'English'}
@@ -91,7 +91,7 @@ export function SiteSettingsTab() {
 
       {sub === 'contact' && (
         <div className="space-y-4 max-w-2xl">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-2">
               <label className="block text-sm font-bold text-white/80">Phone</label>
               <input value={data.contact.phone} onChange={e => setData({ ...data, contact: { ...data.contact, phone: e.target.value } })}
@@ -164,7 +164,7 @@ export function SiteSettingsTab() {
                 <span className="font-bold text-white">{tier.label}</span>
                 <button onClick={() => removeTier(idx)} className="text-red-400 hover:text-red-300"><Trash2 className="w-4 h-4" /></button>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="text-xs text-white/60">Label</label>
                   <input value={tier.label} onChange={e => updateTier(idx, 'label', e.target.value)}

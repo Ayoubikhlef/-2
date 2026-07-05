@@ -29,10 +29,10 @@ export function Cart() {
       {items.map((item) => (
         <div
           key={item.productId}
-          className="flex items-center justify-between bg-card p-4 rounded-lg border border-border hover:border-primary/30 transition-all"
+          className="flex flex-wrap items-center justify-between bg-card p-4 rounded-lg border border-border hover:border-primary/30 transition-all"
         >
           <div className="flex-1">
-            <h4 className="font-semibold">{item.name}</h4>
+            <h4 className="font-semibold truncate">{item.name}</h4>
             <p className="text-sm text-muted-foreground">
               {formatPrice(item.price)} × {item.quantity}
             </p>

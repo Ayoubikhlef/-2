@@ -32,7 +32,7 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
     <div className="space-y-3">
       <div
         ref={imgRef}
-        className="relative h-64 sm:h-80 overflow-hidden bg-muted cursor-crosshair select-none"
+        className="relative h-48 sm:h-64 lg:h-80 overflow-hidden bg-muted cursor-crosshair select-none"
         onMouseEnter={() => setZoom(true)}
         onMouseLeave={() => setZoom(false)}
         onMouseMove={handleMouseMove}
@@ -60,12 +60,12 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
       </div>
 
       {allImages.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto pb-1" dir="ltr">
+        <div className="flex gap-2 overflow-x-auto pb-1 snap-x snap-mandatory" dir="ltr">
           {allImages.map((src, idx) => (
             <button
               key={idx}
               onClick={() => setSelectedIndex(idx)}
-              className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition ${
+              className={`shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition snap-start ${
                 idx === selectedIndex ? 'border-primary ring-2 ring-primary/30' : 'border-border hover:border-muted-foreground'
               }`}
             >

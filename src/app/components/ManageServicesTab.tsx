@@ -263,7 +263,7 @@ export function ManageServicesTab({ services, onUpdate }: { services: ServiceCat
                 </div>
                 <p className="text-sm text-white/50">{category.options.length} {t({ ar: 'خدمة', fr: 'services', en: 'services' })}</p>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-2 shrink-0 self-start">
                 <button onClick={() => handleEditCategory(category)}
                   className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 transition-all border border-white/10">
                   <Edit3 className="w-4 h-4" />

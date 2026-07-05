@@ -23,7 +23,7 @@ function LangInput({ label, value, onChange }: { label: string; value: { ar: str
   return (
     <div className="space-y-2">
       <label className="block text-sm font-bold text-white/80">{label}</label>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
         {langs.map(l => (
           <input key={l} value={value[l]} onChange={e => onChange({ ...value, [l]: e.target.value })}
             placeholder={l === 'ar' ? 'عربي' : l === 'fr' ? 'Français' : 'English'}
@@ -38,7 +38,7 @@ function LangTextarea({ label, value, onChange }: { label: string; value: { ar: 
   return (
     <div className="space-y-2">
       <label className="block text-sm font-bold text-white/80">{label}</label>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
         {langs.map(l => (
           <textarea key={l} value={value[l]} onChange={e => onChange({ ...value, [l]: e.target.value })}
             placeholder={l === 'ar' ? 'عربي' : l === 'fr' ? 'Français' : 'English'}

@@ -42,7 +42,7 @@ export function Services() {
                 key={service.id}
                 className="group relative bg-card rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-border overflow-hidden"
               >
-                <div className="relative h-48 overflow-hidden">
+                <div className="relative h-40 sm:h-48 overflow-hidden">
                   <img
                     src={service.image}
                     alt={service.title[language]}
@@ -74,7 +74,7 @@ export function Services() {
                 transition={{ delay: index * 0.1, duration: 0.5 }}
                 className="group relative bg-card rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-border overflow-hidden flex flex-col"
               >
-                <div className={`h-44 bg-gradient-to-br ${item.color} flex items-center justify-center relative`}>
+                <div className={`h-36 sm:h-44 bg-gradient-to-br ${item.color} flex items-center justify-center relative`}>
                   <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                     <Icon className="w-8 h-8 text-white" />
                   </div>

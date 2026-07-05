@@ -7,7 +7,7 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="p-2 rounded-lg hover:bg-muted transition-colors"
+      className="p-2.5 rounded-lg hover:bg-muted transition-colors"
       title={theme === 'dark' ? 'تفعيل الوضع الفاتح' : 'تفعيل الوضع الداكن'}
     >
       {theme === 'dark' ? (

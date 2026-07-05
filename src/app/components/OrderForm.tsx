@@ -158,7 +158,7 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Form */}
           <div className="lg:col-span-2">
-            <form onSubmit={handleSubmit} className="space-y-6 bg-card p-8 rounded-2xl shadow-lg border border-border">
+            <form onSubmit={handleSubmit} className="space-y-6 bg-card p-4 sm:p-6 lg:p-8 rounded-2xl shadow-lg border border-border">
               <h3 className="text-2xl font-bold mb-6">
                 {t({ ar: 'بيانات التوصيل', fr: 'Données de livraison', en: 'Delivery Info' })}
               </h3>
@@ -309,7 +309,7 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-card rounded-2xl shadow-lg p-6 border border-border sticky top-20">
+            <div className="bg-card rounded-2xl shadow-lg p-6 border border-border lg:sticky top-20">
               <h3 className="text-xl font-bold mb-6">
                 {t({ ar: 'ملخص الطلب', fr: 'Résumé', en: 'Summary' })}
               </h3>
