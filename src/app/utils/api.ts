@@ -92,6 +92,17 @@ export const api = {
       body: JSON.stringify({ products }),
     }),
 
+  fetchProducts: () => request<{ products: any[] }>('/products'),
+
+  data: {
+    save: (key: string, value: any) =>
+      request<{ ok: boolean }>('/data/save', { method: 'POST', body: JSON.stringify({ key, value }) }),
+    get: (key: string) =>
+      request<{ value: any }>(`/data/${encodeURIComponent(key)}`),
+    delete: (key: string) =>
+      request<{ deleted: boolean }>(`/data/${encodeURIComponent(key)}`, { method: 'DELETE' }),
+  },
+
   newsletter: {
     subscribe: (email: string) => request<{ ok: boolean }>('/newsletter', { method: 'POST', body: JSON.stringify({ email }) }),
   },

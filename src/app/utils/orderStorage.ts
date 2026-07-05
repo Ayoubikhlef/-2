@@ -33,7 +33,7 @@ const SOFT_DELETE_KEY = 'ayoubtech-soft-delete';
 
 function log(level: 'info' | 'warn' | 'error', msg: string, data?: any) {
   const prefix = `[Orders]`;
-  const line = `${prefix} ${msg} ${data ? JSON.stringify(data) : ''}`;
+  const line = `${prefix} ${msg}${data !== undefined ? ' ' + JSON.stringify(data) : ''}`;
   if (level === 'info') console.log(line);
   else if (level === 'warn') console.warn(line);
   else console.error(line);
@@ -50,13 +50,17 @@ function saveSoftDeletedIds(ids: Set<string>) {
   localStorage.setItem(SOFT_DELETE_KEY, JSON.stringify([...ids]));
 }
 
+function dispatchChange() {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent('aos:data-changed'));
+}
+
 export function getOrders(): OrderRecord[] {
   if (typeof window === 'undefined') return [];
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw) as OrderRecord[];
-    log('info', `Read ${parsed.length} orders from localStorage`);
     return parsed;
   } catch (err) {
     log('error', 'Failed to parse orders from localStorage', err);
@@ -76,17 +80,15 @@ export async function saveOrder(order: Omit<OrderRecord, 'id' | 'createdAt' | 's
   const next = [record, ...current];
   localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   log('info', `Saved order ${record.id} to localStorage`);
+  dispatchChange();
 
-  // Pass the generated ID to the server so tracking works
-  api.orders.create({ ...order, id: record.id })
-    .then(() => {
-      log('info', `Order ${record.id} synced to server`);
-    })
-    .catch((err: any) => {
-      log('warn', `Failed to sync order to server (offline?)`, err?.message);
-    });
+  try {
+    await api.orders.create({ ...order, id: record.id });
+    log('info', `Order ${record.id} synced to server`);
+  } catch (err: any) {
+    log('warn', `Server sync failed for order ${record.id}`, err?.message);
+  }
 
-  window.dispatchEvent(new CustomEvent('aos:data-changed'));
   return record;
 }
 
@@ -100,12 +102,12 @@ export function updateOrderStatus(id: string, status: OrderStatus): OrderRecord 
   orders[index] = { ...orders[index], status };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
   log('info', `Updated order ${id} status to ${status} in localStorage`);
+  dispatchChange();
 
   api.orders.updateStatus(id, status)
     .then(() => log('info', `Order ${id} status synced to server`))
     .catch((err: any) => log('warn', `Failed to sync status update to server`, err?.message));
 
-  window.dispatchEvent(new CustomEvent('aos:data-changed'));
   return orders[index];
 }
 
@@ -118,7 +120,7 @@ export function removeOrder(id: string): void {
   const deleted = getSoftDeletedIds();
   deleted.add(id);
   saveSoftDeletedIds(deleted);
-  log('info', `Added ${id} to soft-delete set (${deleted.size} total)`);
+  dispatchChange();
 
   api.orders.remove(id)
     .then(() => {
@@ -128,8 +130,6 @@ export function removeOrder(id: string): void {
       saveSoftDeletedIds(ids);
     })
     .catch((err: any) => log('warn', `Failed to delete order ${id} from server`, err?.message));
-
-  window.dispatchEvent(new CustomEvent('aos:data-changed'));
 }
 
 export async function loadOrdersFromServer(): Promise<OrderRecord[]> {
@@ -137,7 +137,6 @@ export async function loadOrdersFromServer(): Promise<OrderRecord[]> {
     const serverOrders = await api.orders.list();
     log('info', `Loaded ${serverOrders.length} orders from server`);
     const deleted = getSoftDeletedIds();
-    log('info', `Soft-deleted IDs: ${[...deleted].join(', ') || '(none)'}`);
     const localOrders = getOrders();
     const merged = [...serverOrders as OrderRecord[]];
     for (const local of localOrders) {
@@ -146,7 +145,6 @@ export async function loadOrdersFromServer(): Promise<OrderRecord[]> {
       }
     }
     const filtered = merged.filter(o => !deleted.has(o.id));
-    log('info', `After filtering soft-deleted: ${filtered.length} orders`);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
     return filtered;
   } catch (err: any) {
@@ -160,6 +158,7 @@ export function clearOrders() {
   localStorage.removeItem(STORAGE_KEY);
   localStorage.removeItem(SOFT_DELETE_KEY);
   log('info', 'Cleared all orders and soft-delete list');
+  dispatchChange();
   return [];
 }
 

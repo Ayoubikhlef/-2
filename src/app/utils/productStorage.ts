@@ -1,11 +1,19 @@
 import { type Product } from '../data/products';
+import { syncToServer } from './serverSync';
+import { api } from './api';
 
-const STORAGE_KEY = 'aos_products';
+const STORAGE_KEY_LOCAL = 'aos_products';
 const INIT_KEY = 'aos_products_initialized';
+const SERVER_KEY = 'aos_products';
+
+function dispatchChange() {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent('aos:data-changed'));
+}
 
 export function getStoredProducts(defaults: Product[]): Product[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(STORAGE_KEY_LOCAL);
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
@@ -18,14 +26,15 @@ export function getStoredProducts(defaults: Product[]): Product[] {
 
 export function initializeProducts(defaults: Product[]): void {
   if (!localStorage.getItem(INIT_KEY)) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(defaults));
+    localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(defaults));
     localStorage.setItem(INIT_KEY, 'true');
   }
 }
 
 export function saveProducts(products: Product[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
-  window.dispatchEvent(new CustomEvent('aos:data-changed'));
+  localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(products));
+  dispatchChange();
+  syncToServer(SERVER_KEY, products);
 }
 
 export function addProduct(product: Omit<Product, 'id'>): Product {
@@ -85,4 +94,18 @@ export function getProductsOnSale(products: Product[]): Product[] {
   return products.filter(
     (p) => p.salePrice != null && p.saleEnd != null && new Date(p.saleEnd).getTime() > now
   );
+}
+
+export async function loadProductsFromServer(defaults: Product[]): Promise<Product[]> {
+  try {
+    const result = await api.fetchProducts();
+    if (result.products && result.products.length > 0) {
+      localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(result.products));
+      localStorage.setItem(INIT_KEY, 'true');
+      return result.products as Product[];
+    }
+  } catch {
+    // server unavailable, use local
+  }
+  return getStoredProducts(defaults);
 }

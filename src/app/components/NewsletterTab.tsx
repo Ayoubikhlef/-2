@@ -1,21 +1,36 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { getSubscribers } from '../utils/newsletterStorage';
-import { Mail, Copy, Download } from 'lucide-react';
+import { getSubscribers, loadSubscribersFromServer } from '../utils/newsletterStorage';
+import { Mail, Copy, Download, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function NewsletterTab() {
   const { t, language } = useLanguage();
   const [subscribers, setSubscribers] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    setSubscribers(getSubscribers());
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    try {
+      const list = await loadSubscribersFromServer();
+      setSubscribers(list);
+    } catch {
+      setSubscribers(getSubscribers());
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
-    const refresh = () => setSubscribers(getSubscribers());
-    window.addEventListener('aos:data-changed', refresh);
-    return () => window.removeEventListener('aos:data-changed', refresh);
+    refresh();
+  }, [refresh]);
+
+  useEffect(() => {
+    const onChanged = () => {
+      setSubscribers(getSubscribers());
+    };
+    window.addEventListener('aos:data-changed', onChanged);
+    return () => window.removeEventListener('aos:data-changed', onChanged);
   }, []);
 
   const copyAll = () => {
@@ -42,9 +57,18 @@ export function NewsletterTab() {
           <h3 className="text-lg font-bold text-white">
             {t({ ar: 'المشتركون في النشرة البريدية', fr: 'Abonnés newsletter', en: 'Newsletter Subscribers' })}
           </h3>
-          <p className="text-sm text-white/50">{subscribers.length} {t({ ar: 'مشترك', fr: 'abonnés', en: 'subscribers' })}</p>
+          <p className="text-sm text-white/50">
+            {loading
+              ? t({ ar: 'جاري التحميل...', fr: 'Chargement...', en: 'Loading...' })
+              : `${subscribers.length} ${t({ ar: 'مشترك', fr: 'abonnés', en: 'subscribers' })}`}
+          </p>
         </div>
         <div className="flex gap-2">
+          <button onClick={refresh} disabled={loading}
+            className="flex items-center gap-2 rounded-full bg-slate-800 text-white/70 px-4 py-2 text-sm font-semibold hover:bg-slate-700 transition-all border border-white/10 disabled:opacity-50">
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+            {t({ ar: 'تحديث', fr: 'Actualiser', en: 'Refresh' })}
+          </button>
           <button onClick={copyAll}
             className="flex items-center gap-2 rounded-full bg-slate-800 text-white/70 px-4 py-2 text-sm font-semibold hover:bg-slate-700 transition-all border border-white/10">
             <Copy className="w-4 h-4" /> {t({ ar: 'نسخ', fr: 'Copier', en: 'Copy' })}
@@ -56,7 +80,12 @@ export function NewsletterTab() {
         </div>
       </div>
 
-      {subscribers.length === 0 ? (
+      {loading ? (
+        <div className="text-center py-16 text-white/40">
+          <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-3" />
+          <p className="text-lg">{t({ ar: 'جاري تحميل المشتركين...', fr: 'Chargement des abonnés...', en: 'Loading subscribers...' })}</p>
+        </div>
+      ) : subscribers.length === 0 ? (
         <div className="text-center py-16 text-white/40">
           <Mail className="w-12 h-12 mx-auto mb-3 opacity-30" />
           <p className="text-lg">{t({ ar: 'لا يوجد مشتركون بعد', fr: 'Aucun abonné pour le moment', en: 'No subscribers yet' })}</p>

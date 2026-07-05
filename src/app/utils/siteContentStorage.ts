@@ -1,5 +1,8 @@
 const STORAGE_KEY = 'aos_site_content';
 
+import { syncToServer } from './serverSync';
+const SERVER_KEY = 'aos_site_content';
+
 export interface LangString {
   ar: string;
   fr: string;
@@ -238,6 +241,13 @@ function saveAll(content: SiteContent): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(content));
 }
 
+function dispatchAndSync() {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent('aos:data-changed'));
+  const content = getAll();
+  syncToServer(SERVER_KEY, content);
+}
+
 export function getSiteContent(): SiteContent {
   return getAll();
 }
@@ -252,39 +262,39 @@ export function updateSiteContent(update: Partial<SiteContent>): SiteContent {
   if (update.services) next.services = { ...current.services, ...update.services, cards: update.services.cards ?? current.services.cards, digitizationItems: update.services.digitizationItems ?? current.services.digitizationItems };
   if (update.footer) next.footer = { ...current.footer, ...update.footer };
   saveAll(next);
-  window.dispatchEvent(new CustomEvent('aos:data-changed'));
+  dispatchAndSync();
   return next;
 }
 
 // FAQ CRUD
 export function addFAQItem(item: FAQItem): SiteContent {
-  const c = getAll(); c.faq.items.push(item); saveAll(c); window.dispatchEvent(new CustomEvent('aos:data-changed')); return c;
+  const c = getAll(); c.faq.items.push(item); saveAll(c); dispatchAndSync(); return c;
 }
 export function updateFAQItem(id: string, upd: Partial<FAQItem>): SiteContent {
-  const c = getAll(); const i = c.faq.items.findIndex(x => x.id === id); if (i >= 0) { c.faq.items[i] = { ...c.faq.items[i], ...upd }; saveAll(c); window.dispatchEvent(new CustomEvent('aos:data-changed')); } return c;
+  const c = getAll(); const i = c.faq.items.findIndex(x => x.id === id); if (i >= 0) { c.faq.items[i] = { ...c.faq.items[i], ...upd }; saveAll(c); dispatchAndSync(); } return c;
 }
 export function deleteFAQItem(id: string): SiteContent {
-  const c = getAll(); c.faq.items = c.faq.items.filter(x => x.id !== id); saveAll(c); window.dispatchEvent(new CustomEvent('aos:data-changed')); return c;
+  const c = getAll(); c.faq.items = c.faq.items.filter(x => x.id !== id); saveAll(c); dispatchAndSync(); return c;
 }
 
 // WhyUs CRUD
 export function addWhyUsFeature(f: WhyUsFeature): SiteContent {
-  const c = getAll(); c.whyUs.features.push(f); saveAll(c); window.dispatchEvent(new CustomEvent('aos:data-changed')); return c;
+  const c = getAll(); c.whyUs.features.push(f); saveAll(c); dispatchAndSync(); return c;
 }
 export function updateWhyUsFeature(id: string, upd: Partial<WhyUsFeature>): SiteContent {
-  const c = getAll(); const i = c.whyUs.features.findIndex(x => x.id === id); if (i >= 0) { c.whyUs.features[i] = { ...c.whyUs.features[i], ...upd }; saveAll(c); window.dispatchEvent(new CustomEvent('aos:data-changed')); } return c;
+  const c = getAll(); const i = c.whyUs.features.findIndex(x => x.id === id); if (i >= 0) { c.whyUs.features[i] = { ...c.whyUs.features[i], ...upd }; saveAll(c); dispatchAndSync(); } return c;
 }
 export function deleteWhyUsFeature(id: string): SiteContent {
-  const c = getAll(); c.whyUs.features = c.whyUs.features.filter(x => x.id !== id); saveAll(c); window.dispatchEvent(new CustomEvent('aos:data-changed')); return c;
+  const c = getAll(); c.whyUs.features = c.whyUs.features.filter(x => x.id !== id); saveAll(c); dispatchAndSync(); return c;
 }
 
 // Service Cards CRUD
 export function addServiceCard(card: ServiceCard): SiteContent {
-  const c = getAll(); c.services.cards.push(card); saveAll(c); window.dispatchEvent(new CustomEvent('aos:data-changed')); return c;
+  const c = getAll(); c.services.cards.push(card); saveAll(c); dispatchAndSync(); return c;
 }
 export function updateServiceCard(id: string, upd: Partial<ServiceCard>): SiteContent {
-  const c = getAll(); const i = c.services.cards.findIndex(x => x.id === id); if (i >= 0) { c.services.cards[i] = { ...c.services.cards[i], ...upd }; saveAll(c); window.dispatchEvent(new CustomEvent('aos:data-changed')); } return c;
+  const c = getAll(); const i = c.services.cards.findIndex(x => x.id === id); if (i >= 0) { c.services.cards[i] = { ...c.services.cards[i], ...upd }; saveAll(c); dispatchAndSync(); } return c;
 }
 export function deleteServiceCard(id: string): SiteContent {
-  const c = getAll(); c.services.cards = c.services.cards.filter(x => x.id !== id); saveAll(c); window.dispatchEvent(new CustomEvent('aos:data-changed')); return c;
+  const c = getAll(); c.services.cards = c.services.cards.filter(x => x.id !== id); saveAll(c); dispatchAndSync(); return c;
 }

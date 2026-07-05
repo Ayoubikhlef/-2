@@ -1,6 +1,8 @@
 const SETTINGS_KEY = 'aos_site_settings';
 const DELIVERY_KEY = 'aos_delivery_config';
 
+import { syncToServer } from './serverSync';
+
 export interface LangString {
   ar: string;
   fr: string;
@@ -137,9 +139,16 @@ function getContact(): ContactInfo {
     return raw ? { ...defaultContact, ...JSON.parse(raw) } : defaultContact;
   } catch { return defaultContact; }
 }
+function dispatchAndSync() {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent('aos:data-changed'));
+  const all = { contact: getContact(), delivery: getDelivery(), settings: getSettings() };
+  syncToServer('aos_site_settings', all);
+}
+
 function saveContact(data: ContactInfo): void {
   localStorage.setItem(SETTINGS_KEY + '_contact', JSON.stringify(data));
-  window.dispatchEvent(new CustomEvent('aos:data-changed'));
+  dispatchAndSync();
 }
 
 function getDelivery(): DeliveryConfig {
@@ -150,7 +159,7 @@ function getDelivery(): DeliveryConfig {
 }
 function saveDelivery(data: DeliveryConfig): void {
   localStorage.setItem(DELIVERY_KEY, JSON.stringify(data));
-  window.dispatchEvent(new CustomEvent('aos:data-changed'));
+  dispatchAndSync();
 }
 
 function getSettings(): SiteSettings {
@@ -161,7 +170,7 @@ function getSettings(): SiteSettings {
 }
 function saveSettings(data: SiteSettings): void {
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(data));
-  window.dispatchEvent(new CustomEvent('aos:data-changed'));
+  dispatchAndSync();
 }
 
 export function getSiteSettings(): SiteSettingsAll {

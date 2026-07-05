@@ -175,6 +175,12 @@ export function Admin() {
       await loadOrders();
       setManageProducts(getStoredProducts(defaultProducts));
       setManageServices(getStoredServices(defaultServices));
+      api.syncProducts(getStoredProducts(defaultProducts))
+        .then(() => console.log('[Sync] Products synced to server'))
+        .catch(() => {});
+      api.data.save('aos_services', getStoredServices(defaultServices))
+        .then(() => console.log('[Sync] Services synced to server'))
+        .catch(() => {});
       window.dispatchEvent(new CustomEvent('aos:data-changed'));
       toast.success(
         t({ ar: 'تم تحديث جميع البيانات', fr: 'Toutes les données actualisées', en: 'All data refreshed' })
@@ -191,8 +197,18 @@ export function Admin() {
   useEffect(() => {
     if (!isAuthenticated) return;
     loadOrders();
+    setManageProducts(getStoredProducts(defaultProducts));
+    setManageServices(getStoredServices(defaultServices));
     const interval = setInterval(loadOrders, 5000);
-    return () => clearInterval(interval);
+    const onChanged = () => {
+      setManageProducts(getStoredProducts(defaultProducts));
+      setManageServices(getStoredServices(defaultServices));
+    };
+    window.addEventListener('aos:data-changed', onChanged);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('aos:data-changed', onChanged);
+    };
   }, [isAuthenticated, loadOrders]);
 
   const handleStatusChange = (id: string, status: OrderStatus) => {

@@ -1,7 +1,14 @@
 import { type ServiceCategory } from '../data/services';
+import { syncToServer, loadFromServer } from './serverSync';
 
 const STORAGE_KEY = 'aos_services';
 const INIT_KEY = 'aos_services_initialized';
+const SERVER_KEY = 'aos_services';
+
+function dispatchChange() {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent('aos:data-changed'));
+}
 
 export function getStoredServices(defaults: ServiceCategory[]): ServiceCategory[] {
   try {
@@ -25,7 +32,8 @@ export function initializeServices(defaults: ServiceCategory[]): void {
 
 export function saveServices(services: ServiceCategory[]): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(services));
-  window.dispatchEvent(new CustomEvent('aos:data-changed'));
+  dispatchChange();
+  syncToServer(SERVER_KEY, services);
 }
 
 export function addService(service: Omit<ServiceCategory, 'id'>): ServiceCategory {
@@ -52,4 +60,18 @@ export function deleteService(id: number): boolean {
   if (filtered.length === services.length) return false;
   saveServices(filtered);
   return true;
+}
+
+export async function loadServicesFromServer(defaults: ServiceCategory[]): Promise<ServiceCategory[]> {
+  try {
+    const data = await loadFromServer<ServiceCategory[]>(SERVER_KEY);
+    if (data && data.length > 0) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      localStorage.setItem(INIT_KEY, 'true');
+      return data;
+    }
+  } catch {
+    // server unavailable, use local
+  }
+  return getStoredServices(defaults);
 }

@@ -1,5 +1,6 @@
 import { Suspense, lazy, useState, useEffect } from 'react';
 import { isMaintenanceMode, getMaintenanceMessage } from './utils/maintenanceStorage';
+import { initCrossTabSync } from './utils/sync';
 import { Wrench, Construction } from 'lucide-react';
 import { Toaster } from 'sonner';
 import { Header } from './components/Header';
@@ -53,6 +54,7 @@ export default function App() {
   const [maintenance, setMaintenance] = useState(false);
 
   useEffect(() => {
+    initCrossTabSync();
     setMaintenance(isMaintenanceMode());
     const check = () => setMaintenance(isMaintenanceMode());
     window.addEventListener('aos:data-changed', check);
