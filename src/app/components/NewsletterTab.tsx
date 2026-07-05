@@ -12,6 +12,12 @@ export function NewsletterTab() {
     setSubscribers(getSubscribers());
   }, []);
 
+  useEffect(() => {
+    const refresh = () => setSubscribers(getSubscribers());
+    window.addEventListener('aos:data-changed', refresh);
+    return () => window.removeEventListener('aos:data-changed', refresh);
+  }, []);
+
   const copyAll = () => {
     navigator.clipboard.writeText(subscribers.join('\n'));
     toast.success(t({ ar: 'تم نسخ القائمة', fr: 'Liste copiée', en: 'List copied' }));

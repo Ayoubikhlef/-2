@@ -173,12 +173,15 @@ export function Admin() {
     setIsRefreshing(true);
     try {
       await loadOrders();
+      setManageProducts(getStoredProducts(defaultProducts));
+      setManageServices(getStoredServices(defaultServices));
+      window.dispatchEvent(new CustomEvent('aos:data-changed'));
       toast.success(
-        t({ ar: 'تم تحميل الطلبات الجديدة', fr: 'Nouvelles commandes chargées', en: 'New orders loaded' })
+        t({ ar: 'تم تحديث جميع البيانات', fr: 'Toutes les données actualisées', en: 'All data refreshed' })
       );
     } catch (error) {
       toast.error(
-        t({ ar: 'فشل تحديث الطلبات، سيتم عرض البيانات المحلية', fr: 'Échec de la mise à jour des commandes, affichage des données locales', en: 'Failed to refresh orders, showing local data' })
+        t({ ar: 'فشل التحديث', fr: 'Échec de la mise à jour', en: 'Failed to refresh' })
       );
     } finally {
       setIsRefreshing(false);
