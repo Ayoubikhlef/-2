@@ -41,25 +41,25 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
           </div>
 
           {/* Desktop Menu */}
-          <nav className="hidden lg:flex items-center space-x-4 space-x-reverse">
-            <a href="#products" className="text-sm hover:text-primary transition-colors">
+          <nav className="hidden lg:flex items-center space-x-6 space-x-reverse">
+            <a href="#products" className="text-base font-medium hover:text-primary transition-colors">
               {t({ ar: 'منتجات', fr: 'Produits', en: 'Products' })}
             </a>
-            <a href="#booking" className="text-sm hover:text-primary transition-colors">
+            <a href="#booking" className="text-base font-medium hover:text-primary transition-colors">
               {t({ ar: 'احجز خدمة', fr: 'Réserver', en: 'Book a Service' })}
             </a>
-            <a href="#wishlist" className="text-sm hover:text-primary transition-colors">
+            <a href="#wishlist" className="text-base font-medium hover:text-primary transition-colors">
               {t({ ar: 'المفضلة', fr: 'Souhaits', en: 'Wishlist' })}
             </a>
-            <a href="#faq" className="text-sm hover:text-primary transition-colors">
+            <a href="#faq" className="text-base font-medium hover:text-primary transition-colors">
               {t({ ar: 'الأسئلة الشائعة', fr: 'FAQ', en: 'FAQ' })}
             </a>
-            <a href="#contact" className="text-sm hover:text-primary transition-colors">
+            <a href="#contact" className="text-base font-medium hover:text-primary transition-colors">
               {t({ ar: 'اتصل بنا', fr: 'Contact', en: 'Contact' })}
             </a>
-            <div className="flex items-center space-x-2 space-x-reverse text-sm bg-muted px-4 py-2 rounded-lg">
-              <Phone className="w-4 h-4 text-primary" />
-              <span className="font-medium">0674 11 32 90</span>
+            <div className="flex items-center space-x-2 space-x-reverse text-base font-medium bg-muted px-4 py-2.5 rounded-lg">
+              <Phone className="w-5 h-5 text-primary" />
+              <span className="font-semibold">0674 11 32 90</span>
             </div>
             <button
               onClick={() => setCartOpen(!cartOpen)}
@@ -119,22 +119,22 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
           >
             <div className="mb-3 flex items-center gap-2">
             {user ? (
-              <div className="flex items-center gap-2 text-sm bg-muted px-3 py-2 rounded-lg">
-                <User className="w-4 h-4 text-primary" />
-                <span className="font-medium truncate max-w-[100px]">{user.name}</span>
+              <div className="flex items-center gap-3 text-base font-medium bg-muted px-4 py-3 rounded-lg">
+                <User className="w-5 h-5 text-primary" />
+                <span className="font-semibold truncate max-w-[140px]">{user.name}</span>
                 {isAdmin && (
-                  <a href="#admin" className="text-xs text-primary font-semibold ml-1">
+                  <a href="#admin" className="text-sm text-primary font-bold ml-2">
                     {t({ ar: 'أدمين', fr: 'Admin', en: 'Admin' })}
                   </a>
                 )}
-                <button onClick={logout} className="p-1 hover:bg-background rounded" title={t({ ar: 'تسجيل خروج', fr: 'Déconnexion', en: 'Logout' })}>
-                  <LogOut className="w-4 h-4 text-muted-foreground" />
+                <button onClick={logout} className="p-2 hover:bg-background rounded" title={t({ ar: 'تسجيل خروج', fr: 'Déconnexion', en: 'Logout' })}>
+                  <LogOut className="w-5 h-5 text-muted-foreground" />
                 </button>
               </div>
             ) : (
-              <button onClick={onLoginClick} className="flex items-center gap-2 text-sm bg-muted px-4 py-2 rounded-lg hover:bg-muted/80 transition-colors">
-                <User className="w-4 h-4 text-primary" />
-                <span className="font-medium">{t({ ar: 'دخول', fr: 'Connexion', en: 'Sign In' })}</span>
+              <button onClick={onLoginClick} className="flex items-center gap-3 text-base font-semibold bg-muted px-4 py-3 rounded-lg hover:bg-muted/80 transition-colors w-full justify-center">
+                <User className="w-5 h-5 text-primary" />
+                <span>{t({ ar: 'دخول', fr: 'Connexion', en: 'Sign In' })}</span>
               </button>
             )}
             <LanguageSwitcher />
@@ -142,35 +142,35 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
             </div>
             <a
               href="#products"
-              className="block py-2 hover:text-primary transition-colors"
+              className="block py-3 text-lg font-medium hover:text-primary transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
               {t({ ar: 'منتجات', fr: 'Produits', en: 'Products' })}
             </a>
             <a
               href="#booking"
-              className="block py-2 hover:text-primary transition-colors"
+              className="block py-3 text-lg font-medium hover:text-primary transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
               {t({ ar: 'احجز خدمة', fr: 'Réserver', en: 'Book a Service' })}
             </a>
             <a
               href="#wishlist"
-              className="block py-2 hover:text-primary transition-colors"
+              className="block py-3 text-lg font-medium hover:text-primary transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
               {t({ ar: 'المفضلة', fr: 'Souhaits', en: 'Wishlist' })}
             </a>
             <a
               href="#faq"
-              className="block py-2 hover:text-primary transition-colors"
+              className="block py-3 text-lg font-medium hover:text-primary transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
               {t({ ar: 'الأسئلة الشائعة', fr: 'FAQ', en: 'FAQ' })}
             </a>
             <a
               href="#contact"
-              className="block py-2 hover:text-primary transition-colors"
+              className="block py-3 text-lg font-medium hover:text-primary transition-colors"
               onClick={() => setMobileMenuOpen(false)}
             >
               {t({ ar: 'اتصل بنا', fr: 'Contact', en: 'Contact' })}

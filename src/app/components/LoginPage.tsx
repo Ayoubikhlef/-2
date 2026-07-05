@@ -1,138 +1,156 @@
 import { useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
-import { LogIn, UserPlus, Mail, Lock, User, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function LoginPage({ onClose }: { onClose: () => void }) {
   const { t, language } = useLanguage();
-  const { login, register } = useAuth();
-  const [isRegister, setIsRegister] = useState(false);
+  const { login } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({ email: '', password: '', name: '', phone: '' });
+  const [error, setError] = useState('');
+  const [form, setForm] = useState({ email: '', password: '' });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     setLoading(true);
     try {
-      if (isRegister) {
-        await register({ email: form.email, password: form.password, name: form.name, phone: form.phone });
-        toast.success(t({ ar: 'تم إنشاء الحساب', fr: 'Compte créé', en: 'Account created' }));
-      } else {
-        await login(form.email, form.password);
-        toast.success(t({ ar: 'تم تسجيل الدخول', fr: 'Connecté', en: 'Logged in' }));
-      }
+      await login(form.email, form.password);
+      toast.success(t({ ar: 'تم تسجيل الدخول', fr: 'Connecté', en: 'Logged in' }));
       onClose();
     } catch (err: any) {
-      toast.error(err.message);
+      setError(err.message || t({ ar: 'اسم مستخدم أو كلمة مرور خاطئة', fr: 'Identifiants incorrects', en: 'Invalid credentials' }));
     } finally {
       setLoading(false);
     }
   };
 
+  const dir = language === 'ar' ? 'rtl' : 'ltr';
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" onClick={onClose}>
-      <div className="w-full max-w-md rounded-[32px] border border-border bg-background shadow-2xl p-8" onClick={(e) => e.stopPropagation()}>
-        <div className={`flex items-center gap-3 mb-6 ${language === 'ar' ? 'flex-row-reverse' : ''}`}>
-          <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center">
-            {isRegister ? <UserPlus className="w-6 h-6 text-primary" /> : <LogIn className="w-6 h-6 text-primary" />}
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold">
-              {isRegister
-                ? t({ ar: 'إنشاء حساب', fr: 'Créer un compte', en: 'Create Account' })
-                : t({ ar: 'تسجيل الدخول', fr: 'Connexion', en: 'Sign In' })}
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              {isRegister
-                ? t({ ar: 'أنشئ حساب للاستفادة من الميزات', fr: 'Créez un compte pour profiter des fonctionnalités', en: 'Create an account to enjoy features' })
-                : t({ ar: 'مرحباً بعودتك', fr: 'Bon retour', en: 'Welcome back' })}
-            </p>
-          </div>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+      onClick={onClose}
+      dir={dir}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: '#0f172a',
+          borderRadius: '28px',
+          boxShadow: '0 0 40px rgba(59,130,246,.15), 0 0 80px rgba(59,130,246,.05)',
+          border: '1px solid rgba(59,130,246,.1)',
+          width: '520px',
+          minHeight: '620px',
+          padding: '50px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          textAlign: 'center',
+        } as React.CSSProperties}
+      >
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '35px' }}>
+          <h1 style={{ margin: 0, fontSize: '38px', fontWeight: 700, color: '#f1f5f9' }}>
+            {t({ ar: 'دخول الأدمين', fr: 'Connexion Admin', en: 'Admin Login' })}
+          </h1>
+          <button
+            type="button"
+            style={{
+              width: '56px',
+              height: '56px',
+              border: 'none',
+              borderRadius: '50%',
+              background: '#fbbf24',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              boxShadow: '0 0 20px rgba(251,191,36,.5), 0 0 40px rgba(251,191,36,.2)',
+            }}
+          >
+            <span style={{ fontSize: '24px' }}>💡</span>
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {isRegister && (
-            <div>
-              <label className="block text-sm font-bold mb-1.5">{t({ ar: 'الاسم', fr: 'Nom', en: 'Name' })}</label>
-              <div className="relative">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <input
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full rounded-2xl border-2 border-border bg-background pl-12 pr-5 py-3.5 text-base outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-                  placeholder="Ahmed Ben Ali"
-                  required
-                />
-              </div>
-            </div>
-          )}
+        {/* Form */}
+        <form onSubmit={handleSubmit} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '22px' }}>
+          <input
+            type="text"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            placeholder={t({ ar: 'اسم المستخدم', fr: "Nom d'utilisateur", en: 'Username' })}
+            required
+            style={{
+              width: '100%',
+              height: '64px',
+              padding: '20px 24px',
+              fontSize: '19px',
+              color: '#e2e8f0',
+              background: '#1e293b',
+              border: 'none',
+              borderRadius: '20px',
+              outline: 'none',
+              boxShadow: 'inset 4px 4px 8px #0f172a, inset -4px -4px 8px #2d3a4c',
+              boxSizing: 'border-box',
+            }}
+          />
 
-          <div>
-            <label className="block text-sm font-bold mb-1.5">{t({ ar: 'البريد الإلكتروني', fr: 'Email', en: 'Email' })}</label>
-            <div className="relative">
-              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <input
-                type="email"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="w-full rounded-2xl border-2 border-border bg-background pl-12 pr-5 py-3.5 text-base outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-                placeholder="email@example.com"
-                required
-              />
-            </div>
-          </div>
+          <input
+            type="password"
+            value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
+            placeholder={t({ ar: 'كلمة المرور', fr: 'Mot de passe', en: 'Password' })}
+            required
+            minLength={6}
+            style={{
+              width: '100%',
+              height: '64px',
+              padding: '20px 24px',
+              fontSize: '19px',
+              color: '#e2e8f0',
+              background: '#1e293b',
+              border: 'none',
+              borderRadius: '20px',
+              outline: 'none',
+              boxShadow: 'inset 4px 4px 8px #0f172a, inset -4px -4px 8px #2d3a4c',
+              boxSizing: 'border-box',
+            }}
+          />
 
-          <div>
-            <label className="block text-sm font-bold mb-1.5">{t({ ar: 'كلمة المرور', fr: 'Mot de passe', en: 'Password' })}</label>
-            <div className="relative">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <input
-                type="password"
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                className="w-full rounded-2xl border-2 border-border bg-background pl-12 pr-5 py-3.5 text-base outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-                placeholder="••••••••"
-                required
-                minLength={6}
-              />
-            </div>
-          </div>
-
-          {isRegister && (
-            <div>
-              <label className="block text-sm font-bold mb-1.5">{t({ ar: 'رقم الهاتف', fr: 'Téléphone', en: 'Phone' })}</label>
-              <input
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                className="w-full rounded-2xl border-2 border-border bg-background px-5 py-3.5 text-base outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
-                placeholder="0674 11 32 90"
-              />
-            </div>
+          {error && (
+            <p style={{ margin: 0, fontSize: '16px', color: '#ef4444', textAlign: 'center' }}>
+              {error}
+            </p>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="btn-liquid w-full rounded-2xl bg-primary text-primary-foreground py-4 font-bold text-lg hover:opacity-90 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+            style={{
+              width: '100%',
+              height: '64px',
+              background: '#1e293b',
+              color: '#e2e8f0',
+              fontSize: '20px',
+              fontWeight: 700,
+              border: 'none',
+              borderRadius: '20px',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.6 : 1,
+              boxShadow: '4px 4px 8px #0f172a, -4px -4px 8px #2d3a4c',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+            }}
           >
-            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : isRegister ? <UserPlus className="w-5 h-5" /> : <LogIn className="w-5 h-5" />}
-            {isRegister
-              ? t({ ar: 'إنشاء حساب', fr: 'Créer un compte', en: 'Create Account' })
-              : t({ ar: 'تسجيل الدخول', fr: 'Se connecter', en: 'Sign In' })}
+            {loading ? <Loader2 className="animate-spin" size={24} /> : null}
+            {t({ ar: 'دخول', fr: 'Connexion', en: 'Login' })}
           </button>
         </form>
-
-        <p className="text-center mt-6 text-sm text-muted-foreground">
-          {isRegister
-            ? t({ ar: 'لديك حساب؟ ', fr: 'Vous avez un compte? ', en: 'Have an account? ' })
-            : t({ ar: 'ليس لديك حساب؟ ', fr: "Vous n'avez pas de compte? ", en: "Don't have an account? " })}
-          <button onClick={() => setIsRegister(!isRegister)} className="text-primary font-semibold hover:underline">
-            {isRegister
-              ? t({ ar: 'تسجيل الدخول', fr: 'Connectez-vous', en: 'Sign In' })
-              : t({ ar: 'سجل الآن', fr: 'Inscrivez-vous', en: 'Register' })}
-          </button>
-        </p>
       </div>
     </div>
   );

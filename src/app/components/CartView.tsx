@@ -1,6 +1,8 @@
 import { useCart } from '../contexts/CartContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { ShoppingCart, X, Trash2 } from 'lucide-react';
+import { formatPrice } from '../lib/utils';
+import { DeliveryCalculator } from './DeliveryCalculator';
 
 export function Cart() {
   const { items, removeItem, updateQuantity, total, clear } = useCart();
@@ -32,7 +34,7 @@ export function Cart() {
           <div className="flex-1">
             <h4 className="font-semibold">{item.name}</h4>
             <p className="text-sm text-muted-foreground">
-              {item.price.toLocaleString()} د.ج × {item.quantity}
+              {formatPrice(item.price)} × {item.quantity}
             </p>
           </div>
 
@@ -45,7 +47,7 @@ export function Cart() {
               className="w-16 px-2 py-1 border border-border rounded text-center"
             />
             <p className="font-semibold w-24 text-right">
-              {(item.price * item.quantity).toLocaleString()} د.ج
+              {formatPrice(item.price * item.quantity)}
             </p>
             <button
               onClick={() => removeItem(item.productId)}
@@ -58,13 +60,14 @@ export function Cart() {
         </div>
       ))}
 
-      <div className="border-t border-border pt-4 mt-4">
-        <div className="flex justify-between mb-4">
+      <div className="border-t border-border pt-4 mt-4 space-y-3">
+        <DeliveryCalculator />
+        <div className="flex justify-between">
           <span className="text-lg font-bold">
             {t({ ar: 'المجموع:', fr: 'Total:', en: 'Total:' })}
           </span>
           <span className="text-2xl font-bold text-primary">
-            {total.toLocaleString()} د.ج
+            {formatPrice(total)}
           </span>
         </div>
         <button

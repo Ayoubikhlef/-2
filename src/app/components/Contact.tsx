@@ -1,9 +1,11 @@
 import { MapPin, Phone, Mail, Facebook } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { motion } from 'motion/react';
+import { getSiteSettings } from '../utils/siteSettingsStorage';
 
 export function Contact() {
   const { t } = useLanguage();
+  const settings = getSiteSettings();
 
   return (
     <motion.section
@@ -34,12 +36,8 @@ export function Contact() {
             <h3 className="mb-2">
               {t({ ar: 'العنوان', fr: 'Adresse', en: 'Address' })}
             </h3>
-            <p className="text-muted-foreground leading-relaxed">
-              {t({
-                ar: 'الشارع الكبير، الميلية، جيجل',
-                fr: 'Grand Boulevard, El Milia, Jijel',
-                en: 'Grand Boulevard, El Milia, Jijel'
-              })}
+              <p className="text-muted-foreground leading-relaxed">
+                {t(settings.contact.address)}
             </p>
           </div>
 
@@ -51,8 +49,8 @@ export function Contact() {
               {t({ ar: 'الهاتف', fr: 'Téléphone', en: 'Phone' })}
             </h3>
             <p className="text-muted-foreground">
-              <a href="tel:0674113290" className="text-xl font-semibold hover:text-primary transition-colors block">
-                0674 11 32 90
+              <a href={`tel:${settings.contact.phone}`} className="text-xl font-semibold hover:text-primary transition-colors block">
+                {settings.contact.phoneDisplay}
               </a>
             </p>
           </div>
@@ -71,8 +69,8 @@ export function Contact() {
                 en: 'Follow us on Facebook'
               })}
             </p>
-            <a href="https://www.facebook.com/share/1BTrNWjYPx/" target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-primary hover:underline break-all">
-              Ayoub Office Services
+            <a href={settings.contact.facebookUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-primary hover:underline break-all">
+              {settings.contact.facebookName}
             </a>
           </div>
 
@@ -90,8 +88,8 @@ export function Contact() {
                 en: 'At your service'
               })}
             </p>
-            <a href="mailto:ayoub.office.services@gmail.com" className="text-sm font-medium text-primary hover:underline break-all">
-              ayoub.office.services@gmail.com
+            <a href={`mailto:${settings.contact.email}`} className="text-sm font-medium text-primary hover:underline break-all">
+              {settings.contact.email}
             </a>
           </div>
         </div>

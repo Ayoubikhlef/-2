@@ -13,18 +13,18 @@ function loadProducts() {
 function extractColors(imageData: ImageData): string[] {
   const data = imageData.data;
   const colorCounts: Record<string, number> = {};
-  const step = 20;
+  const step = 10;
 
   for (let i = 0; i < data.length; i += step * 4) {
-    const r = Math.round(data[i] / 50) * 50;
-    const g = Math.round(data[i + 1] / 50) * 50;
-    const b = Math.round(data[i + 2] / 50) * 50;
+    const r = Math.round(data[i] / 30) * 30;
+    const g = Math.round(data[i + 1] / 30) * 30;
+    const b = Math.round(data[i + 2] / 30) * 30;
     const key = `${r},${g},${b}`;
     colorCounts[key] = (colorCounts[key] || 0) + 1;
   }
 
   const sorted = Object.entries(colorCounts).sort((a, b) => b[1] - a[1]);
-  const topColors = sorted.slice(0, 5).map(([key]) => {
+  const topColors = sorted.slice(0, 8).map(([key]) => {
     const [r, g, b] = key.split(',').map(Number);
     return rgbToColorName(r, g, b);
   });
@@ -44,6 +44,11 @@ function rgbToColorName(r: number, g: number, b: number): string {
   if (r < 100 && g > 100 && b > 150) return 'teal';
   if (r > 150 && g > 150 && b > 150) return 'gray';
   if (r > 200 && g > 100 && b > 150) return 'pink';
+  if (r > 150 && g < 60 && b < 60) return 'brown';
+  if (r > 100 && r < 180 && g > 100 && g < 180 && b < 100) return 'olive';
+  if (r < 80 && g < 80 && b > 100) return 'navy';
+  if (r > 180 && g > 180 && b > 180) return 'silver';
+  if (r > 200 && g > 200 && b < 50) return 'gold';
   return 'other';
 }
 
@@ -59,6 +64,11 @@ const colorTranslations: Record<string, Record<string, string>> = {
   teal: { ar: 'سماوي', fr: 'cyan', en: 'teal' },
   gray: { ar: 'رمادي', fr: 'gris', en: 'gray' },
   pink: { ar: 'وردي', fr: 'rose', en: 'pink' },
+  brown: { ar: 'بني', fr: 'marron', en: 'brown' },
+  olive: { ar: 'زيتوني', fr: 'olive', en: 'olive' },
+  navy: { ar: 'كحلي', fr: 'bleu marine', en: 'navy' },
+  silver: { ar: 'فضي', fr: 'argenté', en: 'silver' },
+  gold: { ar: 'ذهبي', fr: 'doré', en: 'gold' },
   other: { ar: 'آخر', fr: 'autre', en: 'other' },
 };
 
@@ -96,16 +106,32 @@ export function VisualSearch({ onClose }: { onClose: () => void }) {
       const detected = extractColors(imageData);
       setColors(detected);
 
-      const colorNames = Object.keys(colorTranslations);
       const matched = products.filter(p => !p.hidden).filter((p) => {
-        const text = `${p.nameAr} ${p.nameFr} ${p.nameEn} ${p.descAr} ${p.descFr} ${p.descEn} ${p.brand || ''}`.toLowerCase();
+        const text = `${p.nameAr} ${p.nameFr} ${p.nameEn} ${p.descAr} ${p.descFr} ${p.descEn} ${p.brand || ''} ${p.category || ''}`.toLowerCase();
         return detected.some((c) => {
           const trans = colorTranslations[c];
           if (!trans) return false;
           return Object.values(trans).some((t) => text.includes(t.toLowerCase()));
         });
       });
-      setResults(matched.slice(0, 12));
+
+      const scored = matched.map(p => {
+        const text = `${p.nameAr} ${p.nameFr} ${p.nameEn} ${p.descAr} ${p.descFr} ${p.descEn} ${p.brand || ''}`.toLowerCase();
+        let score = 0;
+        detected.forEach((c) => {
+          const trans = colorTranslations[c];
+          if (trans) Object.values(trans).forEach(t => { if (text.includes(t.toLowerCase())) score += 10; });
+        });
+        const cat = p.category || '';
+        if (detected.some(c => ['black', 'gray', 'white', 'silver'].includes(c)) && ['mice', 'monitors', 'printers'].includes(cat)) score += 5;
+        if (detected.some(c => ['blue', 'red', 'green', 'orange'].includes(c)) && cat === 'accessories') score += 3;
+        if (p.nameEn.toLowerCase().includes('wireless') || p.nameFr.toLowerCase().includes('sans fil')) score += 2;
+        return { product: p, score };
+      })
+        .sort((a, b) => b.score - a.score)
+        .map(s => s.product);
+
+      setResults(scored.slice(0, 12));
       setLoading(false);
       setSearched(true);
       if (matched.length === 0) {

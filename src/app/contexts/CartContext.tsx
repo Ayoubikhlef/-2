@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { getDeliveryFee, isFreeDelivery, FREE_DELIVERY_THRESHOLD } from '../data/deliveryFees';
 
 export interface CartItem {
   productId: number;
@@ -14,6 +15,10 @@ interface CartContextType {
   updateQuantity: (productId: number, quantity: number) => void;
   clear: () => void;
   total: number;
+  deliveryWilaya: number;
+  setDeliveryWilaya: (id: number) => void;
+  deliveryFee: number;
+  grandTotal: number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -36,6 +41,7 @@ function saveCart(items: CartItem[]) {
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>(loadCart);
+  const [deliveryWilaya, setDeliveryWilaya] = useState(18);
 
   useEffect(() => { saveCart(items); }, [items]);
 
@@ -74,9 +80,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const clear = () => setItems([]);
 
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const deliveryFee = isFreeDelivery(total) ? 0 : getDeliveryFee(deliveryWilaya);
+  const grandTotal = total + deliveryFee;
 
   return (
-    <CartContext.Provider value={{ items, addItem, removeItem, updateQuantity, clear, total }}>
+    <CartContext.Provider value={{ items, addItem, removeItem, updateQuantity, clear, total, deliveryWilaya, setDeliveryWilaya, deliveryFee, grandTotal }}>
       {children}
     </CartContext.Provider>
   );

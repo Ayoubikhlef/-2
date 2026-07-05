@@ -1,12 +1,14 @@
 import { Award, Clock, Users, Heart } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { whyUsFeatures } from '../data/translations';
+import { getSiteContent } from '../utils/siteContentStorage';
 import { motion } from 'motion/react';
 
 const icons = [Award, Clock, Users, Heart];
 
 export function WhyUs() {
   const { t, language } = useLanguage();
+  const content = getSiteContent();
+  const { features, title, subtitle } = content.whyUs;
 
   return (
     <motion.section
@@ -18,23 +20,15 @@ export function WhyUs() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="mb-4">
-            {t({
-              ar: 'لماذا تختار Ayoub Office Services؟',
-              fr: 'Pourquoi choisir Ayoub Office Services ?',
-              en: 'Why Choose Ayoub Office Services?'
-            })}
+            {t(title)}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            {t({
-              ar: 'نحن نقدم أكثر من مجرد خدمات - نقدم تجربة متميزة تجعل عملك أسهل وأسرع',
-              fr: 'Nous offrons plus que des services - une expérience exceptionnelle qui facilite et accélère votre travail',
-              en: 'We offer more than just services - an exceptional experience that makes your work easier and faster'
-            })}
+            {t(subtitle)}
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {whyUsFeatures.map((feature, index) => {
+          {features.map((feature, index) => {
             const Icon = icons[index];
             return (
               <div

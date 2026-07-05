@@ -53,3 +53,27 @@ export function getRatingDistribution(productId: number): Record<number, number>
   }
   return dist;
 }
+
+export function getAllReviewsAdmin(): Review[] {
+  return getAllReviews();
+}
+
+export function deleteReview(id: string): void {
+  const reviews = getAllReviews().filter(r => r.id !== id);
+  saveAllReviews(reviews);
+}
+
+export function getReviewProductMap(): Record<string, string> {
+  try {
+    const raw = localStorage.getItem('aos_products');
+    if (!raw) return {};
+    const products = JSON.parse(raw);
+    const map: Record<string, string> = {};
+    if (Array.isArray(products)) {
+      for (const p of products) {
+        map[p.id] = p.nameAr || p.nameEn || p.nameFr || `Product ${p.id}`;
+      }
+    }
+    return map;
+  } catch { return {}; }
+}

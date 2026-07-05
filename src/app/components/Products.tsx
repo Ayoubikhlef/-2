@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { ShoppingCart, Plus, Minus, X, User, Phone, Mail, MapPin, CheckCircle, Info, Heart, Search, Camera } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, X, User, Phone, Mail, MapPin, CheckCircle, Info, Heart, Search, Camera, Share2, Eye, Banknote, CreditCard, Smartphone } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useCart } from '../contexts/CartContext';
 import { products as defaultProducts, wilayas, getMunicipalities, type Product } from '../data/products';
@@ -11,6 +11,8 @@ import { SkeletonGrid } from './SkeletonCard';
 import { getWishlist, toggleWishlist, isInWishlist } from '../utils/wishlistStorage';
 import { VisualSearch } from './VisualSearch';
 import { Reviews } from './Reviews';
+import { ProductGallery } from './ProductGallery';
+import { SearchSuggestions } from './SearchSuggestions';
 
 function loadProducts() {
   return getStoredProducts(defaultProducts);
@@ -34,6 +36,8 @@ const categoryLabels: Record<string, { ar: string; fr: string; en: string }> = {
   storage: { ar: 'تخزين', fr: 'Stockage', en: 'Storage' },
   printers: { ar: 'طابعات', fr: 'Imprimantes', en: 'Printers' },
   accessories: { ar: 'إكسسوارات', fr: 'Accessoires', en: 'Accessories' },
+  laptops: { ar: 'لابتوبات', fr: 'Ordinateurs', en: 'Laptops' },
+  networking: { ar: 'شبكات', fr: 'Réseaux', en: 'Networking' },
 };
 
 export function Products() {
@@ -42,6 +46,7 @@ export function Products() {
   const [products, setProducts] = useState<Product[]>(loadProducts);
   const [quantities, setQuantities] = useState<{ [key: number]: number }>({});
   const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -49,6 +54,7 @@ export function Products() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [visualSearchOpen, setVisualSearchOpen] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const perPage = 12;
 
   useEffect(() => {
@@ -83,6 +89,16 @@ export function Products() {
     }
     return result;
   }, [activeCategory, debouncedSearch]);
+  const suggestions = useMemo(() => {
+    if (!debouncedSearch.trim()) return [];
+    const q = debouncedSearch.toLowerCase();
+    return products.filter(p => !p.hidden && (
+      p.nameAr.includes(q) ||
+      p.nameFr.toLowerCase().includes(q) ||
+      p.nameEn.toLowerCase().includes(q) ||
+      p.brand.toLowerCase().includes(q)
+    )).slice(0, 6);
+  }, [debouncedSearch, products]);
   const totalPages = Math.ceil(filteredProducts.length / perPage);
   const paginatedProducts = filteredProducts.slice((page - 1) * perPage, page * perPage);
   const [orderData, setOrderData] = useState<OrderData>({
@@ -95,6 +111,10 @@ export function Products() {
     quantity: 1,
     note: '',
   });
+  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'cib' | 'edahabia' | 'baridi'>('cod');
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number; type: 'percentage' | 'fixed' } | null>(null);
+  const [couponError, setCouponError] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [lastOrderId, setLastOrderId] = useState<string | null>(null);
 
@@ -110,6 +130,34 @@ export function Products() {
 
   const closeProductDetails = () => {
     setViewingProduct(null);
+  };
+
+  const openQuickView = (product: Product) => {
+    setQuickViewProduct(product);
+  };
+
+  const closeQuickView = () => {
+    setQuickViewProduct(null);
+  };
+
+  const shareProduct = (product: Product) => {
+    const name = language === 'ar' ? product.nameAr : language === 'fr' ? product.nameFr : product.nameEn;
+    const desc = language === 'ar' ? product.shortDescAr : language === 'fr' ? product.shortDescFr : product.shortDescEn;
+    const shareData = {
+      title: name,
+      text: `${name} - ${desc}`,
+      url: window.location.href,
+    };
+    if (navigator.share) {
+      navigator.share(shareData).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(`${name}\n${window.location.href}`).then(() => {
+        toast.success(t({ ar: 'تم نسخ الرابط', fr: 'Lien copié', en: 'Link copied' }));
+      }).catch(() => {
+        const whatsapp = `https://wa.me/?text=${encodeURIComponent(`${name}\n${window.location.href}`)}`;
+        window.open(whatsapp, '_blank');
+      });
+    }
   };
 
   const openOrderModal = (product: Product) => {
@@ -155,6 +203,9 @@ export function Products() {
     const wilayaName = wilayas.find((w) => w.id.toString() === orderData.wilaya)?.[language === 'ar' ? 'nameAr' : language === 'fr' ? 'nameFr' : 'nameEn'] || '';
     const municipalityName = getMunicipalities(Number(orderData.wilaya)).find((m) => m.id === orderData.municipality)?.[language === 'ar' ? 'nameAr' : language === 'fr' ? 'nameFr' : 'nameEn'] || '';
 
+    const discountAmount = appliedCoupon ? Math.min(appliedCoupon.discount, selectedProduct.price * orderData.quantity) : 0;
+    const grandTotal = selectedProduct.price * orderData.quantity - discountAmount;
+
     addItem({
       productId: selectedProduct.id,
       quantity: orderData.quantity,
@@ -171,8 +222,11 @@ export function Products() {
       address: orderData.address,
       note: orderData.note,
       items: [{ name: productName, quantity: orderData.quantity, price: selectedProduct.price, total: selectedProduct.price * orderData.quantity }],
-      total: selectedProduct.price * orderData.quantity,
+      total: grandTotal,
       source: 'quick-order',
+      paymentMethod,
+      discount: discountAmount > 0 ? discountAmount : undefined,
+      discountCode: appliedCoupon?.code,
     });
 
     setSubmitted(true);
@@ -211,7 +265,9 @@ export function Products() {
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => { setSearchQuery(e.target.value); setShowSuggestions(true); }}
+              onFocus={() => setShowSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
               placeholder={t({ ar: 'ابحث عن منتج...', fr: 'Rechercher un produit...', en: 'Search products...' })}
               aria-label="Search products"
               className="w-full rounded-2xl border-2 border-border bg-background pl-12 pr-14 py-4 text-base outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
@@ -223,6 +279,16 @@ export function Products() {
             >
               <Camera className="w-5 h-5 text-muted-foreground hover:text-primary transition-colors" />
             </button>
+            <AnimatePresence>
+              {showSuggestions && (
+                <SearchSuggestions
+                  query={debouncedSearch}
+                  products={suggestions}
+                  onSelect={(product) => openProductDetails(product)}
+                  onClose={() => setShowSuggestions(false)}
+                />
+              )}
+            </AnimatePresence>
           </div>
 
           <div className="flex flex-wrap justify-center gap-2" role="tablist">
@@ -287,10 +353,26 @@ export function Products() {
                     {t({ ar: 'عرض التفاصيل', fr: 'Voir détails', en: 'View details' })}
                   </div>
                   {product.brand && (
-                    <div className="bg-black/40 backdrop-blur-sm text-white/90 px-3 py-0.5 rounded-full text-[10px] font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="bg-black/40 backdrop-blur-sm text-white/90 px-0.5 py-0.5 rounded-full text-[10px] font-medium opacity-0 group-hover:opacity-100 transition-opacity">
                       {product.brand}
                     </div>
                   )}
+                </div>
+                <div className="absolute bottom-4 left-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); openQuickView(product); }}
+                    className="flex-1 bg-primary/90 backdrop-blur-sm text-white text-xs font-semibold px-3 py-2 rounded-lg hover:bg-primary transition flex items-center justify-center gap-1.5"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    {t({ ar: 'معاينة سريعة', fr: 'Aperçu rapide', en: 'Quick view' })}
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); shareProduct(product); }}
+                    className="bg-white/20 backdrop-blur-sm text-white p-2 rounded-lg hover:bg-white/30 transition"
+                    aria-label={t({ ar: 'مشاركة', fr: 'Partager', en: 'Share' })}
+                  >
+                    <Share2 className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
 
@@ -378,14 +460,10 @@ export function Products() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="relative">
-              <div className="h-64 sm:h-80 overflow-hidden bg-muted">
-                <img
-                  src={viewingProduct.image}
-                  alt={language === 'ar' ? viewingProduct.nameAr : viewingProduct.nameEn}
-                  className="w-full h-full object-contain bg-white/50 dark:bg-white/5"
-                  loading="lazy"
-                />
-              </div>
+              <ProductGallery
+                images={[viewingProduct.image, ...viewingProduct.images]}
+                name={language === 'ar' ? viewingProduct.nameAr : viewingProduct.nameEn}
+              />
               <button
                 onClick={closeProductDetails}
                 className="absolute top-4 right-4 rounded-full bg-black/50 backdrop-blur-sm p-3 text-white hover:bg-black/70 transition-all"
@@ -407,25 +485,17 @@ export function Products() {
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/></svg>
               </button>
-              <div className="absolute bottom-6 left-6 right-6">
-                <h2 className="text-3xl font-bold text-white mb-1">
+            </div>
+            <div className="p-6 sm:p-8">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-3xl font-bold">
                   {language === 'ar' ? viewingProduct.nameAr : language === 'fr' ? viewingProduct.nameFr : viewingProduct.nameEn}
                 </h2>
-                <div className="flex items-center gap-3">
-                  <span className="text-2xl font-bold text-primary bg-background/90 rounded-full px-4 py-1">
-                    {viewingProduct.price.toLocaleString()} د.ج
-                  </span>
-                  <span className="text-white/80 text-sm bg-black/30 backdrop-blur-sm rounded-full px-3 py-1">
-                    {viewingProduct.category === 'mice' ? (language === 'ar' ? 'ماوس' : language === 'fr' ? 'Souris' : 'Mouse') :
-                     viewingProduct.category === 'monitors' ? (language === 'ar' ? 'شاشة' : language === 'fr' ? 'Moniteur' : 'Monitor') :
-                     viewingProduct.category === 'storage' ? (language === 'ar' ? 'تخزين' : language === 'fr' ? 'Stockage' : 'Storage') :
-                     (language === 'ar' ? 'طابعة' : language === 'fr' ? 'Imprimante' : 'Printer')}
-                  </span>
-                </div>
+                <span className="text-2xl font-bold text-primary">
+                  {viewingProduct.price.toLocaleString()} د.ج
+                </span>
               </div>
-            </div>
 
-            <div className="p-6 sm:p-8">
               <p className="text-muted-foreground mb-8 text-lg">
                 {language === 'ar' ? viewingProduct.descAr : language === 'fr' ? viewingProduct.descFr : viewingProduct.descEn}
               </p>
@@ -449,6 +519,31 @@ export function Products() {
               </div>
 
               <Reviews productId={viewingProduct.id} />
+
+              {viewingProduct.relatedIds.length > 0 && (
+                <div className="mb-8">
+                  <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                    {t({ ar: '🔄 منتجات قد تهمك', fr: '🔄 Vous pourriez aimer', en: '🔄 You may also like' })}
+                  </h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                    {products.filter(p => viewingProduct.relatedIds.includes(p.id) && !p.hidden).map((rel) => (
+                      <button
+                        key={rel.id}
+                        onClick={() => openProductDetails(rel)}
+                        className="group bg-card rounded-xl border border-border hover:border-primary/50 hover:shadow-lg transition-all p-3 text-center"
+                      >
+                        <div className="h-20 bg-muted rounded-lg mb-2 overflow-hidden">
+                          <img src={rel.image} alt="" className="w-full h-full object-contain p-2 bg-white/50 dark:bg-white/5" loading="lazy" />
+                        </div>
+                        <p className="text-xs font-semibold leading-tight mb-1 line-clamp-2">
+                          {language === 'ar' ? rel.nameAr : language === 'fr' ? rel.nameFr : rel.nameEn}
+                        </p>
+                        <p className="text-xs text-primary font-bold">{rel.price.toLocaleString()} د.ج</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
@@ -824,23 +919,94 @@ export function Products() {
                               <span className="font-bold text-primary">{t({ ar: 'الإجمالي', fr: 'Total', en: 'Total' })}</span>
                               <span className="font-bold text-primary text-xl">{(selectedProduct.price * orderData.quantity).toLocaleString()} د.ج</span>
                             </div>
+                            {(() => {
+                              const discountAmt = appliedCoupon ? Math.min(appliedCoupon.discount, selectedProduct.price * orderData.quantity) : 0;
+                              return discountAmt > 0 ? (
+                                <>
+                                  <div className="flex justify-between text-sm text-green-600 dark:text-green-400 pt-2">
+                                    <span>{t({ ar: 'الخصم', fr: 'Réduction', en: 'Discount' })}</span>
+                                    <span className="font-semibold">-{discountAmt.toLocaleString()} د.ج</span>
+                                  </div>
+                                  <div className="flex justify-between text-lg font-bold text-primary border-t border-border pt-2 mt-2">
+                                    <span>{t({ ar: 'المجموع بعد الخصم', fr: 'Total après réduc.', en: 'Total after discount' })}</span>
+                                    <span className="text-xl">{(selectedProduct.price * orderData.quantity - discountAmt).toLocaleString()} د.ج</span>
+                                  </div>
+                                </>
+                              ) : null;
+                            })()}
                           </div>
                         </div>
                       </div>
 
-                      {/* Payment Info */}
-                      <div className="rounded-2xl border-2 border-emerald-300/50 bg-gradient-to-br from-emerald-50 to-emerald-50/50 p-5 dark:from-emerald-900/20 dark:to-emerald-900/10 dark:border-emerald-800/50">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center">
-                            <CheckCircle className="w-4 h-4" />
-                          </div>
-                          <p className="font-bold text-base text-emerald-800 dark:text-emerald-300">
-                            {t({ ar: 'الدفع عند الاستلام', fr: 'Paiement à la livraison', en: 'Cash on Delivery' })}
-                          </p>
+                      {/* Payment Method */}
+                      <div>
+                        <p className="text-sm font-bold mb-2">{t({ ar: 'طريقة الدفع', fr: 'Mode de paiement', en: 'Payment' })}</p>
+                        <div className="grid grid-cols-2 gap-2">
+                          {([
+                            { value: 'cod', labelAr: 'عند الاستلام', labelFr: 'À la livr.', en: 'Cash on Del.', icon: 'Banknote' },
+                            { value: 'cib', labelAr: 'CIB', labelFr: 'CIB', en: 'CIB', icon: 'CreditCard' },
+                            { value: 'edahabia', labelAr: 'Edahabia', labelFr: 'Edahabia', en: 'Edahabia', icon: 'Smartphone' },
+                            { value: 'baridi', labelAr: 'BaridiMob', labelFr: 'BaridiMob', en: 'BaridiMob', icon: 'Smartphone' },
+                          ] as const).map((pm) => {
+                            const Icon = pm.icon === 'Banknote' ? Banknote : pm.icon === 'CreditCard' ? CreditCard : Smartphone;
+                            return (
+                              <button
+                                key={pm.value}
+                                type="button"
+                                onClick={() => setPaymentMethod(pm.value)}
+                                className={`flex items-center gap-2 p-2 rounded-xl border-2 text-xs font-semibold transition-all ${
+                                  paymentMethod === pm.value
+                                    ? 'border-primary bg-primary/10 text-primary'
+                                    : 'border-border bg-card hover:border-primary/50'
+                                }`}
+                              >
+                                <Icon className="w-4 h-4 shrink-0" />
+                                <span>{pm[language === 'ar' ? 'labelAr' : language === 'fr' ? 'labelFr' : 'en']}</span>
+                              </button>
+                            );
+                          })}
                         </div>
-                        <p className="text-sm text-emerald-700/80 dark:text-emerald-400/80 leading-relaxed">
-                          {t({ ar: 'تواصل سريع وآمن إلى جميع ولايات الجزائر. الدفع نقداً عند استلام طلبك.', fr: 'Livraison rapide et sécurisée dans toute l\'Algérie. Paiement en espèces à la réception.', en: 'Fast and secure delivery to all Algerian provinces. Pay cash upon receipt.' })}
-                        </p>
+                        {paymentMethod !== 'cod' && (
+                          <div className="mt-2 p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-800 dark:text-amber-300">
+                            {t({ ar: 'سنرسل لك معلومات الحساب عبر الواتساب', fr: 'Coordonnées bancaires par WhatsApp', en: 'Bank details via WhatsApp' })}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Coupon */}
+                      <div>
+                        <p className="text-sm font-bold mb-2">{t({ ar: 'كود الخصم', fr: 'Code promo', en: 'Coupon' })}</p>
+                        {appliedCoupon ? (
+                          <div className="flex items-center justify-between bg-green-500/10 border border-green-500/20 rounded-xl p-2 text-xs">
+                            <span className="font-bold text-green-700 dark:text-green-400">{appliedCoupon.code} (-{(selectedProduct ? Math.min(appliedCoupon.discount, selectedProduct.price * orderData.quantity) : 0).toLocaleString()} د.ج)</span>
+                            <button type="button" onClick={() => { setAppliedCoupon(null); setCouponCode(''); setCouponError(''); }} className="text-destructive text-xs font-semibold">{t({ ar: 'إلغاء', fr: 'Annuler', en: 'Remove' })}</button>
+                          </div>
+                        ) : (
+                          <div className="flex gap-2">
+                            <input type="text" value={couponCode} onChange={(e) => setCouponCode(e.target.value)} placeholder={t({ ar: 'أدخل الكود', fr: 'Code', en: 'Code' })} className="flex-1 px-3 py-2 border border-input rounded-lg bg-background text-xs focus:border-primary focus:ring-2 focus:ring-primary/20" />
+                            <button type="button" onClick={() => {
+                              if (!couponCode.trim()) return;
+                              const raw = localStorage.getItem('aos_coupons');
+                              if (!raw) { setCouponError(t({ ar: 'الكود غير صحيح', fr: 'Code invalide', en: 'Invalid code' })); return; }
+                              const coupons = JSON.parse(raw);
+                              const coupon = coupons.find((c: any) => c.code.toLowerCase() === couponCode.trim().toLowerCase() && c.active);
+                              if (!coupon) { setCouponError(t({ ar: 'الكود غير موجود', fr: 'Code inexistant', en: 'Code not found' })); return; }
+                              if (coupon.expiryDate && new Date(coupon.expiryDate) < new Date()) { setCouponError(t({ ar: 'منتهي الصلاحية', fr: 'Expiré', en: 'Expired' })); return; }
+                              const sub = selectedProduct ? selectedProduct.price * orderData.quantity : 0;
+                              if (coupon.minOrder > 0 && sub < coupon.minOrder) { setCouponError(t({ ar: `الحد الأدنى ${coupon.minOrder.toLocaleString()} د.ج`, fr: `Min ${coupon.minOrder.toLocaleString()} DZD`, en: `Min ${coupon.minOrder.toLocaleString()} DZD` })); return; }
+                              const usageRaw = localStorage.getItem('aos_coupon_usage');
+                              const usageData = usageRaw ? JSON.parse(usageRaw) : [];
+                              const usage = usageData.find((u: any) => u.code === coupon.code);
+                              const usedCount = usage?.usedCount || 0;
+                              if (coupon.maxUses > 0 && usedCount >= coupon.maxUses) { setCouponError(t({ ar: 'استنفذ', fr: 'Épuisé', en: 'Exhausted' })); return; }
+                              const discount = coupon.type === 'percentage' ? Math.round(sub * (coupon.value / 100)) : coupon.value;
+                              setAppliedCoupon({ code: coupon.code, discount, type: coupon.type });
+                              setCouponError('');
+                              toast.success(t({ ar: 'تم تطبيق الكود!', fr: 'Code appliqué!', en: 'Coupon applied!' }));
+                            }} className="px-3 py-2 bg-primary text-primary-foreground rounded-lg text-xs font-semibold hover:bg-primary/90 transition">{t({ ar: 'تطبيق', fr: 'Appliquer', en: 'Apply' })}</button>
+                          </div>
+                        )}
+                        {couponError && <p className="text-xs text-destructive mt-1">{couponError}</p>}
                       </div>
 
                       {/* Submit */}
@@ -866,6 +1032,102 @@ export function Products() {
 
       <AnimatePresence>
         {visualSearchOpen && <VisualSearch onClose={() => setVisualSearchOpen(false)} />}
+      </AnimatePresence>
+
+      {/* Quick View Modal */}
+      <AnimatePresence>
+      {quickViewProduct && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+          onClick={closeQuickView}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            transition={{ type: 'spring', duration: 0.4 }}
+            className="w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl bg-background border border-border shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="relative">
+              <img
+                src={quickViewProduct.image}
+                alt={language === 'ar' ? quickViewProduct.nameAr : quickViewProduct.nameEn}
+                className="w-full h-56 object-contain bg-muted p-6"
+              />
+              <button
+                onClick={closeQuickView}
+                className="absolute top-3 right-3 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); shareProduct(quickViewProduct); }}
+                className="absolute top-3 left-3 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition"
+              >
+                <Share2 className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="p-5 space-y-4">
+              <h3 className="text-xl font-bold">
+                {language === 'ar' ? quickViewProduct.nameAr : language === 'fr' ? quickViewProduct.nameFr : quickViewProduct.nameEn}
+              </h3>
+              <p className="text-muted-foreground text-sm">
+                {language === 'ar' ? quickViewProduct.shortDescAr : language === 'fr' ? quickViewProduct.shortDescFr : quickViewProduct.shortDescEn}
+              </p>
+              <div className="flex items-center justify-between">
+                <span className="text-2xl font-bold text-primary">
+                  {quickViewProduct.price.toLocaleString()} د.ج
+                </span>
+                {quickViewProduct.salePrice && (
+                  <span className="text-sm text-muted-foreground line-through">
+                    {quickViewProduct.salePrice.toLocaleString()} د.ج
+                  </span>
+                )}
+              </div>
+              {quickViewProduct.specs.length > 0 && (
+                <div className="space-y-1.5">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    {t({ ar: 'أبرز المواصفات', fr: 'Spécifications', en: 'Specs' })}
+                  </p>
+                  {quickViewProduct.specs.slice(0, 4).map((spec, idx) => (
+                    <div key={idx} className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">{spec.label[language]}</span>
+                      <span className="font-medium">{spec.value[language]}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => {
+                    const product = quickViewProduct;
+                    closeQuickView();
+                    setTimeout(() => openProductDetails(product), 100);
+                  }}
+                  className="flex-1 border border-border hover:bg-muted px-4 py-2.5 rounded-xl font-semibold text-sm transition"
+                >
+                  {t({ ar: 'عرض التفاصيل', fr: 'Voir détails', en: 'Full details' })}
+                </button>
+                <button
+                  onClick={() => {
+                    const product = quickViewProduct;
+                    closeQuickView();
+                    setTimeout(() => openOrderModal(product), 100);
+                  }}
+                  className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2.5 rounded-xl font-semibold text-sm transition flex items-center justify-center gap-2"
+                >
+                  <ShoppingCart className="w-4 h-4" />
+                  {t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
       </AnimatePresence>
     </section>
   );

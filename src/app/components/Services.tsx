@@ -1,5 +1,6 @@
 import { Printer, FileText, Calendar, Wifi, Server, FileCheck, Zap, Shield } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { getSiteContent } from '../utils/siteContentStorage';
 import { services } from '../data/translations';
 import { motion } from 'motion/react';
 
@@ -13,6 +14,7 @@ const digitizationItems = [
 
 export function Services() {
   const { t, language } = useLanguage();
+  const content = getSiteContent();
 
   return (
     <motion.section
@@ -24,14 +26,10 @@ export function Services() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-14">
           <h2 className="mb-4">
-            {t({ ar: 'خدماتنا', fr: 'Nos Services', en: 'Our Services' })}
+            {t(content.services.title)}
           </h2>
           <p className="text-muted-foreground max-w-3xl mx-auto">
-            {t({
-              ar: 'مجموعة كاملة من الخدمات المكتبية لتبسيط عملك اليومي و خدمات الرقمنة المتقدمة حلول رقمية احترافية لمستنداتك',
-              fr: 'Une gamme complète de services pour simplifier votre quotidien et des solutions numériques professionnelles pour vos documents',
-              en: 'A complete range of office services to simplify your daily work and professional digital solutions for your documents'
-            })}
+            {t(content.services.subtitle)}
           </p>
         </div>
 

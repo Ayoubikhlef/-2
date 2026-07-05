@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { MessageCircle, X } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { getSiteSettings } from '../utils/siteSettingsStorage';
 
-const PHONE = '213674113290';
+const settings = getSiteSettings();
+const PHONE = settings.contact.phoneInternational;
 
 export function WABubble() {
   const { t } = useLanguage();

@@ -3,12 +3,14 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { getOrders, type OrderRecord } from '../utils/orderStorage';
 import { getStoredProducts } from '../utils/productStorage';
 import { products as defaultProducts } from '../data/products';
+import { wilayas } from '../data/products';
 import { motion } from 'motion/react';
 import {
   DollarSign, ShoppingCart, Package, Users, AlertTriangle,
   TrendingUp, Calendar, Clock, ArrowUp, ArrowDown, Eye,
-  BarChart3, Bell, Activity
+  BarChart3, Bell, Activity, Map, Globe
 } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LabelList } from 'recharts';
 
 const statusBadge: Record<string, string> = {
   new: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
@@ -71,6 +73,22 @@ export function AdminDashboard() {
 
   const newOrdersToday = orders.filter(o => o.createdAt.slice(0, 10) === todayStr && o.status === 'new').length;
   const pendingProcessing = orders.filter(o => o.status === 'processing').length;
+
+  // === Region Analysis ===
+  const regionData = orders
+    .filter(o => o.status !== 'cancelled')
+    .reduce<Record<string, { wilaya: string; orders: number; revenue: number }>>((acc, o) => {
+      const w = o.wilaya || 'Unknown';
+      if (!acc[w]) acc[w] = { wilaya: w, orders: 0, revenue: 0 };
+      acc[w].orders += 1;
+      acc[w].revenue += o.total;
+      return acc;
+    }, {});
+  const topRegions = Object.values(regionData)
+    .sort((a, b) => b.revenue - a.revenue)
+    .slice(0, 8);
+
+  const PIE_COLORS = ['#1e40af', '#ff8c00', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899'];
 
   const days: { label: string; revenue: number; date: string }[] = [];
   for (let i = 6; i >= 0; i--) {
@@ -302,41 +320,33 @@ export function AdminDashboard() {
         </div>
       </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9 }}
-          className="rounded-2xl border border-white/10 bg-slate-900/80 p-6 shadow-lg">
-          <div className="flex items-center gap-2 mb-4">
+          className="rounded-2xl border border-white/10 bg-slate-900/80 p-6 shadow-lg lg:col-span-2">
+          <div className="flex items-center gap-2 mb-6">
             <BarChart3 className="w-5 h-5 text-primary" />
             <h3 className="text-lg font-bold text-white">{t({ ar: 'الأكثر مبيعاً', fr: 'Meilleures ventes', en: 'Top Selling Products' })}</h3>
           </div>
           {topProducts.length === 0 ? (
             <p className="text-sm text-white/30 text-center py-8">{t({ ar: 'لا توجد مبيعات بعد', fr: 'Aucune vente', en: 'No sales data yet' })}</p>
           ) : (
-            <div className="space-y-3">
-              {topProducts.map((p, idx) => (
-                <div key={p.name}>
-                  <div className="flex items-center justify-between text-sm mb-1">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span className="w-5 h-5 rounded-full bg-primary/20 text-primary text-xs font-bold flex items-center justify-center flex-shrink-0">{idx + 1}</span>
-                      <span className="font-medium text-white truncate">{p.name}</span>
-                    </div>
-                    <span className="text-white/60 text-xs flex-shrink-0 ml-2">{p.qty} {t({ ar: 'وحدة', fr: 'unités', en: 'units' })}</span>
-                  </div>
-                  <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${(p.qty / topMaxQty) * 100}%` }}
-                      transition={{ duration: 0.8, ease: 'easeOut' }}
-                      className="h-full rounded-full bg-gradient-to-r from-primary to-primary/60"
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={topProducts} layout="vertical" margin={{ top: 5, right: 30, left: 10, bottom: 5 }}>
+                <XAxis type="number" tick={{ fill: '#94a3b8', fontSize: 12 }} axisLine={false} tickLine={false} />
+                <YAxis type="category" dataKey="name" tick={{ fill: '#e2e8f0', fontSize: 11 }} axisLine={false} tickLine={false} width={130} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '12px', color: '#e2e8f0' }}
+                  formatter={(value: number, name: string) => [`${value} ${language === 'ar' ? 'وحدة' : language === 'fr' ? 'unités' : 'units'}`, '']}
+                />
+                <Bar dataKey="qty" radius={[0, 8, 8, 0]} fill="#1e40af" barSize={20}>
+                  <LabelList dataKey="qty" position="right" fill="#94a3b8" fontSize={12} />
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           )}
         </motion.div>
 
-        <div className="space-y-6">
+        <div className="space-y-6 lg:col-span-1">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1 }}
             className="rounded-2xl border border-white/10 bg-slate-900/80 p-6 shadow-lg">
             <div className="flex items-center gap-2 mb-4">
@@ -390,6 +400,60 @@ export function AdminDashboard() {
           </motion.div>
         </div>
       </div>
+
+      {/* Region Analysis */}
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.2 }}
+        className="rounded-2xl border border-white/10 bg-slate-900/80 p-6 shadow-lg">
+        <div className="flex items-center gap-2 mb-6">
+          <Globe className="w-5 h-5 text-primary" />
+          <h3 className="text-lg font-bold text-white">{t({ ar: 'تحليل المبيعات حسب المنطقة', fr: 'Analyse des ventes par région', en: 'Sales by Region' })}</h3>
+        </div>
+        {topRegions.length === 0 ? (
+          <p className="text-sm text-white/30 text-center py-8">{t({ ar: 'لا توجد بيانات بعد', fr: 'Aucune donnée', en: 'No data yet' })}</p>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <ResponsiveContainer width="100%" height={280}>
+              <PieChart>
+                <Pie
+                  data={topRegions}
+                  dataKey="revenue"
+                  nameKey="wilaya"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  innerRadius={50}
+                  paddingAngle={3}
+                >
+                  {topRegions.map((_, idx) => (
+                    <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />
+                  ))}
+                  <LabelList
+                    dataKey="wilaya"
+                    position="outside"
+                    fill="#94a3b8"
+                    fontSize={11}
+                    formatter={(val: string) => val.length > 8 ? val.slice(0, 8) + '…' : val}
+                  />
+                </Pie>
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '12px', color: '#e2e8f0' }}
+                  formatter={(value: number) => `${value.toLocaleString()} DZD`}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="space-y-3 flex flex-col justify-center">
+              {topRegions.map((r, idx) => (
+                <div key={r.wilaya} className="flex items-center gap-3 text-sm">
+                  <span className="w-3 h-3 rounded-full" style={{ backgroundColor: PIE_COLORS[idx % PIE_COLORS.length] }} />
+                  <span className="flex-1 text-white font-medium">{r.wilaya}</span>
+                  <span className="text-white/60 text-xs">{r.orders} {t({ ar: 'طلب', fr: 'cmd', en: 'ord' })}</span>
+                  <span className="text-emerald-400 font-semibold w-24 text-right">{r.revenue.toLocaleString()} د.ج</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </motion.div>
     </div>
   );
 }

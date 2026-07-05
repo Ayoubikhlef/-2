@@ -30,6 +30,9 @@ import { SpeedInsights } from '@vercel/speed-insights/react';
 
 const Admin = lazy(() => import('./components/Admin').then(m => ({ default: m.Admin })));
 const OrderForm = lazy(() => import('./components/OrderForm').then(m => ({ default: m.OrderForm })));
+const AboutPage = lazy(() => import('./components/AboutPage').then(m => ({ default: m.AboutPage })));
+const TermsPage = lazy(() => import('./components/TermsPage').then(m => ({ default: m.TermsPage })));
+const PrivacyPage = lazy(() => import('./components/PrivacyPage').then(m => ({ default: m.PrivacyPage })));
 
 function AdminFallback() {
   return (
@@ -45,7 +48,7 @@ function AdminFallback() {
 }
 
 export default function App() {
-  const is404 = typeof window !== 'undefined' && window.location.hash && !['#products', '#booking', '#services', '#admin', '#contact', '#checkout'].includes(window.location.hash);
+  const is404 = typeof window !== 'undefined' && window.location.hash && !['#products', '#booking', '#services', '#admin', '#contact', '#checkout', '#about', '#terms', '#privacy'].includes(window.location.hash);
   const [showLogin, setShowLogin] = useState(false);
   const [maintenance, setMaintenance] = useState(false);
 
@@ -113,6 +116,10 @@ export default function App() {
   }
 
   if (is404) return <NotFound />;
+
+  const hash = typeof window !== 'undefined' ? window.location.hash : '';
+  const isPage = ['#about', '#terms', '#privacy'].includes(hash);
+
   return (
     <ThemeProvider>
       <LanguageProvider>
@@ -126,23 +133,45 @@ export default function App() {
               <ParticlesBg />
               <Header onLoginClick={() => setShowLogin(true)} />
               <main id="main-content">
-                <Hero />
-                <Products />
-                <Wishlist />
-                <ServiceBooking />
-                <Services />
-                <Suspense fallback={<AdminFallback />}>
-                  <Admin />
-                </Suspense>
-                <WhyUs />
-                <FAQ />
-                <Contact />
-                <Suspense fallback={<div className="py-20 text-center text-muted-foreground animate-pulse">Loading...</div>}>
-                  <OrderForm />
-                </Suspense>
-                <OrderTracking />
-                <NewsletterForm />
-                <Footer />
+                {isPage ? (
+                  <>
+                    {hash === '#about' && (
+                      <Suspense fallback={<AdminFallback />}>
+                        <AboutPage />
+                      </Suspense>
+                    )}
+                    {hash === '#terms' && (
+                      <Suspense fallback={<AdminFallback />}>
+                        <TermsPage />
+                      </Suspense>
+                    )}
+                    {hash === '#privacy' && (
+                      <Suspense fallback={<AdminFallback />}>
+                        <PrivacyPage />
+                      </Suspense>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <Hero />
+                    <Products />
+                    <Wishlist />
+                    <ServiceBooking />
+                    <Services />
+                    <Suspense fallback={<AdminFallback />}>
+                      <Admin />
+                    </Suspense>
+                    <WhyUs />
+                    <FAQ />
+                    <Contact />
+                    <Suspense fallback={<div className="py-20 text-center text-muted-foreground animate-pulse">Loading...</div>}>
+                      <OrderForm />
+                    </Suspense>
+                    <OrderTracking />
+                    <NewsletterForm />
+                    <Footer />
+                  </>
+                )}
               </main>
               <ScrollToTop />
               <WABubble />

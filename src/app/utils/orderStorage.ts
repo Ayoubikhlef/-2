@@ -23,6 +23,9 @@ export type OrderRecord = {
   total: number;
   source: 'form' | 'quick-order' | 'service-booking';
   status: OrderStatus;
+  paymentMethod?: string;
+  discount?: number;
+  discountCode?: string;
 };
 
 const STORAGE_KEY = 'ayoubtech-orders';

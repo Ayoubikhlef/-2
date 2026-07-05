@@ -1,8 +1,10 @@
 import { useLanguage } from '../contexts/LanguageContext';
 import { motion } from 'motion/react';
+import { getSiteContent } from '../utils/siteContentStorage';
 
 export function Hero() {
   const { t } = useLanguage();
+  const content = getSiteContent();
   const reducedMotion = typeof window !== 'undefined'
     ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
     : false;
@@ -93,11 +95,7 @@ export function Hero() {
             transition={{ delay: 0.4, duration: 0.6 }}
             className="text-2xl md:text-3xl mb-6 text-white/90 max-w-4xl mx-auto"
           >
-            {t({
-              ar: 'نقدم لكم مجموعة واسعة من الخدمات ومستلزمات الإعلام الآلي',
-              fr: 'Nous offrons une large gamme de services et fournitures informatiques',
-              en: 'We offer a wide range of services and IT supplies'
-            })}
+            {t(content.hero.subtitle)}
           </motion.p>
 
 

@@ -1,10 +1,11 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
 import { useLanguage } from '../contexts/LanguageContext';
-import { faqItems } from '../data/faq';
+import { getSiteContent } from '../utils/siteContentStorage';
 import { motion } from 'motion/react';
 
 export function FAQ() {
   const { t, language } = useLanguage();
+  const content = getSiteContent();
 
   return (
     <motion.section
@@ -16,21 +17,17 @@ export function FAQ() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="mb-4">
-            {t({ ar: 'أسئلة شائعة', fr: 'Questions fréquentes', en: 'Frequently Asked Questions' })}
+            {t(content.faq.title)}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            {t({
-              ar: 'إليك أهم الأسئلة التي نتلقاها عادةً مع إجابات سريعة وواضحة.',
-              fr: 'Voici les questions les plus fréquentes avec des réponses claires et rapides.',
-              en: 'Here are the most frequent questions with clear and quick answers.'
-            })}
+            {t(content.faq.subtitle)}
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="rounded-[32px] border border-border bg-card p-8 shadow-lg">
-            <Accordion type="single" collapsible defaultValue={faqItems[0]?.id} className="space-y-4">
-              {faqItems.map((item) => (
+            <Accordion type="single" collapsible defaultValue={content.faq.items[0]?.id} className="space-y-4">
+              {content.faq.items.map((item) => (
                 <AccordionItem key={item.id} value={item.id}>
                   <AccordionTrigger>
                     {item.question[language]}

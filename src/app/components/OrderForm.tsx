@@ -3,13 +3,27 @@ import { useCart } from '../contexts/CartContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { saveOrder } from '../utils/orderStorage';
 import { wilayas, getMunicipalities } from '../data/products';
-import { Mail, Phone, MapPin, DollarSign } from 'lucide-react';
+import { Mail, Phone, MapPin, DollarSign, CreditCard, Banknote, Smartphone, Percent } from 'lucide-react';
 import { toast } from 'sonner';
+import { formatPrice } from '../lib/utils';
+import { DeliveryCalculator } from './DeliveryCalculator';
+
+type PaymentMethod = 'cod' | 'cib' | 'edahabia' | 'baridi';
+const paymentMethods: { value: PaymentMethod; labelAr: string; labelFr: string; labelEn: string; icon: React.ReactNode }[] = [
+  { value: 'cod', labelAr: 'الدفع عند الاستلام', labelFr: 'Paiement à la livraison', labelEn: 'Cash on Delivery', icon: <Banknote className="w-5 h-5" /> },
+  { value: 'cib', labelAr: 'بطاقة CIB', labelFr: 'Carte CIB', labelEn: 'CIB Card', icon: <CreditCard className="w-5 h-5" /> },
+  { value: 'edahabia', labelAr: 'Edahabia', labelFr: 'Edahabia', labelEn: 'Edahabia', icon: <Smartphone className="w-5 h-5" /> },
+  { value: 'baridi', labelAr: 'BaridiMob', labelFr: 'BaridiMob', labelEn: 'BaridiMob', icon: <Smartphone className="w-5 h-5" /> },
+];
 
 export function OrderForm() {
-  const { items, total, clear } = useCart();
+  const { items, total, deliveryFee, clear } = useCart();
   const { t, language } = useLanguage();
   const [submitted, setSubmitted] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cod');
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number; type: 'percentage' | 'fixed' } | null>(null);
+  const [couponError, setCouponError] = useState('');
   const [formData, setFormData] = useState({
     fullName: '',
     phone: '',
@@ -28,6 +42,40 @@ export function OrderForm() {
     }
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+
+  const validateCoupon = (code: string) => {
+    const raw = localStorage.getItem('aos_coupons');
+    if (!raw) return { valid: false, reason: t({ ar: 'الكود غير صحيح', fr: 'Code invalide', en: 'Invalid code' }) };
+    const coupons = JSON.parse(raw);
+    const coupon = coupons.find((c: any) => c.code.toLowerCase() === code.toLowerCase() && c.active);
+    if (!coupon) return { valid: false, reason: t({ ar: 'الكود غير موجود أو غير نشط', fr: 'Code inexistant ou inactif', en: 'Code not found or inactive' }) };
+    if (coupon.expiryDate && new Date(coupon.expiryDate) < new Date()) return { valid: false, reason: t({ ar: 'الكود منتهي الصلاحية', fr: 'Code expiré', en: 'Code expired' }) };
+    if (coupon.minOrder > 0 && total < coupon.minOrder) return { valid: false, reason: t({ ar: `الحد الأدنى للطلب ${coupon.minOrder.toLocaleString()} د.ج`, fr: `Minimum de commande ${coupon.minOrder.toLocaleString()} DZD`, en: `Min order ${coupon.minOrder.toLocaleString()} DZD` }) };
+    const usageRaw = localStorage.getItem('aos_coupon_usage');
+    const usageData = usageRaw ? JSON.parse(usageRaw) : [];
+    const usage = usageData.find((u: any) => u.code === coupon.code);
+    const usedCount = usage?.usedCount || 0;
+    if (coupon.maxUses > 0 && usedCount >= coupon.maxUses) return { valid: false, reason: t({ ar: 'الكود استنفذ عدد الاستخدامات', fr: 'Code épuisé', en: 'Code exhausted' }) };
+    const discount = coupon.type === 'percentage' ? Math.round(total * (coupon.value / 100)) : coupon.value;
+    return { valid: true, discount, type: coupon.type as 'percentage' | 'fixed', code: coupon.code };
+  };
+
+  const handleApplyCoupon = () => {
+    if (!couponCode.trim()) return;
+    const result = validateCoupon(couponCode.trim());
+    if (result.valid) {
+      setAppliedCoupon({ code: result.code, discount: result.discount, type: result.type });
+      setCouponError('');
+      toast.success(t({ ar: 'تم تطبيق الكود!', fr: 'Code appliqué!', en: 'Coupon applied!' }));
+    } else {
+      setAppliedCoupon(null);
+      setCouponError(result.reason);
+      toast.error(result.reason);
+    }
+  };
+
+  const discountAmount = appliedCoupon ? Math.min(appliedCoupon.discount, total) : 0;
+  const grandTotal = total + deliveryFee - discountAmount;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,9 +103,20 @@ export function OrderForm() {
         price: item.price,
         total: item.price * item.quantity,
       })),
-      total,
+      total: grandTotal,
       source: 'form',
+      paymentMethod,
+      discount: discountAmount > 0 ? discountAmount : undefined,
+      discountCode: appliedCoupon?.code,
     });
+
+    const paymentLabel = paymentMethod === 'cod'
+      ? t({ ar: 'عند الاستلام', fr: 'À la livraison', en: 'Cash on delivery' })
+      : paymentMethod === 'cib'
+        ? t({ ar: 'بطاقة CIB', fr: 'Carte CIB', en: 'CIB Card' })
+        : paymentMethod === 'edahabia'
+          ? t({ ar: 'Edahabia', fr: 'Edahabia', en: 'Edahabia' })
+          : t({ ar: 'BaridiMob', fr: 'BaridiMob', en: 'BaridiMob' });
 
     const orderSummary = `
 🛒 ${t({ ar: 'ملخص الطلب', fr: 'Résumé de la commande', en: 'Order Summary' })}
@@ -65,14 +124,15 @@ export function OrderForm() {
 📋 ${t({ ar: 'المنتجات:', fr: 'Produits:', en: 'Products:' })}
 ${items.map((item) => `• ${item.name} × ${item.quantity}`).join('\n')}
 ━━━━━━━━━━━━━━━━━━━━━
-💰 ${t({ ar: 'المجموع:', fr: 'Total:', en: 'Total:' })} ${total.toLocaleString()} د.ج
+💰 ${t({ ar: 'المجموع:', fr: 'Total:', en: 'Total:' })} ${formatPrice(total)}
+${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Discount:' })} -${formatPrice(discountAmount)}` : ''}
 📍 ${t({ ar: 'الولاية:', fr: 'Wilaya:', en: 'Wilaya:' })} ${wilayas.find((w) => w.id.toString() === formData.wilaya)?.[language === 'ar' ? 'nameAr' : language === 'fr' ? 'nameFr' : 'nameEn']}
 🏙️ ${t({ ar: 'البلدية:', fr: 'Commune:', en: 'Municipality:' })} ${getMunicipalities(Number(formData.wilaya)).find((m) => m.id === formData.municipality)?.[language === 'ar' ? 'nameAr' : language === 'fr' ? 'nameFr' : 'nameEn']}
 📌 ${t({ ar: 'العنوان:', fr: 'Adresse:', en: 'Address:' })} ${formData.address}
 👤 ${t({ ar: 'الاسم:', fr: 'Nom:', en: 'Name:' })} ${formData.fullName}
 ☎️ ${t({ ar: 'الهاتف:', fr: 'Téléphone:', en: 'Phone:' })} ${formData.phone}
 📧 ${t({ ar: 'البريد:', fr: 'Email:', en: 'Email:' })} ${formData.email}
-💳 ${t({ ar: 'الدفع:', fr: 'Paiement:', en: 'Payment:' })} ${t({ ar: 'عند الاستلام', fr: 'À la livraison', en: 'Cash on delivery' })}
+💳 ${t({ ar: 'الدفع:', fr: 'Paiement:', en: 'Payment:' })} ${paymentLabel}
 ━━━━━━━━━━━━━━━━━━━━━
     `;
 
@@ -199,18 +259,37 @@ ${items.map((item) => `• ${item.name} × ${item.quantity}`).join('\n')}
                 </div>
               </div>
 
-              <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 text-sm">
-                <div className="flex gap-2">
-                  <DollarSign className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-blue-900 dark:text-blue-300">
-                      {t({ ar: '💳 الدفع عند الاستلام', fr: '💳 Paiement à la livraison', en: '💳 Cash on Delivery' })}
-                    </p>
-                    <p className="text-sm text-blue-800 dark:text-blue-400">
-                      {t({ ar: 'سنوصل منتجاتك إلى جميع ولايات الجزائر بأمان', fr: 'Livraison gratuite dans toutes les régions d\'Algérie', en: 'Free delivery to all regions of Algeria' })}
-                    </p>
-                  </div>
+              <div>
+                <label className="flex items-center gap-2 mb-3 font-semibold">
+                  <DollarSign className="w-5 h-5 text-primary" />
+                  {t({ ar: 'طريقة الدفع', fr: 'Mode de paiement', en: 'Payment Method' })}
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {paymentMethods.map((pm) => (
+                    <button
+                      key={pm.value}
+                      type="button"
+                      onClick={() => setPaymentMethod(pm.value)}
+                      className={`flex items-center gap-2 p-3 rounded-xl border-2 transition-all ${
+                        paymentMethod === pm.value
+                          ? 'border-primary bg-primary/10 text-primary'
+                          : 'border-border bg-card hover:border-primary/50'
+                      }`}
+                    >
+                      {pm.icon}
+                      <span className="text-sm font-semibold">{pm[`label${language === 'ar' ? 'Ar' : language === 'fr' ? 'Fr' : 'En'}` as keyof typeof pm] as string}</span>
+                    </button>
+                  ))}
                 </div>
+                {paymentMethod !== 'cod' && (
+                  <div className="mt-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-sm text-amber-800 dark:text-amber-300">
+                    {t({
+                      ar: '📱 سنرسل لك معلومات الحساب البنكي عبر الواتساب بعد تأكيد الطلب',
+                      fr: '📱 Nous vous enverrons les coordonnées bancaires par WhatsApp après confirmation',
+                      en: '📱 We will send you bank account details via WhatsApp after order confirmation'
+                    })}
+                  </div>
+                )}
               </div>
 
               <button
@@ -244,7 +323,7 @@ ${items.map((item) => `• ${item.name} × ${item.quantity}`).join('\n')}
                   items.map((item) => (
                     <div key={item.productId} className="flex justify-between text-sm">
                       <span>{item.name}</span>
-                      <span className="font-semibold">{(item.price * item.quantity).toLocaleString()} د.ج</span>
+                      <span className="font-semibold">{formatPrice(item.price * item.quantity)}</span>
                     </div>
                   ))
                 )}
@@ -258,9 +337,68 @@ ${items.map((item) => `• ${item.name} × ${item.quantity}`).join('\n')}
                   <span className="font-semibold">{items.length}</span>
                 </div>
 
+                {/* Coupon */}
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold flex items-center gap-1">
+                    <Percent className="w-4 h-4" />
+                    {t({ ar: 'كود الخصم', fr: 'Code promo', en: 'Coupon Code' })}
+                  </label>
+                  {appliedCoupon ? (
+                    <div className="flex items-center justify-between bg-green-500/10 border border-green-500/20 rounded-xl p-3">
+                      <div>
+                        <span className="font-bold text-green-700 dark:text-green-400">{appliedCoupon.code}</span>
+                        <span className="text-sm text-green-600 dark:text-green-500 mr-2">
+                          (-{formatPrice(discountAmount)})
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => { setAppliedCoupon(null); setCouponCode(''); setCouponError(''); }}
+                        className="text-destructive hover:text-destructive/80 text-sm font-semibold"
+                      >
+                        {t({ ar: 'إلغاء', fr: 'Annuler', en: 'Remove' })}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={couponCode}
+                        onChange={(e) => setCouponCode(e.target.value)}
+                        placeholder={t({ ar: 'أدخل الكود', fr: 'Entrez le code', en: 'Enter code' })}
+                        className="flex-1 px-3 py-2 border border-input rounded-lg bg-background text-sm focus:border-primary focus:ring-2 focus:ring-primary/20"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleApplyCoupon}
+                        className="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 transition"
+                      >
+                        {t({ ar: 'تطبيق', fr: 'Appliquer', en: 'Apply' })}
+                      </button>
+                    </div>
+                  )}
+                  {couponError && <p className="text-xs text-destructive">{couponError}</p>}
+                </div>
+
+                <DeliveryCalculator />
+
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">
+                    {t({ ar: 'المجموع الفرعي', fr: 'Sous-total', en: 'Subtotal' })}
+                  </span>
+                  <span className="font-semibold">{formatPrice(total)}</span>
+                </div>
+
+                {discountAmount > 0 && (
+                  <div className="flex justify-between text-sm text-green-600 dark:text-green-400">
+                    <span>{t({ ar: 'الخصم', fr: 'Réduction', en: 'Discount' })}</span>
+                    <span className="font-semibold">-{formatPrice(discountAmount)}</span>
+                  </div>
+                )}
+
                 <div className="flex justify-between text-lg font-bold text-primary border-t border-border pt-3">
-                  <span>{t({ ar: 'الإجمالي:', fr: 'Total:', en: 'Total:' })}</span>
-                  <span>{total.toLocaleString()} د.ج</span>
+                  <span>{t({ ar: 'الإجمالي الكلي:', fr: 'Total général:', en: 'Grand total:' })}</span>
+                  <span>{formatPrice(grandTotal)}</span>
                 </div>
 
                 <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-3 text-xs text-orange-700 dark:text-orange-400">

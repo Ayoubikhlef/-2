@@ -9,15 +9,20 @@ import { AdminDashboard } from './AdminDashboard';
 import { LiveFeed } from './LiveFeed';
 import { CustomersTab } from './CustomersTab';
 import { CouponsTab } from './CouponsTab';
+import { ManageContentTab } from './ManageContentTab';
+import { SiteSettingsTab } from './SiteSettingsTab';
+import { ReviewsTab } from './ReviewsTab';
+import { NewsletterTab } from './NewsletterTab';
 import { getStoredServices, initializeServices } from '../utils/serviceStorage';
 import { defaultServices, type ServiceCategory } from '../data/services';
-import { RefreshCw, Trash2, ChevronDown, Phone, MapPin, Mail, DollarSign, Package, Eye, Lightbulb, Wrench } from 'lucide-react';
-import { isMaintenanceMode, setMaintenanceMode, getMaintenanceMessage, setMaintenanceMessage } from '../utils/maintenanceStorage';
+import { RefreshCw, Trash2, ChevronDown, Phone, MapPin, Mail, DollarSign, Package, Eye, Lightbulb, Wrench, FileText, Globe, Settings, Star, MailOpen } from 'lucide-react';
+import { generateInvoice } from './InvoicePDF';
 import { toast } from 'sonner';
+import { isMaintenanceMode, setMaintenanceMode, getMaintenanceMessage, setMaintenanceMessage } from '../utils/maintenanceStorage';
 import { motion, AnimatePresence } from 'motion/react';
 
-const ADMIN_USERNAME = 'hydra';
-const ADMIN_PASSWORD = 'hydra';
+const ADMIN_USERNAME = import.meta.env.VITE_ADMIN_USERNAME || 'hydra';
+const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'hydra';
 
 const statusConfig: Record<OrderStatus, { label: Record<string, string>; color: string; icon: string }> = {
   new: {
@@ -118,7 +123,7 @@ export function Admin() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [isOn, setIsOn] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [tab, setTab] = useState<'dashboard' | 'products' | 'services' | 'manage-products' | 'manage-services' | 'customers' | 'coupons'>('dashboard');
+  const [tab, setTab] = useState<'dashboard' | 'products' | 'services' | 'manage-products' | 'manage-services' | 'customers' | 'coupons' | 'content' | 'settings' | 'reviews' | 'newsletter'>('dashboard');
   const [manageProducts, setManageProducts] = useState<Product[]>([]);
   const [manageServices, setManageServices] = useState<ServiceCategory[]>([]);
 
@@ -494,6 +499,46 @@ export function Admin() {
             {t({ ar: '🎁 أكواد الخصم', fr: '🎁 Coupons', en: '🎁 Coupons' })}
           </button>
           <button
+            onClick={() => setTab('content')}
+            className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all border ${
+              tab === 'content'
+                ? 'bg-primary text-slate-950 border-primary'
+                : 'bg-slate-900 text-white/70 border-white/10 hover:bg-slate-800'
+            }`}
+          >
+            {t({ ar: '📝 المحتوى', fr: '📝 Contenu', en: '📝 Content' })}
+          </button>
+          <button
+            onClick={() => setTab('settings')}
+            className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all border ${
+              tab === 'settings'
+                ? 'bg-primary text-slate-950 border-primary'
+                : 'bg-slate-900 text-white/70 border-white/10 hover:bg-slate-800'
+            }`}
+          >
+            {t({ ar: '⚙️ الإعدادات', fr: '⚙️ Paramètres', en: '⚙️ Settings' })}
+          </button>
+          <button
+            onClick={() => setTab('reviews')}
+            className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all border ${
+              tab === 'reviews'
+                ? 'bg-primary text-slate-950 border-primary'
+                : 'bg-slate-900 text-white/70 border-white/10 hover:bg-slate-800'
+            }`}
+          >
+            {t({ ar: '⭐ التقييمات', fr: '⭐ Avis', en: '⭐ Reviews' })}
+          </button>
+          <button
+            onClick={() => setTab('newsletter')}
+            className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all border ${
+              tab === 'newsletter'
+                ? 'bg-primary text-slate-950 border-primary'
+                : 'bg-slate-900 text-white/70 border-white/10 hover:bg-slate-800'
+            }`}
+          >
+            {t({ ar: '📬 النشرة', fr: '📬 Newsletter', en: '📬 Newsletter' })}
+          </button>
+          <button
             onClick={() => setTab('dashboard')}
             className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all border ${
               tab === 'dashboard'
@@ -617,6 +662,14 @@ export function Admin() {
           <CustomersTab />
         ) : tab === 'coupons' ? (
           <CouponsTab />
+        ) : tab === 'content' ? (
+          <ManageContentTab />
+        ) : tab === 'settings' ? (
+          <SiteSettingsTab />
+        ) : tab === 'reviews' ? (
+          <ReviewsTab />
+        ) : tab === 'newsletter' ? (
+          <NewsletterTab />
         ) : (
         /* Orders */
         filteredOrders.length === 0 ? (
@@ -714,6 +767,22 @@ export function Admin() {
                           </>
                         )}
                       </div>
+
+                      {/* Invoice */}
+                      <button
+                        onClick={async () => {
+                          try {
+                            await generateInvoice(order, language);
+                          } catch (err) {
+                            console.error('Invoice generation failed:', err);
+                            toast.error(t({ ar: 'فشل تحميل الفاتورة', fr: 'Échec du téléchargement', en: 'Failed to download invoice' }));
+                          }
+                        }}
+                        className="p-3 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 transition-all border border-emerald-500/20"
+                        title={t({ ar: 'تحميل الفاتورة', fr: 'Télécharger la facture', en: 'Download Invoice' })}
+                      >
+                        <FileText className="w-4 h-4" />
+                      </button>
 
                       {/* Delete */}
                       <button
