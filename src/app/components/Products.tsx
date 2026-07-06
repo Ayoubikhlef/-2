@@ -3,7 +3,7 @@ import { ShoppingCart, Plus, Minus, X, User, Phone, Mail, MapPin, CheckCircle, I
 import { useLanguage } from '../contexts/LanguageContext';
 import { useCart } from '../contexts/CartContext';
 import { products as defaultProducts, wilayas, getMunicipalities, type Product } from '../data/products';
-import { getStoredProducts } from '../utils/productStorage';
+import { getStoredProducts, loadProductsFromServer } from '../utils/productStorage';
 import { saveOrder } from '../utils/orderStorage';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
@@ -60,6 +60,7 @@ export function Products() {
   useEffect(() => {
     const refresh = () => setProducts(loadProducts());
     window.addEventListener('aos:data-changed', refresh);
+    loadProductsFromServer(defaultProducts).then(setProducts);
     return () => window.removeEventListener('aos:data-changed', refresh);
   }, []);
 
