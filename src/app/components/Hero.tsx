@@ -1,38 +1,18 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { motion } from 'motion/react';
 import { getSiteContent } from '../utils/siteContentStorage';
-import Typed from 'typed.js';
 import CurvedLoop from './CurvedLoop';
 
 export function Hero() {
   const { t } = useLanguage();
   const [content, setContent] = useState(() => getSiteContent());
-  const typedRef = useRef(null);
 
   useEffect(() => {
     const refresh = () => setContent(getSiteContent());
     window.addEventListener('aos:data-changed', refresh);
     return () => window.removeEventListener('aos:data-changed', refresh);
   }, []);
-
-  useEffect(() => {
-    if (!typedRef.current || !content?.hero?.subtitle) return;
-    const typed = new Typed(typedRef.current, {
-      strings: [content.hero.subtitle.ar, content.hero.subtitle.fr, content.hero.subtitle.en],
-      typeSpeed: 60,
-      backSpeed: 30,
-      backDelay: 2500,
-      loop: true,
-      showCursor: true,
-      cursorChar: '|',
-    });
-    return () => typed.destroy();
-  }, [content]);
-
-  const reducedMotion = typeof window !== 'undefined'
-    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    : false;
 
   return (
     <section className="relative bg-gradient-to-br from-primary via-primary to-blue-900 dark:from-blue-950 dark:via-blue-900 dark:to-blue-950 text-white pt-20 pb-24 sm:pb-32 lg:pb-48 overflow-hidden">
@@ -75,14 +55,20 @@ export function Hero() {
             />
           </motion.div>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             transition={{ delay: 0.7, duration: 0.6 }}
-            className="text-xl sm:text-2xl md:text-3xl text-white/90 max-w-4xl mx-auto min-h-[3rem]"
+            className="max-w-4xl mx-auto"
           >
-            <span ref={typedRef} />
-          </motion.p>
+            <CurvedLoop
+              marqueeText={t(content.hero.subtitle) + ' ✦ '}
+              speed={1.5}
+              curveAmount={200}
+              interactive={false}
+              fill="rgba(255,255,255,0.6)"
+            />
+          </motion.div>
         </motion.div>
       </div>
     </section>

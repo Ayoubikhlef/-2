@@ -7,7 +7,8 @@ const CurvedLoop = ({
   className,
   curveAmount = 400,
   direction = 'left',
-  interactive = true
+  interactive = true,
+  fill
 }) => {
   const text = useMemo(() => {
     const hasTrailing = /\s|\u00A0$/.test(marqueeText);
@@ -127,7 +128,7 @@ const CurvedLoop = ({
           {text}
         </text>
         {ready && (
-          <text fontWeight="bold" xmlSpace="preserve" fill={`url(#${gradId})`} className={className}>
+          <text fontWeight="bold" xmlSpace="preserve" fill={fill || `url(#${gradId})`} className={className}>
             <textPath ref={textPathRef} href={`#${pathId}`} startOffset={offset + 'px'} xmlSpace="preserve">
               {totalText}
             </textPath>
