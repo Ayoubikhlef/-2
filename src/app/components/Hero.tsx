@@ -65,7 +65,7 @@ export function Hero() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.5, duration: 0.8, type: 'spring', stiffness: 100 }}
-            className="max-w-5xl mx-auto -mt-8 sm:-mt-12 lg:-mt-16 mb-6"
+            className="max-w-5xl mx-auto -mt-4 sm:-mt-6 lg:-mt-8 mb-12 sm:mb-16"
           >
             <CurvedLoop
               marqueeText={t(content.hero.brandName) + ' ✦ '}
@@ -79,7 +79,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.6 }}
-            className="text-xl sm:text-2xl md:text-3xl mb-6 text-white/90 max-w-4xl mx-auto min-h-[3rem]"
+            className="text-xl sm:text-2xl md:text-3xl text-white/90 max-w-4xl mx-auto min-h-[3rem]"
           >
             <span ref={typedRef} />
           </motion.p>
