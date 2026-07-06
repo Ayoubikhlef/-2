@@ -44,7 +44,6 @@ export function Hero() {
               curveAmount={150}
               direction="right"
               interactive={false}
-              fill="rgba(255,255,255,0.5)"
             />
           </motion.div>
 
@@ -75,7 +74,6 @@ export function Hero() {
               curveAmount={200}
               direction="right"
               interactive={false}
-              fill="rgba(255,255,255,0.6)"
             />
           </motion.div>
         </motion.div>
