@@ -45,7 +45,6 @@ export function Hero() {
               curveAmount={250}
               direction={dir}
               interactive={false}
-              fill="#ffffff"
             />
           </motion.div>
 
@@ -61,7 +60,6 @@ export function Hero() {
               curveAmount={250}
               direction={dir}
               interactive={false}
-              fill="#ffffff"
             />
           </motion.div>
 
@@ -77,7 +75,6 @@ export function Hero() {
               curveAmount={250}
               direction={dir}
               interactive={false}
-              fill="#ffffff"
             />
           </motion.div>
         </motion.div>
