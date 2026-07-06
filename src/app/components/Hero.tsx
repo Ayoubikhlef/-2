@@ -41,7 +41,7 @@ export function Hero() {
           >
             <CurvedLoop
               marqueeText={t(content.hero.title) + ' ✦ '}
-              speed={4}
+              speed={0.7}
               curveAmount={150}
               direction={dir}
               interactive={false}
@@ -56,7 +56,7 @@ export function Hero() {
           >
             <CurvedLoop
               marqueeText={t(content.hero.brandName) + ' ✦ '}
-              speed={3.5}
+              speed={0.5}
               curveAmount={350}
               direction={dir}
               interactive={false}
@@ -71,7 +71,7 @@ export function Hero() {
           >
             <CurvedLoop
               marqueeText={t(content.hero.subtitle) + ' ✦ '}
-              speed={4.5}
+              speed={0.9}
               curveAmount={200}
               direction={dir}
               interactive={false}
