@@ -5,7 +5,8 @@ import { getSiteContent } from '../utils/siteContentStorage';
 import CurvedLoop from './CurvedLoop';
 
 export function Hero() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const dir = language === 'ar' ? 'left' : 'right';
   const [content, setContent] = useState(() => getSiteContent());
 
   useEffect(() => {
@@ -42,7 +43,7 @@ export function Hero() {
               marqueeText={t(content.hero.title) + ' ✦ '}
               speed={1.8}
               curveAmount={150}
-              direction="right"
+              direction={dir}
               interactive={false}
             />
           </motion.div>
@@ -57,7 +58,7 @@ export function Hero() {
               marqueeText={t(content.hero.brandName) + ' ✦ '}
               speed={1.2}
               curveAmount={350}
-              direction="right"
+              direction={dir}
               interactive={false}
             />
           </motion.div>
@@ -72,7 +73,7 @@ export function Hero() {
               marqueeText={t(content.hero.subtitle) + ' ✦ '}
               speed={1.5}
               curveAmount={200}
-              direction="right"
+              direction={dir}
               interactive={false}
             />
           </motion.div>
