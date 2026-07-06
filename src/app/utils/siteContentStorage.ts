@@ -85,7 +85,7 @@ const defaultContent: SiteContent = {
       fr: 'Nous offrons une large gamme de services et fournitures informatiques',
       en: 'We offer a wide range of services and IT supplies',
     },
-    bgImage: '/hero-bg.png',
+    bgImage: '/hero-bg.jpg',
   },
   whyUs: {
     title: {
