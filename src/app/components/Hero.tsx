@@ -1,17 +1,35 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { motion } from 'motion/react';
 import { getSiteContent } from '../utils/siteContentStorage';
+import Typed from 'typed.js';
+import CurvedLoop from './CurvedLoop';
 
 export function Hero() {
   const { t } = useLanguage();
   const [content, setContent] = useState(() => getSiteContent());
+  const typedRef = useRef(null);
 
   useEffect(() => {
     const refresh = () => setContent(getSiteContent());
     window.addEventListener('aos:data-changed', refresh);
     return () => window.removeEventListener('aos:data-changed', refresh);
   }, []);
+
+  useEffect(() => {
+    if (!typedRef.current || !content?.hero?.subtitle) return;
+    const typed = new Typed(typedRef.current, {
+      strings: [content.hero.subtitle.ar, content.hero.subtitle.fr, content.hero.subtitle.en],
+      typeSpeed: 60,
+      backSpeed: 30,
+      backDelay: 2500,
+      loop: true,
+      showCursor: true,
+      cursorChar: '|',
+    });
+    return () => typed.destroy();
+  }, [content]);
+
   const reducedMotion = typeof window !== 'undefined'
     ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
     : false;
@@ -38,74 +56,35 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.6 }}
-            className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl mb-6 sm:mb-8 text-white leading-tight"
+            className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl mb-4 text-white leading-tight"
           >
             {t(content.hero.title)}
-            <br />
-            <motion.span
-              initial={{ opacity: 0, scale: 0.8, filter: 'blur(8px)' }}
-              animate={reducedMotion ? {
-                opacity: 1,
-                scale: 1,
-                filter: 'blur(0px)',
-              } : {
-                opacity: 1,
-                scale: 1,
-                filter: 'blur(0px)',
-                rotateX: [0, 15, 0, -15, 0],
-                rotateY: [0, -20, 0, 20, 0],
-                z: [0, 50, 0, -50, 0],
-                backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
-              }}
-              transition={reducedMotion ? {
-                opacity: { delay: 0.3, duration: 0.8 },
-                scale: { delay: 0.3, duration: 0.8, type: 'spring', stiffness: 100 },
-                filter: { delay: 0.3, duration: 0.8 },
-              } : {
-                opacity: { delay: 0.3, duration: 0.8 },
-                scale: { delay: 0.3, duration: 0.8, type: 'spring', stiffness: 100 },
-                filter: { delay: 0.3, duration: 0.8 },
-                rotateX: { duration: 4, repeat: Infinity, ease: 'easeInOut' },
-                rotateY: { duration: 4, repeat: Infinity, ease: 'easeInOut' },
-                z: { duration: 4, repeat: Infinity, ease: 'easeInOut' },
-                backgroundPosition: { duration: 3, repeat: Infinity, ease: 'linear' },
-              }}
-              className="bg-gradient-to-br from-white via-blue-300 to-amber-300 bg-clip-text text-transparent inline-block font-black tracking-tight text-5xl sm:text-7xl md:text-8xl lg:text-9xl"
-              style={{
-                backgroundSize: '200% 200%',
-                transformStyle: 'preserve-3d',
-                perspective: '800px',
-                textShadow: `
-                  0 1px 0 rgba(147,197,253,0.5),
-                  0 2px 0 rgba(147,197,253,0.45),
-                  0 3px 0 rgba(96,165,250,0.4),
-                  0 4px 0 rgba(96,165,250,0.35),
-                  0 5px 0 rgba(59,130,246,0.3),
-                  0 6px 0 rgba(59,130,246,0.25),
-                  0 8px 10px rgba(0,0,0,0.15),
-                  0 12px 20px rgba(59,130,246,0.2),
-                  0 20px 40px rgba(245,158,11,0.1)
-                `,
-              }}
-            >
-              {t(content.hero.brandName)}
-            </motion.span>
           </motion.h1>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.5, duration: 0.8, type: 'spring', stiffness: 100 }}
+            className="max-w-5xl mx-auto -mt-8 sm:-mt-12 lg:-mt-16 mb-6"
+          >
+            <CurvedLoop
+              marqueeText={t(content.hero.brandName) + ' ✦ '}
+              speed={1.2}
+              curveAmount={350}
+              interactive={false}
+            />
+          </motion.div>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
-            className="text-2xl md:text-3xl mb-6 text-white/90 max-w-4xl mx-auto"
+            transition={{ delay: 0.7, duration: 0.6 }}
+            className="text-xl sm:text-2xl md:text-3xl mb-6 text-white/90 max-w-4xl mx-auto min-h-[3rem]"
           >
-            {t(content.hero.subtitle)}
+            <span ref={typedRef} />
           </motion.p>
-
-
         </motion.div>
       </div>
-
-
     </section>
   );
 }

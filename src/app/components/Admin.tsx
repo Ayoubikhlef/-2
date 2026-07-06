@@ -19,6 +19,7 @@ import { RefreshCw, Trash2, ChevronDown, Phone, MapPin, Mail, DollarSign, Packag
 import { generateInvoice } from './InvoicePDF';
 import { toast } from 'sonner';
 import { isMaintenanceMode, setMaintenanceMode, getMaintenanceMessage, setMaintenanceMessage } from '../utils/maintenanceStorage';
+import { api } from '../utils/api';
 import { motion, AnimatePresence } from 'motion/react';
 
 const ADMIN_USERNAME = import.meta.env.VITE_ADMIN_USERNAME || 'hydra';
