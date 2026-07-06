@@ -37,12 +37,12 @@ export function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.6 }}
-            className="max-w-3xl mx-auto"
+            className="max-w-5xl mx-auto"
           >
             <CurvedLoop
               marqueeText={t(content.hero.title) + ' ✦ '}
               speed={0.7}
-              curveAmount={150}
+              curveAmount={250}
               direction={dir}
               interactive={false}
             />
@@ -57,7 +57,7 @@ export function Hero() {
             <CurvedLoop
               marqueeText={t(content.hero.brandName) + ' ✦ '}
               speed={0.5}
-              curveAmount={350}
+              curveAmount={250}
               direction={dir}
               interactive={false}
             />
@@ -67,12 +67,12 @@ export function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.7, duration: 0.6 }}
-            className="max-w-4xl mx-auto"
+            className="max-w-5xl mx-auto"
           >
             <CurvedLoop
               marqueeText={t(content.hero.subtitle) + ' ✦ '}
               speed={0.9}
-              curveAmount={200}
+              curveAmount={250}
               direction={dir}
               interactive={false}
             />
