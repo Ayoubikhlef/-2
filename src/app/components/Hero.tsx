@@ -32,25 +32,33 @@ export function Hero() {
           transition={{ duration: 0.6 }}
           className="text-center"
         >
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.6 }}
-            className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl mb-4 text-white leading-tight"
+            className="max-w-3xl mx-auto"
           >
-            {t(content.hero.title)}
-          </motion.h1>
+            <CurvedLoop
+              marqueeText={t(content.hero.title) + ' ✦ '}
+              speed={1.8}
+              curveAmount={150}
+              direction="right"
+              interactive={false}
+              fill="rgba(255,255,255,0.5)"
+            />
+          </motion.div>
 
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.5, duration: 0.8, type: 'spring', stiffness: 100 }}
-            className="max-w-5xl mx-auto -mt-4 sm:-mt-6 lg:-mt-8 mb-12 sm:mb-16"
+            className="max-w-5xl mx-auto -mt-4 sm:-mt-6 lg:-mt-8 mb-10 sm:mb-14"
           >
             <CurvedLoop
               marqueeText={t(content.hero.brandName) + ' ✦ '}
               speed={1.2}
               curveAmount={350}
+              direction="right"
               interactive={false}
             />
           </motion.div>
@@ -65,6 +73,7 @@ export function Hero() {
               marqueeText={t(content.hero.subtitle) + ' ✦ '}
               speed={1.5}
               curveAmount={200}
+              direction="right"
               interactive={false}
               fill="rgba(255,255,255,0.6)"
             />
