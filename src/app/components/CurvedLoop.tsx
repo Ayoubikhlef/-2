@@ -30,6 +30,10 @@ const CurvedLoop = ({
   const dirRef = useRef(direction);
   const velRef = useRef(0);
 
+  useEffect(() => {
+    dirRef.current = direction;
+  }, [direction]);
+
   const textLength = spacing;
   const totalText = textLength
     ? Array(Math.ceil(1800 / textLength) + 2)
