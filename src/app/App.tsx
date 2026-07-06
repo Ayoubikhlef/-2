@@ -49,7 +49,7 @@ function AdminFallback() {
 }
 
 export default function App() {
-  const is404 = typeof window !== 'undefined' && window.location.hash && !['#products', '#booking', '#services', '#admin', '#contact', '#checkout', '#about', '#terms', '#privacy'].includes(window.location.hash);
+  const is404 = typeof window !== 'undefined' && window.location.hash && !['#products', '#booking', '#services', '#admin', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty'].includes(window.location.hash);
   const [showLogin, setShowLogin] = useState(false);
   const [maintenance, setMaintenance] = useState(false);
 
@@ -120,7 +120,7 @@ export default function App() {
   if (is404) return <NotFound />;
 
   const hash = typeof window !== 'undefined' ? window.location.hash : '';
-  const isPage = ['#about', '#terms', '#privacy'].includes(hash);
+  const isPage = ['#about', '#terms', '#privacy', '#checkout', '#loyalty'].includes(hash);
 
   return (
     <ThemeProvider>
@@ -151,6 +151,16 @@ export default function App() {
                       <Suspense fallback={<AdminFallback />}>
                         <PrivacyPage />
                       </Suspense>
+                    )}
+                    {hash === '#checkout' && (
+                      <Suspense fallback={<AdminFallback />}>
+                        <OrderForm />
+                      </Suspense>
+                    )}
+                    {hash === '#loyalty' && (
+                      <div className="py-20 max-w-7xl mx-auto px-4">
+                        <h2 className="text-center mb-8 text-3xl font-bold">Loyalty</h2>
+                      </div>
                     )}
                   </>
                 ) : (

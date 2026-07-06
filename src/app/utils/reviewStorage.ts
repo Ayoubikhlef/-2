@@ -1,3 +1,5 @@
+import { api } from './api';
+
 const STORAGE_KEY = 'aos_reviews';
 
 export type Review = {
@@ -36,6 +38,7 @@ export function addReview(productId: number, name: string, rating: number, comme
   const reviews = getAllReviews();
   reviews.push(review);
   saveAllReviews(reviews);
+  api.reviews.create(review).catch(() => {});
   return review;
 }
 
@@ -76,4 +79,25 @@ export function getReviewProductMap(): Record<string, string> {
     }
     return map;
   } catch { return {}; }
+}
+
+export async function loadReviewsFromServer(): Promise<Review[]> {
+  try {
+    const local = getAllReviews();
+    const localIds = new Set(local.map(r => r.id));
+    const serverReviewsPromises = [...new Set(local.map(r => r.productId))].map(async (pid) => {
+      try {
+        return await api.reviews.list(pid) as Review[];
+      } catch { return []; }
+    });
+    const serverResults = await Promise.all(serverReviewsPromises);
+    const serverReviews = serverResults.flat();
+    for (const sr of serverReviews) {
+      if (!localIds.has(sr.id)) {
+        local.push(sr);
+      }
+    }
+    saveAllReviews(local);
+    return local;
+  } catch { return getAllReviews(); }
 }

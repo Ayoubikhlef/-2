@@ -27,6 +27,7 @@ const emptyProduct = (): Partial<Product> => ({
   warranty: '',
   seoKeywords: '',
   hidden: false,
+  stock: 0,
   images: [],
   image: '',
   category: 'accessories',
@@ -94,6 +95,7 @@ export function ManageProductsTab({ products, onUpdate }: { products: Product[];
       warranty: editing.warranty || '',
       seoKeywords: editing.seoKeywords || '',
       hidden: editing.hidden ?? false,
+      stock: Number(editing.stock) ?? 0,
       images: editing.images || [],
       image: editing.image || '',
       category: editing.category || 'accessories',
@@ -271,10 +273,17 @@ export function ManageProductsTab({ products, onUpdate }: { products: Product[];
             className="w-full rounded-xl border border-white/10 bg-slate-800 px-4 py-3 text-sm text-white outline-none focus:border-primary" />
         </div>
 
-        <div>
-          <label className="block text-sm font-semibold mb-2 text-white/80">{t({ ar: 'الكلمات المفتاحية (SEO)', fr: 'Mots-clés (SEO)', en: 'SEO Keywords' })}</label>
-          <input value={editing?.seoKeywords || ''} onChange={(e) => setEditing({ ...editing!, seoKeywords: e.target.value })}
-            className="w-full rounded-xl border border-white/10 bg-slate-800 px-4 py-3 text-sm text-white outline-none focus:border-primary" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-semibold mb-2 text-white/80">{t({ ar: 'المخزون', fr: 'Stock', en: 'Stock' })}</label>
+            <input type="number" min="0" value={editing?.stock ?? 0} onChange={(e) => setEditing({ ...editing!, stock: Number(e.target.value) })}
+              className="w-full rounded-xl border border-white/10 bg-slate-800 px-4 py-3 text-sm text-white outline-none focus:border-primary" />
+          </div>
+          <div>
+            <label className="block text-sm font-semibold mb-2 text-white/80">{t({ ar: 'الكلمات المفتاحية (SEO)', fr: 'Mots-clés (SEO)', en: 'SEO Keywords' })}</label>
+            <input value={editing?.seoKeywords || ''} onChange={(e) => setEditing({ ...editing!, seoKeywords: e.target.value })}
+              className="w-full rounded-xl border border-white/10 bg-slate-800 px-4 py-3 text-sm text-white outline-none focus:border-primary" />
+          </div>
         </div>
 
         <div className="flex items-center gap-3">
@@ -411,6 +420,11 @@ export function ManageProductsTab({ products, onUpdate }: { products: Product[];
               <p className="text-xs sm:text-sm text-white/50">
                 {product.price.toLocaleString()} د.ج · {product.brand}
                 {product.sku && <span className="ml-2 text-white/30">{product.sku}</span>}
+              </p>
+              <p className={`text-xs ${(product.stock ?? 0) > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                {(product.stock ?? 0) > 0
+                  ? t({ ar: `المخزون: ${product.stock}`, fr: `Stock: ${product.stock}`, en: `Stock: ${product.stock}` })
+                  : t({ ar: 'نفذ من المخزون', fr: 'Rupture de stock', en: 'Out of stock' })}
               </p>
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2">

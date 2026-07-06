@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useCart } from '../contexts/CartContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { LoyaltyCard } from './LoyaltyCard';
 import { saveOrder } from '../utils/orderStorage';
 import { wilayas, getMunicipalities } from '../data/products';
 import { Mail, Phone, MapPin, DollarSign, CreditCard, Banknote, Smartphone, Percent } from 'lucide-react';
@@ -20,6 +21,7 @@ export function OrderForm() {
   const { items, total, deliveryFee, clear } = useCart();
   const { t, language } = useLanguage();
   const [submitted, setSubmitted] = useState(false);
+  const [lastLoyalty, setLastLoyalty] = useState<{ name: string; phone: string; amount: number } | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cod');
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number; type: 'percentage' | 'fixed' } | null>(null);
@@ -143,9 +145,10 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
     window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`, '_blank');
 
     setSubmitted(true);
+    setLastLoyalty({ name: formData.fullName, phone: formData.phone, amount: grandTotal });
     setFormData({ fullName: '', phone: '', email: '', address: '', wilaya: '1', municipality: '1' });
     clear();
-    setTimeout(() => setSubmitted(false), 3000);
+    setTimeout(() => { setSubmitted(false); setLastLoyalty(null); }, 4000);
   };
 
   return (
@@ -302,6 +305,11 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
               {submitted && (
                 <div className="bg-green-500/10 border border-green-500 text-green-700 dark:text-green-400 p-4 rounded-lg text-center font-semibold animate-in">
                   ✅ {t({ ar: 'تم استقبال طلبك بنجاح!', fr: 'Votre commande a été reçue!', en: 'Order received successfully!' })}
+                </div>
+              )}
+              {lastLoyalty && (
+                <div className="mt-4">
+                  <LoyaltyCard phone={lastLoyalty.phone} name={lastLoyalty.name} amount={lastLoyalty.amount} />
                 </div>
               )}
             </form>

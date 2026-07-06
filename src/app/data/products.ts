@@ -30,6 +30,7 @@ export interface Product {
   brand: string;
   specs: ProductSpec[];
   relatedIds: number[];
+  stock: number;
 }
 
 export const products: Product[] = [
@@ -69,6 +70,7 @@ export const products: Product[] = [
       { label: { ar: 'الضمان', fr: 'Garantie', en: 'Warranty' }, value: { ar: 'سنة واحدة', fr: '1 an', en: '1 year' } },
     ],
     relatedIds: [9, 10, 12],
+    stock: 10,
   },
   {
     id: 4,

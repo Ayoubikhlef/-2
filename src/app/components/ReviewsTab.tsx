@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { getAllReviewsAdmin, deleteReview, getReviewProductMap, type Review } from '../utils/reviewStorage';
+import { getAllReviewsAdmin, deleteReview, getReviewProductMap, loadReviewsFromServer, type Review } from '../utils/reviewStorage';
 import { Star, Trash2, Package } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -14,7 +14,9 @@ export function ReviewsTab() {
     setProductMap(getReviewProductMap());
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    loadReviewsFromServer().then(() => load());
+  }, []);
 
   const handleDelete = (id: string) => {
     if (!confirm(t({ ar: 'تأكيد حذف التقييم؟', fr: 'Confirmer la suppression?', en: 'Confirm delete?' }))) return;

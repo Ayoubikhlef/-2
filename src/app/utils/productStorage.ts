@@ -17,7 +17,7 @@ export function getStoredProducts(defaults: Product[]): Product[] {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
+        return parsed.map((p: any) => ({ ...p, stock: p.stock ?? 0 }));
       }
     }
   } catch {}

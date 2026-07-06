@@ -2,18 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Plus, Trash2, Edit3, Save, X, Copy, CheckCircle, Percent, DollarSign, CalendarDays } from 'lucide-react';
 import { toast } from 'sonner';
-
-interface Coupon {
-  id: string;
-  code: string;
-  type: 'percentage' | 'fixed';
-  value: number;
-  minOrder: number;
-  maxUses: number;
-  expiryDate: string;
-  active: boolean;
-  createdAt: string;
-}
+import { getStoredCoupons, saveCoupon, deleteCoupon as deleteStoredCoupon, toggleCoupon as toggleStoredCoupon, loadCouponsFromServer, type Coupon } from '../utils/couponStorage';
 
 interface CouponUsage {
   code: string;
@@ -22,22 +11,7 @@ interface CouponUsage {
   lastUsed: string;
 }
 
-const STORAGE_KEY = 'aos_coupons';
 const USAGE_KEY = 'aos_coupon_usage';
-
-function getStoredCoupons(): Coupon[] {
-  if (typeof window === 'undefined') return [];
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-}
-
-function setStoredCoupons(coupons: Coupon[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(coupons));
-}
 
 function getUsageData(): CouponUsage[] {
   if (typeof window === 'undefined') return [];
@@ -261,7 +235,7 @@ export function CouponsTab() {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   useEffect(() => {
-    setCoupons(getStoredCoupons());
+    loadCouponsFromServer().then(setCoupons);
   }, []);
 
   const refresh = () => {
@@ -283,7 +257,7 @@ export function CouponsTab() {
       updated = [...coupons, coupon];
       toast.success(t({ ar: 'تم إضافة الكوبون', fr: 'Coupon ajouté', en: 'Coupon added' }));
     }
-    setStoredCoupons(updated);
+    updated.forEach(c => saveCoupon(c));
     setCoupons(updated);
     setShowForm(false);
     setEditing(null);
@@ -291,18 +265,16 @@ export function CouponsTab() {
 
   const handleDelete = (coupon: Coupon) => {
     if (!confirm(t({ ar: 'هل أنت متأكد من حذف هذا الكوبون؟', fr: 'Êtes-vous sûr de vouloir supprimer ce coupon?', en: 'Are you sure you want to delete this coupon?' }))) return;
-    const updated = coupons.filter((c) => c.id !== coupon.id);
-    setStoredCoupons(updated);
-    setCoupons(updated);
+    deleteStoredCoupon(coupon.id);
+    setCoupons(coupons.filter((c) => c.id !== coupon.id));
     toast.success(t({ ar: 'تم حذف الكوبون', fr: 'Coupon supprimé', en: 'Coupon deleted' }));
   };
 
   const toggleActive = (coupon: Coupon) => {
-    const updated = coupons.map((c) =>
+    toggleStoredCoupon(coupon.id);
+    setCoupons(coupons.map((c) =>
       c.id === coupon.id ? { ...c, active: !c.active } : c
-    );
-    setStoredCoupons(updated);
-    setCoupons(updated);
+    ));
     toast.success(
       !coupon.active
         ? t({ ar: 'تم تفعيل الكوبون', fr: 'Coupon activé', en: 'Coupon activated' })

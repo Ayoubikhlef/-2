@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Heart, Trash2, ArrowRightCircle } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { products as defaultProducts, type Product } from '../data/products';
+import { getStoredProducts } from '../utils/productStorage';
 import { getWishlist, toggleWishlist, clearWishlist } from '../utils/wishlistStorage';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -14,7 +15,7 @@ export function Wishlist() {
   }, []);
 
   const wishlistItems = useMemo(() => {
-    const existingProducts = defaultProducts.filter((product) => wishlistIds.includes(product.id));
+    const existingProducts = getStoredProducts(defaultProducts).filter((product) => wishlistIds.includes(product.id));
     return existingProducts;
   }, [wishlistIds]);
 
