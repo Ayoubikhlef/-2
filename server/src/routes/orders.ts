@@ -118,6 +118,20 @@ orderRouter.post('/delete', async (req: Request, res: Response) => {
   }
 });
 
+orderRouter.post('/clear-all', async (_req: Request, res: Response) => {
+  try {
+    const orders = await prisma.order.findMany({ select: { id: true } });
+    const ids = orders.map(o => o.id);
+    await prisma.orderItem.deleteMany({});
+    await prisma.order.deleteMany({});
+    console.log(`[Orders] Cleared all ${ids.length} orders`);
+    res.json({ deleted: true, count: ids.length, ids });
+  } catch (err) {
+    console.error('[Orders] Clear all error:', err);
+    res.status(500).json({ error: 'Failed to clear orders' });
+  }
+});
+
 orderRouter.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;

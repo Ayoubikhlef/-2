@@ -125,6 +125,7 @@ export const api = {
         body: JSON.stringify({ id }),
       });
     },
+    clearAll: () => request<{ deleted: boolean; count: number }>('/orders/clear-all', { method: 'POST' }),
   },
 
   reviews: {

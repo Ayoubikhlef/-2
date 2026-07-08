@@ -233,8 +233,8 @@ export function Admin() {
     );
   };
 
-  const handleClear = () => {
-    clearOrders();
+  const handleClear = async () => {
+    await clearOrders();
     setOrders([]);
     toast.success(
       t({ ar: 'تم مسح جميع الطلبات', fr: 'Toutes les commandes effacées', en: 'All orders cleared' })

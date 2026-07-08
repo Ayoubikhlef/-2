@@ -153,17 +153,16 @@ export async function loadOrdersFromServer(): Promise<OrderRecord[]> {
   }
 }
 
-export function clearOrders() {
+export async function clearOrders() {
   if (typeof window === 'undefined') return [];
-  const orders = getOrders();
-  const deleted = getSoftDeletedIds();
-  orders.forEach(o => deleted.add(o.id));
-  saveSoftDeletedIds(deleted);
   localStorage.removeItem(STORAGE_KEY);
-  log('info', `Cleared all ${orders.length} orders (soft-deleted)`);
-  orders.forEach(o => {
-    api.orders.remove(o.id).catch(() => {});
-  });
+  localStorage.removeItem(SOFT_DELETE_KEY);
+  try {
+    const r = await api.orders.clearAll();
+    log('info', `Server deleted ${r.count} orders`);
+  } catch {
+    log('warn', 'Server clear-all failed');
+  }
   dispatchChange();
   return [];
 }
