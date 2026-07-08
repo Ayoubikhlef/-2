@@ -155,9 +155,15 @@ export async function loadOrdersFromServer(): Promise<OrderRecord[]> {
 
 export function clearOrders() {
   if (typeof window === 'undefined') return [];
+  const orders = getOrders();
+  const deleted = getSoftDeletedIds();
+  orders.forEach(o => deleted.add(o.id));
+  saveSoftDeletedIds(deleted);
   localStorage.removeItem(STORAGE_KEY);
-  localStorage.removeItem(SOFT_DELETE_KEY);
-  log('info', 'Cleared all orders and soft-delete list');
+  log('info', `Cleared all ${orders.length} orders (soft-deleted)`);
+  orders.forEach(o => {
+    api.orders.remove(o.id).catch(() => {});
+  });
   dispatchChange();
   return [];
 }
