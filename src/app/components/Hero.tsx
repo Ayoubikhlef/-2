@@ -12,9 +12,6 @@ export function Hero() {
     window.addEventListener('aos:data-changed', refresh);
     return () => window.removeEventListener('aos:data-changed', refresh);
   }, []);
-  const reducedMotion = typeof window !== 'undefined'
-    ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    : false;
 
   return (
     <section className="relative bg-gradient-to-br from-primary via-primary to-blue-900 dark:from-blue-950 dark:via-blue-900 dark:to-blue-950 text-white pt-20 pb-24 sm:pb-32 lg:pb-48 overflow-hidden">
@@ -42,54 +39,9 @@ export function Hero() {
           >
             {t(content.hero.title)}
             <br />
-            <motion.span
-              initial={{ opacity: 0, scale: 0.8, filter: 'blur(8px)' }}
-              animate={reducedMotion ? {
-                opacity: 1,
-                scale: 1,
-                filter: 'blur(0px)',
-              } : {
-                opacity: 1,
-                scale: 1,
-                filter: 'blur(0px)',
-                rotateX: [0, 15, 0, -15, 0],
-                rotateY: [0, -20, 0, 20, 0],
-                z: [0, 50, 0, -50, 0],
-                backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
-              }}
-              transition={reducedMotion ? {
-                opacity: { delay: 0.3, duration: 0.8 },
-                scale: { delay: 0.3, duration: 0.8, type: 'spring', stiffness: 100 },
-                filter: { delay: 0.3, duration: 0.8 },
-              } : {
-                opacity: { delay: 0.3, duration: 0.8 },
-                scale: { delay: 0.3, duration: 0.8, type: 'spring', stiffness: 100 },
-                filter: { delay: 0.3, duration: 0.8 },
-                rotateX: { duration: 4, repeat: Infinity, ease: 'easeInOut' },
-                rotateY: { duration: 4, repeat: Infinity, ease: 'easeInOut' },
-                z: { duration: 4, repeat: Infinity, ease: 'easeInOut' },
-                backgroundPosition: { duration: 3, repeat: Infinity, ease: 'linear' },
-              }}
-              className="bg-gradient-to-br from-white via-blue-300 to-amber-300 bg-clip-text text-transparent inline-block font-black tracking-tight text-5xl sm:text-7xl md:text-8xl lg:text-9xl"
-              style={{
-                backgroundSize: '200% 200%',
-                transformStyle: 'preserve-3d',
-                perspective: '800px',
-                textShadow: `
-                  0 1px 0 rgba(147,197,253,0.5),
-                  0 2px 0 rgba(147,197,253,0.45),
-                  0 3px 0 rgba(96,165,250,0.4),
-                  0 4px 0 rgba(96,165,250,0.35),
-                  0 5px 0 rgba(59,130,246,0.3),
-                  0 6px 0 rgba(59,130,246,0.25),
-                  0 8px 10px rgba(0,0,0,0.15),
-                  0 12px 20px rgba(59,130,246,0.2),
-                  0 20px 40px rgba(245,158,11,0.1)
-                `,
-              }}
-            >
+            <span className="bg-gradient-to-br from-white via-blue-300 to-amber-300 bg-clip-text text-transparent inline-block font-black tracking-tight text-5xl sm:text-7xl md:text-8xl lg:text-9xl">
               {t(content.hero.brandName)}
-            </motion.span>
+            </span>
           </motion.h1>
 
           <motion.p
