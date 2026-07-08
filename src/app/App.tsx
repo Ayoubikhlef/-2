@@ -34,6 +34,7 @@ const OrderForm = lazy(() => import('./components/OrderForm').then(m => ({ defau
 const AboutPage = lazy(() => import('./components/AboutPage').then(m => ({ default: m.AboutPage })));
 const TermsPage = lazy(() => import('./components/TermsPage').then(m => ({ default: m.TermsPage })));
 const PrivacyPage = lazy(() => import('./components/PrivacyPage').then(m => ({ default: m.PrivacyPage })));
+const AccountDashboard = lazy(() => import('./components/AccountDashboard').then(m => ({ default: m.AccountDashboard })));
 
 function AdminFallback() {
   return (
@@ -49,7 +50,7 @@ function AdminFallback() {
 }
 
 export default function App() {
-  const is404 = typeof window !== 'undefined' && window.location.hash && !['#products', '#booking', '#services', '#admin', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty'].includes(window.location.hash);
+  const is404 = typeof window !== 'undefined' && window.location.hash && !['#products', '#booking', '#services', '#admin', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account'].includes(window.location.hash);
   const [showLogin, setShowLogin] = useState(false);
   const [maintenance, setMaintenance] = useState(false);
 
@@ -120,7 +121,7 @@ export default function App() {
   if (is404) return <NotFound />;
 
   const hash = typeof window !== 'undefined' ? window.location.hash : '';
-  const isPage = ['#about', '#terms', '#privacy', '#checkout', '#loyalty'].includes(hash);
+  const isPage = ['#about', '#terms', '#privacy', '#checkout', '#loyalty', '#account'].includes(hash);
 
   return (
     <ThemeProvider>
@@ -158,9 +159,14 @@ export default function App() {
                       </Suspense>
                     )}
                     {hash === '#loyalty' && (
-                      <div className="py-20 max-w-7xl mx-auto px-4">
-                        <h2 className="text-center mb-8 text-3xl font-bold">Loyalty</h2>
-                      </div>
+                      <Suspense fallback={<AdminFallback />}>
+                        <AccountDashboard />
+                      </Suspense>
+                    )}
+                    {hash === '#account' && (
+                      <Suspense fallback={<AdminFallback />}>
+                        <AccountDashboard />
+                      </Suspense>
                     )}
                   </>
                 ) : (

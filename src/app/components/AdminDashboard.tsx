@@ -454,6 +454,114 @@ export function AdminDashboard() {
           </div>
         )}
       </motion.div>
+
+      {/* Enhanced Reports Section */}
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.3 }}>
+        <div className="flex items-center gap-2 mb-6">
+          <BarChart3 className="w-5 h-5 text-primary" />
+          <h3 className="text-lg font-bold text-white">{t({ ar: 'تقارير محسّنة', fr: 'Rapports améliorés', en: 'Enhanced Reports' })}</h3>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+          {/* Top Products - Detailed */}
+          <div className="rounded-2xl border border-white/10 bg-slate-900/80 p-6 shadow-lg lg:col-span-2">
+            <h4 className="text-base font-bold text-white mb-4">{t({ ar: 'المنتجات الأكثر مبيعاً', fr: 'Produits les plus vendus', en: 'Top Products by Quantity' })}</h4>
+            {topProducts.length === 0 ? (
+              <p className="text-sm text-white/30 text-center py-8">{t({ ar: 'لا توجد بيانات', fr: 'Aucune donnée', en: 'No data' })}</p>
+            ) : (
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={topProducts} layout="vertical" margin={{ top: 5, right: 40, left: 20, bottom: 5 }}>
+                  <XAxis type="number" tick={{ fill: '#94a3b8', fontSize: 12 }} axisLine={false} tickLine={false} />
+                  <YAxis type="category" dataKey="name" tick={{ fill: '#e2e8f0', fontSize: 11 }} axisLine={false} tickLine={false} width={140} />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '12px', color: '#e2e8f0' }}
+                    formatter={(value: number, name: string) => [`${value} ${language === 'ar' ? 'وحدة' : language === 'fr' ? 'unités' : 'units'}`, '']}
+                  />
+                  <Bar dataKey="qty" radius={[0, 8, 8, 0]} fill="#10b981" barSize={22}>
+                    <LabelList dataKey="qty" position="right" fill="#94a3b8" fontSize={12} />
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+          </div>
+
+          {/* Customer Stats Card */}
+          <div className="rounded-2xl border border-white/10 bg-slate-900/80 p-6 shadow-lg">
+            <h4 className="text-base font-bold text-white mb-4 flex items-center gap-2">
+              <Users className="w-4 h-4 text-purple-400" />
+              {t({ ar: 'إحصائيات العملاء', fr: 'Statistiques clients', en: 'Customer Stats' })}
+            </h4>
+            {orders.length === 0 ? (
+              <p className="text-sm text-white/30 text-center py-8">{t({ ar: 'لا توجد بيانات', fr: 'Aucune donnée', en: 'No data' })}</p>
+            ) : (
+              <div className="space-y-5">
+                {(() => {
+                  const validOrders = orders.filter(o => o.status !== 'cancelled');
+                  const avgOrderValue = validOrders.length > 0 ? Math.round(validOrders.reduce((s, o) => s + o.total, 0) / validOrders.length) : 0;
+                  const phoneCountMap = orders.reduce<Record<string, number>>((acc, o) => {
+                    const p = o.phone || 'unknown';
+                    acc[p] = (acc[p] || 0) + 1;
+                    return acc;
+                  }, {});
+                  const repeatCustomers = Object.values(phoneCountMap).filter(c => c > 1).length;
+                  const totalCust = Object.keys(phoneCountMap).length;
+                  const repeatRate = totalCust > 0 ? Math.round((repeatCustomers / totalCust) * 100) : 0;
+                  return (
+                    <>
+                      <div className="flex items-center justify-between p-4 rounded-xl bg-purple-500/10 border border-purple-500/20">
+                        <div>
+                          <p className="text-sm text-white/50">{t({ ar: 'إجمالي العملاء', fr: 'Total clients', en: 'Total Customers' })}</p>
+                          <p className="text-2xl font-bold text-purple-400">{totalCust}</p>
+                        </div>
+                        <Users className="w-8 h-8 text-purple-400/40" />
+                      </div>
+                      <div className="flex items-center justify-between p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                        <div>
+                          <p className="text-sm text-white/50">{t({ ar: 'متوسط قيمة الطلب', fr: 'Panier moyen', en: 'Avg Order Value' })}</p>
+                          <p className="text-2xl font-bold text-emerald-400">{avgOrderValue.toLocaleString()} د.ج</p>
+                        </div>
+                        <DollarSign className="w-8 h-8 text-emerald-400/40" />
+                      </div>
+                      <div className="flex items-center justify-between p-4 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
+                        <div>
+                          <p className="text-sm text-white/50">{t({ ar: 'العملاء المتكررون', fr: 'Clients réguliers', en: 'Repeat Rate' })}</p>
+                          <p className="text-2xl font-bold text-cyan-400">{repeatRate}%</p>
+                        </div>
+                        <TrendingUp className="w-8 h-8 text-cyan-400/40" />
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Revenue Timeline - Monthly Recharts */}
+        <div className="rounded-2xl border border-white/10 bg-slate-900/80 p-6 shadow-lg">
+          <h4 className="text-base font-bold text-white mb-4 flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-emerald-400" />
+            {t({ ar: 'الإيرادات الشهرية', fr: 'Revenus mensuels', en: 'Revenue Timeline' })}
+          </h4>
+          {months.every(m => m.revenue === 0) ? (
+            <p className="text-sm text-white/30 text-center py-8">{t({ ar: 'لا توجد بيانات', fr: 'Aucune donnée', en: 'No data' })}</p>
+          ) : (
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={months} margin={{ top: 10, right: 20, left: 20, bottom: 5 }}>
+                <XAxis dataKey="label" tick={{ fill: '#94a3b8', fontSize: 12 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: '#94a3b8', fontSize: 12 }} axisLine={false} tickLine={false} tickFormatter={(v: number) => v >= 1000 ? (v / 1000).toFixed(0) + 'k' : String(v)} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '12px', color: '#e2e8f0' }}
+                  formatter={(value: number) => [`${value.toLocaleString()} د.ج`, '']}
+                />
+                <Bar dataKey="revenue" radius={[8, 8, 0, 0]} fill="#10b981" barSize={40}>
+                  <LabelList dataKey="revenue" position="top" fill="#94a3b8" fontSize={11} formatter={(v: number) => v >= 1000 ? (v / 1000).toFixed(1) + 'k' : v > 0 ? String(v) : ''} />
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          )}
+        </div>
+      </motion.div>
     </div>
   );
 }

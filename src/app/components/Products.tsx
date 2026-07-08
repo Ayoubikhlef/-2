@@ -11,8 +11,12 @@ import { SkeletonGrid } from './SkeletonCard';
 import { getWishlist, toggleWishlist, isInWishlist } from '../utils/wishlistStorage';
 import { VisualSearch } from './VisualSearch';
 import { Reviews } from './Reviews';
+import { FlashSaleTimer } from './FlashSaleTimer';
+import { ProductComparison } from './ProductComparison';
+import { InstallmentCalculator } from './InstallmentCalculator';
 import { ProductGallery } from './ProductGallery';
 import { SearchSuggestions } from './SearchSuggestions';
+import { ProductSuggestions } from './ProductSuggestions';
 
 function loadProducts() {
   return getStoredProducts(defaultProducts);
@@ -54,6 +58,7 @@ export function Products() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [visualSearchOpen, setVisualSearchOpen] = useState(false);
+  const [comparisonOpen, setComparisonOpen] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const perPage = 12;
 
@@ -144,21 +149,16 @@ export function Products() {
   const shareProduct = (product: Product) => {
     const name = language === 'ar' ? product.nameAr : language === 'fr' ? product.nameFr : product.nameEn;
     const desc = language === 'ar' ? product.shortDescAr : language === 'fr' ? product.shortDescFr : product.shortDescEn;
-    const shareData = {
-      title: name,
-      text: `${name} - ${desc}`,
-      url: window.location.href,
-    };
+    const siteUrl = 'https://ayoubtechstore.com';
+    const price = product.salePrice || product.price;
+    const msg = `*${name}*\n${desc}\n💰 ${price.toLocaleString()} د.ج\n🔗 ${siteUrl}`;
+
     if (navigator.share) {
-      navigator.share(shareData).catch(() => {});
-    } else {
-      navigator.clipboard.writeText(`${name}\n${window.location.href}`).then(() => {
-        toast.success(t({ ar: 'تم نسخ الرابط', fr: 'Lien copié', en: 'Link copied' }));
-      }).catch(() => {
-        const whatsapp = `https://wa.me/?text=${encodeURIComponent(`${name}\n${window.location.href}`)}`;
-        window.open(whatsapp, '_blank');
-      });
+      navigator.share({ title: name, text: msg, url: siteUrl }).catch(() => {});
+      return;
     }
+    const waUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+    window.open(waUrl, '_blank');
   };
 
   const openOrderModal = (product: Product) => {
@@ -275,10 +275,18 @@ export function Products() {
             />
             <button
               onClick={() => setVisualSearchOpen(true)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 p-1.5 rounded-lg hover:bg-muted transition-colors"
+              className="absolute right-12 top-1/2 -translate-y-1/2 p-1.5 rounded-lg hover:bg-muted transition-colors"
               aria-label={t({ ar: 'بحث بالصورة', fr: 'Recherche par image', en: 'Visual search' })}
             >
               <Camera className="w-5 h-5 text-muted-foreground hover:text-primary transition-colors" />
+            </button>
+            <button
+              onClick={() => setComparisonOpen(true)}
+              className="absolute right-24 top-1/2 -translate-y-1/2 p-1.5 rounded-lg hover:bg-muted transition-colors"
+              aria-label={t({ ar: 'مقارنة', fr: 'Comparer', en: 'Compare' })}
+              title={t({ ar: 'مقارنة المنتجات', fr: 'Comparer les produits', en: 'Compare products' })}
+            >
+              <span className="text-muted-foreground hover:text-primary transition-colors text-lg font-bold">{'<>'}</span>
             </button>
             <AnimatePresence>
               {showSuggestions && (
@@ -334,8 +342,11 @@ export function Products() {
                 <Heart className={`w-5 h-5 ${isInWishlist(product.id) ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} />
               </button>
               {product.salePrice && product.saleEnd && new Date(product.saleEnd) > new Date() && (
-                <div className="absolute top-3 left-3 bg-red-500 text-white px-2.5 py-1 rounded-full text-xs font-bold z-10 shadow-lg">
-                  {language === 'ar' ? 'تخفيض' : language === 'fr' ? 'SOLDE' : 'SALE'}
+                <div className="absolute top-3 left-3 z-10 flex flex-col gap-1">
+                  <div className="bg-red-500 text-white px-2.5 py-1 rounded-full text-xs font-bold shadow-lg">
+                    {language === 'ar' ? 'تخفيض' : language === 'fr' ? 'SOLDE' : 'SALE'}
+                  </div>
+                  <FlashSaleTimer endDate={product.saleEnd} />
                 </div>
               )}
               <div className="relative h-40 sm:h-48 overflow-hidden bg-muted">
@@ -496,6 +507,9 @@ export function Products() {
                   {viewingProduct.price.toLocaleString()} د.ج
                 </span>
               </div>
+              <div className="max-w-xs">
+                <InstallmentCalculator price={viewingProduct.salePrice || viewingProduct.price} />
+              </div>
 
               <p className="text-muted-foreground mb-8 text-lg">
                 {language === 'ar' ? viewingProduct.descAr : language === 'fr' ? viewingProduct.descFr : viewingProduct.descEn}
@@ -520,6 +534,8 @@ export function Products() {
               </div>
 
               <Reviews productId={viewingProduct.id} />
+
+              <ProductSuggestions productId={viewingProduct.id} onSelect={openProductDetails} />
 
               {viewingProduct.relatedIds.length > 0 && (
                 <div className="mb-8">
@@ -1089,6 +1105,7 @@ export function Products() {
                   </span>
                 )}
               </div>
+              <InstallmentCalculator price={quickViewProduct.salePrice || quickViewProduct.price} />
               {quickViewProduct.specs.length > 0 && (
                 <div className="space-y-1.5">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
@@ -1102,6 +1119,7 @@ export function Products() {
                   ))}
                 </div>
               )}
+              <ProductSuggestions productId={quickViewProduct.id} onSelect={(p) => { closeQuickView(); setTimeout(() => openProductDetails(p), 100); }} />
               <div className="flex gap-3 pt-2">
                 <button
                   onClick={() => {
@@ -1130,6 +1148,8 @@ export function Products() {
         </motion.div>
       )}
       </AnimatePresence>
+
+      {comparisonOpen && <ProductComparison onClose={() => setComparisonOpen(false)} />}
     </section>
   );
 }

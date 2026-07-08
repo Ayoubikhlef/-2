@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { prisma } from '../utils/prisma';
+import { sendWhatsAppNotification } from '../services/whatsapp';
 
 export const orderRouter = Router();
 
@@ -89,6 +90,7 @@ orderRouter.patch('/:id/status', async (req: Request, res: Response) => {
       data: { status },
     });
 
+    sendWhatsAppNotification(updated.phone, updated.customer, id, status, updated.total);
     console.log(`[Orders] Updated order ${id} status to ${status}`);
     res.json(updated);
   } catch (err) {

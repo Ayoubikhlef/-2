@@ -55,6 +55,12 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
                 {t(link.label)}
               </a>
             ))}
+            {user && (
+              <a href="#account" className="text-base font-medium hover:text-primary transition-colors">
+                <User className="w-4 h-4 inline mr-1" />
+                {t({ ar: 'حسابي', fr: 'Mon Compte', en: 'My Account' })}
+              </a>
+            )}
             <div className="flex items-center space-x-2 space-x-reverse text-base font-medium bg-muted px-4 py-2.5 rounded-lg">
               <Phone className="w-5 h-5 text-primary" />
               <span className="font-semibold">{settings.contact.phoneDisplay}</span>
@@ -125,6 +131,9 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
                     {t({ ar: 'أدمين', fr: 'Admin', en: 'Admin' })}
                   </a>
                 )}
+                <a href="#account" className="text-sm text-primary font-bold">
+                  {t({ ar: 'حسابي', fr: 'Compte', en: 'Account' })}
+                </a>
                 <button onClick={logout} className="p-2 hover:bg-background rounded" title={t({ ar: 'تسجيل خروج', fr: 'Déconnexion', en: 'Logout' })}>
                   <LogOut className="w-5 h-5 text-muted-foreground" />
                 </button>
