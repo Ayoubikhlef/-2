@@ -31,18 +31,18 @@ export function Hero() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-center space-y-6 sm:space-y-8 lg:space-y-10"
+          className="text-center"
         >
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.6 }}
-            className="max-w-5xl mx-auto"
+            className="max-w-3xl mx-auto"
           >
             <CurvedLoop
               marqueeText={t(content.hero.title) + ' ✦ '}
-              speed={0.3}
-              curveAmount={250}
+              speed={1.8}
+              curveAmount={150}
               direction={dir}
               interactive={false}
             />
@@ -52,12 +52,12 @@ export function Hero() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.5, duration: 0.8, type: 'spring', stiffness: 100 }}
-            className="max-w-5xl mx-auto"
+            className="max-w-5xl mx-auto -mt-4 sm:-mt-6 lg:-mt-8 mb-10 sm:mb-14"
           >
             <CurvedLoop
               marqueeText={t(content.hero.brandName) + ' ✦ '}
-              speed={0.2}
-              curveAmount={250}
+              speed={1.2}
+              curveAmount={350}
               direction={dir}
               interactive={false}
             />
@@ -67,12 +67,12 @@ export function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.7, duration: 0.6 }}
-            className="max-w-5xl mx-auto"
+            className="max-w-4xl mx-auto"
           >
             <CurvedLoop
               marqueeText={t(content.hero.subtitle) + ' ✦ '}
-              speed={0.4}
-              curveAmount={250}
+              speed={1.5}
+              curveAmount={200}
               direction={dir}
               interactive={false}
             />
