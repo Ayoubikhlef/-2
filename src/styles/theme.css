@@ -270,7 +270,7 @@ svg.lucide:hover {
 
 @keyframes bounce-subtle {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+  50% { transform: translateY(-3px); }
 }
 
 @keyframes fade-in {
@@ -287,39 +287,14 @@ svg.lucide:hover {
 }
 
 /* Liquid button effect */
-.btn-liquid {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-}
-
-.btn-liquid::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255,255,255,0.25) 0%, transparent 60%);
-  opacity: 0;
-  transition: opacity 0.4s ease;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.btn-liquid:hover::before {
-  opacity: 1;
-}
-
-.btn-liquid > * {
-  position: relative;
-  z-index: 1;
-}
+.btn-liquid { }
 
 /* Particles background */
 @keyframes particle-float {
-  0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-  5% { opacity: var(--p-opacity, 0.5); }
-  90% { opacity: var(--p-opacity, 0.5); }
-  100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+  0% { opacity: 0; }
+  10% { opacity: var(--p-opacity, 0.3); }
+  90% { opacity: var(--p-opacity, 0.3); }
+  100% { opacity: 0; }
 }
 
 #particles-container {
