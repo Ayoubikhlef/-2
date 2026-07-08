@@ -1,7 +1,7 @@
 const SETTINGS_KEY = 'aos_site_settings';
 const DELIVERY_KEY = 'aos_delivery_config';
 
-import { syncToServer } from './serverSync';
+import { syncToServer, loadFromServer } from './serverSync';
 
 export interface LangString {
   ar: string;
@@ -185,6 +185,19 @@ export function updateDelivery(data: Partial<DeliveryConfig>): DeliveryConfig {
 }
 export function updateSiteSettings(data: Partial<SiteSettings>): SiteSettings {
   const cur = getSettings(); const next = { ...cur, ...data }; saveSettings(next); return next;
+}
+
+export async function loadSiteSettingsFromServer(): Promise<boolean> {
+  try {
+    const data = await loadFromServer<SiteSettingsAll>('aos_site_settings');
+    if (data) {
+      localStorage.setItem(SETTINGS_KEY + '_contact', JSON.stringify(data.contact));
+      localStorage.setItem(DELIVERY_KEY, JSON.stringify(data.delivery));
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(data.settings));
+      return true;
+    }
+  } catch {}
+  return false;
 }
 
 export function getDeliveryFee(wilayaId: number): number {

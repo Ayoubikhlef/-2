@@ -20,6 +20,7 @@ import { generateInvoice } from './InvoicePDF';
 import { toast } from 'sonner';
 import { isMaintenanceMode, setMaintenanceMode, getMaintenanceMessage, setMaintenanceMessage } from '../utils/maintenanceStorage';
 import { api } from '../utils/api';
+import { syncAllFromServer } from '../utils/globalSync';
 import { motion, AnimatePresence } from 'motion/react';
 
 const ADMIN_USERNAME = import.meta.env.VITE_ADMIN_USERNAME || 'hydra';
@@ -173,16 +174,16 @@ export function Admin() {
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
     try {
-      await loadOrders();
+      // Push local changes to server first
+      api.syncProducts(getStoredProducts(defaultProducts)).catch(() => {});
+      api.data.save('aos_services', getStoredServices(defaultServices)).catch(() => {});
+      api.data.save('aos_site_settings', { contact: {}, delivery: {}, settings: {} }).catch(() => {});
+      // Pull fresh data from server into localStorage
+      await syncAllFromServer();
+      // Update all UI states
+      setOrders(await loadOrdersFromServer());
       setManageProducts(getStoredProducts(defaultProducts));
       setManageServices(getStoredServices(defaultServices));
-      api.syncProducts(getStoredProducts(defaultProducts))
-        .then(() => console.log('[Sync] Products synced to server'))
-        .catch(() => {});
-      api.data.save('aos_services', getStoredServices(defaultServices))
-        .then(() => console.log('[Sync] Services synced to server'))
-        .catch(() => {});
-      window.dispatchEvent(new CustomEvent('aos:data-changed'));
       toast.success(
         t({ ar: 'تم تحديث جميع البيانات', fr: 'Toutes les données actualisées', en: 'All data refreshed' })
       );
@@ -193,7 +194,7 @@ export function Admin() {
     } finally {
       setIsRefreshing(false);
     }
-  }, [loadOrders, t]);
+  }, [t]);
 
   useEffect(() => {
     if (!isAuthenticated) return;
