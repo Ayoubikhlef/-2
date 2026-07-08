@@ -28,7 +28,7 @@ import { LoginPage } from './components/LoginPage';
 import { AIAssistant } from './components/AIAssistant';
 import { OrderTracking } from './components/OrderTracking';
 import { SpeedInsights } from '@vercel/speed-insights/react';
-import { startPeriodicSync, stopPeriodicSync, syncAllFromServer } from './utils/globalSync';
+import { requestSync } from './utils/globalSync';
 
 const Admin = lazy(() => import('./components/Admin').then(m => ({ default: m.Admin })));
 const OrderForm = lazy(() => import('./components/OrderForm').then(m => ({ default: m.OrderForm })));
@@ -58,16 +58,12 @@ export default function App() {
   useEffect(() => {
     initCrossTabSync();
     setMaintenance(isMaintenanceMode());
-    const check = () => {
+    const handleChange = () => {
       setMaintenance(isMaintenanceMode());
-      syncAllFromServer();
+      requestSync();
     };
-    window.addEventListener('aos:data-changed', check);
-    startPeriodicSync();
-    return () => {
-      window.removeEventListener('aos:data-changed', check);
-      stopPeriodicSync();
-    };
+    window.addEventListener('aos:data-changed', handleChange);
+    return () => window.removeEventListener('aos:data-changed', handleChange);
   }, []);
 
   if (maintenance && typeof window !== 'undefined' && window.location.hash !== '#admin') {

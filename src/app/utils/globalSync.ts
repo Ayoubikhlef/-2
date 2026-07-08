@@ -1,44 +1,32 @@
 import { loadProductsFromServer } from './productStorage';
 import { loadServicesFromServer } from './serviceStorage';
 import { loadSiteSettingsFromServer } from './siteSettingsStorage';
-import { loadOrdersFromServer } from './orderStorage';
-import { loadSubscribersFromServer } from './newsletterStorage';
-import { loadReviewsFromServer } from './reviewStorage';
 import { products as defaultProducts } from '../data/products';
 import { defaultServices } from '../data/services';
-import { api } from './api';
 
-let isSyncing = false;
+let lastSync = 0;
+let syncResolve: (() => void) | null = null;
 
 export async function syncAllFromServer() {
-  if (isSyncing) return;
-  isSyncing = true;
+  const now = Date.now();
+  if (now - lastSync < 8000) return;
+  lastSync = now;
   try {
-    const [products, services, settings] = await Promise.all([
+    await Promise.all([
       loadProductsFromServer(defaultProducts).catch(() => null),
       loadServicesFromServer(defaultServices).catch(() => null),
       loadSiteSettingsFromServer().catch(() => null),
     ]);
-    console.log(`[GlobalSync] Products:${products?.length ?? '?'} Services:${services?.length ?? '?'} Settings:${settings ? 'OK' : '?'}`);
   } catch (err) {
     console.warn('[GlobalSync] Sync failed:', err);
-  } finally {
-    isSyncing = false;
   }
-  window.dispatchEvent(new CustomEvent('aos:data-changed'));
 }
 
-let intervalId: ReturnType<typeof setInterval> | null = null;
-
-export function startPeriodicSync(intervalMs = 30000) {
-  stopPeriodicSync();
-  syncAllFromServer();
-  intervalId = setInterval(syncAllFromServer, intervalMs);
-}
-
-export function stopPeriodicSync() {
-  if (intervalId) {
-    clearInterval(intervalId);
-    intervalId = null;
-  }
+export async function requestSync(): Promise<void> {
+  return new Promise(resolve => {
+    setTimeout(async () => {
+      await syncAllFromServer();
+      resolve();
+    }, 500);
+  });
 }
