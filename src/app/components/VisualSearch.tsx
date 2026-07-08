@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { products as defaultProducts } from '../data/products';
 import { getStoredProducts } from '../utils/productStorage';
@@ -10,45 +10,67 @@ function loadProducts() {
   return getStoredProducts(defaultProducts);
 }
 
-function extractColors(imageData: ImageData): string[] {
-  const data = imageData.data;
-  const colorCounts: Record<string, number> = {};
-  const step = 10;
+type DominantColor = { hex: string; name: string; weight: number };
 
-  for (let i = 0; i < data.length; i += step * 4) {
-    const r = Math.round(data[i] / 30) * 30;
-    const g = Math.round(data[i + 1] / 30) * 30;
-    const b = Math.round(data[i + 2] / 30) * 30;
+function rgbToHex(r: number, g: number, b: number): string {
+  return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+}
+
+function rgbToHsl(r: number, g: number, b: number): [number, number, number] {
+  r /= 255; g /= 255; b /= 255;
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b);
+  let h = 0, s = 0, l = (mx + mn) / 2;
+  if (mx !== mn) {
+    const d = mx - mn;
+    s = l > 0.5 ? d / (2 - mx - mn) : d / (mx + mn);
+    switch (mx) {
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+      case g: h = ((b - r) / d + 2) / 6; break;
+      case b: h = ((r - g) / d + 4) / 6; break;
+    }
+  }
+  return [h * 360, s * 100, l * 100];
+}
+
+function extractDominantColors(imageData: ImageData): DominantColor[] {
+  const data = imageData.data;
+  const buckets: Map<string, { r: number; g: number; b: number; count: number }> = new Map();
+
+  for (let i = 0; i < data.length; i += 16) {
+    const r = Math.round(data[i] / 20) * 20;
+    const g = Math.round(data[i + 1] / 20) * 20;
+    const b = Math.round(data[i + 2] / 20) * 20;
     const key = `${r},${g},${b}`;
-    colorCounts[key] = (colorCounts[key] || 0) + 1;
+    const existing = buckets.get(key);
+    if (existing) existing.count++;
+    else buckets.set(key, { r, g, b, count: 1 });
   }
 
-  const sorted = Object.entries(colorCounts).sort((a, b) => b[1] - a[1]);
-  const topColors = sorted.slice(0, 8).map(([key]) => {
-    const [r, g, b] = key.split(',').map(Number);
-    return rgbToColorName(r, g, b);
-  });
-
-  return [...new Set(topColors)];
+  const total = Array.from(buckets.values()).reduce((s, v) => s + v.count, 0);
+  return Array.from(buckets.entries())
+    .map(([key, v]) => ({
+      hex: rgbToHex(v.r, v.g, v.b),
+      name: rgbToColorName(v.r, v.g, v.b),
+      weight: v.count / total,
+    }))
+    .sort((a, b) => b.weight - a.weight)
+    .slice(0, 6);
 }
 
 function rgbToColorName(r: number, g: number, b: number): string {
-  if (r > 200 && g > 200 && b > 200) return 'white';
-  if (r < 50 && g < 50 && b < 50) return 'black';
-  if (r > 200 && g < 100 && b < 100) return 'red';
-  if (r < 100 && g > 150 && b < 100) return 'green';
-  if (r < 100 && g < 100 && b > 180) return 'blue';
-  if (r > 200 && g > 150 && b < 100) return 'orange';
-  if (r > 180 && g > 180 && b < 100) return 'yellow';
-  if (r > 150 && g < 100 && b > 150) return 'purple';
-  if (r < 100 && g > 100 && b > 150) return 'teal';
-  if (r > 150 && g > 150 && b > 150) return 'gray';
-  if (r > 200 && g > 100 && b > 150) return 'pink';
-  if (r > 150 && g < 60 && b < 60) return 'brown';
-  if (r > 100 && r < 180 && g > 100 && g < 180 && b < 100) return 'olive';
-  if (r < 80 && g < 80 && b > 100) return 'navy';
-  if (r > 180 && g > 180 && b > 180) return 'silver';
-  if (r > 200 && g > 200 && b < 50) return 'gold';
+  const [h, s, l] = rgbToHsl(r, g, b);
+  if (l > 92) return 'white';
+  if (l < 8) return 'black';
+  if (s < 12) return l > 60 ? 'gray' : 'charcoal';
+  if (h >= 345 || h < 15) return 'red';
+  if (h >= 15 && h < 40) return s > 60 ? 'orange' : 'brown';
+  if (h >= 40 && h < 60) return 'yellow';
+  if (h >= 60 && h < 95) return l > 50 ? 'olive' : 'green';
+  if (h >= 95 && h < 165) return 'green';
+  if (h >= 165 && h < 200) return 'teal';
+  if (h >= 200 && h < 260) return 'blue';
+  if (h >= 260 && h < 300) return 'purple';
+  if (h >= 300 && h < 345) return 'pink';
   return 'other';
 }
 
@@ -66,20 +88,27 @@ const colorTranslations: Record<string, Record<string, string>> = {
   pink: { ar: 'وردي', fr: 'rose', en: 'pink' },
   brown: { ar: 'بني', fr: 'marron', en: 'brown' },
   olive: { ar: 'زيتوني', fr: 'olive', en: 'olive' },
-  navy: { ar: 'كحلي', fr: 'bleu marine', en: 'navy' },
-  silver: { ar: 'فضي', fr: 'argenté', en: 'silver' },
-  gold: { ar: 'ذهبي', fr: 'doré', en: 'gold' },
+  charcoal: { ar: 'فحمي', fr: 'charbon', en: 'charcoal' },
   other: { ar: 'آخر', fr: 'autre', en: 'other' },
+};
+
+const categoryColorAffinity: Record<string, string[]> = {
+  mice: ['black', 'gray', 'white', 'charcoal', 'silver'],
+  monitors: ['black', 'gray', 'white', 'silver', 'charcoal'],
+  printers: ['white', 'gray', 'black', 'charcoal'],
+  laptops: ['black', 'gray', 'silver', 'charcoal', 'white'],
+  storage: ['black', 'blue', 'white', 'gray'],
+  accessories: ['black', 'white', 'red', 'blue', 'pink', 'purple', 'green', 'orange', 'yellow', 'teal'],
+  networking: ['black', 'white', 'gray', 'blue'],
 };
 
 export function VisualSearch({ onClose }: { onClose: () => void }) {
   const { t, language } = useLanguage();
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const imgRef = useRef<HTMLImageElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [products, setProducts] = useState(loadProducts);
   const [image, setImage] = useState<string | null>(null);
-  const [colors, setColors] = useState<string[]>([]);
+  const [dominantColors, setDominantColors] = useState<DominantColor[]>([]);
   const [results, setResults] = useState<typeof products>([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
@@ -98,48 +127,51 @@ export function VisualSearch({ onClose }: { onClose: () => void }) {
     img.crossOrigin = 'anonymous';
     img.onload = () => {
       const canvas = canvasRef.current!;
-      canvas.width = img.width;
-      canvas.height = img.height;
+      canvas.width = 200;
+      canvas.height = 200;
       const ctx = canvas.getContext('2d')!;
-      ctx.drawImage(img, 0, 0, 100, 100);
-      const imageData = ctx.getImageData(0, 0, 100, 100);
-      const detected = extractColors(imageData);
-      setColors(detected);
+      ctx.drawImage(img, 0, 0, 200, 200);
+      const imageData = ctx.getImageData(0, 0, 200, 200);
+      const detected = extractDominantColors(imageData);
+      setDominantColors(detected);
 
-      const matched = products.filter(p => !p.hidden).filter((p) => {
+      const colorNames = [...new Set(detected.map(d => d.name))];
+      const topColor = detected[0]?.name || 'other';
+
+      const scored = products.filter(p => !p.hidden).map(p => {
         const text = `${p.nameAr} ${p.nameFr} ${p.nameEn} ${p.descAr} ${p.descFr} ${p.descEn} ${p.brand || ''} ${p.category || ''}`.toLowerCase();
-        return detected.some((c) => {
-          const trans = colorTranslations[c];
-          if (!trans) return false;
-          return Object.values(trans).some((t) => text.includes(t.toLowerCase()));
-        });
-      });
-
-      const scored = matched.map(p => {
-        const text = `${p.nameAr} ${p.nameFr} ${p.nameEn} ${p.descAr} ${p.descFr} ${p.descEn} ${p.brand || ''}`.toLowerCase();
         let score = 0;
-        detected.forEach((c) => {
-          const trans = colorTranslations[c];
-          if (trans) Object.values(trans).forEach(t => { if (text.includes(t.toLowerCase())) score += 10; });
+
+        detected.forEach((dc) => {
+          const trans = colorTranslations[dc.name];
+          if (!trans) return;
+          const matched = Object.values(trans).some(tv => text.includes(tv.toLowerCase()));
+          if (matched) score += dc.weight * 30;
         });
+
         const cat = p.category || '';
-        if (detected.some(c => ['black', 'gray', 'white', 'silver'].includes(c)) && ['mice', 'monitors', 'printers'].includes(cat)) score += 5;
-        if (detected.some(c => ['blue', 'red', 'green', 'orange'].includes(c)) && cat === 'accessories') score += 3;
-        if (p.nameEn.toLowerCase().includes('wireless') || p.nameFr.toLowerCase().includes('sans fil')) score += 2;
+        const affinity = categoryColorAffinity[cat] || [];
+        if (affinity.includes(topColor)) score += 15;
+        if (detected.some(d => affinity.includes(d.name))) score += 8;
+
+        if (colorNames.some(c => ['black', 'charcoal', 'gray', 'white'].includes(c)) &&
+            ['monitors', 'mice', 'printers', 'laptops', 'networking'].includes(cat)) score += 10;
+
         return { product: p, score };
       })
+        .filter(s => s.score > 0)
         .sort((a, b) => b.score - a.score)
         .map(s => s.product);
 
       setResults(scored.slice(0, 12));
       setLoading(false);
       setSearched(true);
-      if (matched.length === 0) {
-        toast.info(t({ ar: 'لم نجد منتجات بهذه الألوان', fr: 'Aucun produit trouvé avec ces couleurs', en: 'No products found with these colors' }));
+      if (scored.length === 0) {
+        toast.info(t({ ar: 'لم نجد منتجات مطابقة لهذه الصورة', fr: 'Aucun produit correspondant trouvé', en: 'No matching products found' }));
       }
     };
     img.src = src;
-  }, [t]);
+  }, [t, products]);
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -184,7 +216,7 @@ export function VisualSearch({ onClose }: { onClose: () => void }) {
               {t({ ar: 'قم برفع صورة منتج أو التقاط صورة بالكاميرا', fr: 'Téléchargez une photo ou prenez-en une avec votre caméra', en: 'Upload a product photo or take one with your camera' })}
             </p>
             <div className="flex gap-3">
-              <button onClick={() => fileRef.current?.click()} className="btn-liquid flex items-center gap-2 rounded-2xl bg-primary text-primary-foreground px-6 py-3 font-semibold">
+              <button onClick={() => fileRef.current?.click()} className="flex items-center gap-2 rounded-2xl bg-primary text-primary-foreground px-6 py-3 font-semibold">
                 <ImageUp className="w-4 h-4" />
                 {t({ ar: 'رفع صورة', fr: 'Upload', en: 'Upload Image' })}
               </button>
@@ -213,15 +245,16 @@ export function VisualSearch({ onClose }: { onClose: () => void }) {
           <div className="space-y-4">
             <div className="flex items-center gap-4">
               <div className="w-24 h-24 rounded-2xl overflow-hidden border border-border bg-muted flex-shrink-0">
-                <img ref={imgRef} src={image} alt="" className="w-full h-full object-cover" />
+                <img src={image} alt="" className="w-full h-full object-cover" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-semibold mb-1">{t({ ar: 'الألوان المكتشفة', fr: 'Couleurs détectées', en: 'Detected colors' })}</p>
+                <p className="text-sm font-semibold mb-2">{t({ ar: 'الألوان السائدة', fr: 'Couleurs dominantes', en: 'Dominant colors' })}</p>
                 <div className="flex flex-wrap gap-1.5">
-                  {colors.map((c) => (
-                    <span key={c} className="text-[10px] px-2 py-1 rounded-full bg-muted font-medium">
-                      {colorTranslations[c]?.[language] || c}
-                    </span>
+                  {dominantColors.map((dc, i) => (
+                    <div key={i} className="flex items-center gap-1.5 text-[10px] px-2 py-1 rounded-full bg-muted font-medium">
+                      <span className="w-3 h-3 rounded-full border border-border" style={{ backgroundColor: dc.hex }} />
+                      {colorTranslations[dc.name]?.[language] || dc.name}
+                    </div>
                   ))}
                 </div>
               </div>

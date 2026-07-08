@@ -11,6 +11,8 @@ import { reviewRouter } from './routes/reviews';
 import { newsletterRouter } from './routes/newsletter';
 import { loyaltyRouter } from './routes/loyalty';
 import { dataRouter } from './routes/data';
+import { emailRouter } from './routes/email';
+import { paymentRouter } from './routes/payment';
 import { errorHandler } from './middleware/errorHandler';
 import { initLive } from './services/live';
 import { initRAG } from './services/rag';
@@ -32,6 +34,8 @@ app.use('/api/reviews', reviewRouter);
 app.use('/api/newsletter', newsletterRouter);
 app.use('/api/loyalty', loyaltyRouter);
 app.use('/api/data', dataRouter);
+app.use('/api/email', emailRouter);
+app.use('/api/payment', paymentRouter);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

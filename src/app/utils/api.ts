@@ -107,6 +107,12 @@ export const api = {
     subscribe: (email: string) => request<{ ok: boolean }>('/newsletter', { method: 'POST', body: JSON.stringify({ email }) }),
   },
 
+  email: {
+    send: (data: { subject: string; body: string; testEmail?: string }) =>
+      request<{ sent: boolean; count?: number; mode?: string }>('/email/send', { method: 'POST', body: JSON.stringify(data) }),
+    configStatus: () => request<{ configured: boolean }>('/email/config-status'),
+  },
+
   orders: {
     create: (data: any) =>
       request<any>('/orders', { method: 'POST', body: JSON.stringify(data) }),
@@ -130,5 +136,12 @@ export const api = {
     get: (phone: string) => request<any>(`/loyalty/${encodeURIComponent(phone)}`),
     addPoints: (phone: string, name: string, amount: number) => request<any>('/loyalty/add', { method: 'POST', body: JSON.stringify({ phone, name, amount }) }),
     redeem: (phone: string, points: number) => request<{ success: boolean; discount: number }>('/loyalty/redeem', { method: 'POST', body: JSON.stringify({ phone, points }) }),
+  },
+
+  payment: {
+    init: (data: { orderId: string; method: 'cib' | 'edahabia' | 'baridimob' | 'cod'; phone?: string }) =>
+      request<{ success: boolean; paymentId: string; amount: number; method: string; instructions: string }>('/payment/init', { method: 'POST', body: JSON.stringify(data) }),
+    confirm: (data: { paymentId: string }) =>
+      request<{ success: boolean; status: string }>('/payment/confirm', { method: 'POST', body: JSON.stringify(data) }),
   },
 };

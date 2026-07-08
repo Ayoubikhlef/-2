@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getSubscribers, loadSubscribersFromServer } from '../utils/newsletterStorage';
-import { Mail, Copy, Download, RefreshCw } from 'lucide-react';
+import { Mail, Copy, Download, RefreshCw, Send, Loader2 } from 'lucide-react';
+import { api } from '../utils/api';
 import { toast } from 'sonner';
 
 export function NewsletterTab() {
@@ -50,8 +51,37 @@ export function NewsletterTab() {
     toast.success(t({ ar: 'تم التصدير', fr: 'Exporté', en: 'Exported' }));
   };
 
+  const [subject, setSubject] = useState('');
+  const [body, setBody] = useState('');
+  const [sending, setSending] = useState(false);
+  const [smtpConfigured, setSmtpConfigured] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    api.email.configStatus().then(r => setSmtpConfigured(r.configured)).catch(() => setSmtpConfigured(false));
+  }, []);
+
+  const sendBroadcast = async () => {
+    if (!subject.trim() || !body.trim()) {
+      toast.error(t({ ar: 'يرجى ملء العنوان والمحتوى', fr: 'Veuillez remplir le sujet et le contenu', en: 'Please fill subject and body' }));
+      return;
+    }
+    setSending(true);
+    try {
+      const r = await api.email.send({ subject, body });
+      toast.success(r.mode === 'log'
+        ? t({ ar: 'تم التسجيل في السجل (SMTP غير مهيأ)', fr: 'Journalisé (SMTP non configuré)', en: 'Logged (SMTP not configured)' })
+        : t({ ar: `تم الإرسال إلى ${r.count} مشترك`, fr: `Envoyé à ${r.count} abonnés`, en: `Sent to ${r.count} subscribers` }));
+      setSubject('');
+      setBody('');
+    } catch {
+      toast.error(t({ ar: 'فشل الإرسال', fr: 'Échec denvoi', en: 'Send failed' }));
+    } finally {
+      setSending(false);
+    }
+  };
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h3 className="text-lg font-bold text-white">
@@ -102,6 +132,28 @@ export function NewsletterTab() {
           </div>
         </div>
       )}
+
+      <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-5">
+        <h4 className="text-md font-bold text-white mb-4 flex items-center gap-2">
+          <Send className="w-4 h-4 text-primary" />
+          {t({ ar: 'إرسال بريد جماعي', fr: 'Envoi groupé', en: 'Broadcast Email' })}
+          {smtpConfigured === true && <span className="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full">SMTP OK</span>}
+          {smtpConfigured === false && <span className="text-xs bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full">SMTP: {t({ ar: 'غير مهيأ (تسجيل فقط)', fr: 'Non configuré (log)', en: 'Not configured (log only)' })}</span>}
+        </h4>
+        <input
+          type="text" value={subject} onChange={e => setSubject(e.target.value)}
+          placeholder={t({ ar: 'عنوان البريد', fr: 'Sujet', en: 'Subject' })}
+          className="w-full rounded-xl bg-slate-800 text-white px-4 py-3 text-sm border border-white/10 placeholder:text-white/30 focus:outline-none focus:border-primary mb-3" />
+        <textarea
+          value={body} onChange={e => setBody(e.target.value)} rows={6}
+          placeholder={t({ ar: 'محتوى البريد (HTML)', fr: 'Contenu (HTML)', en: 'Body (HTML)' })}
+          className="w-full rounded-xl bg-slate-800 text-white px-4 py-3 text-sm border border-white/10 placeholder:text-white/30 focus:outline-none focus:border-primary resize-y" />
+        <button onClick={sendBroadcast} disabled={sending}
+          className="mt-3 flex items-center gap-2 rounded-full bg-primary text-white px-6 py-2.5 text-sm font-semibold hover:bg-primary/90 transition-all disabled:opacity-50">
+          {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+          {t({ ar: 'إرسال للجميع', fr: 'Envoyer à tous', en: 'Send to all' })}
+        </button>
+      </div>
     </div>
   );
 }
