@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
-import { ShoppingCart, Plus, Minus, X, User, Phone, Mail, MapPin, CheckCircle, Info, Heart, Search, Camera, Share2, Eye, Banknote, CreditCard, Smartphone } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, X, User, Phone, Mail, MapPin, CheckCircle, Info, Heart, Search, Camera, Share2, Eye, Banknote } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useCart } from '../contexts/CartContext';
 import { products as defaultProducts, wilayas, getMunicipalities, type Product } from '../data/products';
@@ -117,7 +117,7 @@ export function Products() {
     quantity: 1,
     note: '',
   });
-  const [paymentMethod, setPaymentMethod] = useState<'cod' | 'cib' | 'edahabia' | 'baridi'>('cod');
+  const paymentMethod = 'cod' as const;
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number; type: 'percentage' | 'fixed' } | null>(null);
   const [couponError, setCouponError] = useState('');
@@ -955,39 +955,9 @@ export function Products() {
                         </div>
                       </div>
 
-                      {/* Payment Method */}
-                      <div>
-                        <p className="text-sm font-bold mb-2">{t({ ar: 'طريقة الدفع', fr: 'Mode de paiement', en: 'Payment' })}</p>
-                        <div className="grid grid-cols-2 gap-2">
-                          {([
-                            { value: 'cod', labelAr: 'عند الاستلام', labelFr: 'À la livr.', en: 'Cash on Del.', icon: 'Banknote' },
-                            { value: 'cib', labelAr: 'CIB', labelFr: 'CIB', en: 'CIB', icon: 'CreditCard' },
-                            { value: 'edahabia', labelAr: 'Edahabia', labelFr: 'Edahabia', en: 'Edahabia', icon: 'Smartphone' },
-                            { value: 'baridi', labelAr: 'BaridiMob', labelFr: 'BaridiMob', en: 'BaridiMob', icon: 'Smartphone' },
-                          ] as const).map((pm) => {
-                            const Icon = pm.icon === 'Banknote' ? Banknote : pm.icon === 'CreditCard' ? CreditCard : Smartphone;
-                            return (
-                              <button
-                                key={pm.value}
-                                type="button"
-                                onClick={() => setPaymentMethod(pm.value)}
-                                className={`flex items-center gap-2 p-2 rounded-xl border-2 text-xs font-semibold transition-all ${
-                                  paymentMethod === pm.value
-                                    ? 'border-primary bg-primary/10 text-primary'
-                                    : 'border-border bg-card hover:border-primary/50'
-                                }`}
-                              >
-                                <Icon className="w-4 h-4 shrink-0" />
-                                <span>{pm[language === 'ar' ? 'labelAr' : language === 'fr' ? 'labelFr' : 'en']}</span>
-                              </button>
-                            );
-                          })}
-                        </div>
-                        {paymentMethod !== 'cod' && (
-                          <div className="mt-2 p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-800 dark:text-amber-300">
-                            {t({ ar: 'سنرسل لك معلومات الحساب عبر الواتساب', fr: 'Coordonnées bancaires par WhatsApp', en: 'Bank details via WhatsApp' })}
-                          </div>
-                        )}
+                      <div className="flex items-center gap-2 p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+                        <Banknote className="w-4 h-4" />
+                        {t({ ar: 'الدفع عند الاستلام', fr: 'Paiement à la livraison', en: 'Cash on Delivery' })}
                       </div>
 
                       {/* Coupon */}

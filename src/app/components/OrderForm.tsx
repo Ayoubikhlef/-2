@@ -4,25 +4,22 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { LoyaltyCard } from './LoyaltyCard';
 import { saveOrder } from '../utils/orderStorage';
 import { wilayas, getMunicipalities } from '../data/products';
-import { Mail, Phone, MapPin, DollarSign, CreditCard, Banknote, Smartphone, Percent } from 'lucide-react';
+import { Mail, Phone, MapPin, DollarSign, Banknote, Percent, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatPrice } from '../lib/utils';
 import { DeliveryCalculator } from './DeliveryCalculator';
+import confetti from 'canvas-confetti';
+import { generateInvoice } from './InvoicePDF';
 
-type PaymentMethod = 'cod' | 'cib' | 'edahabia' | 'baridi';
-const paymentMethods: { value: PaymentMethod; labelAr: string; labelFr: string; labelEn: string; icon: React.ReactNode }[] = [
-  { value: 'cod', labelAr: 'الدفع عند الاستلام', labelFr: 'Paiement à la livraison', labelEn: 'Cash on Delivery', icon: <Banknote className="w-5 h-5" /> },
-  { value: 'cib', labelAr: 'بطاقة CIB', labelFr: 'Carte CIB', labelEn: 'CIB Card', icon: <CreditCard className="w-5 h-5" /> },
-  { value: 'edahabia', labelAr: 'Edahabia', labelFr: 'Edahabia', labelEn: 'Edahabia', icon: <Smartphone className="w-5 h-5" /> },
-  { value: 'baridi', labelAr: 'BaridiMob', labelFr: 'BaridiMob', labelEn: 'BaridiMob', icon: <Smartphone className="w-5 h-5" /> },
-];
+type PaymentMethod = 'cod';
 
 export function OrderForm() {
   const { items, total, deliveryFee, clear } = useCart();
   const { t, language } = useLanguage();
   const [submitted, setSubmitted] = useState(false);
+  const [lastOrder, setLastOrder] = useState<any | null>(null);
   const [lastLoyalty, setLastLoyalty] = useState<{ name: string; phone: string; amount: number } | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cod');
+  const paymentMethod: PaymentMethod = 'cod';
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number; type: 'percentage' | 'fixed' } | null>(null);
   const [couponError, setCouponError] = useState('');
@@ -66,20 +63,24 @@ export function OrderForm() {
     if (!couponCode.trim()) return;
     const result = validateCoupon(couponCode.trim());
     if (result.valid) {
-      setAppliedCoupon({ code: result.code, discount: result.discount, type: result.type });
+      setAppliedCoupon({
+        code: result.code!,
+        discount: result.discount!,
+        type: result.type as 'percentage' | 'fixed'
+      });
       setCouponError('');
       toast.success(t({ ar: 'تم تطبيق الكود!', fr: 'Code appliqué!', en: 'Coupon applied!' }));
     } else {
       setAppliedCoupon(null);
-      setCouponError(result.reason);
-      toast.error(result.reason);
+      setCouponError(result.reason || '');
+      toast.error(result.reason || '');
     }
   };
 
   const discountAmount = appliedCoupon ? Math.min(appliedCoupon.discount, total) : 0;
   const grandTotal = total + deliveryFee - discountAmount;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (items.length === 0) {
       alert(t({ ar: 'أضف منتجات إلى السلة أولاً', fr: 'Ajoutez des produits au panier d’abord', en: 'Add items to the cart first' }));
@@ -91,7 +92,7 @@ export function OrderForm() {
       return;
     }
 
-    saveOrder({
+    const savedRecord = await saveOrder({
       customer: formData.fullName,
       phone: formData.phone,
       email: formData.email,
@@ -112,13 +113,9 @@ export function OrderForm() {
       discountCode: appliedCoupon?.code,
     });
 
-    const paymentLabel = paymentMethod === 'cod'
-      ? t({ ar: 'عند الاستلام', fr: 'À la livraison', en: 'Cash on delivery' })
-      : paymentMethod === 'cib'
-        ? t({ ar: 'بطاقة CIB', fr: 'Carte CIB', en: 'CIB Card' })
-        : paymentMethod === 'edahabia'
-          ? t({ ar: 'Edahabia', fr: 'Edahabia', en: 'Edahabia' })
-          : t({ ar: 'BaridiMob', fr: 'BaridiMob', en: 'BaridiMob' });
+    setLastOrder(savedRecord);
+
+    const paymentLabel = t({ ar: 'عند الاستلام', fr: 'À la livraison', en: 'Cash on delivery' });
 
     const orderSummary = `
 🛒 ${t({ ar: 'ملخص الطلب', fr: 'Résumé de la commande', en: 'Order Summary' })}
@@ -140,6 +137,17 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
 
     toast.success(t({ ar: 'تم إرسال الطلب! سيتم التواصل معك قريباً.', fr: 'Commande envoyée! Nous vous contacterons bientôt.', en: 'Order sent! We will contact you soon.' }));
 
+    // Trigger confetti explosion!
+    try {
+      confetti({
+        particleCount: 150,
+        spread: 80,
+        origin: { y: 0.6 }
+      });
+    } catch (e) {
+      console.warn('Confetti error:', e);
+    }
+
     const whatsappMessage = `${orderSummary}\n\n✅ ${t({ ar: 'سيتم التواصل معك قريباً', fr: 'Nous vous contacterons bientôt', en: 'We will contact you soon' })}`;
     const whatsappNumber = '+213674113290';
     window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`, '_blank');
@@ -148,7 +156,7 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
     setLastLoyalty({ name: formData.fullName, phone: formData.phone, amount: grandTotal });
     setFormData({ fullName: '', phone: '', email: '', address: '', wilaya: '1', municipality: '1' });
     clear();
-    setTimeout(() => { setSubmitted(false); setLastLoyalty(null); }, 4000);
+    setTimeout(() => { setSubmitted(false); setLastLoyalty(null); setLastOrder(null); }, 15000);
   };
 
   return (
@@ -262,37 +270,9 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
                 </div>
               </div>
 
-              <div>
-                <label className="flex items-center gap-2 mb-3 font-semibold">
-                  <DollarSign className="w-5 h-5 text-primary" />
-                  {t({ ar: 'طريقة الدفع', fr: 'Mode de paiement', en: 'Payment Method' })}
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  {paymentMethods.map((pm) => (
-                    <button
-                      key={pm.value}
-                      type="button"
-                      onClick={() => setPaymentMethod(pm.value)}
-                      className={`flex items-center gap-2 p-3 rounded-xl border-2 transition-all ${
-                        paymentMethod === pm.value
-                          ? 'border-primary bg-primary/10 text-primary'
-                          : 'border-border bg-card hover:border-primary/50'
-                      }`}
-                    >
-                      {pm.icon}
-                      <span className="text-sm font-semibold">{pm[`label${language === 'ar' ? 'Ar' : language === 'fr' ? 'Fr' : 'En'}` as keyof typeof pm] as string}</span>
-                    </button>
-                  ))}
-                </div>
-                {paymentMethod !== 'cod' && (
-                  <div className="mt-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-sm text-amber-800 dark:text-amber-300">
-                    {t({
-                      ar: '📱 سنرسل لك معلومات الحساب البنكي عبر الواتساب بعد تأكيد الطلب',
-                      fr: '📱 Nous vous enverrons les coordonnées bancaires par WhatsApp après confirmation',
-                      en: '📱 We will send you bank account details via WhatsApp after order confirmation'
-                    })}
-                  </div>
-                )}
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-sm font-semibold text-emerald-700 dark:text-emerald-300">
+                <Banknote className="w-5 h-5" />
+                {t({ ar: 'الدفع عند الاستلام', fr: 'Paiement à la livraison', en: 'Cash on Delivery' })}
               </div>
 
               <button
@@ -303,8 +283,20 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
               </button>
 
               {submitted && (
-                <div className="bg-green-500/10 border border-green-500 text-green-700 dark:text-green-400 p-4 rounded-lg text-center font-semibold animate-in">
-                  ✅ {t({ ar: 'تم استقبال طلبك بنجاح!', fr: 'Votre commande a été reçue!', en: 'Order received successfully!' })}
+                <div className="bg-green-500/10 border border-green-500/20 text-green-700 dark:text-green-400 p-6 rounded-2xl text-center font-semibold animate-fade-in flex flex-col items-center justify-center gap-4">
+                  <div className="text-lg">✅ {t({ ar: 'تم استقبال طلبك بنجاح!', fr: 'Votre commande a été reçue!', en: 'Order received successfully!' })}</div>
+                  {lastOrder && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await generateInvoice(lastOrder, language);
+                      }}
+                      className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 px-6 py-3 text-sm font-bold text-white hover:from-emerald-400 hover:to-green-500 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
+                    >
+                      <FileText className="w-4 h-4" />
+                      {t({ ar: 'تحميل الفاتورة PDF', fr: 'Télécharger la facture PDF', en: 'Download PDF Invoice' })}
+                    </button>
+                  )}
                 </div>
               )}
               {lastLoyalty && (
