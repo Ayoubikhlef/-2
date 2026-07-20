@@ -5,11 +5,10 @@ import { products as defaultProducts } from '../data/products';
 import { defaultServices } from '../data/services';
 
 let lastSync = 0;
-let syncResolve: (() => void) | null = null;
 
-export async function syncAllFromServer() {
+export async function syncAllFromServer(force = false) {
   const now = Date.now();
-  if (now - lastSync < 8000) return;
+  if (!force && now - lastSync < 8000) return;
   lastSync = now;
   try {
     await Promise.all([
@@ -17,15 +16,16 @@ export async function syncAllFromServer() {
       loadServicesFromServer(defaultServices).catch(() => null),
       loadSiteSettingsFromServer().catch(() => null),
     ]);
+    console.log('[GlobalSync] Sync complete');
   } catch (err) {
     console.warn('[GlobalSync] Sync failed:', err);
   }
 }
 
-export async function requestSync(): Promise<void> {
+export async function requestSync(force = false): Promise<void> {
   return new Promise(resolve => {
     setTimeout(async () => {
-      await syncAllFromServer();
+      await syncAllFromServer(force);
       resolve();
     }, 500);
   });

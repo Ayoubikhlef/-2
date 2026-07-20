@@ -58,6 +58,7 @@ export default function App() {
   useEffect(() => {
     initCrossTabSync();
     setMaintenance(isMaintenanceMode());
+    requestSync(true);
     const handleChange = () => {
       setMaintenance(isMaintenanceMode());
       requestSync();
