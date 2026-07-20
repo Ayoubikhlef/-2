@@ -20,6 +20,7 @@ export async function syncAllFromServer(force = false) {
   } catch (err) {
     console.warn('[GlobalSync] Sync failed:', err);
   }
+  window.dispatchEvent(new CustomEvent('aos:data-changed'));
 }
 
 export async function requestSync(force = false): Promise<void> {
