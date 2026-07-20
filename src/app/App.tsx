@@ -20,15 +20,11 @@ import { CartProvider } from './contexts/CartContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { ScrollToTop } from './components/ScrollToTop';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { WABubble } from './components/WABubble';
 import { NotFound } from './components/NotFound';
 import { SkeletonCard } from './components/SkeletonCard';
-import { ParticlesBg } from './components/ParticlesBg';
-import { LoginPage } from './components/LoginPage';
-import { AIAssistant } from './components/AIAssistant';
 import { OrderTracking } from './components/OrderTracking';
 import { SpeedInsights } from '@vercel/speed-insights/react';
-import { requestSync } from './utils/globalSync';
+import { requestSync, startAutoSync } from './utils/globalSync';
 
 const Admin = lazy(() => import('./components/Admin').then(m => ({ default: m.Admin })));
 const OrderForm = lazy(() => import('./components/OrderForm').then(m => ({ default: m.OrderForm })));
@@ -36,6 +32,11 @@ const AboutPage = lazy(() => import('./components/AboutPage').then(m => ({ defau
 const TermsPage = lazy(() => import('./components/TermsPage').then(m => ({ default: m.TermsPage })));
 const PrivacyPage = lazy(() => import('./components/PrivacyPage').then(m => ({ default: m.PrivacyPage })));
 const AccountDashboard = lazy(() => import('./components/AccountDashboard').then(m => ({ default: m.AccountDashboard })));
+const ParticlesBg = lazy(() => import('./components/ParticlesBg').then(m => ({ default: m.ParticlesBg })));
+const LoginPage = lazy(() => import('./components/LoginPage').then(m => ({ default: m.LoginPage })));
+const WABubble = lazy(() => import('./components/WABubble').then(m => ({ default: m.WABubble })));
+const AIAssistant = lazy(() => import('./components/AIAssistant').then(m => ({ default: m.AIAssistant })));
+const LiveActivity = lazy(() => import('./components/LiveActivity').then(m => ({ default: m.LiveActivity })));
 
 function AdminFallback() {
   return (
@@ -59,6 +60,7 @@ export default function App() {
     initCrossTabSync();
     setMaintenance(isMaintenanceMode());
     requestSync(true);
+    startAutoSync(30000);
     const handleChange = () => {
       setMaintenance(isMaintenanceMode());
       requestSync();
@@ -75,14 +77,12 @@ export default function App() {
     const t = (ar: string, fr: string, en: string) => lang === 'ar' ? ar : lang === 'fr' ? fr : en;
     return (
       <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 flex items-center justify-center" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
-        {/* Animated background */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -left-40 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
           <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/5 rounded-full blur-3xl animate-pulse delay-500" />
           <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:80px_80px]" />
         </div>
-        {/* Content */}
         <div className="relative z-10 text-center px-6 max-w-2xl mx-auto">
           <div className="relative mb-10">
             <div className="w-28 h-28 mx-auto rounded-[32px] bg-gradient-to-br from-amber-500/30 to-orange-600/30 backdrop-blur-xl border border-amber-500/20 flex items-center justify-center shadow-2xl shadow-amber-500/10">
@@ -138,7 +138,7 @@ export default function App() {
               <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-lg focus:outline-none">
                 {typeof window !== 'undefined' && (navigator.language.startsWith('ar') ? 'تخطى إلى المحتوى' : navigator.language.startsWith('fr') ? 'Aller au contenu' : 'Skip to content')}
               </a>
-              <ParticlesBg />
+              <Suspense fallback={null}><ParticlesBg /></Suspense>
               <Header onLoginClick={() => setShowLogin(true)} />
               <main id="main-content">
                 {isPage ? (
@@ -197,10 +197,15 @@ export default function App() {
                 )}
               </main>
               <ScrollToTop />
-              <WABubble />
-              <AIAssistant />
+              <Suspense fallback={null}><WABubble /></Suspense>
+              <Suspense fallback={null}><AIAssistant /></Suspense>
+              <Suspense fallback={null}><LiveActivity /></Suspense>
             </div>
-            {showLogin && <LoginPage onClose={() => setShowLogin(false)} />}
+            {showLogin && (
+              <Suspense fallback={null}>
+                <LoginPage onClose={() => setShowLogin(false)} />
+              </Suspense>
+            )}
           </ErrorBoundary>
           <Toaster
             position="top-center"

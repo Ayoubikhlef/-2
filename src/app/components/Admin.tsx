@@ -20,7 +20,7 @@ import { generateInvoice } from './InvoicePDF';
 import { toast } from 'sonner';
 import { isMaintenanceMode, setMaintenanceMode, getMaintenanceMessage, setMaintenanceMessage } from '../utils/maintenanceStorage';
 import { api } from '../utils/api';
-import { syncAllFromServer, requestSync } from '../utils/globalSync';
+import { syncAllFromServer, requestSync, getSyncStatus, getLastSyncTime } from '../utils/globalSync';
 import { motion, AnimatePresence } from 'motion/react';
 
 const ADMIN_USERNAME = import.meta.env.VITE_ADMIN_USERNAME || 'hydra';
@@ -128,6 +128,18 @@ export function Admin() {
   const [tab, setTab] = useState<'dashboard' | 'products' | 'services' | 'manage-products' | 'manage-services' | 'customers' | 'coupons' | 'content' | 'settings' | 'reviews' | 'newsletter'>('dashboard');
   const [manageProducts, setManageProducts] = useState<Product[]>([]);
   const [manageServices, setManageServices] = useState<ServiceCategory[]>([]);
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>(getSyncStatus());
+  const [lastSyncTime, setLastSyncTime] = useState<number>(getLastSyncTime());
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      setSyncStatus(detail.status);
+      setLastSyncTime(detail.lastSync);
+    };
+    window.addEventListener('aos:sync-status', handler);
+    return () => window.removeEventListener('aos:sync-status', handler);
+  }, []);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -415,6 +427,16 @@ export function Admin() {
               </p>
             </div>
             <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 text-xs text-white/40">
+                <span className={`w-2 h-2 rounded-full ${
+                  syncStatus === 'syncing' ? 'bg-amber-400 animate-pulse' :
+                  syncStatus === 'success' ? 'bg-emerald-400' :
+                  syncStatus === 'error' ? 'bg-red-400' : 'bg-white/20'
+                }`} />
+                {lastSyncTime > 0 && (
+                  <span>{t({ ar: 'آخر مزامنة', fr: 'Dernière synchro', en: 'Last sync' })}: {new Date(lastSyncTime).toLocaleTimeString()}</span>
+                )}
+              </div>
               <button
                 onClick={handleRefresh}
                 disabled={isRefreshing}
