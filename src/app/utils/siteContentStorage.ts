@@ -1,6 +1,6 @@
 const STORAGE_KEY = 'aos_site_content';
 
-import { syncToServer } from './serverSync';
+import { syncToServer, loadFromServer } from './serverSync';
 const SERVER_KEY = 'aos_site_content';
 
 export interface LangString {
@@ -297,4 +297,15 @@ export function updateServiceCard(id: string, upd: Partial<ServiceCard>): SiteCo
 }
 export function deleteServiceCard(id: string): SiteContent {
   const c = getAll(); c.services.cards = c.services.cards.filter(x => x.id !== id); saveAll(c); dispatchAndSync(); return c;
+}
+
+export async function loadSiteContentFromServer(): Promise<boolean> {
+  try {
+    const data = await loadFromServer<SiteContent>(SERVER_KEY);
+    if (data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      return true;
+    }
+  } catch {}
+  return false;
 }

@@ -1,6 +1,7 @@
 import { loadProductsFromServer } from './productStorage';
 import { loadServicesFromServer } from './serviceStorage';
 import { loadSiteSettingsFromServer } from './siteSettingsStorage';
+import { loadSiteContentFromServer } from './siteContentStorage';
 import { products as defaultProducts } from '../data/products';
 import { defaultServices } from '../data/services';
 
@@ -15,6 +16,7 @@ export async function syncAllFromServer(force = false) {
       loadProductsFromServer(defaultProducts).catch(() => null),
       loadServicesFromServer(defaultServices).catch(() => null),
       loadSiteSettingsFromServer().catch(() => null),
+      loadSiteContentFromServer().catch(() => null),
     ]);
     console.log('[GlobalSync] Sync complete');
   } catch (err) {
