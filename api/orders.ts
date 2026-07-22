@@ -12,7 +12,28 @@ async function query(text: string, params?: any[]) {
 }
 
 async function ensureTables() {
-  await query(`CREATE TABLE IF NOT EXISTS aos_orders (id TEXT PRIMARY KEY, customer TEXT NOT NULL, phone TEXT NOT NULL, email TEXT DEFAULT '', wilaya TEXT DEFAULT '', municipality TEXT DEFAULT '', address TEXT DEFAULT '', note TEXT DEFAULT '', items JSONB DEFAULT '[]', total REAL DEFAULT 0, source TEXT DEFAULT 'form', status TEXT DEFAULT 'new', created_at TIMESTAMPTZ DEFAULT NOW(), updated_at TIMESTAMPTZ DEFAULT NOW())`);
+  await query(`CREATE TABLE IF NOT EXISTS aos_orders (
+    id TEXT PRIMARY KEY, 
+    customer TEXT NOT NULL, 
+    phone TEXT NOT NULL, 
+    email TEXT DEFAULT '', 
+    wilaya TEXT DEFAULT '', 
+    municipality TEXT DEFAULT '', 
+    address TEXT DEFAULT '', 
+    note TEXT DEFAULT '', 
+    items JSONB DEFAULT '[]', 
+    total REAL DEFAULT 0, 
+    source TEXT DEFAULT 'form', 
+    status TEXT DEFAULT 'new', 
+    payment_method TEXT DEFAULT 'cod',
+    payment_id TEXT DEFAULT '',
+    paid_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW(), 
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+  )`);
+  await query(`ALTER TABLE aos_orders ADD COLUMN IF NOT EXISTS payment_method TEXT DEFAULT 'cod'`);
+  await query(`ALTER TABLE aos_orders ADD COLUMN IF NOT EXISTS payment_id TEXT DEFAULT ''`);
+  await query(`ALTER TABLE aos_orders ADD COLUMN IF NOT EXISTS paid_at TIMESTAMPTZ`);
 }
 
 function mapOrder(row: any) {
@@ -22,6 +43,7 @@ function mapOrder(row: any) {
     wilaya: row.wilaya || '', municipality: row.municipality || '', address: row.address || '',
     note: row.note || '', items: typeof row.items === 'string' ? JSON.parse(row.items) : (row.items || []),
     total: row.total || 0, source: row.source || 'form', status: row.status || 'new',
+    paymentMethod: row.payment_method || 'cod', paymentId: row.payment_id || '', paidAt: row.paid_at || null
   };
 }
 
@@ -58,12 +80,17 @@ export default async function handler(req: any, res: any) {
       return res.json({ deleted: true, id: parts[0] });
     }
 
+    if (req.method === 'POST' && parts.length === 1 && parts[0] === 'clear-all') {
+      const result = await query(`DELETE FROM aos_orders RETURNING id`);
+      return res.json({ deleted: true, count: result.rows.length });
+    }
+
     if (req.method === 'POST') {
       const b = req.body || {};
       if (!b.customer || !b.phone) return res.status(400).json({ error: 'Missing fields' });
       const id = b.id || crypto.randomUUID();
-      const r = await query(`INSERT INTO aos_orders (id,customer,phone,email,wilaya,municipality,address,note,items,total,source) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *`,
-        [id, b.customer, b.phone, b.email||'', b.wilaya||'', b.municipality||'', b.address||'', b.note||'', JSON.stringify(b.items||[]), b.total||0, b.source||'form']);
+      const r = await query(`INSERT INTO aos_orders (id,customer,phone,email,wilaya,municipality,address,note,items,total,source,payment_method) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *`,
+        [id, b.customer, b.phone, b.email||'', b.wilaya||'', b.municipality||'', b.address||'', b.note||'', JSON.stringify(b.items||[]), b.total||0, b.source||'form', b.paymentMethod||'cod']);
       return res.status(201).json(mapOrder(r.rows[0]));
     }
 
