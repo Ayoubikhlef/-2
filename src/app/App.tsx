@@ -23,7 +23,6 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { NotFound } from './components/NotFound';
 import { SkeletonCard } from './components/SkeletonCard';
 import { OrderTracking } from './components/OrderTracking';
-import { SpeedInsights } from '@vercel/speed-insights/react';
 import { requestSync, startAutoSync } from './utils/globalSync';
 
 const Admin = lazy(() => import('./components/Admin').then(m => ({ default: m.Admin })));
@@ -215,7 +214,6 @@ export default function App() {
               duration: 3000,
             }}
           />
-          <SpeedInsights />
         </CartProvider>
         </AuthProvider>
       </LanguageProvider>
