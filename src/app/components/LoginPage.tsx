@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
-export function LoginPage({ onClose }: { onClose: () => void }) {
+export function LoginPage({ onClose }: { onClose: () => void; standalone?: boolean }) {
   const { t, language } = useLanguage();
   const { login } = useAuth();
   const [loading, setLoading] = useState(false);

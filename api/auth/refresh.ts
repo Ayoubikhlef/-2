@@ -19,7 +19,7 @@ export default async function handler(req: any, res: any) {
   if (!auth?.startsWith('Bearer ')) return res.status(401).json({ error: 'Unauthorized' });
 
   try {
-    const payload = jwt.verify(auth.slice(7), JWT_SECRET) as { userId: string; role: string };
+    const payload = jwt.verify(auth.slice(7), JWT_SECRET, { ignoreExpiration: true }) as { userId: string; role: string };
     const r = await query(`SELECT id, email, name, role, phone FROM aos_users WHERE id = $1`, [payload.userId]);
     if (!r.rows.length) return res.status(404).json({ error: 'User not found' });
 

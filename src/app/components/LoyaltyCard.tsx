@@ -4,6 +4,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { getLoyalty, addPoints, redeemPoints, type LoyaltyRecord } from '../utils/loyaltyStorage';
 import { motion } from 'motion/react';
 import { toast } from 'sonner';
+import confetti from 'canvas-confetti';
 
 const POINTS_PER_DZD = 100;
 
@@ -64,6 +65,15 @@ export function LoyaltyCard({ phone, name, amount }: { phone: string; name: stri
           en: `${redeemAmount} points redeemed for ${result.discount} DZD discount`,
         })
       );
+      try {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+      } catch (e) {
+        console.warn('Confetti error:', e);
+      }
       setRecord(getLoyalty(phone));
     } else {
       toast.error(

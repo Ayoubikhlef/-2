@@ -59,12 +59,12 @@ export const products: Product[] = [
       'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
       'https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
     ],
-    image: 'https://images.unsplash.com/photo-1527814050087-3793815479db?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwyfHxtb3VzZXxlbnwwfHx8fDE3NzY5MDAwMDB8MA&ixlib=rb-4.1.0&q=80&w=500',
+    image: 'https://images.unsplash.com/photo-1527814050087-3793815479db?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
     category: 'mice',
     brand: 'Generic',
     specs: [
       { label: { ar: 'النوع', fr: 'Type', en: 'Type' }, value: { ar: 'لاسلكي', fr: 'Sans fil', en: 'Wireless' } },
-      { label: { ar: 'المدى', fr: 'Portée', en: 'Range' }, value: { ar: '10 متر', fr: '10 مètres', en: '10 meters' } },
+      { label: { ar: 'المدى', fr: 'Portée', en: 'Range' }, value: { ar: '10 متر', fr: '10 mètres', en: '10 meters' } },
       { label: { ar: 'البطارية', fr: 'Batterie', en: 'Battery' }, value: { ar: 'AA - تدوم 12 شهراً', fr: 'AA - 12 mois', en: 'AA - 12 months' } },
       { label: { ar: 'الدقة', fr: 'DPI', en: 'DPI' }, value: { ar: '1600 DPI', fr: '1600 DPI', en: '1600 DPI' } },
       { label: { ar: 'الضمان', fr: 'Garantie', en: 'Warranty' }, value: { ar: 'سنة واحدة', fr: '1 an', en: '1 year' } },
@@ -97,7 +97,7 @@ export const products: Product[] = [
       'https://images.unsplash.com/photo-1586210579191-33b45e38fa2c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
       'https://images.unsplash.com/photo-1619953942547-233eab5a70d6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
     ],
-    image: 'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwzfHxtb25pdG9yfGVufDB8fHx8MTc3NjkwMDAwMDB8MA&ixlib=rb-4.1.0&q=80&w=500',
+    image: 'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
     category: 'monitors',
     brand: 'Generic',
     specs: [
@@ -109,6 +109,7 @@ export const products: Product[] = [
       { label: { ar: 'الضمان', fr: 'Garantie', en: 'Warranty' }, value: { ar: 'سنتان', fr: '2 ans', en: '2 years' } },
     ],
     relatedIds: [3, 9],
+    stock: 5,
   },
   {
     id: 6,
@@ -135,18 +136,19 @@ export const products: Product[] = [
       'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
       'https://images.unsplash.com/photo-1597432538815-7e3e3e1a0e5b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
     ],
-    image: 'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHw3fHxtZW1vcnklMjBjYXJkfGVufDB8fHx8MTc3NjkwMDAwMDB8MA&ixlib=rb-4.1.0&q=80&w=500',
+    image: 'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
     category: 'storage',
     brand: 'Generic',
     specs: [
       { label: { ar: 'السعة', fr: 'Capacité', en: 'Capacity' }, value: { ar: '512GB', fr: '512GB', en: '512GB' } },
       { label: { ar: 'النوع', fr: 'Type', en: 'Type' }, value: { ar: 'microSDXC', fr: 'microSDXC', en: 'microSDXC' } },
-      { label: { ar: 'سرعة القراءة', fr: 'Lecture', en: 'Read Speed' }, value: { ar: 'حتى 100 ميجابايت/ث', fr: 'Jusqu\'à 100 Mo/s', en: 'Up to 100 MB/s' } },
-      { label: { ar: 'سرعة الكتابة', fr: 'Écriture', en: 'Write Speed' }, value: { ar: 'حتى 60 ميجابايت/ث', fr: 'Jusqu\'à 60 Mo/s', en: 'Up to 60 MB/s' } },
+      { label: { ar: 'سرعة القراءة', fr: 'Lecture', en: 'Read Speed' }, value: { ar: 'حتى 100 ميجابايت/ث', fr: "Jusqu'à 100 Mo/s", en: 'Up to 100 MB/s' } },
+      { label: { ar: 'سرعة الكتابة', fr: 'Écriture', en: 'Write Speed' }, value: { ar: 'حتى 60 ميجابايت/ث', fr: "Jusqu'à 60 Mo/s", en: 'Up to 60 MB/s' } },
       { label: { ar: 'الفئة', fr: 'Classe', en: 'Class' }, value: { ar: 'UHS-I U3 / Class 10', fr: 'UHS-I U3 / Class 10', en: 'UHS-I U3 / Class 10' } },
       { label: { ar: 'الضمان', fr: 'Garantie', en: 'Warranty' }, value: { ar: 'مدى الحياة', fr: 'À vie', en: 'Lifetime' } },
     ],
     relatedIds: [10, 8],
+    stock: 15,
   },
   {
     id: 7,
@@ -179,12 +181,13 @@ export const products: Product[] = [
     specs: [
       { label: { ar: 'النوع', fr: 'Type', en: 'Type' }, value: { ar: 'أحادية اللون - ليزر', fr: 'Monochrome - Laser', en: 'Monochrome - Laser' } },
       { label: { ar: 'حجم الورق', fr: 'Format papier', en: 'Paper Size' }, value: { ar: 'A3 / A4', fr: 'A3 / A4', en: 'A3 / A4' } },
-      { label: { ar: 'سرعة الطباعة', fr: 'Vitesse d\'impression', en: 'Print Speed' }, value: { ar: '22 صفحة في الدقيقة', fr: '22 pages/minute', en: '22 ppm' } },
+      { label: { ar: 'سرعة الطباعة', fr: "Vitesse d'impression", en: 'Print Speed' }, value: { ar: '22 صفحة في الدقيقة', fr: '22 pages/minute', en: '22 ppm' } },
       { label: { ar: 'سعة الدرج', fr: 'Capacité du bac', en: 'Tray Capacity' }, value: { ar: '250 ورقة', fr: '250 feuilles', en: '250 sheets' } },
       { label: { ar: 'الاتصال', fr: 'Connectivité', en: 'Connectivity' }, value: { ar: 'USB + Ethernet', fr: 'USB + Ethernet', en: 'USB + Ethernet' } },
-      { label: { ar: 'دورة العمل', fr: 'Cycle mensuel', en: 'Duty Cycle' }, value: { ar: 'حتى 20000 صفحة/شهر', fr: 'Jusqu\'à 20000 pages/mois', en: 'Up to 20000 pages/month' } },
+      { label: { ar: 'دورة العمل', fr: 'Cycle mensuel', en: 'Duty Cycle' }, value: { ar: 'حتى 20000 صفحة/شهر', fr: "Jusqu'à 20000 pages/mois", en: 'Up to 20000 pages/month' } },
     ],
     relatedIds: [4, 3],
+    stock: 3,
   },
   {
     id: 8,
@@ -217,10 +220,11 @@ export const products: Product[] = [
     specs: [
       { label: { ar: 'السعة', fr: 'Capacité', en: 'Capacity' }, value: { ar: '64GB', fr: '64GB', en: '64GB' } },
       { label: { ar: 'المنافذ', fr: 'Ports', en: 'Ports' }, value: { ar: 'USB-C + USB-A', fr: 'USB-C + USB-A', en: 'USB-C + USB-A' } },
-      { label: { ar: 'سرعة القراءة', fr: 'Lecture', en: 'Read Speed' }, value: { ar: 'حتى 150 ميجابايت/ث', fr: 'Jusqu\'à 150 Mo/s', en: 'Up to 150 MB/s' } },
+      { label: { ar: 'سرعة القراءة', fr: 'Lecture', en: 'Read Speed' }, value: { ar: 'حتى 150 ميجابايت/ث', fr: "Jusqu'à 150 Mo/s", en: 'Up to 150 MB/s' } },
       { label: { ar: 'التصميم', fr: 'Design', en: 'Design' }, value: { ar: 'معدني أنيق', fr: 'Métallique élégant', en: 'Elegant metal' } },
     ],
     relatedIds: [6, 10],
+    stock: 20,
   },
   {
     id: 9,
@@ -256,6 +260,7 @@ export const products: Product[] = [
       { label: { ar: 'الاستخدام', fr: 'Utilisation', en: 'Usage' }, value: { ar: 'مكتبي ومنزلي', fr: 'Bureau et maison', en: 'Office and home' } },
     ],
     relatedIds: [3, 8],
+    stock: 12,
   },
   {
     id: 10,
@@ -291,6 +296,7 @@ export const products: Product[] = [
       { label: { ar: 'التوافق', fr: 'Compatibilité', en: 'Compatibility' }, value: { ar: 'Windows / Mac / Linux', fr: 'Windows / Mac / Linux', en: 'Windows / Mac / Linux' } },
     ],
     relatedIds: [6, 8],
+    stock: 8,
   },
   {
     id: 11,
@@ -329,6 +335,7 @@ export const products: Product[] = [
       { label: { ar: 'الضمان', fr: 'Garantie', en: 'Warranty' }, value: { ar: 'سنتان', fr: '2 ans', en: '2 years' } },
     ],
     relatedIds: [12, 14, 17],
+    stock: 4,
   },
   {
     id: 12,
@@ -366,6 +373,7 @@ export const products: Product[] = [
       { label: { ar: 'الضمان', fr: 'Garantie', en: 'Warranty' }, value: { ar: 'سنة واحدة', fr: '1 an', en: '1 year' } },
     ],
     relatedIds: [3, 13, 18],
+    stock: 10,
   },
   {
     id: 13,
@@ -376,7 +384,7 @@ export const products: Product[] = [
     shortDescFr: 'Sans fil, réduction de bruit, batterie 30h',
     shortDescEn: 'Wireless, noise cancelling, 30h battery',
     descAr: 'سماعات بلوتوث لاسلكية مع تقنية عزل الضوضاء النشط، بطارية تدوم حتى 30 ساعة، تصميم مريح للارتداء الطويل',
-    descFr: 'Casque Bluetooth sans fil avec réduction de bruit active, batterie jusqu\'à 30 heures, design confortable',
+    descFr: "Casque Bluetooth sans fil avec réduction de bruit active, batterie jusqu'à 30 heures, design confortable",
     descEn: 'Wireless Bluetooth headphones with active noise cancellation, up to 30 hours battery, comfortable long-wear design',
     price: 5500,
     salePrice: null,
@@ -403,6 +411,7 @@ export const products: Product[] = [
       { label: { ar: 'الضمان', fr: 'Garantie', en: 'Warranty' }, value: { ar: 'سنة واحدة', fr: '1 an', en: '1 year' } },
     ],
     relatedIds: [12, 3, 16],
+    stock: 7,
   },
   {
     id: 14,
@@ -434,12 +443,13 @@ export const products: Product[] = [
     brand: 'TP-Link',
     specs: [
       { label: { ar: 'الجيل', fr: 'Génération', en: 'Generation' }, value: { ar: 'WiFi 6 (802.11ax)', fr: 'WiFi 6 (802.11ax)', en: 'WiFi 6 (802.11ax)' } },
-      { label: { ar: 'السرعة', fr: 'Vitesse', en: 'Speed' }, value: { ar: 'حتى 1200Mbps', fr: 'Jusqu\'à 1200Mbps', en: 'Up to 1200Mbps' } },
+      { label: { ar: 'السرعة', fr: 'Vitesse', en: 'Speed' }, value: { ar: 'حتى 1200Mbps', fr: "Jusqu'à 1200Mbps", en: 'Up to 1200Mbps' } },
       { label: { ar: 'المنافذ', fr: 'Ports', en: 'Ports' }, value: { ar: '4x LAN + 1x WAN', fr: '4x LAN + 1x WAN', en: '4x LAN + 1x WAN' } },
       { label: { ar: 'النطاق', fr: 'Bande', en: 'Band' }, value: { ar: 'ثنائي النطاق (2.4GHz + 5GHz)', fr: 'Double bande (2.4GHz + 5GHz)', en: 'Dual band (2.4GHz + 5GHz)' } },
       { label: { ar: 'الضمان', fr: 'Garantie', en: 'Warranty' }, value: { ar: 'سنتان', fr: '2 ans', en: '2 years' } },
     ],
     relatedIds: [11, 18],
+    stock: 6,
   },
   {
     id: 15,
@@ -472,11 +482,12 @@ export const products: Product[] = [
     specs: [
       { label: { ar: 'السعة', fr: 'Capacité', en: 'Capacity' }, value: { ar: '1TB (1000GB)', fr: '1To (1000Go)', en: '1TB (1000GB)' } },
       { label: { ar: 'النوع', fr: 'Type', en: 'Type' }, value: { ar: 'SSD NVMe M.2', fr: 'SSD NVMe M.2', en: 'SSD NVMe M.2' } },
-      { label: { ar: 'سرعة القراءة', fr: 'Lecture', en: 'Read Speed' }, value: { ar: 'حتى 3500 ميجابايت/ث', fr: 'Jusqu\'à 3500 Mo/s', en: 'Up to 3500 MB/s' } },
-      { label: { ar: 'سرعة الكتابة', fr: 'Écriture', en: 'Write Speed' }, value: { ar: 'حتى 3000 ميجابايت/ث', fr: 'Jusqu\'à 3000 Mo/s', en: 'Up to 3000 MB/s' } },
+      { label: { ar: 'سرعة القراءة', fr: 'Lecture', en: 'Read Speed' }, value: { ar: 'حتى 3500 ميجابايت/ث', fr: "Jusqu'à 3500 Mo/s", en: 'Up to 3500 MB/s' } },
+      { label: { ar: 'سرعة الكتابة', fr: 'Écriture', en: 'Write Speed' }, value: { ar: 'حتى 3000 ميجابايت/ث', fr: "Jusqu'à 3000 Mo/s", en: 'Up to 3000 MB/s' } },
       { label: { ar: 'الضمان', fr: 'Garantie', en: 'Warranty' }, value: { ar: '5 سنوات', fr: '5 ans', en: '5 years' } },
     ],
     relatedIds: [6, 11],
+    stock: 9,
   },
   {
     id: 16,
@@ -514,6 +525,7 @@ export const products: Product[] = [
       { label: { ar: 'التوافق', fr: 'Compatibilité', en: 'Compatibility' }, value: { ar: 'Windows / Mac / Linux', fr: 'Windows / Mac / Linux', en: 'Windows / Mac / Linux' } },
     ],
     relatedIds: [11, 13],
+    stock: 11,
   },
   {
     id: 17,
@@ -551,6 +563,7 @@ export const products: Product[] = [
       { label: { ar: 'الضمان', fr: 'Garantie', en: 'Warranty' }, value: { ar: 'سنة واحدة', fr: '1 an', en: '1 year' } },
     ],
     relatedIds: [9, 16],
+    stock: 14,
   },
   {
     id: 18,
@@ -582,12 +595,13 @@ export const products: Product[] = [
     brand: 'Generic',
     specs: [
       { label: { ar: 'المنافذ', fr: 'Ports', en: 'Ports' }, value: { ar: 'HDMI 4K + 3x USB 3.0 + USB-C PD + SD + microSD', fr: 'HDMI 4K + 3x USB 3.0 + USB-C PD + SD + microSD', en: 'HDMI 4K + 3x USB 3.0 + USB-C PD + SD + microSD' } },
-      { label: { ar: 'نقل البيانات', fr: 'Transfert', en: 'Data Transfer' }, value: { ar: 'USB 3.0 حتى 5 جيجابت/ث', fr: 'USB 3.0 jusqu\'à 5 Gbit/s', en: 'USB 3.0 up to 5 Gbps' } },
+      { label: { ar: 'نقل البيانات', fr: 'Transfert', en: 'Data Transfer' }, value: { ar: 'USB 3.0 حتى 5 جيجابت/ث', fr: "USB 3.0 jusqu'à 5 Gbit/s", en: 'USB 3.0 up to 5 Gbps' } },
       { label: { ar: 'دقة HDMI', fr: 'Résolution HDMI', en: 'HDMI Resolution' }, value: { ar: '4K @ 30Hz', fr: '4K @ 30Hz', en: '4K @ 30Hz' } },
       { label: { ar: 'التوافق', fr: 'Compatibilité', en: 'Compatibility' }, value: { ar: 'Windows / Mac / iPad Pro', fr: 'Windows / Mac / iPad Pro', en: 'Windows / Mac / iPad Pro' } },
       { label: { ar: 'الضمان', fr: 'Garantie', en: 'Warranty' }, value: { ar: 'سنة واحدة', fr: '1 an', en: '1 year' } },
     ],
     relatedIds: [11, 12, 10],
+    stock: 8,
   },
 ];
 
