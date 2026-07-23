@@ -30,6 +30,7 @@ export type OrderRecord = {
 
 const STORAGE_KEY = 'ayoubtech-orders';
 const SOFT_DELETE_KEY = 'ayoubtech-soft-delete';
+const SYNCED_IDS_KEY = 'ayoubtech-synced-order-ids';
 
 function log(level: 'info' | 'warn' | 'error', msg: string, data?: any) {
   const prefix = `[Orders]`;
@@ -48,6 +49,23 @@ function getSoftDeletedIds(): Set<string> {
 
 function saveSoftDeletedIds(ids: Set<string>) {
   localStorage.setItem(SOFT_DELETE_KEY, JSON.stringify([...ids]));
+}
+
+function getSyncedIds(): Set<string> {
+  try {
+    const raw = localStorage.getItem(SYNCED_IDS_KEY);
+    return new Set<string>(raw ? JSON.parse(raw) : []);
+  } catch { return new Set(); }
+}
+
+function saveSyncedIds(ids: Set<string>) {
+  localStorage.setItem(SYNCED_IDS_KEY, JSON.stringify([...ids]));
+}
+
+function markSynced(id: string) {
+  const ids = getSyncedIds();
+  ids.add(id);
+  saveSyncedIds(ids);
 }
 
 function dispatchChange() {
@@ -82,12 +100,12 @@ export async function saveOrder(order: Omit<OrderRecord, 'id' | 'createdAt' | 's
   log('info', `Saved order ${record.id} to localStorage`);
   dispatchChange();
 
-  try {
-    await api.orders.create({ ...order, id: record.id });
-    log('info', `Order ${record.id} synced to server`);
-  } catch (err: any) {
-    log('warn', `Server sync failed for order ${record.id}`, err?.message);
-  }
+  api.orders.create({ ...order, id: record.id })
+    .then(() => {
+      log('info', `Order ${record.id} synced to server`);
+      markSynced(record.id);
+    })
+    .catch((err: any) => log('warn', `Server sync failed for order ${record.id}`, err?.message));
 
   return record;
 }
@@ -130,6 +148,35 @@ export function removeOrder(id: string): void {
       saveSoftDeletedIds(ids);
     })
     .catch((err: any) => log('warn', `Failed to delete order ${id} from server`, err?.message));
+}
+
+export async function pushUnsyncedOrders(): Promise<void> {
+  const synced = getSyncedIds();
+  const local = getOrders();
+  const unsynced = local.filter(o => !synced.has(o.id));
+  if (unsynced.length === 0) return;
+  log('info', `Pushing ${unsynced.length} unsynced orders to server`);
+  for (const order of unsynced) {
+    try {
+      await api.orders.create({
+        customer: order.customer,
+        phone: order.phone,
+        email: order.email,
+        wilaya: order.wilaya,
+        municipality: order.municipality,
+        address: order.address,
+        note: order.note || '',
+        items: order.items,
+        total: order.total,
+        source: order.source,
+        id: order.id,
+      });
+      markSynced(order.id);
+      log('info', `Order ${order.id} pushed to server`);
+    } catch (err: any) {
+      log('warn', `Failed to push order ${order.id}`, err?.message);
+    }
+  }
 }
 
 export async function loadOrdersFromServer(): Promise<OrderRecord[]> {
