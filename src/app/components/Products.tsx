@@ -13,7 +13,6 @@ import { VisualSearch } from './VisualSearch';
 import { Reviews } from './Reviews';
 import { FlashSaleTimer } from './FlashSaleTimer';
 import { ProductComparison } from './ProductComparison';
-import { InstallmentCalculator } from './InstallmentCalculator';
 import { ProductGallery } from './ProductGallery';
 import { SearchSuggestions } from './SearchSuggestions';
 import { ProductSuggestions } from './ProductSuggestions';
@@ -508,7 +507,7 @@ export function Products() {
                 </span>
               </div>
               <div className="max-w-xs">
-                <InstallmentCalculator price={viewingProduct.salePrice || viewingProduct.price} />
+
               </div>
 
               <p className="text-muted-foreground mb-8 text-lg">
@@ -1075,7 +1074,7 @@ export function Products() {
                   </span>
                 )}
               </div>
-              <InstallmentCalculator price={quickViewProduct.salePrice || quickViewProduct.price} />
+
               {quickViewProduct.specs.length > 0 && (
                 <div className="space-y-1.5">
                   <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
