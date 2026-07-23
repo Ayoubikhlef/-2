@@ -60,7 +60,10 @@ export default function App() {
     initCrossTabSync();
     setMaintenance(isMaintenanceMode());
     startAutoSync();
-    waitForInitialSync().then(() => setReady(true));
+    Promise.race([
+      waitForInitialSync(),
+      new Promise(r => setTimeout(r, 5000)),
+    ]).then(() => setReady(true));
     const handleChange = () => {
       setMaintenance(isMaintenanceMode());
     };

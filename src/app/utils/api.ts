@@ -50,7 +50,10 @@ async function request<T>(
     try {
       const url = urls[i];
       console.log(`[API] ${options.method || 'GET'} ${url} (attempt ${i + 1}/${urls.length})`);
-      const res = await fetch(url, { ...options, headers, credentials: 'include' });
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000);
+      const res = await fetch(url, { ...options, headers, credentials: 'include', signal: controller.signal });
+      clearTimeout(timeout);
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
         throw new Error(body.error || `Request failed (${res.status})`);
