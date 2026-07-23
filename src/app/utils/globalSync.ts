@@ -2,6 +2,7 @@ import { loadProductsFromServer } from './productStorage';
 import { loadServicesFromServer } from './serviceStorage';
 import { loadSiteSettingsFromServer } from './siteSettingsStorage';
 import { loadSiteContentFromServer } from './siteContentStorage';
+import { loadOrdersFromServer, pushUnsyncedOrders } from './orderStorage';
 import { products as defaultProducts } from '../data/products';
 import { defaultServices } from '../data/services';
 
@@ -36,7 +37,10 @@ export async function syncAllFromServer() {
       loadServicesFromServer(defaultServices),
       loadSiteSettingsFromServer(),
       loadSiteContentFromServer(),
+      loadOrdersFromServer(),
     ]);
+
+    pushUnsyncedOrders().catch(() => {});
 
     const successCount = results.filter(r => r.status === 'fulfilled' && r.value).length;
     if (successCount === results.length) {
