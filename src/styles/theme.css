@@ -2,20 +2,20 @@
 
 :root {
   --font-size: 16px;
-  --background: #F8FAFC;
-  --foreground: #0F172A;
+  --background: #f8fafc;
+  --foreground: #0f172a;
   --card: #ffffff;
-  --card-foreground: #0F172A;
+  --card-foreground: #0f172a;
   --popover: #ffffff;
-  --popover-foreground: #0F172A;
-  --primary: #1E40AF;
+  --popover-foreground: #0f172a;
+  --primary: #2563eb;
   --primary-foreground: #ffffff;
-  --secondary: #3B82F6;
+  --secondary: #3b82f6;
   --secondary-foreground: #ffffff;
   --muted: #f1f5f9;
   --muted-foreground: #64748b;
-  --accent: #F59E0B;
-  --accent-foreground: #0F172A;
+  --accent: #f59e0b;
+  --accent-foreground: #0f172a;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
   --border: #e2e8f0;
@@ -24,58 +24,58 @@
   --switch-background: #cbd5e1;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --ring: #1E40AF;
-  --chart-1: #1E40AF;
-  --chart-2: #3B82F6;
-  --chart-3: #F59E0B;
+  --ring: #2563eb;
+  --chart-1: #2563eb;
+  --chart-2: #3b82f6;
+  --chart-3: #f59e0b;
   --chart-4: #6366f1;
   --chart-5: #ec4899;
-  --radius: 0.625rem;
-  --sidebar: #F8FAFC;
-  --sidebar-foreground: #0F172A;
-  --sidebar-primary: #1E40AF;
+  --radius: 0.75rem;
+  --sidebar: #f8fafc;
+  --sidebar-foreground: #0f172a;
+  --sidebar-primary: #2563eb;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #f1f5f9;
-  --sidebar-accent-foreground: #0F172A;
+  --sidebar-accent-foreground: #0f172a;
   --sidebar-border: #e2e8f0;
-  --sidebar-ring: #1E40AF;
+  --sidebar-ring: #2563eb;
 }
 
 .dark {
-  --background: #0F172A;
-  --foreground: #F8FAFC;
-  --card: #0F172A;
-  --card-foreground: #F8FAFC;
-  --popover: #0F172A;
-  --popover-foreground: #F8FAFC;
-  --primary: #3B82F6;
-  --primary-foreground: #0F172A;
-  --secondary: #1E40AF;
-  --secondary-foreground: #F8FAFC;
+  --background: #0f172a;
+  --foreground: #f8fafc;
+  --card: #0f172a;
+  --card-foreground: #f8fafc;
+  --popover: #0f172a;
+  --popover-foreground: #f8fafc;
+  --primary: #3b82f6;
+  --primary-foreground: #0f172a;
+  --secondary: #1e40af;
+  --secondary-foreground: #f8fafc;
   --muted: #1e293b;
   --muted-foreground: #94a3b8;
-  --accent: #F59E0B;
-  --accent-foreground: #0F172A;
+  --accent: #f59e0b;
+  --accent-foreground: #0f172a;
   --destructive: #ef4444;
-  --destructive-foreground: #F8FAFC;
+  --destructive-foreground: #f8fafc;
   --border: #1e293b;
   --input: #1e293b;
-  --ring: #3B82F6;
+  --ring: #3b82f6;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --chart-1: #3B82F6;
-  --chart-2: #F59E0B;
-  --chart-3: #1E40AF;
+  --chart-1: #3b82f6;
+  --chart-2: #f59e0b;
+  --chart-3: #1e40af;
   --chart-4: #6366f1;
   --chart-5: #ec4899;
-  --sidebar: #0F172A;
-  --sidebar-foreground: #F8FAFC;
-  --sidebar-primary: #3B82F6;
-  --sidebar-primary-foreground: #0F172A;
+  --sidebar: #0f172a;
+  --sidebar-foreground: #f8fafc;
+  --sidebar-primary: #3b82f6;
+  --sidebar-primary-foreground: #0f172a;
   --sidebar-accent: #1e293b;
-  --sidebar-accent-foreground: #F8FAFC;
+  --sidebar-accent-foreground: #f8fafc;
   --sidebar-border: #1e293b;
-  --sidebar-ring: #3B82F6;
+  --sidebar-ring: #3b82f6;
 }
 
 @theme inline {
@@ -149,6 +149,12 @@
 
   html {
     font-size: var(--font-size);
+    scroll-behavior: smooth;
+  }
+
+  ::selection {
+    background: var(--primary);
+    color: var(--primary-foreground);
   }
 
   h1 {
@@ -200,12 +206,11 @@ body {
   font-weight: 500;
   color: var(--foreground);
   background:
-    radial-gradient(ellipse 80% 60% at 10% 20%, rgba(59,130,246,0.15) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 40% at 90% 80%, rgba(245,158,11,0.12) 0%, transparent 55%),
-    radial-gradient(ellipse 40% 30% at 50% 50%, rgba(99,102,241,0.08) 0%, transparent 50%),
-    linear-gradient(135deg, #f8fafc 0%, #e0ecff 25%, #d6e6ff 50%, #e8f0ff 75%, #f8fafc 100%);
-  background-size: 100% 100%, 100% 100%, 100% 100%, 400% 400%;
-  animation: tech-gradient 20s ease infinite;
+    radial-gradient(ellipse 70% 50% at 0% 20%, rgba(59,130,246,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 100% 80%, rgba(245,158,11,0.06) 0%, transparent 55%),
+    linear-gradient(135deg, #f8fafc 0%, #eef2ff 30%, #f0f5ff 60%, #f8fafc 100%);
+  background-size: 100% 100%, 100% 100%, 400% 400%;
+  animation: tech-gradient 25s ease infinite;
 }
 
 body::before {
@@ -239,12 +244,11 @@ svg.lucide:hover {
   font-weight: 500;
   color: var(--foreground);
   background:
-    radial-gradient(ellipse 80% 60% at 15% 25%, rgba(59,130,246,0.2) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 40% at 85% 75%, rgba(245,158,11,0.15) 0%, transparent 55%),
-    radial-gradient(ellipse 40% 30% at 50% 50%, rgba(99,102,241,0.1) 0%, transparent 50%),
+    radial-gradient(ellipse 70% 50% at 0% 20%, rgba(59,130,246,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 100% 80%, rgba(245,158,11,0.08) 0%, transparent 55%),
     linear-gradient(135deg, #0f172a 0%, #0f1e36 25%, #0a1628 50%, #0f172a 75%, #0f172a 100%);
-  background-size: 100% 100%, 100% 100%, 100% 100%, 400% 400%;
-  animation: tech-gradient 20s ease infinite;
+  background-size: 100% 100%, 100% 100%, 400% 400%;
+  animation: tech-gradient 25s ease infinite;
 }
 
 .dark body::before {
