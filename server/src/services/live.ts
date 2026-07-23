@@ -3,9 +3,16 @@ import { Server as SocketServer } from 'socket.io';
 let io: SocketServer | null = null;
 
 export function initLive(httpServer: any) {
+  const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173,https://aos-tech-store.vercel.app').split(',');
   io = new SocketServer(httpServer, {
     cors: {
-      origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+      origin: (origin, cb) => {
+        if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+          cb(null, true);
+        } else {
+          cb(null, false);
+        }
+      },
       credentials: true,
     },
   });
