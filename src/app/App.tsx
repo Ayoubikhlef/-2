@@ -23,7 +23,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { NotFound } from './components/NotFound';
 import { SkeletonCard } from './components/SkeletonCard';
 import { OrderTracking } from './components/OrderTracking';
-import { requestSync, startAutoSync } from './utils/globalSync';
+import { startAutoSync, waitForInitialSync, isInitialSyncDone } from './utils/globalSync';
 import { ParticlesBg } from './components/ParticlesBg';
 
 const Admin = lazy(() => import('./components/Admin').then(m => ({ default: m.Admin })));
@@ -54,19 +54,30 @@ export default function App() {
   const is404 = typeof window !== 'undefined' && window.location.hash && !['#products', '#booking', '#services', '#admin', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account'].includes(window.location.hash);
   const [showLogin, setShowLogin] = useState(false);
   const [maintenance, setMaintenance] = useState(false);
+  const [ready, setReady] = useState(isInitialSyncDone());
 
   useEffect(() => {
     initCrossTabSync();
     setMaintenance(isMaintenanceMode());
-    requestSync(true);
-    startAutoSync(30000);
+    startAutoSync();
+    waitForInitialSync().then(() => setReady(true));
     const handleChange = () => {
       setMaintenance(isMaintenanceMode());
-      requestSync();
     };
     window.addEventListener('aos:data-changed', handleChange);
     return () => window.removeEventListener('aos:data-changed', handleChange);
   }, []);
+
+  if (!ready) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center">
+          <div className="w-12 h-12 mx-auto mb-4 rounded-full border-4 border-primary/30 border-t-primary animate-spin" />
+          <p className="text-muted-foreground text-sm">جارٍ تحميل البيانات...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (maintenance && typeof window !== 'undefined' && window.location.hash !== '#admin') {
     const savedLang = localStorage.getItem('language') || 'ar';

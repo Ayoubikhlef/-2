@@ -20,7 +20,7 @@ import { generateInvoice } from './InvoicePDF';
 import { toast } from 'sonner';
 import { isMaintenanceMode, setMaintenanceMode, getMaintenanceMessage, setMaintenanceMessage } from '../utils/maintenanceStorage';
 import { api } from '../utils/api';
-import { syncAllFromServer, requestSync, getSyncStatus, getLastSyncTime } from '../utils/globalSync';
+import { syncAllFromServer, getSyncStatus, getLastSyncTime } from '../utils/globalSync';
 import { motion, AnimatePresence } from 'motion/react';
 
 const ADMIN_USERNAME = import.meta.env.VITE_ADMIN_USERNAME || 'hydra';
@@ -188,7 +188,7 @@ export function Admin() {
     try {
       api.syncProducts(getStoredProducts(defaultProducts)).catch(() => {});
       api.data.save('aos_services', getStoredServices(defaultServices)).catch(() => {});
-      await requestSync();
+      await syncAllFromServer();
       const ordersData = await loadOrdersFromServer();
       setOrders(ordersData);
       setManageProducts(getStoredProducts(defaultProducts));

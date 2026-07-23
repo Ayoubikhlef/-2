@@ -1,4 +1,7 @@
-const BASE_URL = import.meta.env.VITE_API_URL || '/api';
+const PRIMARY_URL: string = import.meta.env.VITE_API_URL || '/api';
+const FALLBACK_URLS: string[] = [
+  'https://aos-api.onrender.com/api',
+];
 
 function getAccessToken(): string | null {
   return localStorage.getItem('aos_access_token');
@@ -19,6 +22,16 @@ export function setStoredUser(user: any | null) {
   else localStorage.removeItem('aos_user');
 }
 
+function getUrls(path: string): string[] {
+  const urls = [PRIMARY_URL];
+  if (PRIMARY_URL === '/api') {
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    urls[0] = `${origin}/api`;
+    urls.push(...FALLBACK_URLS.filter(u => !u.startsWith('/')));
+  }
+  return urls.map(base => `${base}${path}`);
+}
+
 async function request<T>(
   path: string,
   options: RequestInit = {}
@@ -30,21 +43,28 @@ async function request<T>(
   };
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  const url = `${BASE_URL}${path}`;
-  console.log(`[API] ${options.method || 'GET'} ${url}`);
+  const urls = getUrls(path);
+  let lastError: Error | null = null;
 
-  const res = await fetch(url, {
-    ...options,
-    headers,
-    credentials: 'include',
-  });
-
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error(body.error || `Request failed (${res.status})`);
+  for (let i = 0; i < urls.length; i++) {
+    try {
+      const url = urls[i];
+      console.log(`[API] ${options.method || 'GET'} ${url} (attempt ${i + 1}/${urls.length})`);
+      const res = await fetch(url, { ...options, headers, credentials: 'include' });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || `Request failed (${res.status})`);
+      }
+      return res.json();
+    } catch (err: any) {
+      lastError = err;
+      if (i < urls.length - 1) {
+        console.warn(`[API] Attempt ${i + 1} failed, trying next URL`);
+      }
+    }
   }
 
-  return res.json();
+  throw lastError || new Error('All API URLs failed');
 }
 
 export async function refreshToken(): Promise<{
