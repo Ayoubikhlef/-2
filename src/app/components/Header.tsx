@@ -38,40 +38,38 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
   };
 
   return (
-    <header className="bg-background/95 backdrop-blur-sm shadow-md sticky top-0 z-50 border-b border-border">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="flex justify-between items-center">
+    <header className="bg-background/80 backdrop-blur-xl sticky top-0 z-50 border-b border-border/50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16 md:h-20">
           {/* Logo */}
-          <div className="flex items-center space-x-3 space-x-reverse">
+          <div className="flex items-center gap-3">
             <a href="/" className="block" onClick={(e) => { e.preventDefault(); handleLogoClick(); }}>
-              <img src={settings.settings.logoUrl} alt="AOS" className="h-16 md:h-20 w-auto max-w-[50vw]" />
+              <img src={settings.settings.logoUrl} alt="AOS" className="h-12 md:h-14 w-auto" />
             </a>
           </div>
 
           {/* Desktop Menu */}
-          <nav className="hidden lg:flex items-center space-x-6 space-x-reverse">
+          <nav className="hidden lg:flex items-center gap-1">
             {settings.settings.headerNavLinks.map((link, idx) => (
-              <a key={idx} href={link.href} className="text-base font-medium hover:text-primary transition-colors">
+              <a key={idx} href={link.href} className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors">
                 {t(link.label)}
               </a>
             ))}
             {user && (
-              <a href="#account" className="text-base font-medium hover:text-primary transition-colors">
-                <User className="w-4 h-4 inline mr-1" />
+              <a href="#account" className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5" />
                 {t({ ar: 'حسابي', fr: 'Mon Compte', en: 'My Account' })}
               </a>
             )}
-            <div className="flex items-center space-x-2 space-x-reverse text-base font-medium bg-muted px-4 py-2.5 rounded-lg">
-              <Phone className="w-5 h-5 text-primary" />
+            <div className="flex items-center gap-2 text-sm font-medium bg-primary/5 text-primary px-3 py-2 rounded-lg mx-1">
+              <Phone className="w-3.5 h-3.5" />
               <span className="font-semibold">{settings.contact.phoneDisplay}</span>
             </div>
-            <button
-              onClick={() => setCartOpen(!cartOpen)}
-              className="relative p-2 rounded-lg hover:bg-muted transition-colors"
-            >
+            <button onClick={() => setCartOpen(!cartOpen)}
+              className="relative p-2 rounded-lg hover:bg-muted transition-colors">
               <ShoppingCart className="w-5 h-5" />
               {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs font-bold w-4 h-4 rounded-full flex items-center justify-center">
                   {itemCount}
                 </span>
               )}

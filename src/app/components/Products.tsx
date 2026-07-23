@@ -331,15 +331,8 @@ export function Products() {
             <div
               key={product.id}
               onClick={() => openProductDetails(product)}
-              className="group bg-card rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-border hover:border-primary/50 cursor-pointer relative"
+              className="group bg-card rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden border border-border/50 hover:border-primary/30 cursor-pointer relative"
             >
-              <button
-                onClick={() => { const added = toggleWishlist(product.id); toast.success(added ? t({ ar: 'أضيف إلى المفضلة', fr: 'Ajouté aux favoris', en: 'Added to wishlist' }) : t({ ar: 'أزيل من المفضلة', fr: 'Retiré des favoris', en: 'Removed from wishlist' })); }}
-                className="absolute top-3 right-3 p-2 rounded-full bg-background/80 backdrop-blur-sm hover:bg-background transition shadow-sm z-10"
-                aria-label={isInWishlist(product.id) ? t({ ar: 'إزالة من المفضلة', fr: 'Retirer des favoris', en: 'Remove from wishlist' }) : t({ ar: 'إضافة إلى المفضلة', fr: 'Ajouter aux favoris', en: 'Add to wishlist' })}
-              >
-                <Heart className={`w-5 h-5 ${isInWishlist(product.id) ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} />
-              </button>
               {product.salePrice && product.saleEnd && new Date(product.saleEnd) > new Date() && (
                 <div className="absolute top-3 left-3 z-10 flex flex-col gap-1">
                   <div className="bg-red-500 text-white px-2.5 py-1 rounded-full text-xs font-bold shadow-lg">
@@ -348,77 +341,59 @@ export function Products() {
                   <FlashSaleTimer endDate={product.saleEnd} />
                 </div>
               )}
-              <div className="relative h-40 sm:h-48 overflow-hidden bg-muted">
+              <div className="relative h-48 overflow-hidden bg-gradient-to-br from-muted/50 to-muted">
                 <img
                   src={product.image}
                   alt={language === 'ar' ? product.nameAr : product.nameEn}
                   loading="lazy"
-                  className="w-full h-full object-contain p-4 bg-white/50 dark:bg-white/5 product-img-zoom"
+                  className="w-full h-full object-contain p-6 group-hover:scale-110 transition-transform duration-700"
                 />
-                <div className="absolute top-4 right-4 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-semibold">
+                <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute top-3 right-3 bg-primary/90 backdrop-blur-sm text-primary-foreground px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm">
                   {product.price.toLocaleString()} د.ج
                 </div>
-                <div className="absolute top-4 left-4 flex flex-col gap-1">
-                  <div className="bg-black/50 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Info className="w-3 h-3" />
-                    {t({ ar: 'عرض التفاصيل', fr: 'Voir détails', en: 'View details' })}
+                {product.brand && (
+                  <div className="absolute top-3 left-3 bg-black/40 backdrop-blur-sm text-white/90 px-2 py-1 rounded-lg text-[10px] font-medium">
+                    {product.brand}
                   </div>
-                  {product.brand && (
-                    <div className="bg-black/40 backdrop-blur-sm text-white/90 px-0.5 py-0.5 rounded-full text-[10px] font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                      {product.brand}
-                    </div>
-                  )}
-                </div>
-                <div className="absolute bottom-4 left-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); openQuickView(product); }}
-                    className="flex-1 bg-primary/90 backdrop-blur-sm text-white text-xs font-semibold px-3 py-2 rounded-lg hover:bg-primary transition flex items-center justify-center gap-1.5"
-                  >
-                    <Eye className="w-3.5 h-3.5" />
-                    {t({ ar: 'معاينة سريعة', fr: 'Aperçu rapide', en: 'Quick view' })}
-                  </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); shareProduct(product); }}
-                    className="bg-white/20 backdrop-blur-sm text-white p-2 rounded-lg hover:bg-white/30 transition"
-                    aria-label={t({ ar: 'مشاركة', fr: 'Partager', en: 'Share' })}
-                  >
-                    <Share2 className="w-4 h-4" />
-                  </button>
-                </div>
+                )}
               </div>
 
-              <div className="p-6">
-                <h3 className="text-lg font-bold mb-2">
-                  {language === 'ar' ? product.nameAr : language === 'fr' ? product.nameFr : product.nameEn}
-                </h3>
-                <p className="text-sm text-muted-foreground mb-4">
+              <div className="p-5">
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <h3 className="text-base font-bold leading-tight flex-1">
+                    {language === 'ar' ? product.nameAr : language === 'fr' ? product.nameFr : product.nameEn}
+                  </h3>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); const added = toggleWishlist(product.id); toast.success(added ? t({ ar: 'أضيف إلى المفضلة', fr: 'Ajouté aux favoris', en: 'Added to wishlist' }) : t({ ar: 'أزيل من المفضلة', fr: 'Retiré des favoris', en: 'Removed from wishlist' })); }}
+                    className="shrink-0 p-1.5 rounded-full hover:bg-muted transition"
+                  >
+                    <Heart className={`w-4 h-4 ${isInWishlist(product.id) ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} />
+                  </button>
+                </div>
+                <p className="text-sm text-muted-foreground/80 line-clamp-2 mb-4">
                   {language === 'ar' ? product.descAr : language === 'fr' ? product.descFr : product.descEn}
                 </p>
 
-                <div className="flex items-center justify-between gap-4" onClick={(e) => e.stopPropagation()}>
-                  <div className="flex items-center gap-2 bg-muted rounded-lg p-1">
-                    <button
-                      onClick={() => updateQuantity(product.id, -1)}
-                      className="p-1 hover:bg-background rounded transition-colors"
-                    >
-                      <Minus className="w-4 h-4" />
+                <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex items-center gap-1 bg-muted rounded-lg p-0.5">
+                    <button onClick={() => updateQuantity(product.id, -1)} className="p-1.5 hover:bg-background rounded-md transition">
+                      <Minus className="w-3.5 h-3.5" />
                     </button>
-                    <span className="px-3 font-semibold w-8 text-center">{quantities[product.id] || 1}</span>
-                    <button
-                      onClick={() => updateQuantity(product.id, 1)}
-                      className="p-1 hover:bg-background rounded transition-colors"
-                    >
-                      <Plus className="w-4 h-4" />
+                    <span className="px-2 font-semibold text-sm min-w-[1.5rem] text-center">{quantities[product.id] || 1}</span>
+                    <button onClick={() => updateQuantity(product.id, 1)} className="p-1.5 hover:bg-background rounded-md transition">
+                      <Plus className="w-3.5 h-3.5" />
                     </button>
                   </div>
-
-                  <button
-                    onClick={() => openOrderModal(product)}
-                    aria-label={t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}
-                    className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-all transform hover:scale-105 btn-liquid"
-                  >
-                    <ShoppingCart className="w-4 h-4" />
+                  <button onClick={() => openOrderModal(product)} aria-label={t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}
+                    className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95">
+                    <ShoppingCart className="w-3.5 h-3.5" />
                     <span>{t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}</span>
+                  </button>
+                  <button onClick={(e) => { e.stopPropagation(); openQuickView(product); }}
+                    className="p-2 rounded-lg border border-border hover:bg-muted transition"
+                    aria-label={t({ ar: 'معاينة', fr: 'Aperçu', en: 'Quick view' })}>
+                    <Eye className="w-3.5 h-3.5 text-muted-foreground" />
                   </button>
                 </div>
               </div>
