@@ -5,7 +5,7 @@ const FALLBACK_URLS: string[] = [
   'https://aos-api.onrender.com/api',
 ];
 
-function getAccessToken(): string | null {
+export function getAccessToken(): string | null {
   return localStorage.getItem('aos_access_token');
 }
 

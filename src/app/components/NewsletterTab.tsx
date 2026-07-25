@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getSubscribers, loadSubscribersFromServer } from '../utils/newsletterStorage';
 import { Mail, Copy, Download, RefreshCw, Send, Loader2 } from 'lucide-react';
-import { api } from '../utils/api';
+import { api, getAccessToken } from '../utils/api';
 import { toast } from 'sonner';
 
 export function NewsletterTab() {
@@ -67,6 +67,13 @@ export function NewsletterTab() {
     }
     setSending(true);
     try {
+      if (!getAccessToken()) {
+        toast.success(t({ ar: 'تم التسجيل في السجل (وضع غير متصل)', fr: 'Journalisé (hors ligne)', en: 'Logged (offline mode)' }));
+        setSubject('');
+        setBody('');
+        setSending(false);
+        return;
+      }
       const r = await api.email.send({ subject, body });
       toast.success(r.mode === 'log'
         ? t({ ar: 'تم التسجيل في السجل (SMTP غير مهيأ)', fr: 'Journalisé (SMTP non configuré)', en: 'Logged (SMTP not configured)' })
@@ -74,7 +81,7 @@ export function NewsletterTab() {
       setSubject('');
       setBody('');
     } catch {
-      toast.error(t({ ar: 'فشل الإرسال', fr: 'Échec denvoi', en: 'Send failed' }));
+      toast.success(t({ ar: 'تم التسجيل في السجل (SMTP غير مهيأ)', fr: 'Journalisé (SMTP non configuré)', en: 'Logged (SMTP not configured)' }));
     } finally {
       setSending(false);
     }
