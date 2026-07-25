@@ -40,11 +40,11 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
   return (
     <header className="bg-background/80 backdrop-blur-xl sticky top-0 z-50 border-b border-border/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16 md:h-20">
+        <div className="flex justify-between items-center h-20 md:h-28">
           {/* Logo */}
           <div className="flex items-center gap-3">
             <a href="/" className="block" onClick={(e) => { e.preventDefault(); handleLogoClick(); }}>
-              <img src="/logo.png" alt="AOS" className="h-16 md:h-20 w-auto" />
+              <img src="/logo.png" alt="AOS" className="h-20 md:h-28 w-auto" />
             </a>
           </div>
 
