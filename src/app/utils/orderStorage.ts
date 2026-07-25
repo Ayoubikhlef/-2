@@ -89,7 +89,7 @@ export function getOrders(): OrderRecord[] {
 export async function saveOrder(order: Omit<OrderRecord, 'id' | 'createdAt' | 'status'>): Promise<OrderRecord> {
   const record: OrderRecord = {
     ...order,
-    id: crypto.randomUUID?.() ?? Math.random().toString(36).slice(2, 10),
+    id: crypto.randomUUID() ?? `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
     createdAt: new Date().toISOString(),
     status: 'new',
   };

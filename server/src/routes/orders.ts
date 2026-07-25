@@ -14,7 +14,6 @@ const orderItemSchema = z.object({
 });
 
 const createOrderSchema = z.object({
-  id: z.string().optional(),
   customer: z.string().min(1),
   phone: z.string().min(1),
   email: z.string().optional(),
@@ -31,9 +30,10 @@ orderRouter.post('/', async (req: Request, res: Response) => {
   try {
     const data = createOrderSchema.parse(req.body);
 
+    const recalculatedTotal = data.items.reduce((sum, item) => sum + item.total, 0);
+
     const order = await prisma.order.create({
       data: {
-        ...(data.id ? { id: data.id } : {}),
         customer: data.customer,
         phone: data.phone,
         email: data.email || '',
@@ -41,7 +41,7 @@ orderRouter.post('/', async (req: Request, res: Response) => {
         municipality: data.municipality,
         address: data.address,
         note: data.note || '',
-        total: data.total,
+        total: recalculatedTotal,
         status: 'new',
         source: data.source,
         items: {
@@ -56,7 +56,7 @@ orderRouter.post('/', async (req: Request, res: Response) => {
       include: { items: true },
     });
 
-    console.log(`[Orders] Created order ${order.id} for ${order.customer} (${order.total} DZD)`);
+    console.log(`[Orders] Created order ${order.id} for ${order.customer.slice(0, 4)}*** (${order.total} DZD)`);
     res.status(201).json(order);
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -105,8 +105,7 @@ orderRouter.patch('/:id/status', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'
 
 orderRouter.post('/delete', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
-    const { id } = req.body;
-    if (!id) return res.status(400).json({ error: 'Missing id' });
+    const { id } = z.object({ id: z.string().min(1) }).parse(req.body);
     await prisma.order.delete({ where: { id } });
     console.log(`[Orders] Deleted order ${id}`);
     res.json({ deleted: true, id });

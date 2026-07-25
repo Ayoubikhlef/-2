@@ -1,4 +1,5 @@
 import { Server as SocketServer } from 'socket.io';
+import { verifyAccessToken } from '../utils/jwt';
 
 let io: SocketServer | null = null;
 
@@ -17,11 +18,27 @@ export function initLive(httpServer: any) {
     },
   });
 
+  io.use((socket, next) => {
+    const token = socket.handshake.auth?.token || socket.handshake.query?.token;
+    if (!token) return next(new Error('No token provided'));
+    try {
+      const payload = verifyAccessToken(token as string);
+      (socket as any).userId = payload.userId;
+      (socket as any).userRole = payload.role;
+      next();
+    } catch {
+      next(new Error('Invalid token'));
+    }
+  });
+
   io.on('connection', (socket) => {
     console.log(`[Live] Client connected: ${socket.id}`);
 
     socket.on('join-admin', () => {
-      socket.join('admin-room');
+      const role = (socket as any).userRole;
+      if (role === 'SUPER_ADMIN' || role === 'ADMIN') {
+        socket.join('admin-room');
+      }
     });
 
     socket.on('disconnect', () => {

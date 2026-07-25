@@ -1,23 +1,23 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { prisma } from '../utils/prisma';
+import { requireAuth, type AuthRequest } from '../middleware/auth';
 
 export const reviewRouter = Router();
 
 const createReviewSchema = z.object({
   productId: z.number(),
-  customer: z.string().min(1),
   rating: z.number().int().min(1).max(5),
   comment: z.string().optional(),
 });
 
-reviewRouter.post('/', async (req: Request, res: Response) => {
+reviewRouter.post('/', requireAuth, async (req: AuthRequest, res: Response) => {
   try {
     const data = createReviewSchema.parse(req.body);
 
     const review = await prisma.review.create({
       data: {
-        userId: data.customer,
+        userId: req.userId!,
         productId: String(data.productId),
         rating: data.rating,
         comment: data.comment || '',

@@ -24,7 +24,7 @@ const server = http.createServer(app);
 const PORT = Number(process.env.PORT) || 3001;
 const ALLOWED_ORIGINS = (process.env.CORS_ORIGIN || 'http://localhost:5173,https://aostech.vercel.app').split(',');
 
-app.use(helmet());
+app.use(helmet({ strictTransportSecurity: { maxAge: 31536000, includeSubDomains: true, preload: true } }));
 app.use(cors({
   origin: (origin, cb) => {
     if (!origin || ALLOWED_ORIGINS.includes(origin)) {
@@ -40,9 +40,13 @@ app.use(cookieParser());
 
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: { error: 'Too many attempts, try again later' } });
 const generalLimiter = rateLimit({ windowMs: 60 * 1000, max: 60, message: { error: 'Too many requests' } });
+const strictLimiter = rateLimit({ windowMs: 60 * 1000, max: 10, message: { error: 'Too many requests' } });
 app.use('/api/auth', authLimiter);
 app.use('/api/newsletter', generalLimiter);
 app.use('/api/chat', generalLimiter);
+app.use('/api/orders', strictLimiter);
+app.use('/api/loyalty', strictLimiter);
+app.use('/api/reviews', generalLimiter);
 
 app.use('/api/auth', authRouter);
 app.use('/api/chat', chatRouter);
