@@ -44,7 +44,7 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
           {/* Logo */}
           <div className="flex items-center gap-3">
             <a href="/" className="block" onClick={(e) => { e.preventDefault(); handleLogoClick(); }}>
-              <img src={settings.settings.logoUrl} alt="AOS" className="h-12 md:h-14 w-auto" />
+              <img src="/logo.png" alt="AOS" className="h-16 md:h-20 w-auto" />
             </a>
           </div>
 
