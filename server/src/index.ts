@@ -22,7 +22,7 @@ import { initRAG } from './services/rag';
 const app = express();
 const server = http.createServer(app);
 const PORT = Number(process.env.PORT) || 3001;
-const ALLOWED_ORIGINS = (process.env.CORS_ORIGIN || 'http://localhost:5173,https://aos-tech-store.vercel.app').split(',');
+const ALLOWED_ORIGINS = (process.env.CORS_ORIGIN || 'http://localhost:5173,https://aos-tech-store.vercel.app,https://aostech.vercel.app').split(',');
 
 app.use(helmet());
 app.use(cors({
