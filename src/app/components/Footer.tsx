@@ -23,7 +23,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div>
             <div className={`flex items-center space-x-2 ${language === 'ar' ? 'space-x-reverse' : ''} mb-4`}>
-              <img src={s.logoUrl} alt="AOS" className="h-36 w-auto rounded-lg" />
+              <img src="/logo.png" alt="AOS" className="h-36 w-auto rounded-lg" />
             </div>
             <p className="text-white/80 text-sm leading-relaxed">
               {t(content.footer.description)}
