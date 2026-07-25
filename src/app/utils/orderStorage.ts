@@ -1,4 +1,6 @@
 import { api } from './api';
+import { getStoredProducts, saveProducts } from './productStorage';
+import { products as defaultProducts } from '../data/products';
 
 export type OrderItem = {
   name: string;
@@ -32,7 +34,10 @@ const STORAGE_KEY = 'ayoubtech-orders';
 const SOFT_DELETE_KEY = 'ayoubtech-soft-delete';
 const SYNCED_IDS_KEY = 'ayoubtech-synced-order-ids';
 
+const isDev = import.meta.env.DEV;
+
 function log(level: 'info' | 'warn' | 'error', msg: string, data?: any) {
+  if (!isDev) return;
   const prefix = `[Orders]`;
   const line = `${prefix} ${msg}${data !== undefined ? ' ' + JSON.stringify(data) : ''}`;
   if (level === 'info') console.log(line);
@@ -98,6 +103,18 @@ export async function saveOrder(order: Omit<OrderRecord, 'id' | 'createdAt' | 's
   const next = [record, ...current];
   localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   log('info', `Saved order ${record.id} to localStorage`);
+
+  const products = getStoredProducts(defaultProducts);
+  let changed = false;
+  for (const item of order.items) {
+    const idx = products.findIndex(p => p.name === item.name);
+    if (idx !== -1 && products[idx].stock !== undefined) {
+      products[idx].stock = Math.max(0, products[idx].stock - item.quantity);
+      changed = true;
+    }
+  }
+  if (changed) saveProducts(products);
+
   dispatchChange();
 
   api.orders.create({ ...order, id: record.id })

@@ -211,7 +211,7 @@ export function Admin() {
     loadOrders();
     setManageProducts(getStoredProducts(defaultProducts));
     setManageServices(getStoredServices(defaultServices));
-    const interval = setInterval(loadOrders, 5000);
+    const interval = setInterval(loadOrders, 30000);
     const onChanged = () => {
       setManageProducts(getStoredProducts(defaultProducts));
       setManageServices(getStoredServices(defaultServices));
@@ -487,7 +487,7 @@ export function Admin() {
                 : 'bg-slate-900 text-white/70 border-white/10 hover:bg-slate-800'
             }`}
           >
-            {t({ ar: '🛒 طلبات المنتجات', fr: '🛒 Commandes produits', en: '🛒 Product Orders' })}
+            {t({ ar: 'طلبات المنتجات', fr: 'Commandes produits', en: 'Product Orders' })}
           </button>
           <button
             onClick={() => { setTab('services'); setFilter('all'); }}
@@ -497,7 +497,7 @@ export function Admin() {
                 : 'bg-slate-900 text-white/70 border-white/10 hover:bg-slate-800'
             }`}
           >
-            {t({ ar: '📅 حجوزات الخدمات', fr: '📅 Réservations services', en: '📅 Service Bookings' })}
+            {t({ ar: 'حجوزات الخدمات', fr: 'Réservations services', en: 'Service Bookings' })}
           </button>
           <button
             onClick={() => setTab('manage-products')}
@@ -507,7 +507,7 @@ export function Admin() {
                 : 'bg-slate-900 text-white/70 border-white/10 hover:bg-slate-800'
             }`}
           >
-            {t({ ar: '⚙️ إدارة المنتجات', fr: '⚙️ Gérer produits', en: '⚙️ Manage Products' })}
+            {t({ ar: 'إدارة المنتجات', fr: 'Gérer produits', en: 'Manage Products' })}
           </button>
           <button
             onClick={() => setTab('manage-services')}
@@ -517,7 +517,7 @@ export function Admin() {
                 : 'bg-slate-900 text-white/70 border-white/10 hover:bg-slate-800'
             }`}
           >
-            {t({ ar: '🛠️ إدارة الخدمات', fr: '🛠️ Gérer services', en: '🛠️ Manage Services' })}
+            {t({ ar: 'إدارة الخدمات', fr: 'Gérer services', en: 'Manage Services' })}
           </button>
           <button
             onClick={() => setTab('customers')}
@@ -527,7 +527,7 @@ export function Admin() {
                 : 'bg-slate-900 text-white/70 border-white/10 hover:bg-slate-800'
             }`}
           >
-            {t({ ar: '👥 العملاء', fr: '👥 Clients', en: '👥 Customers' })}
+            {t({ ar: 'العملاء', fr: 'Clients', en: 'Customers' })}
           </button>
           <button
             onClick={() => setTab('coupons')}
@@ -537,7 +537,7 @@ export function Admin() {
                 : 'bg-slate-900 text-white/70 border-white/10 hover:bg-slate-800'
             }`}
           >
-            {t({ ar: '🎁 أكواد الخصم', fr: '🎁 Coupons', en: '🎁 Coupons' })}
+            {t({ ar: 'أكواد الخصم', fr: 'Coupons', en: 'Coupons' })}
           </button>
           <button
             onClick={() => setTab('content')}
@@ -547,7 +547,7 @@ export function Admin() {
                 : 'bg-slate-900 text-white/70 border-white/10 hover:bg-slate-800'
             }`}
           >
-            {t({ ar: '📝 المحتوى', fr: '📝 Contenu', en: '📝 Content' })}
+            {t({ ar: 'المحتوى', fr: 'Contenu', en: 'Content' })}
           </button>
           <button
             onClick={() => setTab('settings')}
@@ -557,7 +557,7 @@ export function Admin() {
                 : 'bg-slate-900 text-white/70 border-white/10 hover:bg-slate-800'
             }`}
           >
-            {t({ ar: '⚙️ الإعدادات', fr: '⚙️ Paramètres', en: '⚙️ Settings' })}
+            {t({ ar: 'الإعدادات', fr: 'Paramètres', en: 'Settings' })}
           </button>
           <button
             onClick={() => setTab('reviews')}
@@ -567,7 +567,7 @@ export function Admin() {
                 : 'bg-slate-900 text-white/70 border-white/10 hover:bg-slate-800'
             }`}
           >
-            {t({ ar: '⭐ التقييمات', fr: '⭐ Avis', en: '⭐ Reviews' })}
+            {t({ ar: 'التقييمات', fr: 'Avis', en: 'Reviews' })}
           </button>
           <button
             onClick={() => setTab('newsletter')}
@@ -577,7 +577,7 @@ export function Admin() {
                 : 'bg-slate-900 text-white/70 border-white/10 hover:bg-slate-800'
             }`}
           >
-            {t({ ar: '📬 النشرة', fr: '📬 Newsletter', en: '📬 Newsletter' })}
+            {t({ ar: 'النشرة', fr: 'Newsletter', en: 'Newsletter' })}
           </button>
           <button
             onClick={() => setTab('dashboard')}
@@ -587,7 +587,7 @@ export function Admin() {
                 : 'bg-slate-900 text-white/70 border-white/10 hover:bg-slate-800'
             }`}
           >
-            {t({ ar: '📊 الإحصائيات', fr: '📊 Statistiques', en: '📊 Dashboard' })}
+            {t({ ar: 'الإحصائيات', fr: 'Statistiques', en: 'Dashboard' })}
           </button>
         </div>
 
@@ -760,7 +760,7 @@ export function Admin() {
                         {order.source === 'form'
                           ? t({ ar: 'طلب عبر نموذج السلة', fr: 'Commande via formulaire', en: 'Order via checkout form' })
                           : order.source === 'service-booking'
-                          ? t({ ar: '📅 حجز خدمة مكتبية', fr: '📅 Réservation service', en: '📅 Office service booking' })
+                          ? t({ ar: 'حجز خدمة مكتبية', fr: 'Réservation service', en: 'Office service booking' })
                           : t({ ar: 'طلب سريع من صفحة المنتج', fr: 'Commande rapide produit', en: 'Quick product order' })}
                       </p>
                     </div>
@@ -815,7 +815,7 @@ export function Admin() {
                           try {
                             await generateInvoice(order, language);
                           } catch (err) {
-                            console.error('Invoice generation failed:', err);
+                            if (import.meta.env.DEV) console.error('Invoice generation failed:', err);
                             toast.error(t({ ar: 'فشل تحميل الفاتورة', fr: 'Échec du téléchargement', en: 'Failed to download invoice' }));
                           }
                         }}

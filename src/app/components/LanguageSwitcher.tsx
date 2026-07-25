@@ -41,7 +41,7 @@ export function LanguageSwitcher() {
                 : 'text-foreground/80 hover:bg-muted hover:text-foreground'
             }`}
           >
-            <img src={lang.flag} alt="" className="w-5 h-4 object-cover rounded-sm" />
+            <img src={lang.flag} alt={lang.label} className="w-5 h-4 object-cover rounded-sm" />
             <span className="flex-1">{lang.label}</span>
             {language === lang.code && (
               <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary/10 dark:bg-primary/20">

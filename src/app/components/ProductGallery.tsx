@@ -69,7 +69,7 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
                 idx === selectedIndex ? 'border-primary ring-2 ring-primary/30' : 'border-border hover:border-muted-foreground'
               }`}
             >
-              <img src={src} alt="" className="w-full h-full object-cover" loading="lazy" />
+              <img src={src} alt={`${name} thumbnail ${idx + 1}`} className="w-full h-full object-cover" loading="lazy" />
             </button>
           ))}
         </div>

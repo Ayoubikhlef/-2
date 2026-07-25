@@ -1,3 +1,5 @@
+const isDev = import.meta.env.DEV;
+
 const PRIMARY_URL: string = import.meta.env.VITE_API_URL || '/api';
 const FALLBACK_URLS: string[] = [
   'https://aos-api.onrender.com/api',
@@ -49,7 +51,7 @@ async function request<T>(
   for (let i = 0; i < urls.length; i++) {
     try {
       const url = urls[i];
-      console.log(`[API] ${options.method || 'GET'} ${url} (attempt ${i + 1}/${urls.length})`);
+      if (isDev) console.log(`[API] ${options.method || 'GET'} ${url} (attempt ${i + 1}/${urls.length})`);
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 8000);
       const res = await fetch(url, { ...options, headers, credentials: 'include', signal: controller.signal });
@@ -61,7 +63,7 @@ async function request<T>(
       return res.json();
     } catch (err: any) {
       lastError = err;
-      if (i < urls.length - 1) {
+      if (i < urls.length - 1 && isDev) {
         console.warn(`[API] Attempt ${i + 1} failed, trying next URL`);
       }
     }

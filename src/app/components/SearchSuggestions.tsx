@@ -29,7 +29,7 @@ export function SearchSuggestions({ query, products, onSelect, onClose }: Search
             className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted transition text-right"
           >
             <div className="w-10 h-10 rounded-lg overflow-hidden bg-muted shrink-0">
-              <img src={product.image} alt="" className="w-full h-full object-contain" loading="lazy" />
+              <img src={product.image} alt={product.nameEn || ''} className="w-full h-full object-contain" loading="lazy" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-medium text-sm truncate">

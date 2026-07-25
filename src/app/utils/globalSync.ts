@@ -6,6 +6,8 @@ import { loadOrdersFromServer, pushUnsyncedOrders } from './orderStorage';
 import { products as defaultProducts } from '../data/products';
 import { defaultServices } from '../data/services';
 
+const isDev = import.meta.env.DEV;
+
 let _lastSuccessfulSync = 0;
 let _syncStatus: 'idle' | 'syncing' | 'success' | 'error' = 'idle';
 let _initialSyncDone = false;
@@ -46,18 +48,18 @@ export async function syncAllFromServer() {
     if (successCount === results.length) {
       _lastSuccessfulSync = Date.now();
       _syncStatus = 'success';
-      console.log(`[GlobalSync] ✓ All ${successCount}/${results.length} synced`);
+      if (isDev) console.log(`[GlobalSync] ✓ ${successCount}/${results.length} synced`);
     } else if (successCount > 0) {
       _lastSuccessfulSync = Date.now();
       _syncStatus = 'success';
-      console.warn(`[GlobalSync] ⚠ ${successCount}/${results.length} synced (${results.length - successCount} failed)`);
+      if (isDev) console.warn(`[GlobalSync] ⚠ ${successCount}/${results.length} synced`);
     } else {
       _syncStatus = 'error';
-      console.warn('[GlobalSync] ✗ All syncs failed - using local data');
+      if (isDev) console.warn('[GlobalSync] ✗ All syncs failed');
     }
   } catch (err) {
     _syncStatus = 'error';
-    console.warn('[GlobalSync] ✗ Sync error:', err);
+    if (isDev) console.warn('[GlobalSync] ✗ Sync error:', err);
   }
 
   if (!_initialSyncDone) {

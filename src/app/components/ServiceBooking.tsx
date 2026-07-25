@@ -65,7 +65,7 @@ export function ServiceBooking() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="mb-4">
-            {t({ ar: '📅 احجز خدمة', fr: '📅 Réserver un service', en: '📅 Book a Service' })}
+            {t({ ar: 'احجز خدمة', fr: 'Réserver un service', en: 'Book a Service' })}
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             {t({ ar: 'اختر نوع الخدمة التي تحتاجها وسنعود إليك في أقرب وقت', fr: 'Choisissez le service dont vous avez besoin et nous vous recontacterons', en: 'Choose the service you need and we will get back to you' })}

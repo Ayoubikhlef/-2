@@ -8,6 +8,8 @@ import { ThemeToggle } from './ThemeToggle';
 import { Cart } from './CartView';
 import { motion, AnimatePresence } from 'motion/react';
 import { getSiteSettings } from '../utils/siteSettingsStorage';
+import GooeyNav from './GooeyNav';
+import TextType from './TextType';
 
 export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -39,22 +41,42 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
 
   return (
     <header className="bg-background/80 backdrop-blur-xl sticky top-0 z-50 border-b border-border/50">
+      {/* Top announcement bar */}
+      <div className="w-full bg-primary text-primary-foreground text-center py-2 text-sm font-semibold tracking-wide">
+        <TextType
+          text={["WELCOME TO AYOUB OFFICE SERVICES"]}
+          typingSpeed={60}
+          pauseDuration={3000}
+          initialDelay={500}
+          showCursor={true}
+          cursorCharacter="|"
+          loop={false}
+          className="text-type-top"
+        />
+      </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20 md:h-28">
+        <div className="flex justify-between items-center h-24 md:h-36">
           {/* Logo */}
           <div className="flex items-center gap-3">
             <a href="/" className="block" onClick={(e) => { e.preventDefault(); handleLogoClick(); }}>
-              <img src="/logo.png" alt="AOS" className="h-20 md:h-28 w-auto" />
+              <img src="/logo.png" alt="AOS" className="h-24 md:h-36 w-auto" />
             </a>
           </div>
 
           {/* Desktop Menu */}
-          <nav className="hidden lg:flex items-center gap-1">
-            {settings.settings.headerNavLinks.map((link, idx) => (
-              <a key={idx} href={link.href} className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors">
-                {t(link.label)}
-              </a>
-            ))}
+          <div className="hidden lg:flex items-center gap-1">
+            <GooeyNav
+              items={settings.settings.headerNavLinks.map(link => ({
+                label: t(link.label),
+                href: link.href
+              }))}
+              particleCount={12}
+              particleDistances={[70, 8]}
+              particleR={80}
+              animationTime={500}
+              timeVariance={250}
+              colors={[1, 2, 3, 1, 2, 3, 1, 4]}
+            />
             {user && (
               <a href="#account" className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors flex items-center gap-1.5">
                 <User className="w-3.5 h-3.5" />
@@ -76,7 +98,7 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
             </button>
             <LanguageSwitcher />
             <ThemeToggle />
-          </nav>
+          </div>
 
           {/* Mobile Menu */}
           <div className="flex lg:hidden items-center space-x-2">
@@ -176,7 +198,7 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
               <div className="p-6">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-lg font-bold">
-                    {t({ ar: '🛒 عربة التسويق', fr: '🛒 Panier', en: '🛒 Shopping Cart' })}
+                    {t({ ar: 'عربة التسويق', fr: 'Panier', en: 'Shopping Cart' })}
                   </h3>
                   <button
                     onClick={() => setCartOpen(false)}

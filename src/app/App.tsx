@@ -67,6 +67,30 @@ export default function App() {
     return () => window.removeEventListener('aos:data-changed', handleChange);
   }, []);
 
+  useEffect(() => {
+    const updateTitle = () => {
+      const hash = window.location.hash;
+      const lang = (localStorage.getItem('language') || 'en') as 'ar' | 'fr' | 'en';
+      const titles: Record<string, Record<string, string>> = {
+        '#about':    { ar: 'من نحن', fr: 'À propos', en: 'About Us' },
+        '#terms':    { ar: 'الشروط والأحكام', fr: 'Conditions', en: 'Terms & Conditions' },
+        '#privacy':  { ar: 'سياسة الخصوصية', fr: 'Confidentialité', en: 'Privacy Policy' },
+        '#checkout': { ar: 'إتمام الطلب', fr: 'Finaliser la commande', en: 'Checkout' },
+        '#loyalty':  { ar: 'برنامج الولاء', fr: 'Programme de fidélité', en: 'Loyalty Program' },
+        '#account':  { ar: 'حسابي', fr: 'Mon compte', en: 'My Account' },
+        '#admin':    { ar: 'لوحة الأدمين', fr: 'Administration', en: 'Admin Panel' },
+        '#products': { ar: 'المنتجات', fr: 'Produits', en: 'Products' },
+        '#services': { ar: 'الخدمات', fr: 'Services', en: 'Services' },
+        '#contact':  { ar: 'اتصل بنا', fr: 'Contact', en: 'Contact Us' },
+      };
+      const name = titles[hash]?.[lang] || 'AOS Tech Store';
+      document.title = `${name} | AOS Tech Store`;
+    };
+    updateTitle();
+    window.addEventListener('hashchange', updateTitle);
+    return () => window.removeEventListener('hashchange', updateTitle);
+  }, []);
+
   if (maintenance && typeof window !== 'undefined' && window.location.hash !== '#admin') {
     const savedLang = localStorage.getItem('language') || 'ar';
     const lang = savedLang as 'ar' | 'fr' | 'en';

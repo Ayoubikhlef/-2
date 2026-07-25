@@ -71,7 +71,7 @@ export function ProductComparison({ onClose }: Props) {
                   <th className="text-left text-white/40 font-medium px-4 py-3 border-b border-white/10 w-40"></th>
                   {selected.map(p => (
                     <th key={p.id} className="text-center px-4 py-3 border-b border-white/10 min-w-[180px]">
-                      <img src={p.image} alt="" className="w-20 h-20 object-contain mx-auto mb-2 rounded-xl bg-slate-800 p-2" />
+                      <img src={p.image} alt={p.nameEn || ''} className="w-20 h-20 object-contain mx-auto mb-2 rounded-xl bg-slate-800 p-2" />
                       <p className="text-white font-bold text-sm">{language === 'ar' ? p.nameAr : language === 'fr' ? p.nameFr : p.nameEn}</p>
                       <p className="text-primary font-bold mt-1">{p.salePrice || p.price} د.ج</p>
                     </th>

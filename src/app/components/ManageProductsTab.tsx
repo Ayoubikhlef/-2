@@ -313,7 +313,7 @@ export function ManageProductsTab({ products, onUpdate }: { products: Product[];
               placeholder="https://..." />
             {editing?.image && (
               <div className="w-14 h-14 rounded-xl overflow-hidden border border-white/10 bg-slate-800 flex-shrink-0">
-                <img src={editing.image} alt="" className="w-full h-full object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                <img src={editing.image} alt={editing.name || ''} className="w-full h-full object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
               </div>
             )}
           </div>
@@ -399,7 +399,7 @@ export function ManageProductsTab({ products, onUpdate }: { products: Product[];
         {products.map((product) => (
           <div key={product.id} className="rounded-2xl border border-white/10 bg-slate-900/80 p-3 sm:p-4 flex items-center gap-3 sm:gap-4 hover:bg-slate-800/80 transition-all flex-wrap sm:flex-nowrap">
             <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl overflow-hidden bg-slate-800 flex-shrink-0">
-              <img src={product.image} alt="" className="w-full h-full object-contain p-1" onError={(e) => { (e.target as HTMLImageElement).src = ''; }} />
+              <img src={product.image} alt={product.name || ''} className="w-full h-full object-contain p-1" onError={(e) => { (e.target as HTMLImageElement).src = ''; }} />
             </div>
             <div className="flex-1 min-w-0 order-last sm:order-none basis-full sm:basis-auto mt-2 sm:mt-0">
               <div className="flex items-center gap-2 flex-wrap">

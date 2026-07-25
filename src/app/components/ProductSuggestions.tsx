@@ -25,7 +25,7 @@ export function ProductSuggestions({ productId, onSelect, max = 4 }: ProductSugg
   return (
     <div className="mb-8">
       <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-        {t({ ar: '🛒 منتجات من نفس الفئة', fr: '🛒 Produits similaires', en: '🛒 More from this category' })}
+        {t({ ar: 'منتجات من نفس الفئة', fr: 'Produits similaires', en: 'More from this category' })}
       </h3>
       <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
         {suggestions.map((product) => (

@@ -146,7 +146,7 @@ export async function generateInvoice(order: OrderRecord, language: string) {
 
     doc.save(`invoice-${oid}.pdf`);
   } catch (err: any) {
-    console.error('PDF generation error:', err?.message || err);
+    if (import.meta.env.DEV) console.error('PDF generation error:', err?.message || err);
     throw err;
   }
 }

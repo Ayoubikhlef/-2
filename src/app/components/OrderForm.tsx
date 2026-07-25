@@ -146,7 +146,7 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
         origin: { y: 0.6 }
       });
     } catch (e) {
-      console.warn('Confetti error:', e);
+      if (import.meta.env.DEV) console.warn('Confetti error:', e);
     }
 
     const whatsappMessage = `${orderSummary}\n\n✅ ${t({ ar: 'سيتم التواصل معك قريباً', fr: 'Nous vous contacterons bientôt', en: 'We will contact you soon' })}`;
@@ -164,7 +164,7 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
     <section id="checkout" className="py-20 bg-gradient-to-b from-slate-50/80 to-white/70 dark:from-slate-900/30 dark:to-slate-950/70">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-center mb-12">
-          {t({ ar: '📦 إتمام الطلب', fr: '📦 Finaliser la commande', en: '📦 Checkout' })}
+          {t({ ar: 'إتمام الطلب', fr: 'Finaliser la commande', en: 'Checkout' })}
         </h2>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -280,12 +280,12 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
                 type="submit"
                 className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-bold text-lg hover:bg-primary/90 transition-all transform hover:scale-105 active:scale-95"
               >
-                {t({ ar: '✅ تأكيد الطلب', fr: '✅ Confirmer la commande', en: '✅ Confirm Order' })}
+                {t({ ar: 'تأكيد الطلب', fr: 'Confirmer la commande', en: 'Confirm Order' })}
               </button>
 
               {submitted && (
                 <div className="bg-green-500/10 border border-green-500/20 text-green-700 dark:text-green-400 p-6 rounded-2xl text-center font-semibold animate-fade-in flex flex-col items-center justify-center gap-4">
-                  <div className="text-lg">✅ {t({ ar: 'تم استقبال طلبك بنجاح!', fr: 'Votre commande a été reçue!', en: 'Order received successfully!' })}</div>
+                  <div className="text-lg">{t({ ar: 'تم استقبال طلبك بنجاح!', fr: 'Votre commande a été reçue!', en: 'Order received successfully!' })}</div>
                   {lastOrder && (
                     <button
                       type="button"
@@ -403,7 +403,7 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
                 </div>
 
                 <div className="bg-orange-500/10 border border-orange-500/20 rounded-lg p-3 text-xs text-orange-700 dark:text-orange-400">
-                  <p className="font-semibold mb-1">📦 {t({ ar: 'معلومات الشحن', fr: 'Infos livraison', en: 'Shipping Info' })}</p>
+                  <p className="font-semibold mb-1">{t({ ar: 'معلومات الشحن', fr: 'Infos livraison', en: 'Shipping Info' })}</p>
                   {t({
                     ar: 'توصيل إلى جميع ولايات الجزائر في 3-5 أيام عمل',
                     fr: 'Livraison à toutes les wilayas d\'Algérie en 3-5 jours',

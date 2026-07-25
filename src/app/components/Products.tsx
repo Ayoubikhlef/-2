@@ -16,6 +16,7 @@ import { ProductComparison } from './ProductComparison';
 import { ProductGallery } from './ProductGallery';
 import { SearchSuggestions } from './SearchSuggestions';
 import { ProductSuggestions } from './ProductSuggestions';
+import TiltedCard from './TiltedCard';
 
 function loadProducts() {
   return getStoredProducts(defaultProducts);
@@ -247,7 +248,7 @@ export function Products() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="mb-4">
-            {t({ ar: '🖥️ منتجات الإعلام الآلي', fr: '🖥️ Produits informatiques', en: '🖥️ IT Products' })}
+            {t({ ar: 'منتجات الإعلام الآلي', fr: 'Produits informatiques', en: 'IT Products' })}
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             {t({ ar: 'اختر منتجك، ثم قدّم طلبك فوراً.', fr: 'Choisissez votre produit et passez commande immédiatement.', en: 'Pick your product and order instantly.' })}
@@ -331,33 +332,41 @@ export function Products() {
             <div
               key={product.id}
               onClick={() => openProductDetails(product)}
-              className="group bg-card rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden border border-border/50 hover:border-primary/30 cursor-pointer relative"
+              className="group bg-card rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 border border-border/50 hover:border-primary/30 cursor-pointer relative"
             >
-              {product.salePrice && product.saleEnd && new Date(product.saleEnd) > new Date() && (
-                <div className="absolute top-3 left-3 z-10 flex flex-col gap-1">
-                  <div className="bg-red-500 text-white px-2.5 py-1 rounded-full text-xs font-bold shadow-lg">
-                    {language === 'ar' ? 'تخفيض' : language === 'fr' ? 'SOLDE' : 'SALE'}
+              <TiltedCard
+                imageSrc={product.image}
+                altText={language === 'ar' ? product.nameAr : product.nameEn}
+                captionText={`${product.price.toLocaleString()} د.ج`}
+                containerHeight="200px"
+                containerWidth="100%"
+                imageHeight="200px"
+                imageWidth="100%"
+                scaleOnHover={1.05}
+                rotateAmplitude={12}
+                showMobileWarning={false}
+                showTooltip={true}
+                displayOverlayContent={true}
+                overlayContent={
+                  <div className="relative w-full h-full">
+                    {product.salePrice && product.saleEnd && new Date(product.saleEnd) > new Date() && (
+                      <div className="absolute top-2 left-2 flex flex-col gap-1">
+                        <div className="bg-red-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold shadow-lg">
+                          {language === 'ar' ? 'تخفيض' : language === 'fr' ? 'SOLDE' : 'SALE'}
+                        </div>
+                      </div>
+                    )}
+                    <div className="absolute top-2 right-2 bg-primary/90 backdrop-blur-sm text-primary-foreground px-2.5 py-1 rounded-lg text-xs font-bold shadow-sm">
+                      {product.price.toLocaleString()} د.ج
+                    </div>
+                    {product.brand && (
+                      <div className="absolute bottom-2 left-2 bg-black/40 backdrop-blur-sm text-white/90 px-2 py-0.5 rounded-lg text-[10px] font-medium">
+                        {product.brand}
+                      </div>
+                    )}
                   </div>
-                  <FlashSaleTimer endDate={product.saleEnd} />
-                </div>
-              )}
-              <div className="relative h-48 overflow-hidden bg-gradient-to-br from-muted/50 to-muted">
-                <img
-                  src={product.image}
-                  alt={language === 'ar' ? product.nameAr : product.nameEn}
-                  loading="lazy"
-                  className="w-full h-full object-contain p-6 group-hover:scale-110 transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="absolute top-3 right-3 bg-primary/90 backdrop-blur-sm text-primary-foreground px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm">
-                  {product.price.toLocaleString()} د.ج
-                </div>
-                {product.brand && (
-                  <div className="absolute top-3 left-3 bg-black/40 backdrop-blur-sm text-white/90 px-2 py-1 rounded-lg text-[10px] font-medium">
-                    {product.brand}
-                  </div>
-                )}
-              </div>
+                }
+              />
 
               <div className="p-5">
                 <div className="flex items-start justify-between gap-2 mb-2">
@@ -514,7 +523,7 @@ export function Products() {
               {viewingProduct.relatedIds.length > 0 && (
                 <div className="mb-8">
                   <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                    {t({ ar: '🔄 منتجات قد تهمك', fr: '🔄 Vous pourriez aimer', en: '🔄 You may also like' })}
+                    {t({ ar: 'منتجات قد تهمك', fr: 'Vous pourriez aimer', en: 'You may also like' })}
                   </h3>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                     {products.filter(p => viewingProduct.relatedIds.includes(p.id) && !p.hidden).map((rel) => (
@@ -524,7 +533,7 @@ export function Products() {
                         className="group bg-card rounded-xl border border-border hover:border-primary/50 hover:shadow-lg transition-all p-3 text-center"
                       >
                         <div className="h-20 bg-muted rounded-lg mb-2 overflow-hidden">
-                          <img src={rel.image} alt="" className="w-full h-full object-contain p-2 bg-white/50 dark:bg-white/5" loading="lazy" />
+                          <img src={rel.image} alt={rel.nameEn || ''} className="w-full h-full object-contain p-2 bg-white/50 dark:bg-white/5" loading="lazy" />
                         </div>
                         <p className="text-xs font-semibold leading-tight mb-1 line-clamp-2">
                           {language === 'ar' ? rel.nameAr : language === 'fr' ? rel.nameFr : rel.nameEn}
@@ -579,7 +588,7 @@ export function Products() {
             onClick={(e) => e.stopPropagation()}
           >
             {submitted ? (
-              /* 🎉 Thank You Screen */
+              /* Thank You Screen */
               <div className="p-8 sm:p-12 text-center relative overflow-hidden">
                 {/* Decorative background */}
                 <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-emerald-500/5 to-transparent pointer-events-none" />
@@ -603,7 +612,7 @@ export function Products() {
                     transition={{ delay: 0.3 }}
                     className="text-4xl sm:text-5xl font-bold mb-4"
                   >
-                    {t({ ar: 'شكراً لك! 🙏', fr: 'Merci! 🙏', en: 'Thank you! 🙏' })}
+                    {t({ ar: 'شكراً لك!', fr: 'Merci!', en: 'Thank you!' })}
                   </motion.h3>
 
                   <motion.p
@@ -889,7 +898,7 @@ export function Products() {
                         <div className="rounded-2xl bg-card border border-border p-5 space-y-4">
                           <div className="flex items-center gap-4">
                             <div className="w-14 h-14 rounded-xl overflow-hidden bg-muted flex-shrink-0">
-                              <img src={selectedProduct.image} alt="" className="w-full h-full object-contain bg-white/50 dark:bg-white/5" loading="lazy" />
+                              <img src={selectedProduct.image} alt={selectedProduct.nameEn || ''} className="w-full h-full object-contain bg-white/50 dark:bg-white/5" loading="lazy" />
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="font-bold text-base truncate">{selectedName}</p>

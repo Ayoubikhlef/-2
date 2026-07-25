@@ -245,7 +245,7 @@ export function VisualSearch({ onClose }: { onClose: () => void }) {
           <div className="space-y-4">
             <div className="flex items-center gap-4">
               <div className="w-24 h-24 rounded-2xl overflow-hidden border border-border bg-muted flex-shrink-0">
-                <img src={image} alt="" className="w-full h-full object-cover" />
+                <img src={image} alt="Visual search image" className="w-full h-full object-cover" />
               </div>
               <div className="flex-1">
                 <p className="text-sm font-semibold mb-2">{t({ ar: 'الألوان السائدة', fr: 'Couleurs dominantes', en: 'Dominant colors' })}</p>
@@ -280,7 +280,7 @@ export function VisualSearch({ onClose }: { onClose: () => void }) {
                     {results.map((p) => (
                       <div key={p.id} className="rounded-xl border border-border bg-card p-3 hover:shadow-lg transition-all text-center">
                         <div className="w-full h-20 rounded-lg bg-muted overflow-hidden mb-2">
-                          <img src={p.image} alt="" className="w-full h-full object-contain" loading="lazy" />
+                          <img src={p.image} alt={p.nameEn || ''} className="w-full h-full object-contain" loading="lazy" />
                         </div>
                         <p className="text-xs font-semibold truncate">{language === 'ar' ? p.nameAr : language === 'fr' ? p.nameFr : p.nameEn}</p>
                         <p className="text-xs text-primary font-bold mt-1">{p.price.toLocaleString()} د.ج</p>

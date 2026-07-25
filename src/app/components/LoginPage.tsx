@@ -71,7 +71,7 @@ export function LoginPage({ onClose }: { onClose: () => void; standalone?: boole
               boxShadow: '0 0 20px rgba(251,191,36,.5), 0 0 40px rgba(251,191,36,.2)',
             }}
           >
-            <span style={{ fontSize: '24px' }}>💡</span>
+            <span style={{ fontSize: '18px', fontWeight: 'bold' }}>?</span>
           </button>
         </div>
 

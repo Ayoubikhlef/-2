@@ -1,6 +1,9 @@
 import { api } from './api';
 
+const isDev = import.meta.env.DEV;
+
 function log(module: string, level: 'info' | 'warn', msg: string, data?: any) {
+  if (!isDev) return;
   const line = `[${module}] ${msg}${data !== undefined ? ' ' + JSON.stringify(data) : ''}`;
   if (level === 'info') console.log(line);
   else console.warn(line);

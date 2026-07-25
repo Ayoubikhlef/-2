@@ -72,7 +72,7 @@ export function LoyaltyCard({ phone, name, amount }: { phone: string; name: stri
           origin: { y: 0.6 }
         });
       } catch (e) {
-        console.warn('Confetti error:', e);
+        if (import.meta.env.DEV) console.warn('Confetti error:', e);
       }
       setRecord(getLoyalty(phone));
     } else {

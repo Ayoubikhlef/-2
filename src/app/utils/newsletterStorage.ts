@@ -2,7 +2,10 @@ import { api } from './api';
 
 const STORAGE_KEY = 'ayoubtech-newsletter';
 
+const isDev = import.meta.env.DEV;
+
 function log(level: 'info' | 'warn' | 'error', msg: string, data?: any) {
+  if (!isDev) return;
   const prefix = `[Newsletter]`;
   const line = `${prefix} ${msg}${data !== undefined ? ' ' + JSON.stringify(data) : ''}`;
   if (level === 'info') console.log(line);

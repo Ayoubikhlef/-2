@@ -379,7 +379,7 @@ export function AIAssistant() {
                         {msg.products.map((p) => (
                           <div key={p.id} className={`flex items-center gap-2.5 rounded-xl p-2 ${msg.role === 'user' ? 'bg-white/10' : 'bg-muted/50'} hover:${msg.role === 'user' ? 'bg-white/15' : 'bg-muted'} transition-colors`}>
                             <div className="w-10 h-10 rounded-lg bg-background overflow-hidden flex-shrink-0">
-                              <img src={p.image} alt="" className="w-full h-full object-contain" />
+                              <img src={p.image} alt={p.nameEn || ''} className="w-full h-full object-contain" />
                             </div>
                             <div className="flex-1 min-w-0">
                               <p className="text-xs font-semibold truncate">
