@@ -91,7 +91,10 @@ function renderMarkdown(text: string): string {
   html = html.replace(/(?:^|\n)(<li.*<\/li>\n?)+/g, '<ol class="chat-ol">$&</ol>');
   html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" class="chat-link">$1</a>');
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, text, url) => {
+    const safe = url.replace(/^\s*javascript\s*:/i, '#').replace(/^\s*data\s*:/i, '#');
+    return `<a href="${safe}" target="_blank" rel="noopener" class="chat-link">${text}</a>`;
+  });
   html = html.replace(/\n/g, '<br>');
   html = html.replace(/(<br>)+<\/li>/g, '</li>');
   html = html.replace(/<li class="chat-li"><br>/g, '<li class="chat-li">');

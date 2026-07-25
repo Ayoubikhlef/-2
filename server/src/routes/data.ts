@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { prisma } from '../utils/prisma';
+import { requireAuth, requireRole, type AuthRequest } from '../middleware/auth';
 
 export const dataRouter = Router();
 
@@ -9,7 +10,7 @@ const saveSchema = z.object({
   value: z.any(),
 });
 
-dataRouter.post('/save', async (req: Request, res: Response) => {
+dataRouter.post('/save', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
     const { key, value } = saveSchema.parse(req.body);
     await prisma.setting.upsert({
@@ -28,7 +29,7 @@ dataRouter.post('/save', async (req: Request, res: Response) => {
   }
 });
 
-dataRouter.get('/:key', async (req: Request, res: Response) => {
+dataRouter.get('/:key', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
     const { key } = req.params;
     const setting = await prisma.setting.findUnique({ where: { key } });
@@ -42,7 +43,7 @@ dataRouter.get('/:key', async (req: Request, res: Response) => {
   }
 });
 
-dataRouter.delete('/:key', async (req: Request, res: Response) => {
+dataRouter.delete('/:key', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
     const { key } = req.params;
     await prisma.setting.delete({ where: { key } });

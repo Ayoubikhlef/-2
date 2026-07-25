@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { prisma } from '../utils/prisma';
+import { requireAuth, requireRole, type AuthRequest } from '../middleware/auth';
 
 export const paymentRouter = Router();
 
@@ -10,7 +11,7 @@ const initSchema = z.object({
   phone: z.string().optional(),
 });
 
-paymentRouter.post('/init', async (req: Request, res: Response) => {
+paymentRouter.post('/init', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
     const { orderId, method, phone } = initSchema.parse(req.body);
     const order = await prisma.$queryRaw<{ id: string; total: number; status: string; wilaya: string }[]>`SELECT id, total, status, wilaya FROM aos_orders WHERE id = ${orderId}`;
@@ -37,7 +38,7 @@ paymentRouter.post('/init', async (req: Request, res: Response) => {
   }
 });
 
-paymentRouter.post('/confirm', async (req: Request, res: Response) => {
+paymentRouter.post('/confirm', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
     const { paymentId } = z.object({ paymentId: z.string() }).parse(req.body);
     const order = await prisma.$queryRaw<{ id: string }[]>`SELECT id FROM aos_orders WHERE payment_id = ${paymentId}`;

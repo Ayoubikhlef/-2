@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { prisma } from '../utils/prisma';
 import { sendWhatsAppNotification } from '../services/whatsapp';
+import { requireAuth, requireRole, type AuthRequest } from '../middleware/auth';
 
 export const orderRouter = Router();
 
@@ -66,7 +67,7 @@ orderRouter.post('/', async (req: Request, res: Response) => {
   }
 });
 
-orderRouter.get('/', async (_req: Request, res: Response) => {
+orderRouter.get('/', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async (_req: AuthRequest, res: Response) => {
   try {
     const orders = await prisma.order.findMany({
       include: { items: true },
@@ -80,7 +81,7 @@ orderRouter.get('/', async (_req: Request, res: Response) => {
   }
 });
 
-orderRouter.patch('/:id/status', async (req: Request, res: Response) => {
+orderRouter.patch('/:id/status', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     const { status } = z.object({ status: z.enum(['new', 'processing', 'completed', 'cancelled']) }).parse(req.body);
@@ -102,7 +103,7 @@ orderRouter.patch('/:id/status', async (req: Request, res: Response) => {
   }
 });
 
-orderRouter.post('/delete', async (req: Request, res: Response) => {
+orderRouter.post('/delete', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.body;
     if (!id) return res.status(400).json({ error: 'Missing id' });
@@ -118,7 +119,7 @@ orderRouter.post('/delete', async (req: Request, res: Response) => {
   }
 });
 
-orderRouter.post('/clear-all', async (_req: Request, res: Response) => {
+orderRouter.post('/clear-all', requireAuth, requireRole('SUPER_ADMIN'), async (_req: AuthRequest, res: Response) => {
   try {
     const orders = await prisma.order.findMany({ select: { id: true } });
     const ids = orders.map(o => o.id);
@@ -132,7 +133,7 @@ orderRouter.post('/clear-all', async (_req: Request, res: Response) => {
   }
 });
 
-orderRouter.delete('/:id', async (req: Request, res: Response) => {
+orderRouter.delete('/:id', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
     await prisma.order.delete({ where: { id } });

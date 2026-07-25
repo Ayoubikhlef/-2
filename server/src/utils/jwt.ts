@@ -1,7 +1,13 @@
 import jwt from 'jsonwebtoken';
 
-const SECRET = process.env.JWT_SECRET || 'fallback-secret';
-const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'fallback-refresh';
+function requireEnv(name: string): string {
+  const val = process.env[name];
+  if (!val) throw new Error(`Missing required env var: ${name}`);
+  return val;
+}
+
+const SECRET = requireEnv('JWT_SECRET');
+const REFRESH_SECRET = requireEnv('JWT_REFRESH_SECRET');
 const EXPIRES_IN = process.env.JWT_EXPIRES_IN || '15m';
 const REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
 

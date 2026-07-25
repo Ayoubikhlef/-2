@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { prisma } from '../utils/prisma';
+import { requireAuth, requireRole, type AuthRequest } from '../middleware/auth';
 
 export const newsletterRouter = Router();
 
@@ -14,7 +15,7 @@ newsletterRouter.post('/', async (req: Request, res: Response) => {
   try {
     const { email } = subscribeSchema.parse(req.body);
     await prisma.$executeRaw`INSERT INTO aos_newsletter (email) VALUES (${email}) ON CONFLICT (email) DO NOTHING`;
-    console.log(`[Newsletter] Subscribed ${email}`);
+    console.log(`[Newsletter] Subscribed ${email.slice(0, 3)}***@${email.split('@')[1] || '***'}`);
     res.status(201).json({ subscribed: true, email });
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -25,7 +26,7 @@ newsletterRouter.post('/', async (req: Request, res: Response) => {
   }
 });
 
-newsletterRouter.get('/', async (_req: Request, res: Response) => {
+newsletterRouter.get('/', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async (_req: AuthRequest, res: Response) => {
   try {
     const subscribers = await prisma.$queryRaw`SELECT * FROM aos_newsletter ORDER BY created_at DESC`;
     console.log(`[Newsletter] Fetched subscribers`);

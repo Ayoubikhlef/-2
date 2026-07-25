@@ -16,8 +16,7 @@ export async function sendWhatsAppNotification(phone: string, customer: string, 
   const country = phoneClean.startsWith('213') ? phoneClean : `213${phoneClean.replace(/^0/, '')}`;
   const waUrl = `https://wa.me/${country}?text=${encodeURIComponent(arMsg)}`;
 
-  console.log(`[WhatsApp] Notification for ${phone}: order ${orderId} → ${status}`);
-  console.log(`[WhatsApp] Link: ${waUrl}`);
+  console.log(`[WhatsApp] Notification for ${phone.slice(0, 4)}****: order ${orderId.slice(0, 8)} → ${status}`);
 
   try {
     const webhookUrl = process.env.WHATSAPP_WEBHOOK_URL;

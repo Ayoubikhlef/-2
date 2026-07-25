@@ -7,7 +7,7 @@ export function initLive(httpServer: any) {
   io = new SocketServer(httpServer, {
     cors: {
       origin: (origin, cb) => {
-        if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+        if (!origin || allowedOrigins.includes(origin)) {
           cb(null, true);
         } else {
           cb(null, false);

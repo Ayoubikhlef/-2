@@ -19,12 +19,9 @@ import { RefreshCw, Trash2, ChevronDown, Phone, MapPin, Mail, DollarSign, Packag
 import { generateInvoice } from './InvoicePDF';
 import { toast } from 'sonner';
 import { isMaintenanceMode, setMaintenanceMode, getMaintenanceMessage, setMaintenanceMessage } from '../utils/maintenanceStorage';
-import { api } from '../utils/api';
+import { api, setAccessToken, setStoredUser } from '../utils/api';
 import { syncAllFromServer, getSyncStatus, getLastSyncTime } from '../utils/globalSync';
 import { motion, AnimatePresence } from 'motion/react';
-
-const ADMIN_USERNAME = import.meta.env.VITE_ADMIN_USERNAME || 'hydra';
-const ADMIN_PASSWORD = import.meta.env.VITE_ADMIN_PASSWORD || 'hydra';
 
 const statusConfig: Record<OrderStatus, { label: Record<string, string>; color: string; icon: string }> = {
   new: {
@@ -115,7 +112,7 @@ const darkButton: React.CSSProperties = {
 export function Admin() {
   const { t, language } = useLanguage();
   const [showAdmin, setShowAdmin] = useState(() => window.location.hash === '#admin');
-  const [isAuthenticated, setIsAuthenticated] = useState(() => sessionStorage.getItem('admin_auth') === 'true');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState(false);
@@ -156,20 +153,28 @@ export function Admin() {
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+    try {
+      const data = await api.auth.login({ email: username, password });
+      const userRole = data.user?.role;
+      if (userRole !== 'SUPER_ADMIN' && userRole !== 'ADMIN') {
+        setLoginError(true);
+        return;
+      }
+      setAccessToken(data.accessToken);
+      setStoredUser(data.user);
       setIsAuthenticated(true);
       setLoginError(false);
-      sessionStorage.setItem('admin_auth', 'true');
-    } else {
+    } catch {
       setLoginError(true);
     }
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
-    sessionStorage.removeItem('admin_auth');
+    setAccessToken(null);
+    setStoredUser(null);
   };
 
   const toggleLamp = () => {

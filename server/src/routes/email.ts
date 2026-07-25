@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import nodemailer from 'nodemailer';
 import { prisma } from '../utils/prisma';
+import { requireAuth, requireRole, type AuthRequest } from '../middleware/auth';
 
 export const emailRouter = Router();
 
@@ -23,7 +24,7 @@ const smtpConfig = {
 
 const isConfigured = () => !!(smtpConfig.host && smtpConfig.auth.user && smtpConfig.auth.pass);
 
-emailRouter.post('/send', async (req: Request, res: Response) => {
+emailRouter.post('/send', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
     const { subject, body, testEmail } = sendSchema.parse(req.body);
 

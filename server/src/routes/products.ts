@@ -2,6 +2,7 @@ import { Router, Response } from 'express';
 import { z } from 'zod';
 import { prisma } from '../utils/prisma';
 import { syncProducts, isReady } from '../services/rag';
+import { requireAuth, requireRole, type AuthRequest } from '../middleware/auth';
 
 export const productRouter = Router();
 
@@ -43,7 +44,7 @@ const syncSchema = z.object({
 
 const SETTINGS_KEY_PRODUCTS = 'aos_products';
 
-productRouter.post('/sync', async (req, res: Response) => {
+productRouter.post('/sync', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
     const { products } = syncSchema.parse(req.body);
     // Persist products as JSON in the Setting model

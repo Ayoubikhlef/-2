@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { Pool } from 'pg';
+import { requireAuth, requireRole, type AuthRequest } from '../middleware/auth';
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
@@ -19,7 +20,7 @@ const redeemPointsSchema = z.object({
 
 pool.query(`CREATE TABLE IF NOT EXISTS aos_loyalty (customer_phone TEXT PRIMARY KEY, customer_name TEXT NOT NULL, points INTEGER DEFAULT 0, total_spent REAL DEFAULT 0, updated_at TIMESTAMPTZ DEFAULT NOW())`).catch(() => {});
 
-loyaltyRouter.post('/add', async (req: Request, res: Response) => {
+loyaltyRouter.post('/add', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
     const { phone, name, amount } = addPointsSchema.parse(req.body);
     const { rows } = await pool.query(
@@ -30,7 +31,7 @@ loyaltyRouter.post('/add', async (req: Request, res: Response) => {
        RETURNING *`,
       [phone, name, amount]
     );
-    console.log(`[Loyalty] Added ${amount} points for ${phone}`);
+    console.log(`[Loyalty] Added ${amount} points for ${phone.slice(0, 4)}****`);
     res.json({
       customerPhone: rows[0].customer_phone,
       customerName: rows[0].customer_name,
@@ -45,7 +46,7 @@ loyaltyRouter.post('/add', async (req: Request, res: Response) => {
   }
 });
 
-loyaltyRouter.post('/redeem', async (req: Request, res: Response) => {
+loyaltyRouter.post('/redeem', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
     const { phone, points } = redeemPointsSchema.parse(req.body);
     const { rows: existing } = await pool.query('SELECT points FROM aos_loyalty WHERE customer_phone = $1', [phone]);
@@ -57,7 +58,7 @@ loyaltyRouter.post('/redeem', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Insufficient points', available: currentPoints });
     }
     await pool.query('UPDATE aos_loyalty SET points = points - $1, updated_at = NOW() WHERE customer_phone = $2', [points, phone]);
-    console.log(`[Loyalty] Redeemed ${points} points for ${phone}`);
+    console.log(`[Loyalty] Redeemed ${points} points for ${phone.slice(0, 4)}****`);
     res.json({ phone, pointsRedeemed: points, remaining: currentPoints - points });
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -75,7 +76,7 @@ loyaltyRouter.get('/:phone', async (req: Request, res: Response) => {
     if (rows.length === 0) {
       return res.status(404).json({ error: 'Loyalty record not found' });
     }
-    console.log(`[Loyalty] Fetched record for ${phone}`);
+    console.log(`[Loyalty] Fetched record for ${phone.slice(0, 4)}****`);
     res.json({
       customerPhone: rows[0].customer_phone,
       customerName: rows[0].customer_name,

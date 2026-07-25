@@ -1,5 +1,7 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import http from 'http';
@@ -19,12 +21,13 @@ import { initRAG } from './services/rag';
 
 const app = express();
 const server = http.createServer(app);
-const PORT = process.env.PORT || 3001;
+const PORT = Number(process.env.PORT) || 3001;
 const ALLOWED_ORIGINS = (process.env.CORS_ORIGIN || 'http://localhost:5173,https://aos-tech-store.vercel.app').split(',');
 
+app.use(helmet());
 app.use(cors({
   origin: (origin, cb) => {
-    if (!origin || ALLOWED_ORIGINS.includes(origin) || ALLOWED_ORIGINS.includes('*')) {
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
       cb(null, true);
     } else {
       cb(null, false);
@@ -34,6 +37,12 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(cookieParser());
+
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: { error: 'Too many attempts, try again later' } });
+const generalLimiter = rateLimit({ windowMs: 60 * 1000, max: 60, message: { error: 'Too many requests' } });
+app.use('/api/auth', authLimiter);
+app.use('/api/newsletter', generalLimiter);
+app.use('/api/chat', generalLimiter);
 
 app.use('/api/auth', authRouter);
 app.use('/api/chat', chatRouter);
@@ -65,8 +74,8 @@ initLive(server);
 initRAG();
 
 server.listen(PORT, '0.0.0.0', () => {
-  const networkInterfaces = Object.values(require('os').networkInterfaces()).flat();
-  const ip = networkInterfaces.find((i: any) => i.family === 'IPv4' && !i.internal)?.address || 'localhost';
+  const networkInterfaces: any[] = Object.values(require('os').networkInterfaces()).flat();
+  const ip: string = networkInterfaces.find((i: any) => i.family === 'IPv4' && !i.internal)?.address || 'localhost';
   console.log(`[AOS Server] Running on:`);
   console.log(`  Local:   http://localhost:${PORT}`);
   console.log(`  Network: http://${ip}:${PORT}`);
