@@ -24,6 +24,7 @@ import { NotFound } from './components/NotFound';
 import { SkeletonCard } from './components/SkeletonCard';
 import { OrderTracking } from './components/OrderTracking';
 import { startAutoSync } from './utils/globalSync';
+import { getSiteSettings } from './utils/siteSettingsStorage';
 import { ParticlesBg } from './components/ParticlesBg';
 
 const Admin = lazy(() => import('./components/Admin').then(m => ({ default: m.Admin })));
@@ -112,7 +113,7 @@ export default function App() {
             </div>
             <div className="text-left">
               <p className="text-xs text-blue-300/60">{t('للتواصل', 'Contact', 'Contact')}</p>
-              <a href="tel:0674113290" className="text-sm font-semibold text-white hover:text-amber-400 transition-colors">0674 11 32 90</a>
+              <a href={`tel:${getSiteSettings().contact.phone}`} className="text-sm font-semibold text-white hover:text-amber-400 transition-colors">{getSiteSettings().contact.phoneDisplay}</a>
             </div>
           </div>
         </div>

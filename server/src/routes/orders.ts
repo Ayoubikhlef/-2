@@ -24,13 +24,40 @@ const createOrderSchema = z.object({
   items: z.array(orderItemSchema).min(1),
   total: z.number().nonnegative(),
   source: z.enum(['form', 'quick-order', 'service-booking']),
+  discountCode: z.string().optional(),
 });
 
 orderRouter.post('/', async (req: Request, res: Response) => {
   try {
     const data = createOrderSchema.parse(req.body);
 
-    const recalculatedTotal = data.items.reduce((sum, item) => sum + item.total, 0);
+    let finalTotal = data.items.reduce((sum, item) => sum + item.total, 0);
+    let discountAmount = 0;
+    let appliedCode: string | undefined;
+
+    if (data.discountCode) {
+      const setting = await prisma.setting.findUnique({ where: { key: 'aos_coupons' } });
+      if (setting) {
+        const coupons = JSON.parse(setting.value);
+        const coupon = Array.isArray(coupons) ? coupons.find(
+          (c: any) => c.code?.toLowerCase() === data.discountCode?.toLowerCase() && c.active
+        ) : null;
+        if (!coupon) {
+          return res.status(400).json({ error: 'Invalid or inactive coupon code' });
+        }
+        if (coupon.expiryDate && new Date(coupon.expiryDate) < new Date()) {
+          return res.status(400).json({ error: 'Coupon has expired' });
+        }
+        if (coupon.minOrder > 0 && finalTotal < coupon.minOrder) {
+          return res.status(400).json({ error: `Minimum order amount is ${coupon.minOrder}` });
+        }
+        discountAmount = coupon.type === 'percentage'
+          ? Math.round(finalTotal * (coupon.value / 100))
+          : Math.min(coupon.value, finalTotal);
+        finalTotal -= discountAmount;
+        appliedCode = coupon.code;
+      }
+    }
 
     const order = await prisma.order.create({
       data: {
@@ -41,9 +68,10 @@ orderRouter.post('/', async (req: Request, res: Response) => {
         municipality: data.municipality,
         address: data.address,
         note: data.note || '',
-        total: recalculatedTotal,
+        total: finalTotal,
         status: 'new',
         source: data.source,
+        paymentMethod: appliedCode ? ('discount:' + appliedCode) : undefined,
         items: {
           create: data.items.map(item => ({
             name: item.name,
@@ -56,7 +84,7 @@ orderRouter.post('/', async (req: Request, res: Response) => {
       include: { items: true },
     });
 
-    console.log(`[Orders] Created order ${order.id} for ${order.customer.slice(0, 4)}*** (${order.total} DZD)`);
+    console.log(`[Orders] Created order ${order.id} (${order.total} DZD)`);
     res.status(201).json(order);
   } catch (err) {
     if (err instanceof z.ZodError) {

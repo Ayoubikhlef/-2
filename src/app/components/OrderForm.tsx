@@ -8,6 +8,7 @@ import { Mail, Phone, MapPin, DollarSign, Banknote, Percent, FileText } from 'lu
 import { toast } from 'sonner';
 import { formatPrice } from '../lib/utils';
 import { DeliveryCalculator } from './DeliveryCalculator';
+import { getSiteSettings } from '../utils/siteSettingsStorage';
 import confetti from 'canvas-confetti';
 import { generateInvoice } from './InvoicePDF';
 
@@ -149,7 +150,7 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
     }
 
     const whatsappMessage = `${orderSummary}\n\n✅ ${t({ ar: 'سيتم التواصل معك قريباً', fr: 'Nous vous contacterons bientôt', en: 'We will contact you soon' })}`;
-    const whatsappNumber = '+213674113290';
+    const whatsappNumber = getSiteSettings().contact.phoneInternational;
     window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`, '_blank');
 
     setSubmitted(true);

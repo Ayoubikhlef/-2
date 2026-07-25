@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { Pool } from 'pg';
 import { requireAuth, requireRole, type AuthRequest } from '../middleware/auth';
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
 
 export const loyaltyRouter = Router();
 
