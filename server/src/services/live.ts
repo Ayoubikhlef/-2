@@ -3,7 +3,7 @@ import { Server as SocketServer } from 'socket.io';
 let io: SocketServer | null = null;
 
 export function initLive(httpServer: any) {
-  const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173,https://aos-tech-store.vercel.app,https://aostech.vercel.app').split(',');
+  const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173,https://aostech.vercel.app').split(',');
   io = new SocketServer(httpServer, {
     cors: {
       origin: (origin, cb) => {
