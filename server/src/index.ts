@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
 import path from 'path';
@@ -18,34 +19,42 @@ import { paymentRouter } from './routes/payment';
 import { errorHandler } from './middleware/errorHandler';
 import { initLive } from './services/live';
 import { initRAG } from './services/rag';
+import { prisma } from './utils/prisma';
 
 const app = express();
 const server = http.createServer(app);
 const PORT = Number(process.env.PORT) || 3001;
 const ALLOWED_ORIGINS = (process.env.CORS_ORIGIN || 'http://localhost:5173,https://aostech.vercel.app').split(',');
 
-app.use(helmet({ strictTransportSecurity: { maxAge: 31536000, includeSubDomains: true, preload: true } }));
+app.use(helmet({
+  strictTransportSecurity: { maxAge: 31536000, includeSubDomains: true, preload: true },
+  contentSecurityPolicy: false,
+}));
 app.use(cors({
   origin: (origin, cb) => {
-    if (!origin || ALLOWED_ORIGINS.includes(origin)) {
-      cb(null, true);
-    } else {
-      cb(null, false);
-    }
+    if (!origin || ALLOWED_ORIGINS.includes(origin)) cb(null, true);
+    else cb(null, false);
   },
   credentials: true,
 }));
-app.use(express.json({ limit: '10mb' }));
+app.use(compression({ level: 6 }));
+app.use(express.json({ limit: '1mb' }));
 app.use(cookieParser());
 
-const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: { error: 'Too many attempts, try again later' } });
-const generalLimiter = rateLimit({ windowMs: 60 * 1000, max: 60, message: { error: 'Too many requests' } });
-const strictLimiter = rateLimit({ windowMs: 60 * 1000, max: 10, message: { error: 'Too many requests' } });
+app.use((_req, res, next) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Surrogate-Control', 'no-store');
+  next();
+});
+
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: { error: 'Too many attempts' }, validate: { xForwardedForHeader: false } });
+const orderLimiter = rateLimit({ windowMs: 60 * 1000, max: 30, message: { error: 'Too many requests' }, validate: { xForwardedForHeader: false } });
+const generalLimiter = rateLimit({ windowMs: 60 * 1000, max: 120, message: { error: 'Too many requests' }, validate: { xForwardedForHeader: false } });
 app.use('/api/auth', authLimiter);
 app.use('/api/newsletter', generalLimiter);
 app.use('/api/chat', generalLimiter);
-app.use('/api/orders', strictLimiter);
-app.use('/api/loyalty', strictLimiter);
+app.use('/api/orders', orderLimiter);
+app.use('/api/loyalty', orderLimiter);
 app.use('/api/reviews', generalLimiter);
 
 app.use('/api/auth', authRouter);
@@ -60,13 +69,13 @@ app.use('/api/email', emailRouter);
 app.use('/api/payment', paymentRouter);
 
 app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({ status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString() });
 });
 
 const distPath = path.resolve(__dirname, '../../dist');
 const fs = require('fs');
 if (fs.existsSync(distPath)) {
-  app.use(express.static(distPath));
+  app.use(express.static(distPath, { maxAge: '1h', etag: true, lastModified: true }));
   app.get('*', (_req, res) => {
     res.sendFile(path.join(distPath, 'index.html'));
   });
@@ -74,13 +83,20 @@ if (fs.existsSync(distPath)) {
 
 app.use(errorHandler);
 
+async function initDb() {
+  try {
+    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS idx_orders_created ON aos_orders (created_at DESC)`;
+    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS idx_orders_status ON aos_orders (status)`;
+    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS idx_newsletter_created ON aos_newsletter (created_at DESC)`;
+  } catch { /* table may not exist yet */ }
+}
+
 initLive(server);
 initRAG();
+initDb();
 
 server.listen(PORT, '0.0.0.0', () => {
   const networkInterfaces: any[] = Object.values(require('os').networkInterfaces()).flat();
   const ip: string = networkInterfaces.find((i: any) => i.family === 'IPv4' && !i.internal)?.address || 'localhost';
-  console.log(`[AOS Server] Running on:`);
-  console.log(`  Local:   http://localhost:${PORT}`);
-  console.log(`  Network: http://${ip}:${PORT}`);
+  console.log(`[AOS Server] Running on http://localhost:${PORT}`);
 });

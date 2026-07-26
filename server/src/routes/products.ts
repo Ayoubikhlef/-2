@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '../utils/prisma';
 import { syncProducts, isReady } from '../services/rag';
 import { requireAuth, requireRole, type AuthRequest } from '../middleware/auth';
+import { getCached, setCache, clearCache } from '../utils/cache';
 
 export const productRouter = Router();
 
@@ -53,7 +54,7 @@ productRouter.post('/sync', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), as
       update: { value: JSON.stringify(products) },
       create: { key: SETTINGS_KEY_PRODUCTS, value: JSON.stringify(products) },
     });
-    // Also sync to RAG for AI search
+    clearCache('products');
     await syncProducts(products);
     res.json({ ok: true, indexed: products.length });
   } catch (err) {
@@ -67,11 +68,16 @@ productRouter.post('/sync', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), as
 
 productRouter.get('/', async (_req, res: Response) => {
   try {
+    const cached = getCached<{ products: any[] }>('products');
+    if (cached) return res.json(cached);
+
     const setting = await prisma.setting.findUnique({ where: { key: SETTINGS_KEY_PRODUCTS } });
     if (!setting) {
       return res.json({ products: [] });
     }
-    res.json({ products: JSON.parse(setting.value) });
+    const data = { products: JSON.parse(setting.value) };
+    setCache('products', data, 30_000);
+    res.json(data);
   } catch (err) {
     console.error('[Products Fetch Error]', err);
     res.status(500).json({ error: 'Failed to fetch products' });

@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { prisma } from '../utils/prisma';
 import { requireAuth, requireRole, type AuthRequest } from '../middleware/auth';
+import { getCached, setCache, clearCache } from '../utils/cache';
 
 export const dataRouter = Router();
 
@@ -13,6 +14,8 @@ const saveSchema = z.object({
 dataRouter.post('/save', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
     const { key, value } = saveSchema.parse(req.body);
+    clearCache(`data:${key}`);
+    clearCache(`data:all`);
     await prisma.setting.upsert({
       where: { key },
       update: { value: JSON.stringify(value) },
@@ -32,11 +35,17 @@ dataRouter.post('/save', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async
 dataRouter.get('/:key', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
     const { key } = req.params;
+    const cacheKey = `data:${key}`;
+    const cached = getCached<{ value: any }>(cacheKey);
+    if (cached) return res.json(cached);
+
     const setting = await prisma.setting.findUnique({ where: { key } });
     if (!setting) {
       return res.json({ value: null });
     }
-    res.json({ value: JSON.parse(setting.value) });
+    const data = { value: JSON.parse(setting.value) };
+    setCache(cacheKey, data, 30_000);
+    res.json(data);
   } catch (err) {
     console.error('[Data] Fetch error:', err);
     res.status(500).json({ error: 'Failed to fetch data' });
