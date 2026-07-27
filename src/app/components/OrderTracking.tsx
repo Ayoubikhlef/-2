@@ -234,20 +234,8 @@ export function OrderTracking() {
     const normalized = id.replace(/^#/, '').trim().toLowerCase();
 
     try {
-      const orders = await api.orders.list();
-      const found = orders.find((o: any) => {
-        const oid = (o.id || '').toLowerCase();
-        return oid === normalized || oid.startsWith(normalized);
-      });
-      if (found) {
-        setOrder(found as OrderRecord);
-      } else {
-        toast.error(t({
-          ar: 'لم يتم العثور على الطلب. تحقق من الرقم وحاول مرة أخرى.',
-          fr: 'Commande introuvable. Vérifiez le numéro et réessayez.',
-          en: 'Order not found. Check the ID and try again.',
-        }));
-      }
+      const found = await api.get<OrderRecord>(`/orders/track/${encodeURIComponent(normalized)}`);
+      setOrder(found);
     } catch {
       toast.error(t({
         ar: 'فشل الاتصال بالخادم. تحقق من اتصالك بالإنترنت.',

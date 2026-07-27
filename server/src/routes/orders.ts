@@ -95,6 +95,21 @@ orderRouter.post('/', async (req: Request, res: Response) => {
   }
 });
 
+orderRouter.get('/track/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const order = await prisma.order.findUnique({
+      where: { id },
+      include: { items: true },
+    });
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    res.json(order);
+  } catch (err) {
+    console.error('[Orders] Track error:', err);
+    res.status(500).json({ error: 'Failed to fetch order' });
+  }
+});
+
 orderRouter.get('/', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async (_req: AuthRequest, res: Response) => {
   try {
     const orders = await prisma.order.findMany({
