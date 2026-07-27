@@ -190,7 +190,9 @@ export function Admin() {
   };
 
   const loadOrders = useCallback(async () => {
-    setOrders(await loadOrdersFromServer());
+    // Load local orders immediately, then try server in background
+    setOrders(getOrders());
+    loadOrdersFromServer().then(setOrders).catch(() => {});
   }, []);
 
   const handleRefresh = useCallback(async () => {
@@ -199,8 +201,8 @@ export function Admin() {
       api.syncProducts(getStoredProducts(defaultProducts)).catch(() => {});
       api.data.save('aos_services', getStoredServices(defaultServices)).catch(() => {});
       await syncAllFromServer();
-      const ordersData = await loadOrdersFromServer();
-      setOrders(ordersData);
+      setOrders(getOrders());
+      loadOrdersFromServer().then(setOrders).catch(() => {});
       setManageProducts(getStoredProducts(defaultProducts));
       setManageServices(getStoredServices(defaultServices));
       toast.success(t({ ar: 'تم تحديث جميع البيانات', fr: 'Toutes les données actualisées', en: 'All data refreshed' }));
@@ -218,6 +220,7 @@ export function Admin() {
     setManageServices(getStoredServices(defaultServices));
     const interval = setInterval(loadOrders, 30000);
     const onChanged = () => {
+      setOrders(getOrders());
       setManageProducts(getStoredProducts(defaultProducts));
       setManageServices(getStoredServices(defaultServices));
     };
