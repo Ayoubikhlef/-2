@@ -1,6 +1,5 @@
 node_modules/
 dist/
-server/dist/
 **/*.db
 **/*.db-journal
 .env
