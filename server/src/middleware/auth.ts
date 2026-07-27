@@ -9,25 +9,25 @@ export interface AuthRequest extends Request {
 }
 
 export async function requireAuth(req: AuthRequest, _res: Response, next: NextFunction) {
-  const header = req.headers.authorization;
-  if (!header?.startsWith('Bearer ')) throw new Unauthorized('No token provided');
-
   try {
+    const header = req.headers.authorization;
+    if (!header?.startsWith('Bearer ')) return next(new Unauthorized('No token provided'));
+
     const payload = verifyAccessToken(header.slice(7));
     const user = await prisma.user.findUnique({ where: { id: payload.userId }, select: { isActive: true } });
-    if (!user || !user.isActive) throw new Unauthorized('Account is deactivated');
+    if (!user || !user.isActive) return next(new Unauthorized('Account is deactivated'));
     req.userId = payload.userId;
     req.userRole = payload.role;
     next();
   } catch {
-    throw new Unauthorized('Invalid or expired token');
+    next(new Unauthorized('Invalid or expired token'));
   }
 }
 
 export function requireRole(...roles: string[]) {
   return (req: AuthRequest, _res: Response, next: NextFunction) => {
     if (!req.userRole || !roles.includes(req.userRole)) {
-      throw new Unauthorized('Insufficient permissions');
+      return next(new Unauthorized('Insufficient permissions'));
     }
     next();
   };
