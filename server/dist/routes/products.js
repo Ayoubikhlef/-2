@@ -69,13 +69,19 @@ exports.productRouter.get('/', async (_req, res) => {
         const cached = (0, cache_1.getCached)('products');
         if (cached)
             return res.json(cached);
-        const setting = await prisma_1.prisma.setting.findUnique({ where: { key: SETTINGS_KEY_PRODUCTS } });
-        if (!setting) {
-            return res.json({ products: [] });
+        try {
+            const setting = await prisma_1.prisma.setting.findUnique({ where: { key: SETTINGS_KEY_PRODUCTS } });
+            if (!setting) {
+                return res.json({ products: [] });
+            }
+            const data = { products: JSON.parse(setting.value) };
+            (0, cache_1.setCache)('products', data, 30_000);
+            res.json(data);
         }
-        const data = { products: JSON.parse(setting.value) };
-        (0, cache_1.setCache)('products', data, 30_000);
-        res.json(data);
+        catch (prismaErr) {
+            console.error('[Products Prisma Error]', prismaErr.message, prismaErr.code);
+            res.status(500).json({ error: 'Failed to fetch products', detail: prismaErr.message, code: prismaErr.code });
+        }
     }
     catch (err) {
         console.error('[Products Fetch Error]', err);
