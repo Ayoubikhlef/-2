@@ -4,6 +4,7 @@ import { Package, Truck, CheckCircle, XCircle, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '../contexts/LanguageContext';
 import { api } from '../utils/api';
+import { getOrders } from '../utils/orderStorage';
 import type { OrderRecord, OrderStatus } from '../utils/orderStorage';
 
 const statusFlow: OrderStatus[] = ['new', 'processing', 'completed'];
@@ -233,6 +234,19 @@ export function OrderTracking() {
     // Normalize: strip # prefix, trim, lowercase
     const normalized = id.replace(/^#/, '').trim().toLowerCase();
 
+    // Try local storage first
+    const localOrders = getOrders();
+    const local = localOrders.find(o => {
+      const oid = (o.id || '').toLowerCase();
+      return oid === normalized || oid.startsWith(normalized);
+    });
+    if (local) {
+      setOrder(local);
+      setLoading(false);
+      return;
+    }
+
+    // Fallback to server
     try {
       const found = await api.get<OrderRecord>(`/orders/track/${encodeURIComponent(normalized)}`);
       setOrder(found);
