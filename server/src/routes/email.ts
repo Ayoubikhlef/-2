@@ -40,7 +40,7 @@ emailRouter.post('/send', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), asyn
     if (testEmail) {
       recipients = [testEmail];
     } else {
-      const rows = await prisma.$queryRaw<{ email: string }[]>`SELECT email FROM aos_newsletter`;
+      const rows = await prisma.newsletterSubscriber.findMany({ select: { email: true } });
       recipients = rows.map(r => r.email);
     }
 

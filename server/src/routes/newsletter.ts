@@ -9,12 +9,14 @@ const subscribeSchema = z.object({
   email: z.string().email(),
 });
 
-prisma.$executeRaw`CREATE TABLE IF NOT EXISTS aos_newsletter (email TEXT PRIMARY KEY, created_at TIMESTAMPTZ DEFAULT NOW())`.catch(() => {});
-
 newsletterRouter.post('/', async (req: Request, res: Response) => {
   try {
     const { email } = subscribeSchema.parse(req.body);
-    await prisma.$executeRaw`INSERT INTO aos_newsletter (email) VALUES (${email}) ON CONFLICT (email) DO NOTHING`;
+    await prisma.newsletterSubscriber.upsert({
+      where: { email },
+      update: {},
+      create: { email },
+    });
     console.log(`[Newsletter] Subscribed ${email.slice(0, 3)}***@${email.split('@')[1] || '***'}`);
     res.status(201).json({ subscribed: true, email });
   } catch (err) {
@@ -28,8 +30,10 @@ newsletterRouter.post('/', async (req: Request, res: Response) => {
 
 newsletterRouter.get('/', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async (_req: AuthRequest, res: Response) => {
   try {
-    const subscribers = await prisma.$queryRaw`SELECT * FROM aos_newsletter ORDER BY created_at DESC`;
-    console.log(`[Newsletter] Fetched subscribers`);
+    const subscribers = await prisma.newsletterSubscriber.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+    console.log(`[Newsletter] Fetched ${subscribers.length} subscribers`);
     res.json(subscribers);
   } catch (err) {
     console.error('[Newsletter] Fetch error:', err);

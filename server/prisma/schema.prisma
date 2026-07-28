@@ -174,4 +174,11 @@ model Setting {
   value String
 }
 
+model NewsletterSubscriber {
+  email     String   @id
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("aos_newsletter")
+}
+
 

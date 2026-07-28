@@ -39,7 +39,7 @@ exports.emailRouter.post('/send', auth_1.requireAuth, (0, auth_1.requireRole)('S
             recipients = [testEmail];
         }
         else {
-            const rows = await prisma_1.prisma.$queryRaw `SELECT email FROM aos_newsletter`;
+            const rows = await prisma_1.prisma.newsletterSubscriber.findMany({ select: { email: true } });
             recipients = rows.map(r => r.email);
         }
         if (recipients.length === 0) {
