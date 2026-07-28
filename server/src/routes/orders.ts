@@ -14,6 +14,7 @@ const orderItemSchema = z.object({
 });
 
 const createOrderSchema = z.object({
+  id: z.string().optional(),
   customer: z.string().min(1),
   phone: z.string().min(1),
   email: z.string().optional(),
@@ -61,6 +62,7 @@ orderRouter.post('/', async (req: Request, res: Response) => {
 
     const order = await prisma.order.create({
       data: {
+        id: data.id || undefined,
         customer: data.customer,
         phone: data.phone,
         email: data.email || '',

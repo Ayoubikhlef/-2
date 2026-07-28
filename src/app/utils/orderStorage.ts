@@ -117,12 +117,13 @@ export async function saveOrder(order: Omit<OrderRecord, 'id' | 'createdAt' | 's
 
   dispatchChange();
 
-  api.orders.create({ ...order, id: record.id })
-    .then(() => {
-      log('info', `Order ${record.id} synced to server`);
-      markSynced(record.id);
-    })
-    .catch((err: any) => log('warn', `Server sync failed for order ${record.id}`, err?.message));
+  try {
+    await api.orders.create({ ...order, id: record.id });
+    log('info', `Order ${record.id} synced to server`);
+    markSynced(record.id);
+  } catch (err: any) {
+    log('warn', `Server sync failed for order ${record.id}`, err?.message);
+  }
 
   return record;
 }
@@ -204,7 +205,13 @@ export async function loadOrdersFromServer(): Promise<OrderRecord[]> {
     const localOrders = getOrders();
     const merged = [...serverOrders as OrderRecord[]];
     for (const local of localOrders) {
-      if (!merged.some(m => m.id === local.id)) {
+      const matchById = merged.some(m => m.id === local.id);
+      const matchByContent = merged.some(m =>
+        m.phone === local.phone &&
+        m.total === local.total &&
+        m.customer === local.customer
+      );
+      if (!matchById && !matchByContent) {
         merged.push(local);
       }
     }

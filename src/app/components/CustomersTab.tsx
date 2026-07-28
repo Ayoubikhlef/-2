@@ -1,7 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { getOrders } from '../utils/orderStorage';
-import { Search, Phone, Mail, ShoppingBag, DollarSign, Calendar, ChevronDown, ChevronUp, Download, AlertTriangle, FileText, Users } from 'lucide-react';
+import { getOrders, loadOrdersFromServer } from '../utils/orderStorage';
+import { Search, Phone, Mail, ShoppingBag, DollarSign, Calendar, ChevronDown, ChevronUp, Download, AlertTriangle, FileText, Users, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface CustomerInfo {
@@ -19,8 +19,16 @@ export function CustomersTab() {
   const [search, setSearch] = useState('');
   const [expandedPhone, setExpandedPhone] = useState<string | null>(null);
   const [noteInput, setNoteInput] = useState<Record<string, string>>({});
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  const orders = useMemo(() => getOrders(), []);
+  const orders = useMemo(() => getOrders(), [refreshKey]);
+
+  useEffect(() => {
+    loadOrdersFromServer();
+    const onChanged = () => setRefreshKey(k => k + 1);
+    window.addEventListener('aos:data-changed', onChanged);
+    return () => window.removeEventListener('aos:data-changed', onChanged);
+  }, []);
 
   const customers = useMemo(() => {
     const map = new Map<string, CustomerInfo>();
