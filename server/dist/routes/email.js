@@ -15,14 +15,16 @@ const sendSchema = zod_1.z.object({
     body: zod_1.z.string().min(1).max(50000),
     testEmail: zod_1.z.string().email().optional(),
 });
+const smtpPass = (process.env.SMTP_PASS || '').replace(/\s/g, '');
 const smtpConfig = {
     host: process.env.SMTP_HOST || '',
     port: parseInt(process.env.SMTP_PORT || '587'),
     secure: process.env.SMTP_SECURE === 'true',
     auth: {
         user: process.env.SMTP_USER || '',
-        pass: process.env.SMTP_PASS || '',
+        pass: smtpPass,
     },
+    connectionTimeout: 10000,
 };
 const isConfigured = () => !!(smtpConfig.host && smtpConfig.auth.user && smtpConfig.auth.pass);
 exports.emailRouter.post('/send', auth_1.requireAuth, (0, auth_1.requireRole)('SUPER_ADMIN', 'ADMIN'), async (req, res) => {
