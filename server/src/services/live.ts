@@ -1,14 +1,14 @@
 import { Server as SocketServer } from 'socket.io';
 import { verifyAccessToken } from '../utils/jwt';
+import { isOriginAllowed } from '../utils/cors';
 
 let io: SocketServer | null = null;
 
 export function initLive(httpServer: any) {
-  const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173,https://aostech.vercel.app').split(',');
   io = new SocketServer(httpServer, {
     cors: {
       origin: (origin, cb) => {
-        if (!origin || allowedOrigins.includes(origin)) {
+        if (isOriginAllowed(origin)) {
           cb(null, true);
         } else {
           cb(null, false);

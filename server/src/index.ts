@@ -21,11 +21,11 @@ import { errorHandler } from './middleware/errorHandler';
 import { initLive } from './services/live';
 import { initRAG } from './services/rag';
 import { prisma } from './utils/prisma';
+import { isOriginAllowed } from './utils/cors';
 
 const app = express();
 const server = http.createServer(app);
 const PORT = Number(process.env.PORT) || 3001;
-const ALLOWED_ORIGINS = (process.env.CORS_ORIGIN || 'http://localhost:5173,https://aostech.vercel.app').split(',');
 
 app.use(helmet({
   strictTransportSecurity: { maxAge: 31536000, includeSubDomains: true, preload: true },
@@ -33,7 +33,7 @@ app.use(helmet({
 }));
 app.use(cors({
   origin: (origin, cb) => {
-    if (!origin || ALLOWED_ORIGINS.includes(origin)) cb(null, true);
+    if (isOriginAllowed(origin)) cb(null, true);
     else cb(null, false);
   },
   credentials: true,
