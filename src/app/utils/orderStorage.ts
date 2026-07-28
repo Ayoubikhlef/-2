@@ -107,7 +107,9 @@ export async function saveOrder(order: Omit<OrderRecord, 'id' | 'createdAt' | 's
   const products = getStoredProducts(defaultProducts);
   let changed = false;
   for (const item of order.items) {
-    const idx = products.findIndex(p => p.name === item.name);
+    const idx = products.findIndex(
+      (p) => p.nameAr === item.name || p.nameFr === item.name || p.nameEn === item.name
+    );
     if (idx !== -1 && products[idx].stock !== undefined) {
       products[idx].stock = Math.max(0, products[idx].stock - item.quantity);
       changed = true;
