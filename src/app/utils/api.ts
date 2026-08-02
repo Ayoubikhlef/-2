@@ -54,7 +54,7 @@ async function request<T>(
       const url = urls[i];
       if (isDev) console.log(`[API] ${options.method || 'GET'} ${url} (attempt ${i + 1}/${urls.length})`);
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 8000);
+      const timeout = setTimeout(() => controller.abort(), 20000);
       const res = await fetch(url, { ...options, headers, credentials: 'include', signal: controller.signal });
       clearTimeout(timeout);
       if (!res.ok) {
@@ -142,7 +142,12 @@ export const api = {
   orders: {
     create: (data: any) =>
       request<any>('/orders', { method: 'POST', body: JSON.stringify(data) }),
-    list: () => request<any[]>('/orders'),
+    list: (params?: { email?: string; phone?: string }) => {
+      const hasParams = params && (params.email || params.phone);
+      const query = hasParams ? `?${new URLSearchParams(params as Record<string, string>).toString()}` : '';
+      const path = hasParams ? `/orders/user${query}` : '/orders';
+      return request<any[]>(path);
+    },
     updateStatus: (id: string, status: string) =>
       request<any>(`/orders/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
     remove: async (id: string) => {

@@ -27,7 +27,9 @@ export function AccountDashboard() {
 
   useEffect(() => {
     if (!user) return;
-    api.orders.list().then(all => setOrders(all.filter((o: any) => o.email === user.email))).catch(() => setOrders(getOrders().filter(o => o.email === user.email)));
+    api.orders.list({ email: user.email })
+      .then(all => setOrders(all))
+      .catch(() => setOrders(getOrders().filter(o => o.email === user.email)));
     if (user.phone) api.loyalty.get(user.phone).then(setLoyalty).catch(() => {});
   }, [user]);
 

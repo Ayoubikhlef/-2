@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { getOrders, loadOrdersFromServer } from '../utils/orderStorage';
+import { getOrders, loadOrdersFromServer, type OrderRecord } from '../utils/orderStorage';
 import { Search, Phone, Mail, ShoppingBag, DollarSign, Calendar, ChevronDown, ChevronUp, Download, AlertTriangle, FileText, Users, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -19,15 +19,31 @@ export function CustomersTab() {
   const [search, setSearch] = useState('');
   const [expandedPhone, setExpandedPhone] = useState<string | null>(null);
   const [noteInput, setNoteInput] = useState<Record<string, string>>({});
-  const [refreshKey, setRefreshKey] = useState(0);
-
-  const orders = useMemo(() => getOrders(), [refreshKey]);
+  const [orders, setOrders] = useState<OrderRecord[]>(() => getOrders());
 
   useEffect(() => {
-    loadOrdersFromServer();
-    const onChanged = () => setRefreshKey(k => k + 1);
+    let mounted = true;
+
+    async function fetchOrders() {
+      const localOrders = getOrders();
+      if (mounted) setOrders(localOrders);
+
+      try {
+        const serverOrders = await loadOrdersFromServer();
+        if (mounted) setOrders(serverOrders);
+      } catch {
+        if (mounted) setOrders(getOrders());
+      }
+    }
+
+    fetchOrders();
+
+    const onChanged = () => setOrders(getOrders());
     window.addEventListener('aos:data-changed', onChanged);
-    return () => window.removeEventListener('aos:data-changed', onChanged);
+    return () => {
+      mounted = false;
+      window.removeEventListener('aos:data-changed', onChanged);
+    };
   }, []);
 
   const customers = useMemo(() => {

@@ -122,7 +122,7 @@ export function Admin() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [isOn, setIsOn] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [tab, setTab] = useState<'dashboard' | 'products' | 'services' | 'manage-products' | 'manage-services' | 'customers' | 'coupons' | 'content' | 'settings' | 'reviews' | 'newsletter'>('dashboard');
+  const [tab, setTab] = useState<'dashboard' | 'orders' | 'products' | 'services' | 'manage-products' | 'manage-services' | 'customers' | 'coupons' | 'content' | 'settings' | 'reviews' | 'newsletter'>('orders');
   const [manageProducts, setManageProducts] = useState<Product[]>([]);
   const [manageServices, setManageServices] = useState<ServiceCategory[]>([]);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>(getSyncStatus());
@@ -269,7 +269,7 @@ export function Admin() {
 
   const productOrders = orders.filter((o) => o.source !== 'service-booking');
   const serviceOrders = orders.filter((o) => o.source === 'service-booking');
-  const visibleOrders = tab === 'products' ? productOrders : serviceOrders;
+  const visibleOrders = tab === 'orders' ? orders : tab === 'products' ? productOrders : serviceOrders;
   const stats = getOrderStats(visibleOrders);
 
   const filteredOrders = filter === 'all'
@@ -494,6 +494,16 @@ export function Admin() {
 
         {/* Tabs: Products / Services */}
         <div className="flex gap-2 mb-6">
+          <button
+            onClick={() => { setTab('orders'); setFilter('all'); }}
+            className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all border ${
+              tab === 'orders'
+                ? 'bg-primary text-slate-950 border-primary'
+                : 'bg-slate-900 text-white/70 border-white/10 hover:bg-slate-800'
+            }`}
+          >
+            {t({ ar: 'جميع الطلبات', fr: 'Toutes les commandes', en: 'All Orders' })}
+          </button>
           <button
             onClick={() => { setTab('products'); setFilter('all'); }}
             className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all border ${

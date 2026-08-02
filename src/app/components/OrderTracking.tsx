@@ -243,6 +243,15 @@ export function OrderTracking() {
     if (local) {
       setOrder(local);
       setLoading(false);
+      const refreshRemoteOrder = async () => {
+        try {
+          const remote = await api.get<OrderRecord>(`/orders/track/${encodeURIComponent(normalized)}`);
+          setOrder(remote);
+        } catch {
+          // ignore remote refresh failures when local order exists
+        }
+      };
+      refreshRemoteOrder();
       return;
     }
 

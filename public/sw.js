@@ -1,5 +1,5 @@
-const CACHE = 'aos-cache-v3';
-const STATIC_CACHE = 'aos-static-v3';
+const CACHE = 'aos-cache-v4';
+const STATIC_CACHE = 'aos-static-v4';
 const OFFLINE_URL = '/offline.html';
 
 const PRECACHE_URLS = [
@@ -104,6 +104,19 @@ self.addEventListener('fetch', (e) => {
   }
 
   if (url.pathname.startsWith('/api/')) {
+    if (request.method !== 'GET') {
+      e.respondWith((async () => {
+        try {
+          return await fetch(request);
+        } catch {
+          return new Response(JSON.stringify({ error: 'offline' }), {
+            status: 503,
+            headers: { 'Content-Type': 'application/json' },
+          });
+        }
+      })());
+      return;
+    }
     e.respondWith(
       (async () => {
         try {

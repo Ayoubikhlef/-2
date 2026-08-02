@@ -97,6 +97,31 @@ orderRouter.post('/', async (req: Request, res: Response) => {
   }
 });
 
+orderRouter.get('/user', async (req: Request, res: Response) => {
+  try {
+    const email = typeof req.query.email === 'string' ? req.query.email.trim() : '';
+    const phone = typeof req.query.phone === 'string' ? req.query.phone.trim() : '';
+
+    if (!email && !phone) {
+      return res.status(400).json({ error: 'Email or phone query required' });
+    }
+
+    const where: any = {};
+    if (email) where.email = email;
+    if (phone) where.phone = phone;
+
+    const orders = await prisma.order.findMany({
+      where,
+      include: { items: true },
+      orderBy: { createdAt: 'desc' },
+    });
+    res.json(orders);
+  } catch (err) {
+    console.error('[Orders] Customer fetch error:', err);
+    res.status(500).json({ error: 'Failed to fetch customer orders' });
+  }
+});
+
 orderRouter.get('/track/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
