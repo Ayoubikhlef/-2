@@ -6,13 +6,13 @@ exports.emitStatsUpdate = emitStatsUpdate;
 exports.emitActivity = emitActivity;
 const socket_io_1 = require("socket.io");
 const jwt_1 = require("../utils/jwt");
+const cors_1 = require("../utils/cors");
 let io = null;
 function initLive(httpServer) {
-    const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173,https://aostech.vercel.app').split(',');
     io = new socket_io_1.Server(httpServer, {
         cors: {
             origin: (origin, cb) => {
-                if (!origin || allowedOrigins.includes(origin)) {
+                if ((0, cors_1.isOriginAllowed)(origin)) {
                     cb(null, true);
                 }
                 else {

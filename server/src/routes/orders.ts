@@ -2,7 +2,9 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { prisma } from '../utils/prisma';
 import { sendWhatsAppNotification } from '../services/whatsapp';
+import { emitNewOrder } from '../services/live';
 import { requireAuth, requireRole, type AuthRequest } from '../middleware/auth';
+import { getCached, setCache, clearCache } from '../utils/cache';
 
 export const orderRouter = Router();
 
@@ -87,6 +89,8 @@ orderRouter.post('/', async (req: Request, res: Response) => {
     });
 
     console.log(`[Orders] Created order ${order.id} (${order.total} DZD)`);
+    clearCache('orders:list');
+    emitNewOrder(order);
     res.status(201).json(order);
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -139,11 +143,16 @@ orderRouter.get('/track/:id', async (req: Request, res: Response) => {
 
 orderRouter.get('/', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async (_req: AuthRequest, res: Response) => {
   try {
+    const cached = getCached<{ orders: any[] }>('orders:list');
+    if (cached) return res.json(cached.orders);
+
     const orders = await prisma.order.findMany({
       include: { items: true },
       orderBy: { createdAt: 'desc' },
+      take: 500,
     });
     console.log(`[Orders] Fetched ${orders.length} orders`);
+    setCache('orders:list', { orders }, 5_000);
     res.json(orders);
   } catch (err) {
     console.error('[Orders] Fetch error:', err);
@@ -162,6 +171,7 @@ orderRouter.patch('/:id/status', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'
     });
 
     sendWhatsAppNotification(updated.phone, updated.customer, id, status, updated.total);
+    clearCache('orders:list');
     console.log(`[Orders] Updated order ${id} status to ${status}`);
     res.json(updated);
   } catch (err) {
@@ -177,6 +187,7 @@ orderRouter.post('/delete', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), as
   try {
     const { id } = z.object({ id: z.string().min(1) }).parse(req.body);
     await prisma.order.delete({ where: { id } });
+    clearCache('orders:list');
     console.log(`[Orders] Deleted order ${id}`);
     res.json({ deleted: true, id });
   } catch (err: any) {
@@ -194,6 +205,7 @@ orderRouter.post('/clear-all', requireAuth, requireRole('SUPER_ADMIN'), async (_
     const ids = orders.map(o => o.id);
     await prisma.orderItem.deleteMany({});
     await prisma.order.deleteMany({});
+    clearCache('orders:list');
     console.log(`[Orders] Cleared all ${ids.length} orders`);
     res.json({ deleted: true, count: ids.length, ids });
   } catch (err) {
@@ -216,3 +228,4 @@ orderRouter.delete('/:id', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), asy
     res.status(500).json({ error: 'Failed to delete order' });
   }
 });
+
