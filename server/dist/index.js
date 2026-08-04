@@ -26,17 +26,17 @@ const errorHandler_1 = require("./middleware/errorHandler");
 const live_1 = require("./services/live");
 const rag_1 = require("./services/rag");
 const prisma_1 = require("./utils/prisma");
-const cors_2 = require("./utils/cors");
 const app = (0, express_1.default)();
 const server = http_1.default.createServer(app);
 const PORT = Number(process.env.PORT) || 3001;
+const ALLOWED_ORIGINS = (process.env.CORS_ORIGIN || 'http://localhost:5173,https://aostech.vercel.app').split(',');
 app.use((0, helmet_1.default)({
     strictTransportSecurity: { maxAge: 31536000, includeSubDomains: true, preload: true },
     contentSecurityPolicy: false,
 }));
 app.use((0, cors_1.default)({
     origin: (origin, cb) => {
-        if ((0, cors_2.isOriginAllowed)(origin))
+        if (!origin || ALLOWED_ORIGINS.includes(origin))
             cb(null, true);
         else
             cb(null, false);
@@ -51,9 +51,9 @@ app.use((_req, res, next) => {
     res.setHeader('Surrogate-Control', 'no-store');
     next();
 });
-const authLimiter = (0, express_rate_limit_1.default)({ windowMs: 15 * 60 * 1000, max: 100, message: { error: 'Too many attempts' }, validate: { xForwardedForHeader: false } });
-const orderLimiter = (0, express_rate_limit_1.default)({ windowMs: 60 * 1000, max: 200, message: { error: 'Too many requests' }, validate: { xForwardedForHeader: false } });
-const generalLimiter = (0, express_rate_limit_1.default)({ windowMs: 60 * 1000, max: 600, message: { error: 'Too many requests' }, validate: { xForwardedForHeader: false } });
+const authLimiter = (0, express_rate_limit_1.default)({ windowMs: 15 * 60 * 1000, max: 10, message: { error: 'Too many attempts' }, validate: { xForwardedForHeader: false } });
+const orderLimiter = (0, express_rate_limit_1.default)({ windowMs: 60 * 1000, max: 30, message: { error: 'Too many requests' }, validate: { xForwardedForHeader: false } });
+const generalLimiter = (0, express_rate_limit_1.default)({ windowMs: 60 * 1000, max: 120, message: { error: 'Too many requests' }, validate: { xForwardedForHeader: false } });
 app.use('/api/auth', authLimiter);
 app.use('/api/newsletter', generalLimiter);
 app.use('/api/chat', generalLimiter);

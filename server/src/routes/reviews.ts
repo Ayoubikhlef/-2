@@ -2,7 +2,6 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { prisma } from '../utils/prisma';
 import { requireAuth, type AuthRequest } from '../middleware/auth';
-import { getCached, setCache, clearCache } from '../utils/cache';
 
 export const reviewRouter = Router();
 
@@ -26,8 +25,6 @@ reviewRouter.post('/', requireAuth, async (req: AuthRequest, res: Response) => {
     });
 
     console.log(`[Reviews] Created review ${review.id} for product ${review.productId}`);
-    clearCache('reviews:all');
-    clearCache(`reviews:${review.productId}`);
     res.status(201).json(review);
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -40,14 +37,10 @@ reviewRouter.post('/', requireAuth, async (req: AuthRequest, res: Response) => {
 
 reviewRouter.get('/', async (_req: Request, res: Response) => {
   try {
-    const cached = getCached<{ reviews: any[] }>('reviews:all');
-    if (cached) return res.json(cached.reviews);
-
     const reviews = await prisma.review.findMany({
       orderBy: { createdAt: 'desc' },
     });
     console.log(`[Reviews] Fetched ${reviews.length} reviews`);
-    setCache('reviews:all', { reviews }, 30_000);
     res.json(reviews);
   } catch (err) {
     console.error('[Reviews] Fetch error:', err);
@@ -58,16 +51,11 @@ reviewRouter.get('/', async (_req: Request, res: Response) => {
 reviewRouter.get('/:productId', async (req: Request, res: Response) => {
   try {
     const { productId } = req.params;
-    const cacheKey = `reviews:${productId}`;
-    const cached = getCached<{ reviews: any[] }>(cacheKey);
-    if (cached) return res.json(cached.reviews);
-
     const reviews = await prisma.review.findMany({
       where: { productId },
       orderBy: { createdAt: 'desc' },
     });
     console.log(`[Reviews] Fetched ${reviews.length} reviews for product ${productId}`);
-    setCache(cacheKey, { reviews }, 30_000);
     res.json(reviews);
   } catch (err) {
     console.error('[Reviews] Fetch by product error:', err);

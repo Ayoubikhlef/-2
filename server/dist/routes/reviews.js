@@ -5,7 +5,6 @@ const express_1 = require("express");
 const zod_1 = require("zod");
 const prisma_1 = require("../utils/prisma");
 const auth_1 = require("../middleware/auth");
-const cache_1 = require("../utils/cache");
 exports.reviewRouter = (0, express_1.Router)();
 const createReviewSchema = zod_1.z.object({
     productId: zod_1.z.number(),
@@ -24,8 +23,6 @@ exports.reviewRouter.post('/', auth_1.requireAuth, async (req, res) => {
             },
         });
         console.log(`[Reviews] Created review ${review.id} for product ${review.productId}`);
-        (0, cache_1.clearCache)('reviews:all');
-        (0, cache_1.clearCache)(`reviews:${review.productId}`);
         res.status(201).json(review);
     }
     catch (err) {
@@ -38,14 +35,10 @@ exports.reviewRouter.post('/', auth_1.requireAuth, async (req, res) => {
 });
 exports.reviewRouter.get('/', async (_req, res) => {
     try {
-        const cached = (0, cache_1.getCached)('reviews:all');
-        if (cached)
-            return res.json(cached.reviews);
         const reviews = await prisma_1.prisma.review.findMany({
             orderBy: { createdAt: 'desc' },
         });
         console.log(`[Reviews] Fetched ${reviews.length} reviews`);
-        (0, cache_1.setCache)('reviews:all', { reviews }, 30_000);
         res.json(reviews);
     }
     catch (err) {
@@ -56,16 +49,11 @@ exports.reviewRouter.get('/', async (_req, res) => {
 exports.reviewRouter.get('/:productId', async (req, res) => {
     try {
         const { productId } = req.params;
-        const cacheKey = `reviews:${productId}`;
-        const cached = (0, cache_1.getCached)(cacheKey);
-        if (cached)
-            return res.json(cached.reviews);
         const reviews = await prisma_1.prisma.review.findMany({
             where: { productId },
             orderBy: { createdAt: 'desc' },
         });
         console.log(`[Reviews] Fetched ${reviews.length} reviews for product ${productId}`);
-        (0, cache_1.setCache)(cacheKey, { reviews }, 30_000);
         res.json(reviews);
     }
     catch (err) {
