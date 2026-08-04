@@ -5,7 +5,9 @@ const express_1 = require("express");
 const zod_1 = require("zod");
 const prisma_1 = require("../utils/prisma");
 const whatsapp_1 = require("../services/whatsapp");
+const live_1 = require("../services/live");
 const auth_1 = require("../middleware/auth");
+const cache_1 = require("../utils/cache");
 exports.orderRouter = (0, express_1.Router)();
 const orderItemSchema = zod_1.z.object({
     name: zod_1.z.string(),
@@ -80,6 +82,8 @@ exports.orderRouter.post('/', async (req, res) => {
             include: { items: true },
         });
         console.log(`[Orders] Created order ${order.id} (${order.total} DZD)`);
+        (0, cache_1.clearCache)('orders:list');
+        (0, live_1.emitNewOrder)(order);
         res.status(201).json(order);
     }
     catch (err) {
@@ -88,6 +92,30 @@ exports.orderRouter.post('/', async (req, res) => {
         }
         console.error('[Orders] Create error:', err);
         res.status(500).json({ error: 'Failed to create order' });
+    }
+});
+exports.orderRouter.get('/user', async (req, res) => {
+    try {
+        const email = typeof req.query.email === 'string' ? req.query.email.trim() : '';
+        const phone = typeof req.query.phone === 'string' ? req.query.phone.trim() : '';
+        if (!email && !phone) {
+            return res.status(400).json({ error: 'Email or phone query required' });
+        }
+        const where = {};
+        if (email)
+            where.email = email;
+        if (phone)
+            where.phone = phone;
+        const orders = await prisma_1.prisma.order.findMany({
+            where,
+            include: { items: true },
+            orderBy: { createdAt: 'desc' },
+        });
+        res.json(orders);
+    }
+    catch (err) {
+        console.error('[Orders] Customer fetch error:', err);
+        res.status(500).json({ error: 'Failed to fetch customer orders' });
     }
 });
 exports.orderRouter.get('/track/:id', async (req, res) => {
@@ -108,11 +136,16 @@ exports.orderRouter.get('/track/:id', async (req, res) => {
 });
 exports.orderRouter.get('/', auth_1.requireAuth, (0, auth_1.requireRole)('SUPER_ADMIN', 'ADMIN'), async (_req, res) => {
     try {
+        const cached = (0, cache_1.getCached)('orders:list');
+        if (cached)
+            return res.json(cached.orders);
         const orders = await prisma_1.prisma.order.findMany({
             include: { items: true },
             orderBy: { createdAt: 'desc' },
+            take: 500,
         });
         console.log(`[Orders] Fetched ${orders.length} orders`);
+        (0, cache_1.setCache)('orders:list', { orders }, 5_000);
         res.json(orders);
     }
     catch (err) {
@@ -129,6 +162,7 @@ exports.orderRouter.patch('/:id/status', auth_1.requireAuth, (0, auth_1.requireR
             data: { status },
         });
         (0, whatsapp_1.sendWhatsAppNotification)(updated.phone, updated.customer, id, status, updated.total);
+        (0, cache_1.clearCache)('orders:list');
         console.log(`[Orders] Updated order ${id} status to ${status}`);
         res.json(updated);
     }
@@ -144,6 +178,7 @@ exports.orderRouter.post('/delete', auth_1.requireAuth, (0, auth_1.requireRole)(
     try {
         const { id } = zod_1.z.object({ id: zod_1.z.string().min(1) }).parse(req.body);
         await prisma_1.prisma.order.delete({ where: { id } });
+        (0, cache_1.clearCache)('orders:list');
         console.log(`[Orders] Deleted order ${id}`);
         res.json({ deleted: true, id });
     }
@@ -161,6 +196,7 @@ exports.orderRouter.post('/clear-all', auth_1.requireAuth, (0, auth_1.requireRol
         const ids = orders.map(o => o.id);
         await prisma_1.prisma.orderItem.deleteMany({});
         await prisma_1.prisma.order.deleteMany({});
+        (0, cache_1.clearCache)('orders:list');
         console.log(`[Orders] Cleared all ${ids.length} orders`);
         res.json({ deleted: true, count: ids.length, ids });
     }

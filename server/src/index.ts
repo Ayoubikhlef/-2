@@ -49,8 +49,8 @@ app.use((_req, res, next) => {
 });
 
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100, message: { error: 'Too many attempts' }, validate: { xForwardedForHeader: false } });
-const orderLimiter = rateLimit({ windowMs: 60 * 1000, max: 30, message: { error: 'Too many requests' }, validate: { xForwardedForHeader: false } });
-const generalLimiter = rateLimit({ windowMs: 60 * 1000, max: 120, message: { error: 'Too many requests' }, validate: { xForwardedForHeader: false } });
+const orderLimiter = rateLimit({ windowMs: 60 * 1000, max: 200, message: { error: 'Too many requests' }, validate: { xForwardedForHeader: false } });
+const generalLimiter = rateLimit({ windowMs: 60 * 1000, max: 600, message: { error: 'Too many requests' }, validate: { xForwardedForHeader: false } });
 app.use('/api/auth', authLimiter);
 app.use('/api/newsletter', generalLimiter);
 app.use('/api/chat', generalLimiter);

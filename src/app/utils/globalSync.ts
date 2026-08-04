@@ -72,6 +72,21 @@ export async function syncAllFromServer() {
 }
 
 export function startAutoSync() {
-  syncAllFromServer();
-  setInterval(() => syncAllFromServer(), 15000);
+  let interval: ReturnType<typeof setInterval> | null = null;
+  let syncing = false;
+
+  const maybeSync = () => {
+    if (document.hidden || syncing) return;
+    syncing = true;
+    syncAllFromServer().finally(() => { syncing = false; });
+  };
+
+  maybeSync();
+  interval = setInterval(maybeSync, 60000);
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) maybeSync();
+  });
+
+  window.addEventListener('focus', maybeSync);
 }

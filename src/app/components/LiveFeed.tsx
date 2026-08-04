@@ -4,7 +4,16 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingCart, Bell, Activity } from 'lucide-react';
 
-const WS_URL = 'http://localhost:3001';
+const WS_URL = (() => {
+  const apiUrl = import.meta.env.VITE_API_URL as string | undefined;
+  if (apiUrl && !apiUrl.startsWith('/')) {
+    return apiUrl.replace(/\/api\/?$/, '');
+  }
+  if (typeof window !== 'undefined' && window.location.origin.startsWith('http')) {
+    return window.location.origin;
+  }
+  return 'http://localhost:3001';
+})();
 
 interface LiveOrder {
   id: string;
@@ -22,7 +31,8 @@ export function LiveFeed() {
   const [liveCount, setLiveCount] = useState(0);
 
   useEffect(() => {
-    const s = io(WS_URL);
+    const token = localStorage.getItem('aos_access_token') || undefined;
+    const s = io(WS_URL, { auth: { token } });
     setSocket(s);
 
     s.on('connect', () => {

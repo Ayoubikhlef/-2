@@ -225,7 +225,7 @@ export function Admin() {
     loadOrders();
     setManageProducts(getStoredProducts(defaultProducts));
     setManageServices(getStoredServices(defaultServices));
-    const interval = setInterval(loadOrders, 30000);
+    const interval = setInterval(loadOrders, 60000);
     const onChanged = () => {
       setOrders(getOrders());
       setManageProducts(getStoredProducts(defaultProducts));

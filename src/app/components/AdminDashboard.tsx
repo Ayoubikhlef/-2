@@ -36,7 +36,7 @@ export function AdminDashboard() {
   useEffect(() => { refresh(); }, []);
 
   useEffect(() => {
-    const interval = setInterval(refresh, 10000);
+    const interval = setInterval(refresh, 30000);
     window.addEventListener('aos:data-changed', refresh);
     return () => { clearInterval(interval); window.removeEventListener('aos:data-changed', refresh); };
   }, []);
