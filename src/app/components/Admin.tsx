@@ -22,6 +22,82 @@ import { isMaintenanceMode, setMaintenanceMode, getMaintenanceMessage, setMainte
 import { api, setAccessToken, setStoredUser } from '../utils/api';
 import { syncAllFromServer, getSyncStatus, getLastSyncTime } from '../utils/globalSync';
 import { motion, AnimatePresence } from 'motion/react';
+import { Lock, ShieldAlert } from 'lucide-react';
+
+const ADMIN_UNLOCK_CODE = 'aos-admin-2026';
+const UNLOCK_STORAGE_KEY = 'aos_admin_unlocked_v1';
+
+function AdminGate({ onUnlock }: { onUnlock: () => void }) {
+  const { t } = useLanguage();
+  const [code, setCode] = useState('');
+  const [error, setError] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (code.trim() === ADMIN_UNLOCK_CODE) {
+      onUnlock();
+    } else {
+      setError(true);
+    }
+  };
+
+  return (
+    <section id="admin" className="min-h-screen flex items-center justify-center px-4 py-20" style={{ background: '#0B1120', transition: 'background 0.6s' }}>
+      <div className="w-full max-w-md text-center" style={{
+        background: '#0F172A',
+        borderRadius: 20,
+        padding: 36,
+        boxShadow: '0 0 40px rgba(239,68,68,0.12), 0 0 80px rgba(239,68,68,0.05)',
+        border: '1px solid rgba(239,68,68,0.15)',
+      }}>
+        <div className="mx-auto mb-6 w-20 h-20 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+          <ShieldAlert className="w-10 h-10 text-red-400" />
+        </div>
+        <h1 className="text-2xl font-extrabold text-red-400 mb-4">
+          {t({ ar: 'صفحة الويب محظورة !', fr: 'Page web bloquée !', en: 'Web page blocked!' })}
+        </h1>
+        <p className="text-sm text-slate-400 leading-relaxed mb-8">
+          {t({
+            ar: 'لا يمكن عرض هذه الصفحة. يرجى الاتصال بالمسؤول للحصول على معلومات إضافية',
+            fr: "Impossible d'afficher cette page. Veuillez contacter l'administrateur pour plus d'informations",
+            en: 'This page cannot be displayed. Please contact the administrator for more information.',
+          })}
+        </p>
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <input
+            type="password"
+            value={code}
+            onChange={(e) => { setCode(e.target.value); setError(false); }}
+            placeholder={t({ ar: 'رمز الوصول', fr: "Code d'accès", en: 'Access code' })}
+            style={{
+              background: '#1e293b',
+              borderRadius: 14,
+              width: '100%',
+              padding: '13px 16px',
+              fontSize: 14,
+              color: '#e2e8f0',
+              border: error ? '1px solid rgba(239,68,68,0.5)' : '1px solid rgba(255,255,255,0.08)',
+              outline: 'none',
+              fontFamily: 'inherit',
+            }}
+          />
+          {error && (
+            <p className="text-xs text-red-400/80">
+              {t({ ar: 'رمز غير صحيح', fr: 'Code incorrect', en: 'Incorrect code' })}
+            </p>
+          )}
+          <button
+            type="submit"
+            className="w-full flex items-center justify-center gap-2 rounded-2xl bg-red-500/15 hover:bg-red-500/25 border border-red-500/25 text-red-400 font-bold py-3 text-sm transition-colors"
+          >
+            <Lock className="w-4 h-4" />
+            {t({ ar: 'فتح اللوحة', fr: 'Déverrouiller', en: 'Unlock' })}
+          </button>
+        </form>
+      </div>
+    </section>
+  );
+}
 
 const statusConfig: Record<OrderStatus, { label: Record<string, string>; color: string; icon: string }> = {
   new: {
@@ -112,6 +188,13 @@ const darkButton: React.CSSProperties = {
 export function Admin() {
   const { t, language } = useLanguage();
   const [showAdmin, setShowAdmin] = useState(() => window.location.hash === '#admin');
+  const [isUnlocked, setIsUnlocked] = useState(() => {
+    try {
+      return localStorage.getItem(UNLOCK_STORAGE_KEY) === '1';
+    } catch {
+      return false;
+    }
+  });
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -185,6 +268,13 @@ export function Admin() {
     setIsAuthenticated(false);
     setAccessToken(null);
     setStoredUser(null);
+  };
+
+  const handleUnlock = () => {
+    try {
+      localStorage.setItem(UNLOCK_STORAGE_KEY, '1');
+    } catch {}
+    setIsUnlocked(true);
   };
 
   const toggleLamp = () => {
@@ -321,6 +411,10 @@ export function Admin() {
     { key: 'completed', label: { ar: 'مكتمل', fr: 'Terminé', en: 'Completed' } },
     { key: 'cancelled', label: { ar: 'ملغي', fr: 'Annulé', en: 'Cancelled' } },
   ];
+
+  if (showAdmin && !isUnlocked) {
+    return <AdminGate onUnlock={handleUnlock} />;
+  }
 
   if (!showAdmin && !isAuthenticated) return null;
 
