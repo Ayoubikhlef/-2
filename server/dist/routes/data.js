@@ -7,21 +7,35 @@ const prisma_1 = require("../utils/prisma");
 const auth_1 = require("../middleware/auth");
 const cache_1 = require("../utils/cache");
 exports.dataRouter = (0, express_1.Router)();
+const ALLOWED_KEYS = new Set([
+    'aos_products',
+    'aos_services',
+    'aos_coupons',
+    'aos_site_settings',
+    'aos_site_content',
+]);
 const saveSchema = zod_1.z.object({
-    key: zod_1.z.string().min(1),
+    key: zod_1.z.string().min(1).max(64),
     value: zod_1.z.any(),
 });
 exports.dataRouter.post('/save', auth_1.requireAuth, (0, auth_1.requireRole)('SUPER_ADMIN', 'ADMIN'), async (req, res) => {
     try {
         const { key, value } = saveSchema.parse(req.body);
+        if (!ALLOWED_KEYS.has(key)) {
+            return res.status(400).json({ error: 'Unknown data key' });
+        }
+        const serialized = JSON.stringify(value);
+        if (serialized.length > 5_000_000) {
+            return res.status(413).json({ error: 'Value too large (max 5MB)' });
+        }
         (0, cache_1.clearCache)(`data:${key}`);
         (0, cache_1.clearCache)(`data:all`);
         await prisma_1.prisma.setting.upsert({
             where: { key },
-            update: { value: JSON.stringify(value) },
-            create: { key, value: JSON.stringify(value) },
+            update: { value: serialized },
+            create: { key, value: serialized },
         });
-        console.log(`[Data] Saved ${key}`);
+        console.log(`[Data] Saved ${key} (${serialized.length} bytes)`);
         res.json({ ok: true, key });
     }
     catch (err) {

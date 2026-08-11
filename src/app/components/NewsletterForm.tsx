@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Mail, Send, CheckCircle } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { subscribe } from '../utils/newsletterStorage';
+import { api } from '../utils/api';
 import { toast } from 'sonner';
 
 export function NewsletterForm() {
@@ -9,6 +10,28 @@ export function NewsletterForm() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const [showUnsubscribe, setShowUnsubscribe] = useState(false);
+  const [unsubEmail, setUnsubEmail] = useState('');
+  const [unsubLoading, setUnsubLoading] = useState(false);
+
+  const handleUnsubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!unsubEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(unsubEmail)) {
+      toast.error(t({ ar: 'الرجاء إدخال بريد إلكتروني صحيح', fr: 'Veuillez entrer un email valide', en: 'Please enter a valid email' }));
+      return;
+    }
+    setUnsubLoading(true);
+    try {
+      await api.delete(`/newsletter/${encodeURIComponent(unsubEmail)}`);
+      toast.success(t({ ar: 'تم إلغاء الاشتراك', fr: 'Désinscription réussie', en: 'Unsubscribed successfully' }));
+      setShowUnsubscribe(false);
+      setUnsubEmail('');
+    } catch {
+      toast.error(t({ ar: 'حدث خطأ، حاول مرة أخرى', fr: 'Une erreur est survenue', en: 'An error occurred' }));
+    } finally {
+      setUnsubLoading(false);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,9 +104,57 @@ export function NewsletterForm() {
                 </button>
               </form>
               )}
+              <button
+                type="button"
+                onClick={() => setShowUnsubscribe(true)}
+                className="mx-auto mt-6 block text-blue-200/70 hover:text-white text-sm underline underline-offset-4 transition"
+              >
+                {t({ ar: 'إلغاء الاشتراك', fr: 'Se désinscrire', en: 'Unsubscribe' })}
+              </button>
             </div>
           </div>
         </div>
+
+        {showUnsubscribe && (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+            onClick={() => setShowUnsubscribe(false)}
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="bg-card border border-border rounded-2xl shadow-2xl w-full max-w-md p-6 sm:p-8"
+            >
+              <h3 className="text-xl font-bold mb-4">
+                {t({ ar: 'إلغاء الاشتراك في النشرة', fr: 'Se désinscrire de la newsletter', en: 'Unsubscribe from newsletter' })}
+              </h3>
+              <form onSubmit={handleUnsubscribe} className="space-y-4">
+                <input
+                  type="email"
+                  value={unsubEmail}
+                  onChange={(e) => setUnsubEmail(e.target.value)}
+                  placeholder={t({ ar: 'بريدك الإلكتروني', fr: 'Votre adresse email', en: 'Your email address' })}
+                  className="w-full px-4 py-3 border border-input rounded-lg bg-background focus:border-primary focus:ring-2 focus:ring-primary/20 transition"
+                />
+                <div className="flex gap-3">
+                  <button
+                    type="submit"
+                    disabled={unsubLoading}
+                    className="flex-1 rounded-xl bg-destructive text-destructive-foreground px-6 py-3 font-bold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {unsubLoading ? '...' : t({ ar: 'إلغاء الاشتراك', fr: 'Se désinscrire', en: 'Unsubscribe' })}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowUnsubscribe(false)}
+                    className="px-6 py-3 rounded-xl border border-border font-semibold hover:bg-muted transition"
+                  >
+                    {t({ ar: 'إلغاء', fr: 'Annuler', en: 'Cancel' })}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

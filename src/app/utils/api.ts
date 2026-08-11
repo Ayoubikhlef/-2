@@ -1,10 +1,7 @@
 const isDev = import.meta.env.DEV;
 
 const PRIMARY_URL: string = import.meta.env.VITE_API_URL || '/api';
-const FALLBACK_URLS: string[] = [
-  'https://aos-api.onrender.com/api',
-  'https://iueefgma6y.onrender.com/api',
-];
+const FALLBACK_URLS: string[] = [];
 
 export function getAccessToken(): string | null {
   return localStorage.getItem('aos_access_token');

@@ -9,7 +9,7 @@ export const reviewRouter = Router();
 const createReviewSchema = z.object({
   productId: z.number(),
   rating: z.number().int().min(1).max(5),
-  comment: z.string().optional(),
+  comment: z.string().max(500, 'Comment is too long').optional(),
 });
 
 reviewRouter.post('/', requireAuth, async (req: AuthRequest, res: Response) => {

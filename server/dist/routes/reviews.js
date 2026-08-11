@@ -10,7 +10,7 @@ exports.reviewRouter = (0, express_1.Router)();
 const createReviewSchema = zod_1.z.object({
     productId: zod_1.z.number(),
     rating: zod_1.z.number().int().min(1).max(5),
-    comment: zod_1.z.string().optional(),
+    comment: zod_1.z.string().max(500, 'Comment is too long').optional(),
 });
 exports.reviewRouter.post('/', auth_1.requireAuth, async (req, res) => {
     try {

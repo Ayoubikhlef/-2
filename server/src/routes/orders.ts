@@ -101,13 +101,28 @@ orderRouter.post('/', async (req: Request, res: Response) => {
   }
 });
 
-orderRouter.get('/user', async (req: Request, res: Response) => {
+orderRouter.get('/user', requireAuth, async (req: AuthRequest, res: Response) => {
   try {
+    const requesterId = req.userId;
+    if (!requesterId) return res.status(401).json({ error: 'Authentication required' });
+
+    const requester = await prisma.user.findUnique({ where: { id: requesterId }, select: { email: true, phone: true, role: true } });
+    if (!requester) return res.status(401).json({ error: 'Authentication required' });
+
+    const isAdmin = requester.role === 'SUPER_ADMIN' || requester.role === 'ADMIN';
     const email = typeof req.query.email === 'string' ? req.query.email.trim() : '';
     const phone = typeof req.query.phone === 'string' ? req.query.phone.trim() : '';
 
     if (!email && !phone) {
       return res.status(400).json({ error: 'Email or phone query required' });
+    }
+
+    if (!isAdmin) {
+      const matchesEmail = email && requester.email && requester.email.toLowerCase() === email.toLowerCase();
+      const matchesPhone = phone && requester.phone === phone;
+      if (!matchesEmail && !matchesPhone) {
+        return res.status(403).json({ error: 'You can only view your own orders' });
+      }
     }
 
     const where: any = {};
@@ -134,7 +149,27 @@ orderRouter.get('/track/:id', async (req: Request, res: Response) => {
       include: { items: true },
     });
     if (!order) return res.status(404).json({ error: 'Order not found' });
-    res.json(order);
+
+    const authReq = req as AuthRequest;
+    let isAdmin = false;
+    let isOwner = false;
+    if (authReq.userId) {
+      const requester = await prisma.user.findUnique({ where: { id: authReq.userId }, select: { email: true, phone: true, role: true } });
+      if (requester) {
+        isAdmin = requester.role === 'SUPER_ADMIN' || requester.role === 'ADMIN';
+        isOwner = Boolean(
+          (order.email && requester.email && order.email.toLowerCase() === requester.email.toLowerCase()) ||
+          (order.phone && requester.phone && order.phone === requester.phone)
+        );
+      }
+    }
+
+    if (isAdmin || isOwner) {
+      return res.json(order);
+    }
+
+    const { customer, email, phone, address, note, userId, ...publicOrder } = order as any;
+    res.json(publicOrder);
   } catch (err) {
     console.error('[Orders] Track error:', err);
     res.status(500).json({ error: 'Failed to fetch order' });

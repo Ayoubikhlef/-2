@@ -32,6 +32,8 @@ export function OrderForm() {
     wilaya: '1',
     municipality: '1',
   });
+  const [submitting, setSubmitting] = useState(false);
+  const [whatsappLink, setWhatsappLink] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -83,8 +85,9 @@ export function OrderForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
     if (items.length === 0) {
-      alert(t({ ar: 'أضف منتجات إلى السلة أولاً', fr: 'Ajoutez des produits au panier d’abord', en: 'Add items to the cart first' }));
+      toast.error(t({ ar: 'أضف منتجات إلى السلة أولاً', fr: 'Ajoutez des produits au panier d’abord', en: 'Add items to the cart first' }));
       return;
     }
 
@@ -93,9 +96,21 @@ export function OrderForm() {
       return;
     }
 
+    const phoneDigits = formData.phone.replace(/[\s\-.]/g, '').replace(/^(\+213|00213)/, '0');
+    if (!/^0[567]\d{8}$/.test(phoneDigits)) {
+      toast.error(t({
+        ar: 'رقم الهاتف غير صالح. أدخل رقماً جزائرياً مثل 0698765432',
+        fr: 'Numéro invalide. Entrez un numéro algérien comme 0698765432',
+        en: 'Invalid phone number. Enter an Algerian number like 0698765432',
+      }));
+      return;
+    }
+    const normalizedPhone = formData.phone.replace(/[\s\-.]/g, '');
+
+    setSubmitting(true);
     const savedRecord = await saveOrder({
       customer: formData.fullName,
-      phone: formData.phone,
+      phone: normalizedPhone,
       email: formData.email,
       wilaya: wilayas.find((w) => w.id.toString() === formData.wilaya)?.[language === 'ar' ? 'nameAr' : language === 'fr' ? 'nameFr' : 'nameEn'] || '',
       municipality: getMunicipalities(Number(formData.wilaya)).find((m) => m.id === formData.municipality)?.[language === 'ar' ? 'nameAr' : language === 'fr' ? 'nameFr' : 'nameEn'] || '',
@@ -151,12 +166,13 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
 
     const whatsappMessage = `${orderSummary}\n\n✅ ${t({ ar: 'سيتم التواصل معك قريباً', fr: 'Nous vous contacterons bientôt', en: 'We will contact you soon' })}`;
     const whatsappNumber = getSiteSettings().contact.phoneInternational;
-    window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`, '_blank');
+    setWhatsappLink(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`);
 
     setSubmitted(true);
-    setLastLoyalty({ name: formData.fullName, phone: formData.phone, amount: grandTotal });
+    setLastLoyalty({ name: formData.fullName, phone: normalizedPhone, amount: grandTotal });
     setFormData({ fullName: '', phone: '', email: '', address: '', wilaya: '1', municipality: '1' });
     clear();
+    setSubmitting(false);
     setTimeout(() => { setSubmitted(false); setLastLoyalty(null); setLastOrder(null); }, 15000);
   };
 
@@ -278,9 +294,12 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
 
               <button
                 type="submit"
-                className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-bold text-lg hover:bg-primary/90 transition-all transform hover:scale-105 active:scale-95"
+                disabled={submitting}
+                className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-bold text-lg hover:bg-primary/90 transition-all transform hover:scale-105 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
-                {t({ ar: 'تأكيد الطلب', fr: 'Confirmer la commande', en: 'Confirm Order' })}
+                {submitting
+                  ? t({ ar: 'جارٍ الإرسال...', fr: 'Envoi en cours...', en: 'Sending...' })
+                  : t({ ar: 'تأكيد الطلب', fr: 'Confirmer la commande', en: 'Confirm Order' })}
               </button>
 
               {submitted && (
@@ -297,6 +316,17 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
                       <FileText className="w-4 h-4" />
                       {t({ ar: 'تحميل الفاتورة PDF', fr: 'Télécharger la facture PDF', en: 'Download PDF Invoice' })}
                     </button>
+                  )}
+                  {whatsappLink && (
+                    <a
+                      href={whatsappLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-3 text-sm font-bold text-white hover:from-green-400 hover:to-emerald-500 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
+                    >
+                      <Phone className="w-4 h-4" />
+                      {t({ ar: 'إرسال ملخص الطلب عبر واتساب', fr: 'Envoyer le résumé via WhatsApp', en: 'Send order summary via WhatsApp' })}
+                    </a>
                   )}
                 </div>
               )}

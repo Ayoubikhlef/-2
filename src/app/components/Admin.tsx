@@ -24,20 +24,26 @@ import { syncAllFromServer, getSyncStatus, getLastSyncTime } from '../utils/glob
 import { motion, AnimatePresence } from 'motion/react';
 import { Lock, ShieldAlert } from 'lucide-react';
 
-const ADMIN_UNLOCK_CODE = 'aos-admin-2026';
 const UNLOCK_STORAGE_KEY = 'aos_admin_unlocked_v1';
 
 function AdminGate({ onUnlock }: { onUnlock: () => void }) {
   const { t } = useLanguage();
   const [code, setCode] = useState('');
   const [error, setError] = useState(false);
+  const [checking, setChecking] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (code.trim() === ADMIN_UNLOCK_CODE) {
+    if (!code.trim() || checking) return;
+    setChecking(true);
+    setError(false);
+    try {
+      await api.post<{ ok: boolean }>('/auth/admin-gate', { code: code.trim() });
       onUnlock();
-    } else {
+    } catch {
       setError(true);
+    } finally {
+      setChecking(false);
     }
   };
 
@@ -250,17 +256,7 @@ export function Admin() {
       setIsAuthenticated(true);
       setLoginError(false);
     } catch {
-      if (username === 'hydra' && password === 'hydra') {
-        try {
-          const data = await api.auth.login({ email: 'admin@aos.dz', password: 'hydra' });
-          setAccessToken(data.accessToken);
-          setStoredUser(data.user);
-        } catch {}
-        setIsAuthenticated(true);
-        setLoginError(false);
-      } else {
-        setLoginError(true);
-      }
+      setLoginError(true);
     }
   };
 

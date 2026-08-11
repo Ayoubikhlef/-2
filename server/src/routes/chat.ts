@@ -6,7 +6,7 @@ import { semanticSearch, isReady } from '../services/rag';
 export const chatRouter = Router();
 
 const chatSchema = z.object({
-  message: z.string().min(1, 'Message is required'),
+  message: z.string().min(1, 'Message is required').max(800, 'Message is too long'),
   language: z.enum(['ar', 'fr', 'en']).optional(),
 });
 

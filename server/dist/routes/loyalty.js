@@ -4,6 +4,7 @@ exports.loyaltyRouter = void 0;
 const express_1 = require("express");
 const zod_1 = require("zod");
 const pg_1 = require("pg");
+const prisma_1 = require("../utils/prisma");
 const auth_1 = require("../middleware/auth");
 const pool = new pg_1.Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
 exports.loyaltyRouter = (0, express_1.Router)();
@@ -63,9 +64,19 @@ exports.loyaltyRouter.post('/redeem', auth_1.requireAuth, (0, auth_1.requireRole
         res.status(500).json({ error: 'Failed to redeem points' });
     }
 });
-exports.loyaltyRouter.get('/:phone', async (req, res) => {
+exports.loyaltyRouter.get('/:phone', auth_1.requireAuth, async (req, res) => {
     try {
+        const requesterId = req.userId;
+        if (!requesterId)
+            return res.status(401).json({ error: 'Authentication required' });
+        const user = await prisma_1.prisma.user.findUnique({ where: { id: requesterId }, select: { phone: true, role: true } });
+        if (!user)
+            return res.status(401).json({ error: 'Authentication required' });
+        const isAdmin = user.role === 'SUPER_ADMIN' || user.role === 'ADMIN';
         const { phone } = req.params;
+        if (!isAdmin && user.phone !== phone) {
+            return res.status(403).json({ error: 'You can only view your own loyalty record' });
+        }
         const { rows } = await pool.query('SELECT * FROM aos_loyalty WHERE customer_phone = $1', [phone]);
         if (rows.length === 0) {
             return res.status(404).json({ error: 'Loyalty record not found' });

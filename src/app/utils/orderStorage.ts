@@ -1,4 +1,4 @@
-import { api } from './api';
+import { api, getAccessToken } from './api';
 import { getStoredProducts, saveProducts } from './productStorage';
 import { products as defaultProducts } from '../data/products';
 
@@ -200,6 +200,9 @@ export async function pushUnsyncedOrders(): Promise<void> {
 }
 
 export async function loadOrdersFromServer(): Promise<OrderRecord[]> {
+  if (!getAccessToken()) {
+    return getOrders();
+  }
   try {
     const serverOrders = await api.orders.list();
     log('info', `Loaded ${serverOrders.length} orders from server`);

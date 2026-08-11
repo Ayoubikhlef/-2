@@ -7,7 +7,22 @@ const prisma_1 = require("../utils/prisma");
 const auth_1 = require("../middleware/auth");
 exports.newsletterRouter = (0, express_1.Router)();
 const subscribeSchema = zod_1.z.object({
-    email: zod_1.z.string().email(),
+    email: zod_1.z.string().email().max(254, 'Email is too long'),
+});
+exports.newsletterRouter.delete('/:email', async (req, res) => {
+    try {
+        const email = decodeURIComponent(req.params.email).toLowerCase().trim();
+        if (!email || email.length > 254 || !email.includes('@')) {
+            return res.status(400).json({ error: 'Invalid email' });
+        }
+        const result = await prisma_1.prisma.newsletterSubscriber.deleteMany({ where: { email } });
+        console.log(`[Newsletter] Unsubscribed ${email.slice(0, 3)}***@${email.split('@')[1] || '***'} (removed ${result.count})`);
+        res.json({ unsubscribed: true, email });
+    }
+    catch (err) {
+        console.error('[Newsletter] Unsubscribe error:', err);
+        res.status(500).json({ error: 'Failed to unsubscribe' });
+    }
 });
 exports.newsletterRouter.post('/', async (req, res) => {
     try {

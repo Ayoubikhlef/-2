@@ -6,22 +6,37 @@ import { getCached, setCache, clearCache } from '../utils/cache';
 
 export const dataRouter = Router();
 
+const ALLOWED_KEYS = new Set([
+  'aos_products',
+  'aos_services',
+  'aos_coupons',
+  'aos_site_settings',
+  'aos_site_content',
+]);
+
 const saveSchema = z.object({
-  key: z.string().min(1),
+  key: z.string().min(1).max(64),
   value: z.any(),
 });
 
 dataRouter.post('/save', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
     const { key, value } = saveSchema.parse(req.body);
+    if (!ALLOWED_KEYS.has(key)) {
+      return res.status(400).json({ error: 'Unknown data key' });
+    }
+    const serialized = JSON.stringify(value);
+    if (serialized.length > 5_000_000) {
+      return res.status(413).json({ error: 'Value too large (max 5MB)' });
+    }
     clearCache(`data:${key}`);
     clearCache(`data:all`);
     await prisma.setting.upsert({
       where: { key },
-      update: { value: JSON.stringify(value) },
-      create: { key, value: JSON.stringify(value) },
+      update: { value: serialized },
+      create: { key, value: serialized },
     });
-    console.log(`[Data] Saved ${key}`);
+    console.log(`[Data] Saved ${key} (${serialized.length} bytes)`);
     res.json({ ok: true, key });
   } catch (err) {
     if (err instanceof z.ZodError) {

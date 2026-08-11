@@ -7,7 +7,7 @@ const ai_1 = require("../services/ai");
 const rag_1 = require("../services/rag");
 exports.chatRouter = (0, express_1.Router)();
 const chatSchema = zod_1.z.object({
-    message: zod_1.z.string().min(1, 'Message is required'),
+    message: zod_1.z.string().min(1, 'Message is required').max(800, 'Message is too long'),
     language: zod_1.z.enum(['ar', 'fr', 'en']).optional(),
 });
 exports.chatRouter.post('/', async (req, res) => {

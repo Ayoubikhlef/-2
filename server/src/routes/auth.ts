@@ -8,6 +8,30 @@ import { requireAuth, AuthRequest } from '../middleware/auth';
 
 export const authRouter = Router();
 
+const gateSchema = z.object({
+  code: z.string().min(1),
+});
+
+authRouter.post('/admin-gate', async (req, res: Response) => {
+  try {
+    const { code } = gateSchema.parse(req.body);
+    const expected = process.env.ADMIN_GATE_CODE || '';
+    if (!expected) {
+      return res.status(503).json({ error: 'Gate not configured' });
+    }
+    if (code !== expected) {
+      return res.status(401).json({ error: 'Invalid gate code' });
+    }
+    res.json({ ok: true });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Validation failed', details: err.errors });
+    }
+    console.error('[Auth] Gate error:', err);
+    res.status(500).json({ error: 'Gate check failed' });
+  }
+});
+
 const registerSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
@@ -76,6 +100,97 @@ authRouter.post('/login', async (req, res: Response) => {
     user: { id: user.id, email: user.email, name: user.name, role: user.role },
     accessToken,
   });
+});
+
+const forgotSchema = z.object({
+  email: z.string().email(),
+});
+
+const resetSchema = z.object({
+  email: z.string().email(),
+  code: z.string().min(4).max(8),
+  password: z.string().min(8),
+});
+
+const resetCodes = new Map<string, { code: string; expiresAt: number }>();
+
+function sendSmsNotification(phone: string, message: string) {
+  const phoneClean = phone.replace(/[^0-9]/g, '');
+  const country = phoneClean.startsWith('213') ? phoneClean : `213${phoneClean.replace(/^0/, '')}`;
+  const webhookUrl = process.env.WHATSAPP_WEBHOOK_URL;
+  const fetchPromise = webhookUrl
+    ? fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messaging_product: 'whatsapp',
+          to: country,
+          type: 'text',
+          text: message,
+        }),
+      })
+    : Promise.resolve();
+  fetchPromise.catch(err => console.error('[Auth] WhatsApp reset code error:', err));
+}
+
+authRouter.post('/forgot-password', async (req, res: Response) => {
+  try {
+    const { email } = forgotSchema.parse(req.body);
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ error: 'No account found with this email' });
+    }
+
+    const code = String(Math.floor(100000 + Math.random() * 900000));
+    resetCodes.set(email.toLowerCase(), { code, expiresAt: Date.now() + 10 * 60 * 1000 });
+
+    if (user.phone) {
+      const message = `رمز استرجاع كلمة المرور: ${code} (صالح 10 دقائق)`;
+      sendSmsNotification(user.phone, message);
+    }
+
+    console.log(`[Auth] Reset code generated for ${email.slice(0, 3)}*** (${user.phone ? 'sent via WhatsApp' : 'no phone on file'})`);
+    res.json({ ok: true });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Validation failed', details: err.errors });
+    }
+    console.error('[Auth] Forgot password error:', err);
+    res.status(500).json({ error: 'Failed to send reset code' });
+  }
+});
+
+authRouter.post('/reset-password', async (req, res: Response) => {
+  try {
+    const { email, code, password } = resetSchema.parse(req.body);
+    const key = email.toLowerCase();
+    const entry = resetCodes.get(key);
+
+    if (!entry || entry.expiresAt < Date.now()) {
+      resetCodes.delete(key);
+      return res.status(400).json({ error: 'Code expired. Request a new one.' });
+    }
+    if (entry.code !== code) {
+      return res.status(400).json({ error: 'Invalid code' });
+    }
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return res.status(404).json({ error: 'No account found with this email' });
+
+    const passwordHash = await bcrypt.hash(password, 12);
+    await prisma.user.update({ where: { id: user.id }, data: { passwordHash, refreshToken: null } });
+
+    resetCodes.delete(key);
+    res.clearCookie('refreshToken');
+    console.log(`[Auth] Password reset for ${email.slice(0, 3)}***`);
+    res.json({ ok: true });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Validation failed', details: err.errors });
+    }
+    console.error('[Auth] Reset password error:', err);
+    res.status(500).json({ error: 'Failed to reset password' });
+  }
 });
 
 authRouter.post('/refresh', async (req, res: Response) => {

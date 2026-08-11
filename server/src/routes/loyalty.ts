@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { Pool } from 'pg';
+import { prisma } from '../utils/prisma';
 import { requireAuth, requireRole, type AuthRequest } from '../middleware/auth';
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });
@@ -69,9 +70,21 @@ loyaltyRouter.post('/redeem', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), 
   }
 });
 
-loyaltyRouter.get('/:phone', async (req: Request, res: Response) => {
+loyaltyRouter.get('/:phone', requireAuth, async (req: AuthRequest, res: Response) => {
   try {
+    const requesterId = req.userId;
+    if (!requesterId) return res.status(401).json({ error: 'Authentication required' });
+
+    const user = await prisma.user.findUnique({ where: { id: requesterId }, select: { phone: true, role: true } });
+    if (!user) return res.status(401).json({ error: 'Authentication required' });
+
+    const isAdmin = user.role === 'SUPER_ADMIN' || user.role === 'ADMIN';
     const { phone } = req.params;
+
+    if (!isAdmin && user.phone !== phone) {
+      return res.status(403).json({ error: 'You can only view your own loyalty record' });
+    }
+
     const { rows } = await pool.query('SELECT * FROM aos_loyalty WHERE customer_phone = $1', [phone]);
     if (rows.length === 0) {
       return res.status(404).json({ error: 'Loyalty record not found' });
