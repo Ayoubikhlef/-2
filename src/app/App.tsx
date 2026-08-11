@@ -36,7 +36,6 @@ const AccountDashboard = lazy(() => import('./components/AccountDashboard').then
 const LoginPage = lazy(() => import('./components/LoginPage').then(m => ({ default: m.LoginPage })));
 const WABubble = lazy(() => import('./components/WABubble').then(m => ({ default: m.WABubble })));
 const AIAssistant = lazy(() => import('./components/AIAssistant').then(m => ({ default: m.AIAssistant })));
-const LiveActivity = lazy(() => import('./components/LiveActivity').then(m => ({ default: m.LiveActivity })));
 
 function AdminFallback() {
   return (
@@ -221,7 +220,6 @@ export default function App() {
               <ScrollToTop />
               <Suspense fallback={null}><WABubble /></Suspense>
               <Suspense fallback={null}><AIAssistant /></Suspense>
-              <Suspense fallback={null}><LiveActivity /></Suspense>
             </div>
             {showLogin && (
               <Suspense fallback={null}>
