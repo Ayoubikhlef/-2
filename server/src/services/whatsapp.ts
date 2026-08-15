@@ -50,3 +50,56 @@ export async function sendWhatsAppNotification(phone: string, customer: string, 
 
   return waUrl;
 }
+
+export async function sendNewOrderAlert(order: {
+  id: string;
+  customer: string;
+  phone: string;
+  wilaya: string;
+  municipality: string;
+  address: string;
+  total: number;
+  items: { name: string; quantity: number }[];
+}) {
+  const itemsText = order.items
+    .map(item => `• ${item.name} × ${item.quantity}`)
+    .join('\n');
+
+  const message = `🛒 *طلب جديد!*
+━━━━━━━━━━━━
+👤 ${order.customer} | ${order.phone}
+📍 ${order.wilaya} - ${order.municipality}
+📌 ${order.address}
+━━━━━━━━━━━━
+${itemsText}
+━━━━━━━━━━━━
+💰 المجموع: ${order.total.toLocaleString()} د.ج
+🆔 #${order.id.slice(0, 8)}`;
+
+  console.log(`[WhatsApp] New order alert for admin: ${order.id.slice(0, 8)}`);
+
+  try {
+    const webhookUrl = process.env.WHATSAPP_WEBHOOK_URL;
+    if (!webhookUrl) {
+      console.warn('[WhatsApp] No WHATSAPP_WEBHOOK_URL set - admin alert skipped');
+      return;
+    }
+
+    const adminPhone = process.env.ADMIN_WHATSAPP || '213674113290';
+    const phoneClean = adminPhone.replace(/[^0-9]/g, '');
+    const to = phoneClean.startsWith('213') ? phoneClean : `213${phoneClean.replace(/^0/, '')}`;
+
+    await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messaging_product: 'whatsapp',
+        to,
+        type: 'text',
+        text: { body: message },
+      }),
+    });
+  } catch (err) {
+    console.error('[WhatsApp] Admin alert error:', err);
+  }
+}

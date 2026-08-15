@@ -84,6 +84,16 @@ exports.orderRouter.post('/', async (req, res) => {
         console.log(`[Orders] Created order ${order.id} (${order.total} DZD)`);
         (0, cache_1.clearCache)('orders:list');
         (0, live_1.emitNewOrder)(order);
+        (0, whatsapp_1.sendNewOrderAlert)({
+            id: order.id,
+            customer: order.customer,
+            phone: order.phone,
+            wilaya: order.wilaya,
+            municipality: order.municipality,
+            address: order.address,
+            total: order.total,
+            items: order.items,
+        });
         res.status(201).json(order);
     }
     catch (err) {
