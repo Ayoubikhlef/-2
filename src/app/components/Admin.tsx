@@ -1,18 +1,18 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, lazy, Suspense } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getOrders, clearOrders, updateOrderStatus, removeOrder, getOrderStats, loadOrdersFromServer, OrderRecord, OrderStatus } from '../utils/orderStorage';
 import { getStoredProducts, initializeProducts } from '../utils/productStorage';
 import { products as defaultProducts, type Product } from '../data/products';
-import { ManageProductsTab } from './ManageProductsTab';
-import { ManageServicesTab } from './ManageServicesTab';
-import { AdminDashboard } from './AdminDashboard';
-import { LiveFeed } from './LiveFeed';
-import { CustomersTab } from './CustomersTab';
-import { CouponsTab } from './CouponsTab';
-import { ManageContentTab } from './ManageContentTab';
-import { SiteSettingsTab } from './SiteSettingsTab';
-import { ReviewsTab } from './ReviewsTab';
-import { NewsletterTab } from './NewsletterTab';
+const ManageProductsTab = lazy(() => import('./ManageProductsTab').then(m => ({ default: m.ManageProductsTab })));
+const ManageServicesTab = lazy(() => import('./ManageServicesTab').then(m => ({ default: m.ManageServicesTab })));
+const AdminDashboard = lazy(() => import('./AdminDashboard').then(m => ({ default: m.AdminDashboard })));
+const LiveFeed = lazy(() => import('./LiveFeed').then(m => ({ default: m.LiveFeed })));
+const CustomersTab = lazy(() => import('./CustomersTab').then(m => ({ default: m.CustomersTab })));
+const CouponsTab = lazy(() => import('./CouponsTab').then(m => ({ default: m.CouponsTab })));
+const ManageContentTab = lazy(() => import('./ManageContentTab').then(m => ({ default: m.ManageContentTab })));
+const SiteSettingsTab = lazy(() => import('./SiteSettingsTab').then(m => ({ default: m.SiteSettingsTab })));
+const ReviewsTab = lazy(() => import('./ReviewsTab').then(m => ({ default: m.ReviewsTab })));
+const NewsletterTab = lazy(() => import('./NewsletterTab').then(m => ({ default: m.NewsletterTab })));
 import { getStoredServices, initializeServices } from '../utils/serviceStorage';
 import { defaultServices, type ServiceCategory } from '../data/services';
 import { RefreshCw, Trash2, ChevronDown, Phone, MapPin, Mail, DollarSign, Package, Eye, Lightbulb, Wrench, FileText, Globe, Settings, Star, MailOpen } from 'lucide-react';
@@ -190,6 +190,21 @@ const darkButton: React.CSSProperties = {
   cursor: 'pointer',
   fontFamily: 'inherit',
 };
+
+function TabLoading() {
+  return (
+    <div className="flex items-center justify-center py-24">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-10 h-10 rounded-full border-4 border-white/10 border-t-amber-500 animate-spin" />
+        <div className="flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce" />
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce delay-100" />
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce delay-200" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function Admin() {
   const { t, language } = useLanguage();
@@ -707,6 +722,7 @@ export function Admin() {
         </div>
 
         {/* Manage Products */}
+        <Suspense fallback={<TabLoading />}>
         {tab === 'manage-products' ? (
           <ManageProductsTab
             products={manageProducts}
@@ -1059,6 +1075,7 @@ export function Admin() {
           </div>
         )
       )}
+      </Suspense>
       </div>
     </section>
   );
