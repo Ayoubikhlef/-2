@@ -118,15 +118,18 @@ function sendSmsNotification(phone: string, message: string) {
   const phoneClean = phone.replace(/[^0-9]/g, '');
   const country = phoneClean.startsWith('213') ? phoneClean : `213${phoneClean.replace(/^0/, '')}`;
   const webhookUrl = process.env.WHATSAPP_WEBHOOK_URL;
+  const token = process.env.WHATSAPP_ACCESS_TOKEN;
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
   const fetchPromise = webhookUrl
     ? fetch(webhookUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           messaging_product: 'whatsapp',
           to: country,
           type: 'text',
-          text: message,
+          text: { body: message },
         }),
       })
     : Promise.resolve();

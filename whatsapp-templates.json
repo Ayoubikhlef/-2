@@ -1,0 +1,50 @@
+{
+  "templates": [
+    {
+      "name": "order_status",
+      "category": "UTILITY",
+      "language": "ar",
+      "components": [
+        {
+          "type": "HEADER",
+          "format": "TEXT",
+          "text": "تحديث طلبك 🛒"
+        },
+        {
+          "type": "BODY",
+          "format": "TEXT",
+          "text": "مرحباً {{1}} 🙏\nطلبك رقم #{{2}}: {{3}}\nالمبلغ: {{4}}\nشكراً لتسوقك مع Ayoub Office Services ❤️"
+        }
+      ]
+    },
+    {
+      "name": "order_status_fr",
+      "category": "UTILITY",
+      "language": "fr",
+      "components": [
+        {
+          "type": "HEADER",
+          "format": "TEXT",
+          "text": "Mise à jour de votre commande 🛒"
+        },
+        {
+          "type": "BODY",
+          "format": "TEXT",
+          "text": "Bonjour {{1}} 🙏\nVotre commande #{{2}}: {{3}}\nMontant: {{4}}\nMerci d'avoir choisi Ayoub Office Services ❤️"
+        }
+      ]
+    },
+    {
+      "name": "reset_code",
+      "category": "AUTHENTICATION",
+      "language": "ar",
+      "components": [
+        {
+          "type": "BODY",
+          "format": "TEXT",
+          "text": "رمز استرجاع كلمة المرور الخاص بك هو: {{1}}\nصالح لمدة 10 دقائق."
+        }
+      ]
+    }
+  ]
+}
