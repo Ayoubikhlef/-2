@@ -50,6 +50,42 @@ function AdminFallback() {
   );
 }
 
+function AdminLoadingPage() {
+  const lang = typeof window !== 'undefined'
+    ? (localStorage.getItem('language') || (navigator.language.startsWith('ar') ? 'ar' : navigator.language.startsWith('fr') ? 'fr' : 'en'))
+    : 'en';
+  const t = (ar: string, fr: string, en: string) => lang === 'ar' ? ar : lang === 'fr' ? fr : en;
+  return (
+    <div className="fixed inset-0 z-[100] overflow-hidden bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 flex items-center justify-center" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-32 -left-32 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute -bottom-32 -right-32 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-500" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[480px] h-[480px] bg-cyan-500/5 rounded-full blur-3xl animate-pulse delay-700" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:80px_80px]" />
+      </div>
+      <div className="relative z-10 text-center px-6">
+        <div className="relative mb-8 inline-block">
+          <div className="w-24 h-24 rounded-[28px] bg-white/5 backdrop-blur-xl border border-white/10 flex items-center justify-center shadow-2xl shadow-blue-500/10">
+            <span className="text-3xl font-black bg-gradient-to-br from-amber-300 to-orange-500 bg-clip-text text-transparent">AOS</span>
+          </div>
+          <div className="absolute inset-0 rounded-[28px] ring-1 ring-blue-400/30 animate-ping" />
+        </div>
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-3">{t('لوحة التحكم', "Panneau d'administration", 'Admin Panel')}</h1>
+        <p className="text-blue-200/60 text-sm mb-8">{t('جارٍ التحميل...', 'Chargement...', 'Loading...')}</p>
+        <div className="w-56 mx-auto h-1.5 rounded-full bg-white/10 overflow-hidden" dir="ltr">
+          <div className="h-full w-1/2 rounded-full bg-gradient-to-r from-blue-500 via-cyan-400 to-indigo-400 animate-[aos-loading_1.2s_ease-in-out_infinite]" />
+        </div>
+        <div className="mt-8 flex items-center justify-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-bounce" />
+          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-bounce delay-150" />
+          <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce delay-300" />
+        </div>
+      </div>
+      <style>{`@keyframes aos-loading { 0% { margin-left: -50%; } 100% { margin-left: 100%; } }`}</style>
+    </div>
+  );
+}
+
 export default function App() {
   const is404 = typeof window !== 'undefined' && window.location.hash && !['#products', '#booking', '#services', '#admin', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account'].includes(window.location.hash);
   const [showLogin, setShowLogin] = useState(false);
@@ -155,6 +191,14 @@ export default function App() {
         <AuthProvider>
         <CartProvider>
           <ErrorBoundary>
+            {hash === '#admin' ? (
+              <div className="min-h-screen">
+                <Suspense fallback={<AdminLoadingPage />}>
+                  <Admin />
+                </Suspense>
+                <ScrollToTop />
+              </div>
+            ) : (
             <div className="min-h-screen">
               <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-lg focus:outline-none">
                 {typeof window !== 'undefined' && (navigator.language.startsWith('ar') ? 'تخطى إلى المحتوى' : navigator.language.startsWith('fr') ? 'Aller au contenu' : 'Skip to content')}
@@ -202,9 +246,6 @@ export default function App() {
                     <Wishlist />
                     <ServiceBooking />
                     <Services />
-                    <Suspense fallback={<AdminFallback />}>
-                      <Admin />
-                    </Suspense>
                     <WhyUs />
                     <FAQ />
                     <Contact />
@@ -221,6 +262,7 @@ export default function App() {
               <Suspense fallback={null}><WABubble /></Suspense>
               <Suspense fallback={null}><AIAssistant /></Suspense>
             </div>
+            )}
             {showLogin && (
               <Suspense fallback={null}>
                 <LoginPage onClose={() => setShowLogin(false)} />
