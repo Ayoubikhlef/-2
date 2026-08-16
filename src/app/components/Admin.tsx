@@ -252,6 +252,21 @@ export function Admin() {
   }, [isAuthenticated]);
 
   useEffect(() => {
+    const preload = () => {
+      import('./AdminDashboard');
+      import('./ManageProductsTab');
+      import('./ManageServicesTab');
+      import('./CouponsTab');
+      import('./CustomersTab');
+    };
+    if ('requestIdleCallback' in window) {
+      (window as any).requestIdleCallback(preload, { timeout: 6000 });
+    } else {
+      setTimeout(preload, 2000);
+    }
+  }, []);
+
+  useEffect(() => {
     const onHashChange = () => setShowAdmin(window.location.hash === '#admin');
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);

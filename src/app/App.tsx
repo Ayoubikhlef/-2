@@ -103,6 +103,18 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    const preload = () => {
+      import('./components/Admin');
+      import('./components/OrderForm');
+    };
+    if ('requestIdleCallback' in window) {
+      (window as any).requestIdleCallback(preload, { timeout: 5000 });
+    } else {
+      setTimeout(preload, 3000);
+    }
+  }, []);
+
+  useEffect(() => {
     const updateTitle = () => {
       const hash = window.location.hash;
       const lang = (localStorage.getItem('language') || 'en') as 'ar' | 'fr' | 'en';
