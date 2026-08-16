@@ -5,6 +5,7 @@ const express_1 = require("express");
 const zod_1 = require("zod");
 const prisma_1 = require("../utils/prisma");
 const whatsapp_1 = require("../services/whatsapp");
+const telegram_1 = require("../services/telegram");
 const live_1 = require("../services/live");
 const auth_1 = require("../middleware/auth");
 const cache_1 = require("../utils/cache");
@@ -85,6 +86,16 @@ exports.orderRouter.post('/', async (req, res) => {
         (0, cache_1.clearCache)('orders:list');
         (0, live_1.emitNewOrder)(order);
         (0, whatsapp_1.sendNewOrderAlert)({
+            id: order.id,
+            customer: order.customer,
+            phone: order.phone,
+            wilaya: order.wilaya,
+            municipality: order.municipality,
+            address: order.address,
+            total: order.total,
+            items: order.items,
+        });
+        (0, telegram_1.sendNewOrderTelegramAlert)({
             id: order.id,
             customer: order.customer,
             phone: order.phone,

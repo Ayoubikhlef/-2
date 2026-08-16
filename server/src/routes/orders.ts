@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { prisma } from '../utils/prisma';
 import { sendWhatsAppNotification, sendNewOrderAlert } from '../services/whatsapp';
+import { sendNewOrderTelegramAlert } from '../services/telegram';
 import { emitNewOrder } from '../services/live';
 import { requireAuth, requireRole, type AuthRequest } from '../middleware/auth';
 import { getCached, setCache, clearCache } from '../utils/cache';
@@ -92,6 +93,16 @@ orderRouter.post('/', async (req: Request, res: Response) => {
     clearCache('orders:list');
     emitNewOrder(order);
     sendNewOrderAlert({
+      id: order.id,
+      customer: order.customer,
+      phone: order.phone,
+      wilaya: order.wilaya,
+      municipality: order.municipality,
+      address: order.address,
+      total: order.total,
+      items: order.items,
+    });
+    sendNewOrderTelegramAlert({
       id: order.id,
       customer: order.customer,
       phone: order.phone,
