@@ -8,6 +8,13 @@ const STATUS_TRANSLATIONS = {
     completed: { ar: 'مكتمل', fr: 'Complété', en: 'Completed' },
     cancelled: { ar: 'ملغي', fr: 'Annulé', en: 'Cancelled' },
 };
+function getWebhookHeaders() {
+    const headers = { 'Content-Type': 'application/json' };
+    const token = process.env.WHATSAPP_ACCESS_TOKEN;
+    if (token)
+        headers['Authorization'] = `Bearer ${token}`;
+    return headers;
+}
 async function sendWhatsAppNotification(phone, customer, orderId, status, total) {
     const s = STATUS_TRANSLATIONS[status] || { ar: status, fr: status, en: status };
     const arMsg = `مرحباً ${customer} 🙏\nطلبك رقم #${orderId.slice(0, 8)}: ${s.ar}${total ? `\nالمبلغ: ${total.toLocaleString()} د.ج` : ''}\nشكراً لتسوقك مع Ayoub Office Services ❤️`;
@@ -20,10 +27,14 @@ async function sendWhatsAppNotification(phone, customer, orderId, status, total)
     try {
         const webhookUrl = process.env.WHATSAPP_WEBHOOK_URL;
         if (webhookUrl) {
-            await fetch(webhookUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
+            const body = webhookUrl.includes('graph.facebook.com')
+                ? {
+                    messaging_product: 'whatsapp',
+                    to: country,
+                    type: 'text',
+                    text: { body: arMsg },
+                }
+                : {
                     messaging_product: 'whatsapp',
                     to: country,
                     type: 'template',
@@ -40,7 +51,11 @@ async function sendWhatsAppNotification(phone, customer, orderId, status, total)
                                 ],
                             }],
                     },
-                }),
+                };
+            await fetch(webhookUrl, {
+                method: 'POST',
+                headers: getWebhookHeaders(),
+                body: JSON.stringify(body),
             });
         }
     }
@@ -75,7 +90,7 @@ ${itemsText}
         const to = phoneClean.startsWith('213') ? phoneClean : `213${phoneClean.replace(/^0/, '')}`;
         await fetch(webhookUrl, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: getWebhookHeaders(),
             body: JSON.stringify({
                 messaging_product: 'whatsapp',
                 to,

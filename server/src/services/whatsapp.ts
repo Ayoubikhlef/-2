@@ -5,6 +5,13 @@ const STATUS_TRANSLATIONS: Record<string, { ar: string; fr: string; en: string }
   cancelled: { ar: 'ملغي', fr: 'Annulé', en: 'Cancelled' },
 };
 
+function getWebhookHeaders() {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  const token = process.env.WHATSAPP_ACCESS_TOKEN;
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  return headers;
+}
+
 export async function sendWhatsAppNotification(phone: string, customer: string, orderId: string, status: string, total?: number) {
   const s = STATUS_TRANSLATIONS[status] || { ar: status, fr: status, en: status };
 
@@ -21,27 +28,35 @@ export async function sendWhatsAppNotification(phone: string, customer: string, 
   try {
     const webhookUrl = process.env.WHATSAPP_WEBHOOK_URL;
     if (webhookUrl) {
+      const body = webhookUrl.includes('graph.facebook.com')
+        ? {
+            messaging_product: 'whatsapp',
+            to: country,
+            type: 'text',
+            text: { body: arMsg },
+          }
+        : {
+            messaging_product: 'whatsapp',
+            to: country,
+            type: 'template',
+            template: {
+              name: 'order_status',
+              language: { code: 'ar' },
+              components: [{
+                type: 'body',
+                parameters: [
+                  { type: 'text', text: customer },
+                  { type: 'text', text: orderId.slice(0, 8) },
+                  { type: 'text', text: s.ar },
+                  { type: 'text', text: total ? `${total.toLocaleString()} DZD` : '' },
+                ],
+              }],
+            },
+          };
       await fetch(webhookUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messaging_product: 'whatsapp',
-          to: country,
-          type: 'template',
-          template: {
-            name: 'order_status',
-            language: { code: 'ar' },
-            components: [{
-              type: 'body',
-              parameters: [
-                { type: 'text', text: customer },
-                { type: 'text', text: orderId.slice(0, 8) },
-                { type: 'text', text: s.ar },
-                { type: 'text', text: total ? `${total.toLocaleString()} DZD` : '' },
-              ],
-            }],
-          },
-        }),
+        headers: getWebhookHeaders(),
+        body: JSON.stringify(body),
       });
     }
   } catch (err) {
@@ -91,7 +106,7 @@ ${itemsText}
 
     await fetch(webhookUrl, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: getWebhookHeaders(),
       body: JSON.stringify({
         messaging_product: 'whatsapp',
         to,
