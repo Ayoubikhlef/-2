@@ -23,7 +23,7 @@ export function Services() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-100px' }}
       transition={{ duration: 0.6 }}
-      id="services" className="py-20 bg-white/70 dark:bg-slate-950/70">
+      id="services" className="py-20 bg-white/70 dark:bg-transparent">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-14">
           <h2 className="mb-4">

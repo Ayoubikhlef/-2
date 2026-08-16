@@ -24,7 +24,7 @@ export function WhyUs() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-100px' }}
       transition={{ duration: 0.6 }}
-      className="py-16 bg-white/70 dark:bg-slate-950/70">
+      className="py-16 bg-white/70 dark:bg-transparent">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
           <h2 className="mb-4">

@@ -177,7 +177,7 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
   };
 
   return (
-    <section id="checkout" className="py-20 bg-gradient-to-b from-slate-50/80 to-white/70 dark:from-slate-900/30 dark:to-slate-950/70">
+    <section id="checkout" className="py-20 bg-gradient-to-b from-slate-50/80 to-white/70 dark:from-transparent dark:to-transparent">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-center mb-12">
           {t({ ar: 'إتمام الطلب', fr: 'Finaliser la commande', en: 'Checkout' })}

@@ -61,7 +61,7 @@ export function ServiceBooking() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-100px' }}
       transition={{ duration: 0.6 }}
-      id="booking" className="py-20 bg-gradient-to-br from-slate-50/50 to-blue-50/50 dark:from-slate-900/30 dark:to-blue-950/30">
+      id="booking" className="py-20 bg-gradient-to-br from-slate-50/50 to-blue-50/50 dark:from-transparent dark:to-transparent">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="mb-4">

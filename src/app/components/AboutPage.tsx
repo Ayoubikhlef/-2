@@ -16,7 +16,7 @@ export function AboutPage() {
   }, []);
 
   return (
-    <section className="py-20 bg-gradient-to-b from-white/80 to-slate-50/70 dark:from-slate-950/80 dark:to-slate-900/30">
+    <section className="py-20 bg-gradient-to-b from-white/80 to-slate-50/70 dark:from-transparent dark:to-transparent">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-4xl font-bold mb-8 text-center">
           {t(content.about.title)}

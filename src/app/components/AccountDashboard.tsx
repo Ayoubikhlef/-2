@@ -35,7 +35,7 @@ export function AccountDashboard() {
 
   if (!user) {
     return (
-      <section className="py-20 min-h-screen bg-gradient-to-b from-slate-50/80 to-white/70 dark:from-slate-900/30 dark:to-slate-950/70">
+      <section className="py-20 min-h-screen bg-gradient-to-b from-slate-50/80 to-white/70 dark:from-transparent dark:to-transparent">
         <div className="max-w-md mx-auto px-4 text-center">
           <LoginPage onClose={() => {}} standalone />
         </div>
@@ -50,7 +50,7 @@ export function AccountDashboard() {
   ];
 
   return (
-    <section className="py-16 min-h-screen bg-gradient-to-b from-slate-50/80 to-white/70 dark:from-slate-900/30 dark:to-slate-950/70" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+    <section className="py-16 min-h-screen bg-gradient-to-b from-slate-50/80 to-white/70 dark:from-transparent dark:to-transparent" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex items-center justify-between mb-8">
           <div>

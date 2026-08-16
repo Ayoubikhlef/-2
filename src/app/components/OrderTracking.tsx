@@ -277,7 +277,7 @@ export function OrderTracking() {
       viewport={{ once: true, margin: '-100px' }}
       transition={{ duration: 0.6 }}
       id="order-tracking"
-      className="py-20 bg-gradient-to-b from-white/80 to-slate-50/70 dark:from-slate-950/80 dark:to-slate-900/30"
+      className="py-20 bg-gradient-to-b from-white/80 to-slate-50/70 dark:from-transparent dark:to-transparent"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">

@@ -25,7 +25,6 @@ import { SkeletonCard } from './components/SkeletonCard';
 import { OrderTracking } from './components/OrderTracking';
 import { startAutoSync } from './utils/globalSync';
 import { getSiteSettings } from './utils/siteSettingsStorage';
-import { ParticlesBg } from './components/ParticlesBg';
 
 const Admin = lazy(() => import('./components/Admin').then(m => ({ default: m.Admin })));
 const OrderForm = lazy(() => import('./components/OrderForm').then(m => ({ default: m.OrderForm })));
@@ -36,6 +35,31 @@ const AccountDashboard = lazy(() => import('./components/AccountDashboard').then
 const LoginPage = lazy(() => import('./components/LoginPage').then(m => ({ default: m.LoginPage })));
 const WABubble = lazy(() => import('./components/WABubble').then(m => ({ default: m.WABubble })));
 const AIAssistant = lazy(() => import('./components/AIAssistant').then(m => ({ default: m.AIAssistant })));
+const LiquidEther = lazy(() => import('./components/LiquidEther').then(m => ({ default: m.default })));
+
+const LIQUID_COLORS: string[] = ['#0ea5e9', '#2563eb', '#22d3ee', '#6366f1'];
+
+function LiquidBackground() {
+  return (
+    <div className="fixed inset-0 z-0 pointer-events-none" style={{ touchAction: 'pan-y' }} aria-hidden="true">
+      <LiquidEther
+        colors={LIQUID_COLORS}
+        mouseForce={14}
+        cursorSize={90}
+        resolution={0.4}
+        autoDemo
+        autoSpeed={0.45}
+        autoIntensity={2}
+        takeoverDuration={0.25}
+        autoResumeDelay={2500}
+        autoRampDuration={0.6}
+        isViscous={false}
+        iterationsPoisson={24}
+        BFECC
+      />
+    </div>
+  );
+}
 
 function AdminFallback() {
   return (
@@ -211,11 +235,13 @@ export default function App() {
                 <ScrollToTop />
               </div>
             ) : (
-            <div className="min-h-screen">
+            <div className="min-h-screen relative">
+              <Suspense fallback={null}>
+                <LiquidBackground />
+              </Suspense>
               <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-lg focus:outline-none">
                 {typeof window !== 'undefined' && (navigator.language.startsWith('ar') ? 'تخطى إلى المحتوى' : navigator.language.startsWith('fr') ? 'Aller au contenu' : 'Skip to content')}
               </a>
-              <ParticlesBg />
               <Header onLoginClick={() => setShowLogin(true)} />
               <main id="main-content">
                 {isPage ? (
