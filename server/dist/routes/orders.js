@@ -105,6 +105,16 @@ exports.orderRouter.post('/', async (req, res) => {
             total: order.total,
             items: order.items,
         });
+        (0, telegram_1.sendNewOrderDiscordAlert)({
+            id: order.id,
+            customer: order.customer,
+            phone: order.phone,
+            wilaya: order.wilaya,
+            municipality: order.municipality,
+            address: order.address,
+            total: order.total,
+            items: order.items,
+        });
         res.status(201).json(order);
     }
     catch (err) {
