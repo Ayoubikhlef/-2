@@ -18,7 +18,7 @@ export function Footer() {
   const { contact, settings: s } = settings;
 
   return (
-    <footer className="bg-gradient-to-br from-primary via-primary to-blue-900 dark:from-blue-950 dark:via-blue-900 dark:to-blue-950 text-white py-12">
+    <footer className="bg-gradient-to-br from-primary via-primary to-blue-900 dark:from-[#060d1f] dark:via-[#0a1733] dark:to-[#060d1f] text-white py-12 border-t border-white/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div>

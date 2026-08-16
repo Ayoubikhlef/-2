@@ -66,14 +66,14 @@ function AdminLoadingPage() {
       <div className="relative z-10 text-center px-6">
         <div className="relative mb-8 inline-block">
           <div className="w-24 h-24 rounded-[28px] bg-white/5 backdrop-blur-xl border border-white/10 flex items-center justify-center shadow-2xl shadow-blue-500/10">
-            <span className="text-3xl font-black bg-gradient-to-br from-amber-300 to-orange-500 bg-clip-text text-transparent">AOS</span>
+            <span className="text-3xl font-black bg-gradient-to-br from-sky-300 to-cyan-500 bg-clip-text text-transparent">AOS</span>
           </div>
-          <div className="absolute inset-0 rounded-[28px] ring-1 ring-blue-400/30 animate-ping" />
+          <div className="absolute inset-0 rounded-[28px] ring-1 ring-sky-400/30 animate-ping" />
         </div>
         <h1 className="text-2xl sm:text-3xl font-bold text-white mb-3">{t('لوحة التحكم', "Panneau d'administration", 'Admin Panel')}</h1>
         <p className="text-blue-200/60 text-sm mb-8">{t('جارٍ التحميل...', 'Chargement...', 'Loading...')}</p>
         <div className="w-56 mx-auto h-1.5 rounded-full bg-white/10 overflow-hidden" dir="ltr">
-          <div className="h-full w-1/2 rounded-full bg-gradient-to-r from-blue-500 via-cyan-400 to-indigo-400 animate-[aos-loading_1.2s_ease-in-out_infinite]" />
+          <div className="h-full w-1/2 rounded-full bg-gradient-to-r from-sky-500 via-cyan-400 to-indigo-400 animate-[aos-loading_1.2s_ease-in-out_infinite]" />
         </div>
         <div className="mt-8 flex items-center justify-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-bounce" />
@@ -154,15 +154,15 @@ export default function App() {
         </div>
         <div className="relative z-10 text-center px-6 max-w-2xl mx-auto">
           <div className="relative mb-10">
-            <div className="w-28 h-28 mx-auto rounded-[32px] bg-gradient-to-br from-amber-500/30 to-orange-600/30 backdrop-blur-xl border border-amber-500/20 flex items-center justify-center shadow-2xl shadow-amber-500/10">
-              <Wrench className="w-14 h-14 text-amber-400 animate-bounce" />
+            <div className="w-28 h-28 mx-auto rounded-[32px] bg-gradient-to-br from-sky-500/30 to-cyan-500/30 backdrop-blur-xl border border-sky-500/20 flex items-center justify-center shadow-2xl shadow-sky-500/10">
+              <Wrench className="w-14 h-14 text-sky-400 animate-bounce" />
             </div>
-            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-20 h-1 bg-gradient-to-r from-transparent via-amber-500/50 to-transparent rounded-full blur-sm" />
+            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-20 h-1 bg-gradient-to-r from-transparent via-sky-400/50 to-transparent rounded-full blur-sm" />
           </div>
-          <h1 className="text-5xl sm:text-7xl font-extrabold mb-6 bg-gradient-to-r from-white via-amber-200 to-white bg-clip-text text-transparent">
+          <h1 className="text-5xl sm:text-7xl font-extrabold mb-6 bg-gradient-to-r from-white via-sky-200 to-white bg-clip-text text-transparent">
             {t('قيد الصيانة', 'En Maintenance', 'Under Maintenance')}
           </h1>
-          <div className="w-24 h-1 mx-auto mb-8 rounded-full bg-gradient-to-r from-amber-500 to-orange-500" />
+          <div className="w-24 h-1 mx-auto mb-8 rounded-full bg-gradient-to-r from-sky-500 to-cyan-500" />
           {slogan ? (
             <p className="text-xl sm:text-2xl text-blue-100/80 leading-relaxed mb-6 font-medium">
               {slogan}
@@ -173,7 +173,7 @@ export default function App() {
             </p>
           )}
           <div className="flex items-center justify-center gap-3 mb-10">
-            <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping" />
+            <span className="w-2 h-2 rounded-full bg-sky-500 animate-ping" />
             <span className="text-blue-200/50 text-sm">
               {t('جاري التحديث...', 'Mise à jour en cours...', 'Updating...')}
             </span>

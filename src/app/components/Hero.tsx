@@ -20,7 +20,7 @@ export function Hero() {
         <img src={content.hero.bgImage} alt="" className="w-full h-full object-cover object-center" />
         <div className="absolute inset-0 bg-gradient-to-br from-primary/85 via-primary/75 to-blue-900/85 dark:from-blue-950/90 dark:via-blue-900/85 dark:to-blue-950/90"></div>
       </div>
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(255,255,255,0.08)_0%,transparent_60%),radial-gradient(ellipse_at_bottom_left,rgba(245,158,11,0.1)_0%,transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(56,189,248,0.10)_0%,transparent_60%),radial-gradient(ellipse_at_bottom_left,rgba(34,211,238,0.10)_0%,transparent_50%)]" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
         <motion.div
@@ -38,7 +38,7 @@ export function Hero() {
           >
             {t(content.hero.title)}
             <br />
-            <span className="bg-gradient-to-r from-white via-blue-200 to-amber-200 bg-clip-text text-transparent inline-block font-black tracking-tight text-5xl sm:text-7xl md:text-8xl lg:text-9xl">
+            <span className="bg-gradient-to-r from-white via-blue-200 to-cyan-200 bg-clip-text text-transparent inline-block font-black tracking-tight text-5xl sm:text-7xl md:text-8xl lg:text-9xl">
               {t(content.hero.brandName)}
             </span>
           </motion.h1>
