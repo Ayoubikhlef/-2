@@ -4,7 +4,6 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { LanguageSwitcher } from './LanguageSwitcher';
-import { ThemeToggle } from './ThemeToggle';
 import { Cart } from './CartView';
 import { motion, AnimatePresence } from 'motion/react';
 import { getSiteSettings } from '../utils/siteSettingsStorage';
@@ -97,7 +96,6 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
               )}
             </button>
             <LanguageSwitcher />
-            <ThemeToggle />
           </div>
 
           {/* Mobile Menu */}
@@ -165,7 +163,6 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
               </button>
             )}
             <LanguageSwitcher />
-              <ThemeToggle />
             </div>
             {settings.settings.headerNavLinks.map((link, idx) => (
               <a key={idx} href={link.href}

@@ -37,19 +37,19 @@ const WABubble = lazy(() => import('./components/WABubble').then(m => ({ default
 const AIAssistant = lazy(() => import('./components/AIAssistant').then(m => ({ default: m.AIAssistant })));
 const LiquidEther = lazy(() => import('./components/LiquidEther').then(m => ({ default: m.default })));
 
-const LIQUID_COLORS: string[] = ['#0ea5e9', '#2563eb', '#22d3ee', '#6366f1'];
+const LIQUID_COLORS: string[] = ['#334155', '#64748b', '#94a3b8', '#cbd5e1'];
 
 function LiquidBackground() {
   return (
     <div className="fixed inset-0 z-0 pointer-events-none" style={{ touchAction: 'pan-y' }} aria-hidden="true">
       <LiquidEther
         colors={LIQUID_COLORS}
-        mouseForce={14}
-        cursorSize={90}
+        mouseForce={10}
+        cursorSize={110}
         resolution={0.4}
         autoDemo
-        autoSpeed={0.45}
-        autoIntensity={2}
+        autoSpeed={0.5}
+        autoIntensity={1.6}
         takeoverDuration={0.25}
         autoResumeDelay={2500}
         autoRampDuration={0.6}
