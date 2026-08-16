@@ -1,4 +1,4 @@
-import { api, getAccessToken } from './api';
+import { api, getAccessToken, getStoredUser } from './api';
 import { getStoredProducts, saveProducts } from './productStorage';
 import { products as defaultProducts } from '../data/products';
 
@@ -204,7 +204,16 @@ export async function loadOrdersFromServer(): Promise<OrderRecord[]> {
     return getOrders();
   }
   try {
-    const serverOrders = await api.orders.list();
+    const storedUser = getStoredUser();
+    const isAdmin = storedUser?.role === 'SUPER_ADMIN' || storedUser?.role === 'ADMIN';
+    const params = !isAdmin
+      ? storedUser?.email
+        ? { email: storedUser.email }
+        : storedUser?.phone
+          ? { phone: storedUser.phone }
+          : undefined
+      : undefined;
+    const serverOrders = await api.orders.list(params);
     log('info', `Loaded ${serverOrders.length} orders from server`);
     const deleted = getSoftDeletedIds();
     const localOrders = getOrders();
