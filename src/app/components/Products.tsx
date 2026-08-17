@@ -373,8 +373,8 @@ export function Products() {
                         </div>
                       </div>
                     )}
-                    <div className="absolute top-2 right-2 bg-primary/90 backdrop-blur-sm text-primary-foreground px-2.5 py-1 rounded-lg text-xs font-bold shadow-sm">
-                      {product.price.toLocaleString()} د.ج
+                    <div className="absolute top-2 right-2 bg-primary text-primary-foreground px-2.5 py-1 rounded-lg text-xs font-bold shadow-sm">
+                      {(product.salePrice && product.saleEnd && new Date(product.saleEnd) > new Date() ? product.salePrice : product.price).toLocaleString()} د.ج
                     </div>
                     {product.brand && (
                       <div className="absolute bottom-2 left-2 bg-black/40 backdrop-blur-sm text-white/90 px-2 py-0.5 rounded-lg text-[10px] font-medium">
@@ -397,9 +397,23 @@ export function Products() {
                     <Heart className={`w-4 h-4 ${isInWishlist(product.id) ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} />
                   </button>
                 </div>
-                <p className="text-sm text-muted-foreground/80 line-clamp-2 mb-4">
+                <p className="text-sm text-muted-foreground/80 line-clamp-2 mb-3">
                   {language === 'ar' ? product.descAr : language === 'fr' ? product.descFr : product.descEn}
                 </p>
+
+                <div className="flex items-center gap-2 mb-4" onClick={(e) => e.stopPropagation()}>
+                  {product.salePrice && product.saleEnd && new Date(product.saleEnd) > new Date() ? (
+                    <>
+                      <span className="text-xl font-black text-primary">{product.salePrice.toLocaleString()} د.ج</span>
+                      <span className="text-sm font-semibold text-muted-foreground line-through">{product.price.toLocaleString()} د.ج</span>
+                      <span className="text-[11px] font-bold bg-red-500 text-white px-2 py-0.5 rounded-full">
+                        -{Math.round((1 - product.salePrice / product.price) * 100)}%
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-xl font-black text-primary">{product.price.toLocaleString()} د.ج</span>
+                  )}
+                </div>
 
                 <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center gap-1 bg-muted rounded-lg p-0.5">
