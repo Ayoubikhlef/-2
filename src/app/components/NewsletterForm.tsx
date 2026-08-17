@@ -56,7 +56,7 @@ export function NewsletterForm() {
   return (
     <section className="w-full py-16 sm:py-20">
       <div className="max-w-7xl mx-auto px-5 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-900 dark:from-blue-900 dark:via-blue-800 dark:to-indigo-950 shadow-2xl">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-900 dark:from-blue-950/60 dark:via-blue-900/40 dark:to-indigo-950/60 shadow-2xl">
           <div className="absolute inset-0 bg-grid-white/5 [mask-image:radial-gradient(ellipse_at_center,white,transparent_70%)]" />
           <div className="relative px-6 py-14 sm:px-12 sm:py-16 lg:px-16 lg:py-20">
             <div className="max-w-xl mx-auto">

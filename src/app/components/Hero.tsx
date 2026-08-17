@@ -15,10 +15,10 @@ export function Hero() {
   }, []);
 
   return (
-    <section className="relative min-h-[60vh] flex items-center justify-center bg-gradient-to-br from-primary via-primary to-blue-900 dark:from-blue-950 dark:via-blue-900 dark:to-blue-950 text-white overflow-hidden">
+    <section className="relative min-h-[60vh] flex items-center justify-center bg-gradient-to-br from-primary via-primary to-blue-900 dark:bg-transparent text-white overflow-hidden">
       <div className="absolute inset-0">
-        <img src={content.hero.bgImage} alt="" className="w-full h-full object-cover object-center" />
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/85 via-primary/75 to-blue-900/85 dark:from-blue-950/55 dark:via-blue-900/50 dark:to-blue-950/55"></div>
+        <img src={content.hero.bgImage} alt="" className="w-full h-full object-cover object-center opacity-30" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/85 via-primary/75 to-blue-900/85 dark:from-slate-950/60 dark:via-transparent dark:to-transparent"></div>
       </div>
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(56,189,248,0.10)_0%,transparent_60%),radial-gradient(ellipse_at_bottom_left,rgba(34,211,238,0.10)_0%,transparent_50%)]" />
 

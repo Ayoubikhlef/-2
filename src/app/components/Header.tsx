@@ -39,7 +39,7 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
   };
 
   return (
-    <header className="bg-background/80 backdrop-blur-xl sticky top-0 z-50 border-b border-border/50">
+    <header className="bg-background/40 backdrop-blur-xl sticky top-0 z-50 border-b border-border/50">
       {/* Top announcement bar */}
       <div className="w-full bg-primary text-primary-foreground text-center py-2 text-sm font-semibold tracking-wide">
         <TextType
