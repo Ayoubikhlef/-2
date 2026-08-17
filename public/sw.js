@@ -1,5 +1,5 @@
-const CACHE = 'aos-cache-v6';
-const STATIC_CACHE = 'aos-static-v6';
+const CACHE = 'aos-cache-v7';
+const STATIC_CACHE = 'aos-static-v7';
 const OFFLINE_URL = '/offline.html';
 
 const PRECACHE_URLS = [
@@ -95,16 +95,16 @@ self.addEventListener('fetch', (e) => {
   ) {
     e.respondWith(
       (async () => {
-        const cached = await caches.match(request);
-        if (cached) return cached;
         try {
           const networkResponse = await fetch(request);
-          if (networkResponse.ok) {
+          const contentType = networkResponse.headers.get('content-type') || '';
+          if (networkResponse.ok && contentType.startsWith('image/')) {
             const cache = await caches.open(STATIC_CACHE);
             cache.put(request, networkResponse.clone());
           }
           return networkResponse;
         } catch {
+          const cached = await caches.match(request);
           return cached || new Response('', { status: 404 });
         }
       })()
