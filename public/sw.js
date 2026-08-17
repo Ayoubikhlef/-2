@@ -1,5 +1,5 @@
-const CACHE = 'aos-cache-v5';
-const STATIC_CACHE = 'aos-static-v5';
+const CACHE = 'aos-cache-v6';
+const STATIC_CACHE = 'aos-static-v6';
 const OFFLINE_URL = '/offline.html';
 
 const PRECACHE_URLS = [
@@ -49,8 +49,10 @@ self.addEventListener('fetch', (e) => {
           }
           return networkResponse;
         } catch {
-          const cached = await caches.match(OFFLINE_URL);
+          const cached = await caches.match(request);
           if (cached) return cached;
+          const offline = await caches.match(OFFLINE_URL);
+          if (offline) return offline;
           return new Response('Offline', { status: 503 });
         }
       })()
@@ -65,17 +67,24 @@ self.addEventListener('fetch', (e) => {
     e.respondWith(
       (async () => {
         const cached = await caches.match(request);
-        if (cached) return cached;
-        try {
-          const networkResponse = await fetch(request);
-          if (networkResponse.ok) {
-            const cache = await caches.open(STATIC_CACHE);
-            cache.put(request, networkResponse.clone());
-          }
-          return networkResponse;
-        } catch {
-          return cached || new Response('', { status: 404 });
+        const networkPromise = fetch(request)
+          .then(async (networkResponse) => {
+            if (networkResponse.ok) {
+              const cache = await caches.open(STATIC_CACHE);
+              cache.put(request, networkResponse.clone());
+            }
+            return networkResponse;
+          })
+          .catch(() => null);
+        if (cached) {
+          const fresh = await Promise.race([
+            networkPromise,
+            new Promise((resolve) => setTimeout(() => resolve(null), 2000)),
+          ]);
+          if (fresh) return fresh;
+          return cached;
         }
+        return networkPromise || cached || new Response('', { status: 404 });
       })()
     );
     return;
