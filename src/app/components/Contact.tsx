@@ -104,7 +104,7 @@ export function Contact() {
         {/* Google Maps */}
         <div className="max-w-6xl mx-auto rounded-2xl overflow-hidden shadow-lg border border-border">
           <iframe
-            src={settings.contact.mapsEmbedUrl}
+            src={settings.contact.mapsEmbedUrl || 'https://www.google.com/maps?q=Ayoub+Office+Services,+Grand+Boulevard,+El+Milia,+Jijel+18300&hl=ar&z=15&output=embed'}
             width="100%"
             className="h-[250px] md:h-[380px]"
             style={{ border: 0 }}

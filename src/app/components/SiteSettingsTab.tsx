@@ -140,7 +140,8 @@ export function SiteSettingsTab() {
           <div className="space-y-2">
             <label className="block text-sm font-bold text-white/80">Google Maps Embed URL</label>
             <textarea value={data.contact.mapsEmbedUrl} onChange={e => setData({ ...data, contact: { ...data.contact, mapsEmbedUrl: e.target.value } })}
-              rows={3} className="w-full rounded-lg bg-slate-800 border border-white/10 px-3 py-2.5 text-sm text-white outline-none focus:border-primary/50 resize-none" />
+              rows={3} placeholder="https://www.google.com/maps?q=Ayoub+Office+Services,+El+Milia,+Jijel&hl=ar&z=15&output=embed"
+              className="w-full rounded-lg bg-slate-800 border border-white/10 px-3 py-2.5 text-sm text-white outline-none focus:border-primary/50 resize-none" />
           </div>
           <button onClick={saveContact} className="flex items-center gap-2 rounded-full bg-primary text-slate-950 px-6 py-3 font-bold text-sm hover:bg-primary/90 transition-all">
             <Save className="w-4 h-4" /> {t({ ar: 'حفظ معلومات الاتصال', fr: 'Sauvegarder coordonnées', en: 'Save Contact Info' })}

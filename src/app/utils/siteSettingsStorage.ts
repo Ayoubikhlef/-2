@@ -86,7 +86,7 @@ const defaultContact: ContactInfo = {
     fr: 'Samedi - Jeudi: 08:00 - 19:00',
     en: 'Sat - Thu: 08:00 - 19:00',
   },
-  mapsEmbedUrl: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3194.56!2d6.2718334!3d36.7477532!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12f22300057e0d4b%3A0xb89044f1e5f9512e!2sAyoub+Office+Services!5e0!3m2!1sar!2sdz',
+  mapsEmbedUrl: 'https://www.google.com/maps?q=Ayoub+Office+Services,+Grand+Boulevard,+El+Milia,+Jijel+18300&hl=ar&z=15&output=embed',
 };
 
 const defaultDelivery: DeliveryConfig = {
@@ -136,7 +136,11 @@ const defaultSettings: SiteSettings = {
 function getContact(): ContactInfo {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY + '_contact');
-    return raw ? { ...defaultContact, ...JSON.parse(raw) } : defaultContact;
+    const merged = raw ? { ...defaultContact, ...JSON.parse(raw) } : defaultContact;
+    if (!merged.mapsEmbedUrl || merged.mapsEmbedUrl.includes('/maps/embed?pb=')) {
+      merged.mapsEmbedUrl = defaultContact.mapsEmbedUrl;
+    }
+    return merged;
   } catch { return defaultContact; }
 }
 function dispatchAndSync() {
