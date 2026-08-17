@@ -3,6 +3,7 @@ import { loadServicesFromServer } from './serviceStorage';
 import { loadSiteSettingsFromServer } from './siteSettingsStorage';
 import { loadSiteContentFromServer } from './siteContentStorage';
 import { loadOrdersFromServer, pushUnsyncedOrders } from './orderStorage';
+import { loadMaintenanceFromServer } from './maintenanceStorage';
 import { products as defaultProducts } from '../data/products';
 import { defaultServices } from '../data/services';
 
@@ -40,6 +41,7 @@ export async function syncAllFromServer() {
       loadSiteSettingsFromServer(),
       loadSiteContentFromServer(),
       loadOrdersFromServer(),
+      loadMaintenanceFromServer(),
     ]);
 
     pushUnsyncedOrders().catch(() => {});

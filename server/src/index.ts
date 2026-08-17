@@ -15,6 +15,7 @@ import { reviewRouter } from './routes/reviews';
 import { newsletterRouter } from './routes/newsletter';
 import { loyaltyRouter } from './routes/loyalty';
 import { dataRouter } from './routes/data';
+import { maintenanceRouter } from './routes/maintenance';
 import { emailRouter } from './routes/email';
 import { paymentRouter } from './routes/payment';
 import { errorHandler } from './middleware/errorHandler';
@@ -66,6 +67,7 @@ app.use('/api/reviews', reviewRouter);
 app.use('/api/newsletter', newsletterRouter);
 app.use('/api/loyalty', loyaltyRouter);
 app.use('/api/data', dataRouter);
+app.use('/api/maintenance', maintenanceRouter);
 app.use('/api/email', emailRouter);
 app.use('/api/payment', paymentRouter);
 

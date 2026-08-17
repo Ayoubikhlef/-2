@@ -20,6 +20,7 @@ const reviews_1 = require("./routes/reviews");
 const newsletter_1 = require("./routes/newsletter");
 const loyalty_1 = require("./routes/loyalty");
 const data_1 = require("./routes/data");
+const maintenance_1 = require("./routes/maintenance");
 const email_1 = require("./routes/email");
 const payment_1 = require("./routes/payment");
 const errorHandler_1 = require("./middleware/errorHandler");
@@ -68,6 +69,7 @@ app.use('/api/reviews', reviews_1.reviewRouter);
 app.use('/api/newsletter', newsletter_1.newsletterRouter);
 app.use('/api/loyalty', loyalty_1.loyaltyRouter);
 app.use('/api/data', data_1.dataRouter);
+app.use('/api/maintenance', maintenance_1.maintenanceRouter);
 app.use('/api/email', email_1.emailRouter);
 app.use('/api/payment', payment_1.paymentRouter);
 app.get('/api/health', (_req, res) => {
