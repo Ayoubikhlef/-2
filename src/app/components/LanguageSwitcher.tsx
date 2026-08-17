@@ -8,12 +8,36 @@ import {
   DropdownMenuItem,
 } from './ui/dropdown-menu';
 
-function UKFlag({ className }: { className?: string }) {
+function USFlag({ className }: { className?: string }) {
+  const star = (
+    <path d="M0 -4.6 L1.35 -1.38 L4.86 -1.38 L2.24 0.94 L3.12 4.29 L0 2.1 L-3.12 4.29 L-2.24 0.94 L-4.86 -1.38 L-1.35 -1.38 Z" />
+  );
+  const stars = [];
+  for (let r = 0; r < 9; r++) {
+    const count = r % 2 === 0 ? 6 : 5;
+    const y = 21 + r * 42;
+    for (let c = 0; c < count; c++) {
+      const x = (r % 2 === 0 ? 34.7 : 59.3) + c * 49.4;
+      stars.push(<use key={`${r}-${c}`} href="#aos-us-star" x={x} y={y} transform={`scale(2.35)`} />);
+    }
+  }
   return (
-    <svg viewBox="0 0 640 480" className={className} aria-hidden="true">
-      <path fill="#012169" d="M0 0h640v480H0z" />
-      <path fill="#FFF" d="M75 0l244 181L562 0h78v62L400 241l240 178v61h-80L320 301 81 480H0v-60l239-178L0 64V0h75z" />
-      <path fill="#C8102E" d="M424 281l216 159v40L369 281h55zm-184 20l6 35L54 480H0l240-179zm440-217L521 0h39l-80 64zM0 64L119 0h39L0 94V64zm263 217L6 480h58l199-199zm263 0L320 197v-38l221 184v-62zM263 197L263 197L0 0h63l200 197z" />
+    <svg viewBox="0 0 741 390" className={className} aria-hidden="true">
+      <defs>
+        <g id="aos-us-star">{star}</g>
+      </defs>
+      <rect width="741" height="390" fill="#fff" />
+      <g fill="#b22234">
+        <rect width="741" height="30" y="0" />
+        <rect width="741" height="30" y="60" />
+        <rect width="741" height="30" y="120" />
+        <rect width="741" height="30" y="180" />
+        <rect width="741" height="30" y="240" />
+        <rect width="741" height="30" y="300" />
+        <rect width="741" height="30" y="360" />
+      </g>
+      <rect width="296.4" height="210" fill="#3c3b6e" />
+      <g fill="#fff">{stars}</g>
     </svg>
   );
 }
@@ -39,7 +63,7 @@ function FranceFlag({ className }: { className?: string }) {
 }
 
 const FLAGS: Record<string, (props: { className?: string }) => ReactElement> = {
-  en: UKFlag,
+  en: USFlag,
   ar: AlgeriaFlag,
   fr: FranceFlag,
 };
