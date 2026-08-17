@@ -37,7 +37,7 @@ const WABubble = lazy(() => import('./components/WABubble').then(m => ({ default
 const AIAssistant = lazy(() => import('./components/AIAssistant').then(m => ({ default: m.AIAssistant })));
 const LiquidEther = lazy(() => import('./components/LiquidEther').then(m => ({ default: m.default })));
 
-const LIQUID_COLORS: string[] = ['#3b82f6', '#22d3ee', '#a78bfa', '#f472b6'];
+const LIQUID_COLORS: string[] = ['#1d4ed8', '#3b82f6', '#60a5fa', '#22d3ee'];
 
 function LiquidBackground() {
   return (
