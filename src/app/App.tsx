@@ -14,6 +14,10 @@ import { Contact } from './components/Contact';
 import { Wishlist } from './components/Wishlist';
 import { Footer } from './components/Footer';
 import { NewsletterForm } from './components/NewsletterForm';
+import { AnnouncementBar, TrustBadges } from './components/AnnouncementBar';
+import { StatsSection } from './components/StatsSection';
+import { Testimonials } from './components/Testimonials';
+import { ScrollProgress } from './components/ScrollProgress';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { CartProvider } from './contexts/CartContext';
@@ -242,6 +246,8 @@ export default function App() {
               <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-lg focus:outline-none">
                 {typeof window !== 'undefined' && (navigator.language.startsWith('ar') ? 'تخطى إلى المحتوى' : navigator.language.startsWith('fr') ? 'Aller au contenu' : 'Skip to content')}
               </a>
+              {!isPage && <AnnouncementBar />}
+              <ScrollProgress />
               <Header onLoginClick={() => setShowLogin(true)} />
               <main id="main-content">
                 {isPage ? (
@@ -280,11 +286,13 @@ export default function App() {
                 ) : (
                   <>
                     <Hero />
+                    <StatsSection />
                     <Products />
                     <Wishlist />
                     <ServiceBooking />
                     <Services />
                     <WhyUs />
+                    <Testimonials />
                     <FAQ />
                     <Contact />
                     <Suspense fallback={<div className="py-20 text-center text-muted-foreground animate-pulse">Loading...</div>}>

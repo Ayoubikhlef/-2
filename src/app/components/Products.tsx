@@ -17,6 +17,7 @@ import { ProductGallery } from './ProductGallery';
 import { SearchSuggestions } from './SearchSuggestions';
 import { ProductSuggestions } from './ProductSuggestions';
 import TiltedCard from './TiltedCard';
+import { TrustBadges } from './AnnouncementBar';
 
 function loadProducts() {
   return getStoredProducts(defaultProducts);
@@ -55,6 +56,7 @@ export function Products() {
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [sortBy, setSortBy] = useState<'newest' | 'priceAsc' | 'priceDesc' | 'name'>('newest');
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [visualSearchOpen, setVisualSearchOpen] = useState(false);
@@ -93,8 +95,12 @@ export function Products() {
           p.brand.toLowerCase().includes(q)
       );
     }
+    const priceOf = (p: Product) => p.salePrice && p.saleEnd && new Date(p.saleEnd) > new Date() ? p.salePrice : p.price;
+    if (sortBy === 'priceAsc') result = [...result].sort((a, b) => priceOf(a) - priceOf(b));
+    else if (sortBy === 'priceDesc') result = [...result].sort((a, b) => priceOf(b) - priceOf(a));
+    else if (sortBy === 'name') result = [...result].sort((a, b) => (language === 'ar' ? a.nameAr : language === 'fr' ? a.nameFr : a.nameEn).localeCompare(language === 'ar' ? b.nameAr : language === 'fr' ? b.nameFr : b.nameEn));
     return result;
-  }, [activeCategory, debouncedSearch]);
+  }, [activeCategory, debouncedSearch, sortBy, language]);
   const suggestions = useMemo(() => {
     if (!debouncedSearch.trim()) return [];
     const q = debouncedSearch.toLowerCase();
@@ -300,7 +306,18 @@ export function Products() {
             </AnimatePresence>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-2" role="tablist">
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+              aria-label={t({ ar: 'ترتيب', fr: 'Trier', en: 'Sort' })}
+              className="rounded-2xl border-2 border-border bg-card px-4 py-2.5 text-sm font-semibold outline-none transition focus:border-primary cursor-pointer"
+            >
+              <option value="newest">{t({ ar: 'الأحدث', fr: 'Plus récents', en: 'Newest' })}</option>
+              <option value="priceAsc">{t({ ar: 'السعر: من الأقل للأعلى', fr: 'Prix: croissant', en: 'Price: low to high' })}</option>
+              <option value="priceDesc">{t({ ar: 'السعر: من الأعلى للأقل', fr: 'Prix: décroissant', en: 'Price: high to low' })}</option>
+              <option value="name">{t({ ar: 'الاسم: أ - ي', fr: 'Nom: A - Z', en: 'Name: A - Z' })}</option>
+            </select>
             {Object.entries(categoryLabels).map(([key, label]) => (
               <button
                 key={key}
@@ -980,6 +997,7 @@ export function Products() {
                       </div>
 
                       {/* Submit */}
+                      <TrustBadges />
                       <button
                         type="submit"
                         className="w-full rounded-2xl bg-gradient-to-r from-primary to-blue-700 px-6 py-5 text-primary-foreground font-bold text-xl shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 hover:scale-[1.02] transition-all duration-300 btn-liquid"

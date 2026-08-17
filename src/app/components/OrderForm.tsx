@@ -8,6 +8,7 @@ import { Mail, Phone, MapPin, DollarSign, Banknote, Percent, FileText } from 'lu
 import { toast } from 'sonner';
 import { formatPrice } from '../lib/utils';
 import { DeliveryCalculator } from './DeliveryCalculator';
+import { TrustBadges } from './AnnouncementBar';
 import { getSiteSettings } from '../utils/siteSettingsStorage';
 import confetti from 'canvas-confetti';
 import { generateInvoice } from './InvoicePDF';
@@ -292,6 +293,7 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
                 {t({ ar: 'الدفع عند الاستلام', fr: 'Paiement à la livraison', en: 'Cash on Delivery' })}
               </div>
 
+              <TrustBadges />
               <button
                 type="submit"
                 disabled={submitting}
