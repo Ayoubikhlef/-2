@@ -47,9 +47,12 @@ dataRouter.post('/save', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async
   }
 });
 
-dataRouter.get('/:key', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async (req: AuthRequest, res: Response) => {
+dataRouter.get('/:key', async (req: Request, res: Response) => {
   try {
     const { key } = req.params;
+    if (!ALLOWED_KEYS.has(key)) {
+      return res.status(400).json({ error: 'Unknown data key' });
+    }
     const cacheKey = `data:${key}`;
     const cached = getCached<{ value: any }>(cacheKey);
     if (cached) return res.json(cached);

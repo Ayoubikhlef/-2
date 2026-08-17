@@ -212,7 +212,7 @@ export const products: Product[] = [
     hidden: false,
     images: [
       'https://www.techcenter-dz.com/24185-large_default/sandisk-ultra-dual-drive-luxe-64gb-usb-32-type-c.jpg',
-      'https://m.media-amazon.com/images/I/71pfms4orAL._AC_SL1500_.jpg',
+      'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
     ],
     image: 'https://kolshzin.com/wp-content/uploads/2024/10/SanDisk-Ultra-Dual-Drive-Luxe-64GB-2.webp',
     category: 'storage',
@@ -287,7 +287,7 @@ export const products: Product[] = [
       'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
       'https://images.unsplash.com/photo-1605870445919-838d190e8e1b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
     ],
-    image: 'https://m.media-amazon.com/images/I/61MKM8Hho5L._AC_SL1500_.jpg',
+    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
     category: 'accessories',
     brand: 'Generic',
     specs: [

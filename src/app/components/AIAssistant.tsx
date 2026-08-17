@@ -5,7 +5,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useCart } from '../contexts/CartContext';
 import { products as defaultProducts } from '../data/products';
 import { getStoredProducts } from '../utils/productStorage';
-import { api } from '../utils/api';
+import { api, getAccessToken } from '../utils/api';
 
 function loadProducts() {
   return getStoredProducts(defaultProducts);
@@ -208,7 +208,7 @@ export function AIAssistant() {
 
   useEffect(() => {
     const p = loadProducts();
-    api.syncProducts(p).catch(() => {});
+    if (getAccessToken()) api.syncProducts(p).catch(() => {});
   }, []);
 
   useEffect(() => {

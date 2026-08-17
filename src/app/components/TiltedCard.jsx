@@ -104,6 +104,7 @@ export default function TiltedCard({
           <motion.img
             src={imageSrc}
             alt={altText}
+            loading="lazy"
             className="tilted-card-img"
             onError={() => setImgFailed(true)}
             style={{
@@ -116,14 +117,12 @@ export default function TiltedCard({
             className="tilted-card-img flex items-center justify-center"
             style={{ width: imageWidth, height: imageHeight }}
           >
-            <div className="text-center">
-              <div className="mx-auto mb-2 w-12 h-12 rounded-2xl bg-gradient-to-br from-primary/25 to-cyan-500/25 flex items-center justify-center">
-                <svg className="w-6 h-6 text-primary/70" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A1.5 1.5 0 0021.75 19.5V4.5A1.5 1.5 0 0020.25 3H3.75A1.5 1.5 0 002.25 4.5v15A1.5 1.5 0 003.75 21z" />
-                </svg>
-              </div>
-              <p className="text-[11px] font-bold text-muted-foreground">AOS</p>
-            </div>
+            <img
+              src="/aos-logo3.png"
+              alt={altText}
+              className="h-full w-full object-contain p-5"
+              style={{ borderRadius: 15 }}
+            />
           </div>
         )}
 

@@ -46,9 +46,12 @@ exports.dataRouter.post('/save', auth_1.requireAuth, (0, auth_1.requireRole)('SU
         res.status(500).json({ error: 'Failed to save data' });
     }
 });
-exports.dataRouter.get('/:key', auth_1.requireAuth, (0, auth_1.requireRole)('SUPER_ADMIN', 'ADMIN'), async (req, res) => {
+exports.dataRouter.get('/:key', async (req, res) => {
     try {
         const { key } = req.params;
+        if (!ALLOWED_KEYS.has(key)) {
+            return res.status(400).json({ error: 'Unknown data key' });
+        }
         const cacheKey = `data:${key}`;
         const cached = (0, cache_1.getCached)(cacheKey);
         if (cached)
