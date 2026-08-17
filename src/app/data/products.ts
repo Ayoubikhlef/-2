@@ -473,10 +473,10 @@ export const products: Product[] = [
     seoKeywords: '',
     hidden: false,
     images: [
-      'https://images.unsplash.com/photo-1569445384761-aa5c9d2afa44?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+      'https://images.unsplash.com/photo-1607863680198-23d4b2565df0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
       'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
     ],
-    image: 'https://images.unsplash.com/photo-1569445384761-aa5c9d2afa44?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+    image: 'https://images.unsplash.com/photo-1607863680198-23d4b2565df0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
     category: 'storage',
     brand: 'Samsung',
     specs: [
