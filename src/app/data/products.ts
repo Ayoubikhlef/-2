@@ -211,8 +211,8 @@ export const products: Product[] = [
     seoKeywords: '',
     hidden: false,
     images: [
-      'https://www.techcenter-dz.com/24185-large_default/sandisk-ultra-dual-drive-luxe-64gb-usb-32-type-c.jpg',
       'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+      'https://images.unsplash.com/photo-1587829741301-dc798b83add3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
     ],
     image: 'https://kolshzin.com/wp-content/uploads/2024/10/SanDisk-Ultra-Dual-Drive-Luxe-64GB-2.webp',
     category: 'storage',

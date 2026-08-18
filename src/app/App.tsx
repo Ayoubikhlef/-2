@@ -115,9 +115,16 @@ function AdminLoadingPage() {
 }
 
 export default function App() {
-  const is404 = typeof window !== 'undefined' && window.location.hash && !['#products', '#booking', '#services', '#admin', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account'].includes(window.location.hash);
+  const [hash, setHash] = useState(() => (typeof window !== 'undefined' ? window.location.hash : ''));
+  const is404 = typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#admin', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account'].includes(hash);
   const [showLogin, setShowLogin] = useState(false);
   const [maintenance, setMaintenance] = useState(false);
+
+  useEffect(() => {
+    const onHashChange = () => setHash(window.location.hash);
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
 
   useEffect(() => {
     initCrossTabSync();
@@ -166,7 +173,7 @@ export default function App() {
     return () => window.removeEventListener('hashchange', updateTitle);
   }, []);
 
-  if (maintenance && typeof window !== 'undefined' && window.location.hash !== '#admin') {
+  if (maintenance && hash !== '#admin') {
     const savedLang = localStorage.getItem('language') || 'ar';
     const lang = savedLang as 'ar' | 'fr' | 'en';
     const msg = getMaintenanceMessage();
@@ -222,8 +229,8 @@ export default function App() {
 
   if (is404) return <NotFound />;
 
-  const hash = typeof window !== 'undefined' ? window.location.hash : '';
-  const isPage = ['#about', '#terms', '#privacy', '#checkout', '#loyalty', '#account'].includes(hash);
+  const currentHash = hash;
+  const isPage = ['#about', '#terms', '#privacy', '#checkout', '#loyalty', '#account'].includes(currentHash);
 
   return (
     <ThemeProvider>
