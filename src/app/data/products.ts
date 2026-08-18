@@ -56,10 +56,10 @@ export const products: Product[] = [
     seoKeywords: '',
     hidden: false,
     images: [
-      'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
-      'https://images.unsplash.com/photo-1615663245857-ac93bb7c39e7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+      '/products/08.jpg',
+      '/products/27.jpg',
     ],
-    image: 'https://images.unsplash.com/photo-1527814050087-3793815479db?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+    image: '/products/07.jpg',
     category: 'mice',
     brand: 'Generic',
     specs: [
@@ -94,10 +94,10 @@ export const products: Product[] = [
     seoKeywords: '',
     hidden: false,
     images: [
-      'https://images.unsplash.com/photo-1586210579191-33b45e38fa2c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
-      'https://images.unsplash.com/photo-1619953942547-233eab5a70d6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+      '/products/13.jpg',
+      '/products/29.jpg',
     ],
-    image: 'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+    image: '/products/17.jpg',
     category: 'monitors',
     brand: 'Generic',
     specs: [
@@ -133,10 +133,10 @@ export const products: Product[] = [
     seoKeywords: '',
     hidden: false,
     images: [
-      'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
-      'https://images.unsplash.com/photo-1597432538815-7e3e3e1a0e5b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+      '/products/14.jpg',
+      '/products/37.jpg',
     ],
-    image: 'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+    image: '/products/19.jpg',
     category: 'storage',
     brand: 'Generic',
     specs: [
@@ -172,10 +172,10 @@ export const products: Product[] = [
     seoKeywords: '',
     hidden: false,
     images: [
-      'https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
-      'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+      '/products/26.jpg',
+      '/products/10.jpg',
     ],
-    image: 'https://capmicrodz.com/wp-content/uploads/2026/01/Imprimante-A3-canon-2206-imageRUNNER-monochrome-image-01.jpg',
+    image: '/products/01.jpg',
     category: 'printers',
     brand: 'Canon',
     specs: [
@@ -211,10 +211,10 @@ export const products: Product[] = [
     seoKeywords: '',
     hidden: false,
     images: [
-      'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
-      'https://images.unsplash.com/photo-1587829741301-dc798b83add3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+      '/products/28.jpg',
+      '/products/16.jpg',
     ],
-    image: 'https://kolshzin.com/wp-content/uploads/2024/10/SanDisk-Ultra-Dual-Drive-Luxe-64GB-2.webp',
+    image: '/products/34.webp',
     category: 'storage',
     brand: 'SanDisk',
     specs: [
@@ -248,10 +248,10 @@ export const products: Product[] = [
     seoKeywords: '',
     hidden: false,
     images: [
-      'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
-      'https://images.unsplash.com/photo-1609592424910-95628432c9bc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+      '/products/12.jpg',
+      '/products/39.jpg',
     ],
-    image: 'https://www.maxframe.dz/gla-adminer/uploads/article/full/142615869_28-08-2024_134027.jpg',
+    image: '/products/35.jpg',
     category: 'accessories',
     brand: 'Generic',
     specs: [
@@ -284,10 +284,10 @@ export const products: Product[] = [
     seoKeywords: '',
     hidden: false,
     images: [
-      'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
-      'https://images.unsplash.com/photo-1605870445919-838d190e8e1b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+      '/products/04.jpg',
+      '/products/21.jpg',
     ],
-    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+    image: '/products/06.jpg',
     category: 'accessories',
     brand: 'Generic',
     specs: [
@@ -320,10 +320,10 @@ export const products: Product[] = [
     seoKeywords: '',
     hidden: false,
     images: [
-      'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
-      'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+      '/products/17.jpg',
+      '/products/02.jpg',
     ],
-    image: 'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+    image: '/products/17.jpg',
     category: 'laptops',
     brand: 'Dell',
     specs: [
@@ -359,10 +359,10 @@ export const products: Product[] = [
     seoKeywords: '',
     hidden: false,
     images: [
-      'https://images.unsplash.com/photo-1587829741301-dc798b83add3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
-      'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+      '/products/16.jpg',
+      '/products/28.jpg',
     ],
-    image: 'https://images.unsplash.com/photo-1618384887929-16ec33fab9ef?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+    image: '/products/28.jpg',
     category: 'accessories',
     brand: 'Generic',
     specs: [
@@ -397,10 +397,10 @@ export const products: Product[] = [
     seoKeywords: '',
     hidden: false,
     images: [
-      'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
-      'https://images.unsplash.com/photo-1583394838336-acd977736f90?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+      '/products/03.jpg',
+      '/products/11.jpg',
     ],
-    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+    image: '/products/03.jpg',
     category: 'accessories',
     brand: 'Generic',
     specs: [
@@ -435,10 +435,10 @@ export const products: Product[] = [
     seoKeywords: '',
     hidden: false,
     images: [
-      'https://images.unsplash.com/photo-1556229174-5e42a09e45af?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
-      'https://images.unsplash.com/photo-1600262607440-edc2ab10db22?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+      '/products/09.jpg',
+      '/products/38.jpg',
     ],
-    image: 'https://images.unsplash.com/photo-1556229174-5e42a09e45af?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+    image: '/products/09.jpg',
     category: 'networking',
     brand: 'TP-Link',
     specs: [
@@ -473,10 +473,10 @@ export const products: Product[] = [
     seoKeywords: '',
     hidden: false,
     images: [
-      'https://images.unsplash.com/photo-1607863680198-23d4b2565df0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
-      'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+      '/products/22.jpg',
+      '/products/19.jpg',
     ],
-    image: 'https://images.unsplash.com/photo-1607863680198-23d4b2565df0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+    image: '/products/22.jpg',
     category: 'storage',
     brand: 'Samsung',
     specs: [
@@ -511,10 +511,10 @@ export const products: Product[] = [
     seoKeywords: '',
     hidden: false,
     images: [
-      'https://images.unsplash.com/photo-1587826080692-f439cd0b70da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
-      'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+      '/products/15.jpg',
+      '/products/25.jpg',
     ],
-    image: 'https://images.unsplash.com/photo-1587826080692-f439cd0b70da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+    image: '/products/15.jpg',
     category: 'accessories',
     brand: 'Generic',
     specs: [
@@ -549,10 +549,10 @@ export const products: Product[] = [
     seoKeywords: '',
     hidden: false,
     images: [
-      'https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
-      'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+      '/products/23.jpg',
+      '/products/12.jpg',
     ],
-    image: 'https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+    image: '/products/23.jpg',
     category: 'accessories',
     brand: 'Generic',
     specs: [
@@ -587,10 +587,10 @@ export const products: Product[] = [
     seoKeywords: '',
     hidden: false,
     images: [
-      'https://images.unsplash.com/photo-1623869675781-80aa31012a5a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
-      'https://images.unsplash.com/photo-1605870445919-838d190e8e1b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+      '/products/30.jpg',
+      '/products/21.jpg',
     ],
-    image: 'https://images.unsplash.com/photo-1623869675781-80aa31012a5a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=500',
+    image: '/products/30.jpg',
     category: 'accessories',
     brand: 'Generic',
     specs: [

@@ -11,7 +11,7 @@ export const services = [
       fr: 'Impression, numérisation, photocopie et plastification',
       en: 'Printing, scanning, photocopying and lamination'
     },
-    image: 'https://images.unsplash.com/photo-1650094980833-7373de26feb6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHw1fHxwcmludGVyJTIwbW9kZXJuJTIwb2ZmaWNlJTIwdGVjaG5vbG9neXxlbnwxfHx8fDE3NzY4NzA1NDd8MA&ixlib=rb-4.1.0&q=80&w=1080',
+    image: '/products/31.jpg',
     color: 'from-blue-500 to-blue-600'
   },
   {
@@ -26,7 +26,7 @@ export const services = [
       fr: 'Mémoires, thèses, recherches et CV professionnels',
       en: 'Dissertations, theses, research and professional CVs'
     },
-    image: 'https://images.unsplash.com/photo-1773525911805-bebab1d3e0e4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHw0fHxwcmludGVyJTIwbW9kZXJuJTIwb2ZmaWNlJTIwdGVjaG5vbG9neXxlbnwxfHx8fDE3NzY4NzA1NDd8MA&ixlib=rb-4.1.0&q=80&w=1080',
+    image: '/products/33.jpg',
     color: 'from-green-500 to-green-600'
   },
   {
@@ -41,7 +41,7 @@ export const services = [
       fr: 'Réservation de créneaux pour démarches consulaires',
       en: 'Booking slots for consular procedures'
     },
-    image: 'https://images.unsplash.com/photo-1758887248912-03a0c34a2f41?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwyfHxidXNpbmVzcyUyMHByb2Zlc3Npb25hbCUyMHNlcnZpY2VzfGVufDF8fHx8MTc3Njg3MDU1NHww&ixlib=rb-4.1.0&q=80&w=1080',
+    image: '/products/32.jpg',
     color: 'from-purple-500 to-purple-600'
   },
   {
@@ -56,7 +56,7 @@ export const services = [
       fr: 'Équipements PC, pièces et accessoires pour particuliers et entreprises en Algérie',
       en: 'Computer equipment, spare parts, and accessories for individuals and businesses across Algeria'
     },
-    image: 'https://images.unsplash.com/photo-1518770660439-4636190af475?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwzfHxjb21wdXRlciUyMHdvcmstc3RhdGlvbnxlbnwwfHx8fDE3NzY4NzA1MjN8MA&ixlib=rb-4.1.0&q=80&w=1080',
+    image: '/products/05.jpg',
     color: 'from-cyan-500 to-blue-600'
   }
 ];
