@@ -116,7 +116,7 @@ function AdminLoadingPage() {
 
 export default function App() {
   const [hash, setHash] = useState(() => (typeof window !== 'undefined' ? window.location.hash : ''));
-  const is404 = typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#admin', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account'].includes(hash);
+  const is404 = typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#admin', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq'].includes(hash);
   const [showLogin, setShowLogin] = useState(false);
   const [maintenance, setMaintenance] = useState(false);
 
@@ -125,6 +125,18 @@ export default function App() {
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
+
+  useEffect(() => {
+    const sectionHash = ['#products', '#booking', '#services', '#contact', '#wishlist', '#faq'];
+    if (sectionHash.includes(hash)) {
+      const id = hash.slice(1);
+      const timer = setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 120);
+      return () => clearTimeout(timer);
+    }
+  }, [hash]);
 
   useEffect(() => {
     initCrossTabSync();
