@@ -44,7 +44,7 @@ function LiquidBackground() {
     <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true">
       <video
         src="/earth-bg.mp4"
-        className="w-full h-full object-cover opacity-40"
+        className="w-full h-full object-cover opacity-30 blur-[2px] scale-110"
         autoPlay
         muted
         loop
