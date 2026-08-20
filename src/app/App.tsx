@@ -39,28 +39,20 @@ const AccountDashboard = lazy(() => import('./components/AccountDashboard').then
 const LoginPage = lazy(() => import('./components/LoginPage').then(m => ({ default: m.LoginPage })));
 const WABubble = lazy(() => import('./components/WABubble').then(m => ({ default: m.WABubble })));
 const AIAssistant = lazy(() => import('./components/AIAssistant').then(m => ({ default: m.AIAssistant })));
-const LiquidEther = lazy(() => import('./components/LiquidEther').then(m => ({ default: m.default })));
-
-const LIQUID_COLORS: string[] = ['#1d4ed8', '#3b82f6', '#60a5fa', '#22d3ee'];
-
 function LiquidBackground() {
   return (
-    <div className="fixed inset-0 z-0 pointer-events-none" style={{ touchAction: 'pan-y' }} aria-hidden="true">
-      <LiquidEther
-        colors={LIQUID_COLORS}
-        mouseForce={12}
-        cursorSize={110}
-        resolution={0.4}
-        autoDemo
-        autoSpeed={0.5}
-        autoIntensity={1.9}
-        takeoverDuration={0.25}
-        autoResumeDelay={2500}
-        autoRampDuration={0.6}
-        isViscous={false}
-        iterationsPoisson={24}
-        BFECC
+    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true">
+      <video
+        src="/earth-bg.mp4"
+        className="w-full h-full object-cover opacity-40"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        poster="/hero-bg.png"
       />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/50" />
     </div>
   );
 }
