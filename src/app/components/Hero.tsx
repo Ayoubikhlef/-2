@@ -17,10 +17,10 @@ export function Hero() {
   return (
     <section className="relative min-h-[60vh] flex items-center justify-center bg-gradient-to-br from-primary via-primary to-blue-900 dark:bg-transparent text-white overflow-hidden">
       <div className="absolute inset-0">
-        <img src={content.hero.bgImage} alt="" className="w-full h-full object-cover object-center opacity-30" />
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/85 via-primary/75 to-blue-900/85 dark:from-slate-950/60 dark:via-transparent dark:to-transparent"></div>
+        <img src={content.hero.bgImage} alt="" className="w-full h-full object-cover object-center opacity-20" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/70 via-primary/60 to-blue-900/70 dark:from-slate-950/60 dark:via-transparent dark:to-transparent"></div>
       </div>
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(56,189,248,0.10)_0%,transparent_60%),radial-gradient(ellipse_at_bottom_left,rgba(34,211,238,0.10)_0%,transparent_50%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(56,189,248,0.05)_0%,transparent_60%),radial-gradient(ellipse_at_bottom_left,rgba(34,211,238,0.05)_0%,transparent_50%)]" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
         <motion.div
