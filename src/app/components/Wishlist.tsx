@@ -11,7 +11,16 @@ export function Wishlist() {
   const [wishlistIds, setWishlistIds] = useState<number[]>([]);
 
   useEffect(() => {
-    setWishlistIds(getWishlist());
+    const syncWishlist = () => setWishlistIds(getWishlist());
+
+    syncWishlist();
+    window.addEventListener('aos:data-changed', syncWishlist);
+    window.addEventListener('storage', syncWishlist);
+
+    return () => {
+      window.removeEventListener('aos:data-changed', syncWishlist);
+      window.removeEventListener('storage', syncWishlist);
+    };
   }, []);
 
   const wishlistItems = useMemo(() => {
