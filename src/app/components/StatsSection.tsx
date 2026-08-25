@@ -47,10 +47,10 @@ export function StatsSection() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-80px' }}
       transition={{ duration: 0.6 }}
-      className="relative py-14"
+      className="relative py-12 bg-white dark:bg-slate-900 border-y border-border/50"
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {stats.map(({ icon: Icon, value, suffix, label }, i) => (
             <motion.div
               key={label}
@@ -58,16 +58,15 @@ export function StatsSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="group relative overflow-hidden rounded-3xl border border-border bg-card/60 backdrop-blur-md p-6 sm:p-8 text-center hover:border-primary/50 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300"
+              className="group text-center p-4 md:p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-border/50 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
             >
-              <div className="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-gradient-to-br from-primary/20 to-cyan-500/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="mx-auto mb-4 w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-cyan-500 flex items-center justify-center shadow-lg shadow-primary/25 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-300">
-                <Icon className="w-7 h-7 text-white" />
+              <div className="mx-auto mb-3 w-12 h-12 md:w-14 md:h-14 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                <Icon className="w-6 h-6 md:w-7 md:h-7 text-primary" />
               </div>
-              <p className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-primary to-cyan-500 bg-clip-text text-transparent mb-1">
+              <p className="text-2xl md:text-3xl font-black text-primary mb-1">
                 <Counter target={value} suffix={suffix} />
               </p>
-              <p className="text-sm font-semibold text-muted-foreground">{label}</p>
+              <p className="text-xs md:text-sm font-semibold text-muted-foreground">{label}</p>
             </motion.div>
           ))}
         </div>

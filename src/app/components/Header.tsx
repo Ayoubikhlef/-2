@@ -7,14 +7,13 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import { Cart } from './CartView';
 import { motion, AnimatePresence } from 'motion/react';
 import { getSiteSettings } from '../utils/siteSettingsStorage';
-import GooeyNav from './GooeyNav';
-import TextType from './TextType';
 
 export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [logoHits, setLogoHits] = useState(0);
   const [settings, setSettings] = useState(() => getSiteSettings());
+  const [scrolled, setScrolled] = useState(false);
   const { t, language } = useLanguage();
   const { items } = useCart();
   const { user, logout, isAdmin } = useAuth();
@@ -24,6 +23,12 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
     const refresh = () => setSettings(getSiteSettings());
     window.addEventListener('aos:data-changed', refresh);
     return () => window.removeEventListener('aos:data-changed', refresh);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const handleLogoClick = () => {
@@ -38,184 +43,199 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
     }
   };
 
-  return (
-    <header className="bg-background/40 backdrop-blur-xl sticky top-0 z-50 border-b border-border/50">
-      {/* Top announcement bar */}
-      <div className="w-full bg-primary text-primary-foreground text-center py-2 text-sm font-semibold tracking-wide">
-        <TextType
-          text={["WELCOME TO AYOUB OFFICE SERVICES"]}
-          typingSpeed={60}
-          pauseDuration={3000}
-          initialDelay={500}
-          showCursor={true}
-          cursorCharacter="|"
-          loop={false}
-          className="text-type-top"
-        />
-      </div>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-24 md:h-36">
-          {/* Logo */}
-          <div className="flex items-center gap-3">
-            <a href="/" className="block" onClick={(e) => { e.preventDefault(); handleLogoClick(); }}>
-              <img src="/logo.png" alt="AOS" className="h-24 md:h-36 w-auto" />
-            </a>
-          </div>
+  const navLinks = settings.settings.headerNavLinks;
 
-          {/* Desktop Menu */}
-          <div className="hidden lg:flex items-center gap-1">
-            <GooeyNav
-              items={settings.settings.headerNavLinks.map(link => ({
-                label: t(link.label),
-                href: link.href
-              }))}
-              particleCount={12}
-              particleDistances={[70, 8]}
-              particleR={80}
-              animationTime={500}
-              timeVariance={250}
-              colors={[1, 2, 3, 1, 2, 3, 1, 4]}
-            />
+  return (
+    <header className={`sticky top-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl shadow-lg shadow-black/5 border-b border-border/50' : 'bg-white dark:bg-slate-900 border-b border-border/30'}`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16 md:h-20">
+          {/* Logo */}
+          <a href="/" className="flex items-center gap-2 shrink-0" onClick={(e) => { e.preventDefault(); handleLogoClick(); }}>
+            <img src="/logo.png" alt="AYOUB OFFICE SERVICES" className="h-10 md:h-12 w-auto" />
+          </a>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center gap-1">
+            {navLinks.map((link, idx) => (
+              <a
+                key={idx}
+                href={link.href}
+                className="px-4 py-2 text-sm font-semibold text-foreground/70 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200"
+              >
+                {t(link.label)}
+              </a>
+            ))}
+          </nav>
+
+          {/* Desktop Actions */}
+          <div className="hidden lg:flex items-center gap-3">
+            <div className="flex items-center gap-2 text-sm font-medium bg-primary/5 text-primary px-3 py-2 rounded-lg">
+              <Phone className="w-4 h-4" />
+              <span className="font-bold whitespace-nowrap">{settings.contact.phoneDisplay}</span>
+            </div>
+
             {user && (
-              <a href="#account" className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors flex items-center gap-1.5">
-                <User className="w-3.5 h-3.5" />
+              <a href="#account" className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-foreground/70 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors">
+                <User className="w-4 h-4" />
                 {t({ ar: 'حسابي', fr: 'Mon Compte', en: 'My Account' })}
               </a>
             )}
-            <div className="flex items-center gap-2 text-sm font-medium bg-primary/5 text-primary px-3 py-2 rounded-lg mx-1">
-              <Phone className="w-3.5 h-3.5" />
-              <span className="font-semibold">{settings.contact.phoneDisplay}</span>
-            </div>
-            <button onClick={() => setCartOpen(!cartOpen)}
-              className="relative p-2 rounded-lg hover:bg-muted transition-colors">
-              <ShoppingCart className="w-5 h-5" />
+
+            <LanguageSwitcher />
+
+            <button
+              onClick={() => setCartOpen(!cartOpen)}
+              className="relative p-2.5 rounded-lg hover:bg-primary/5 transition-colors"
+              aria-label={t({ ar: 'سلة التسوق', fr: 'Panier', en: 'Cart' })}
+            >
+              <ShoppingCart className="w-5 h-5 text-foreground/70" />
               {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                <span className="absolute -top-0.5 -right-0.5 bg-primary text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
                   {itemCount}
                 </span>
               )}
             </button>
-            <LanguageSwitcher />
+
+            <a
+              href="#contact"
+              className="inline-flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-primary/90 transition-all shadow-sm shadow-primary/20 hover:shadow-md hover:shadow-primary/30"
+            >
+              {t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}
+            </a>
           </div>
 
-          {/* Mobile Menu */}
-          <div className="flex lg:hidden items-center space-x-2">
+          {/* Mobile Actions */}
+          <div className="flex lg:hidden items-center gap-2">
+            <LanguageSwitcher />
             <button
               onClick={() => setCartOpen(!cartOpen)}
               className="relative p-2 rounded-lg hover:bg-muted transition-colors"
+              aria-label={t({ ar: 'سلة التسوق', fr: 'Panier', en: 'Cart' })}
             >
               <ShoppingCart className="w-5 h-5" />
               {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                <span className="absolute -top-0.5 -right-0.5 bg-primary text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
                   {itemCount}
                 </span>
               )}
             </button>
             <a
               href={`tel:${settings.contact.phone}`}
-              className="bg-primary text-primary-foreground p-2 rounded-lg"
+              className="bg-primary text-white p-2 rounded-lg"
+              aria-label={t({ ar: 'اتصل بنا', fr: 'Appelez-nous', en: 'Call us' })}
             >
               <Phone className="w-5 h-5" />
             </a>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-lg hover:bg-muted transition-colors"
+              aria-label={t({ ar: 'القائمة', fr: 'Menu', en: 'Menu' })}
             >
-              {mobileMenuOpen ? (
-                <X className="w-6 h-6" />
-              ) : (
-                <Menu className="w-6 h-6" />
-              )}
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Menu Dropdown */}
+        {/* Mobile Menu */}
         <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.nav
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden mt-4 pt-4 border-t border-border space-y-3 overflow-hidden"
-          >
-            <div className="mb-3 flex items-center gap-2">
-            {user ? (
-              <div className="flex items-center gap-3 text-base font-medium bg-muted px-4 py-3 rounded-lg">
-                <User className="w-5 h-5 text-primary" />
-                <span className="font-semibold truncate max-w-[140px]">{user.name}</span>
-                {isAdmin && (
-                  <a href="#admin" className="text-sm text-primary font-bold ml-2">
-                    {t({ ar: 'أدمين', fr: 'Admin', en: 'Admin' })}
-                  </a>
+          {mobileMenuOpen && (
+            <motion.nav
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="lg:hidden border-t border-border overflow-hidden"
+              aria-label={t({ ar: 'القائمة الرئيسية', fr: 'Menu principal', en: 'Main menu' })}
+            >
+              <div className="py-4 space-y-1">
+                {user && (
+                  <div className="flex items-center gap-3 px-4 py-3 mb-2 bg-muted rounded-lg mx-2">
+                    <User className="w-5 h-5 text-primary" />
+                    <span className="font-semibold truncate">{user.name}</span>
+                    {isAdmin && (
+                      <a href="#admin" className="text-sm text-primary font-bold ms-auto">
+                        {t({ ar: 'أدمين', fr: 'Admin', en: 'Admin' })}
+                      </a>
+                    )}
+                    <button onClick={logout} className="p-1 hover:bg-background rounded" title={t({ ar: 'تسجيل خروج', fr: 'Déconnexion', en: 'Logout' })}>
+                      <LogOut className="w-4 h-4 text-muted-foreground" />
+                    </button>
+                  </div>
                 )}
-                <a href="#account" className="text-sm text-primary font-bold">
-                  {t({ ar: 'حسابي', fr: 'Compte', en: 'Account' })}
-                </a>
-                <button onClick={logout} className="p-2 hover:bg-background rounded" title={t({ ar: 'تسجيل خروج', fr: 'Déconnexion', en: 'Logout' })}>
-                  <LogOut className="w-5 h-5 text-muted-foreground" />
-                </button>
+                {!user && (
+                  <button
+                    onClick={() => { onLoginClick?.(); setMobileMenuOpen(false); }}
+                    className="flex items-center gap-3 w-full px-4 py-3 text-sm font-semibold bg-muted rounded-lg hover:bg-muted/80 transition-colors mx-2 mb-2"
+                  >
+                    <User className="w-5 h-5 text-primary" />
+                    {t({ ar: 'تسجيل الدخول', fr: 'Connexion', en: 'Sign In' })}
+                  </button>
+                )}
+                {navLinks.map((link, idx) => (
+                  <a
+                    key={idx}
+                    href={link.href}
+                    className="block px-4 py-3 text-base font-semibold text-foreground/80 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors mx-2"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {t(link.label)}
+                  </a>
+                ))}
+                <div className="pt-2 px-2">
+                  <a
+                    href="#contact"
+                    className="block w-full text-center bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary/90 transition-all"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}
+                  </a>
+                </div>
               </div>
-            ) : (
-              <button onClick={onLoginClick} className="flex items-center gap-3 text-base font-semibold bg-muted px-4 py-3 rounded-lg hover:bg-muted/80 transition-colors w-full justify-center">
-                <User className="w-5 h-5 text-primary" />
-                <span>{t({ ar: 'دخول', fr: 'Connexion', en: 'Sign In' })}</span>
-              </button>
-            )}
-            <LanguageSwitcher />
-            </div>
-            {settings.settings.headerNavLinks.map((link, idx) => (
-              <a key={idx} href={link.href}
-                className="block py-3 text-lg font-medium hover:text-primary transition-colors"
-                onClick={() => setMobileMenuOpen(false)}>
-                {t(link.label)}
-              </a>
-            ))}
-          </motion.nav>
-        )}
+            </motion.nav>
+          )}
         </AnimatePresence>
 
-        {/* Cart Modal */}
+        {/* Cart Drawer */}
         <AnimatePresence>
-        {cartOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 z-40"
-              onClick={() => setCartOpen(false)}
-            />
-            <motion.div
-              initial={{ opacity: 0, x: language === 'ar' ? -50 : 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: language === 'ar' ? -50 : 50 }}
-              className={`fixed top-20 ${language === 'ar' ? 'left-0' : 'right-0'} w-full max-w-sm bg-background rounded-b-2xl shadow-2xl z-50 max-h-96 overflow-y-auto`}
-            >
-              <div className="p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-bold">
-                    {t({ ar: 'عربة التسويق', fr: 'Panier', en: 'Shopping Cart' })}
-                  </h3>
-                  <button
+          {cartOpen && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/50 z-40"
+                onClick={() => setCartOpen(false)}
+              />
+              <motion.div
+                initial={{ opacity: 0, x: language === 'ar' ? -50 : 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: language === 'ar' ? -50 : 50 }}
+                className={`fixed top-0 ${language === 'ar' ? 'left-0' : 'right-0'} w-full max-w-sm h-full bg-white dark:bg-slate-900 shadow-2xl z-50 overflow-y-auto`}
+              >
+                <div className="p-6">
+                  <div className="flex justify-between items-center mb-6">
+                    <h3 className="text-lg font-bold">
+                      {t({ ar: 'سلة التسوق', fr: 'Panier', en: 'Shopping Cart' })}
+                    </h3>
+                    <button
+                      onClick={() => setCartOpen(false)}
+                      className="p-2 hover:bg-muted rounded-lg transition-colors"
+                      aria-label={t({ ar: 'إغلاق', fr: 'Fermer', en: 'Close' })}
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <Cart />
+                  <a
+                    href="#checkout"
                     onClick={() => setCartOpen(false)}
-                    className="text-muted-foreground hover:text-foreground"
+                    className="block mt-6 w-full bg-primary text-white text-center py-3 rounded-lg font-bold hover:bg-primary/90 transition-all shadow-sm shadow-primary/20"
                   >
-                    <X className="w-5 h-5" />
-                  </button>
+                    {t({ ar: 'إتمام الطلب', fr: 'Finaliser la commande', en: 'Checkout' })}
+                  </a>
                 </div>
-                <Cart />
-                <a
-                  href="#checkout"
-                  onClick={() => setCartOpen(false)}
-                  className="block mt-4 w-full bg-primary text-primary-foreground text-center py-3 rounded-lg font-semibold hover:bg-primary/90 transition-all"
-                >
-                  {t({ ar: 'إتمام الطلب', fr: 'Finaliser', en: 'Checkout' })}
-                </a>
-              </div>
-            </motion.div>
-          </>
-        )}
+              </motion.div>
+            </>
+          )}
         </AnimatePresence>
       </div>
     </header>

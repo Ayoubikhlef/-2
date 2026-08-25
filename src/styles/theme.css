@@ -3,18 +3,18 @@
 :root {
   --font-size: 16px;
   --background: #f8fafc;
-  --foreground: #0f172a;
+  --foreground: #1e293b;
   --card: #ffffff;
-  --card-foreground: #0f172a;
+  --card-foreground: #1e293b;
   --popover: #ffffff;
-  --popover-foreground: #0f172a;
-  --primary: #2563eb;
+  --popover-foreground: #1e293b;
+  --primary: #0b5ed7;
   --primary-foreground: #ffffff;
-  --secondary: #3b82f6;
+  --secondary: #0b5ed7;
   --secondary-foreground: #ffffff;
   --muted: #f1f5f9;
   --muted-foreground: #64748b;
-  --accent: #0284c7;
+  --accent: #0b5ed7;
   --accent-foreground: #ffffff;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
@@ -24,43 +24,43 @@
   --switch-background: #cbd5e1;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --ring: #2563eb;
-  --chart-1: #2563eb;
+  --ring: #0b5ed7;
+  --chart-1: #0b5ed7;
   --chart-2: #3b82f6;
   --chart-3: #f59e0b;
   --chart-4: #6366f1;
   --chart-5: #ec4899;
-  --radius: 1rem;
+  --radius: 0.875rem;
   --sidebar: #f8fafc;
-  --sidebar-foreground: #0f172a;
-  --sidebar-primary: #2563eb;
+  --sidebar-foreground: #1e293b;
+  --sidebar-primary: #0b5ed7;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #f1f5f9;
-  --sidebar-accent-foreground: #0f172a;
+  --sidebar-accent-foreground: #1e293b;
   --sidebar-border: #e2e8f0;
-  --sidebar-ring: #2563eb;
+  --sidebar-ring: #0b5ed7;
 }
 
 .dark {
-  --background: #000000;
+  --background: #0f172a;
   --foreground: #e8eefc;
-  --card: #0b1526;
+  --card: #1e293b;
   --card-foreground: #e8eefc;
-  --popover: #0b1526;
+  --popover: #1e293b;
   --popover-foreground: #e8eefc;
-  --primary: #3b82f6;
+  --primary: #0b5ed7;
   --primary-foreground: #ffffff;
   --secondary: #1e40af;
   --secondary-foreground: #dfe9ff;
-  --muted: #16233b;
-  --muted-foreground: #8fa6c9;
-  --accent: #22d3ee;
-  --accent-foreground: #04121c;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --accent: #0b5ed7;
+  --accent-foreground: #ffffff;
   --destructive: #f43f5e;
   --destructive-foreground: #ffffff;
-  --border: #1a2940;
-  --input: #16233b;
-  --ring: #38bdf8;
+  --border: #1e3a5f;
+  --input: #1e293b;
+  --ring: #3b82f6;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
   --chart-1: #3b82f6;
@@ -68,14 +68,14 @@
   --chart-3: #6366f1;
   --chart-4: #0ea5e9;
   --chart-5: #818cf8;
-  --sidebar: #050a18;
+  --sidebar: #0f172a;
   --sidebar-foreground: #e8eefc;
-  --sidebar-primary: #3b82f6;
+  --sidebar-primary: #0b5ed7;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #16233b;
+  --sidebar-accent: #1e293b;
   --sidebar-accent-foreground: #e8eefc;
-  --sidebar-border: #1a2940;
-  --sidebar-ring: #38bdf8;
+  --sidebar-border: #1e3a5f;
+  --sidebar-ring: #3b82f6;
 }
 
 @theme inline {
@@ -205,12 +205,7 @@ body {
   font-family: 'Plus Jakarta Sans', 'Tajawal', sans-serif;
   font-weight: 500;
   color: var(--foreground);
-  background:
-    radial-gradient(ellipse 70% 50% at 0% 20%, rgba(59,130,246,0.05) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 40% at 100% 80%, rgba(245,158,11,0.04) 0%, transparent 55%),
-    linear-gradient(135deg, #f8fafc 0%, #eef2ff 30%, #f0f5ff 60%, #f8fafc 100%);
-  background-size: 100% 100%, 100% 100%, 400% 400%;
-  animation: tech-gradient 25s ease infinite;
+  background: var(--background);
 }
 
 body::before {
@@ -219,11 +214,7 @@ body::before {
   inset: 0;
   pointer-events: none;
   z-index: -1;
-  background:
-    radial-gradient(circle 600px at 0% 0%, rgba(59,130,246,0.04) 0%, transparent 70%),
-    radial-gradient(circle 500px at 100% 100%, rgba(245,158,11,0.03) 0%, transparent 70%),
-    radial-gradient(circle 400px at 50% 50%, rgba(99,102,241,0.02) 0%, transparent 70%);
-  animation: orb-float 20s ease-in-out infinite alternate;
+  background: none;
 }
 
 .dark body,
@@ -231,19 +222,11 @@ body::before {
   font-family: 'Plus Jakarta Sans', 'Tajawal', sans-serif;
   font-weight: 500;
   color: var(--foreground);
-  background:
-    radial-gradient(ellipse 70% 50% at 0% 20%, rgba(59,130,246,0.08) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 40% at 100% 80%, rgba(245,158,11,0.06) 0%, transparent 55%),
-    linear-gradient(135deg, #0f172a 0%, #0f1e36 25%, #0a1628 50%, #0f172a 75%, #0f172a 100%);
-  background-size: 100% 100%, 100% 100%, 400% 400%;
-  animation: tech-gradient 25s ease infinite;
+  background: var(--background);
 }
 
 .dark body::before {
-  background:
-    radial-gradient(circle 600px at 0% 0%, rgba(59,130,246,0.08) 0%, transparent 70%),
-    radial-gradient(circle 500px at 100% 100%, rgba(245,158,11,0.06) 0%, transparent 70%),
-    radial-gradient(circle 400px at 50% 50%, rgba(99,102,241,0.04) 0%, transparent 70%);
+  background: none;
 }
 
 #root {
@@ -252,12 +235,12 @@ body::before {
 }
 
 .dark svg.lucide {
-  filter: drop-shadow(3px 4px 8px rgba(0,0,0,0.5));
+  filter: none;
 }
 
 .dark svg.lucide:hover {
-  filter: drop-shadow(5px 8px 18px rgba(0,0,0,0.6)) brightness(1.25);
-  transform: perspective(400px) translateY(-3px) scale(1.1) rotateX(5deg) rotateY(-5deg);
+  filter: none;
+  transform: none;
 }
 
 @keyframes bounce-subtle {

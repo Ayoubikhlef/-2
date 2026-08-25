@@ -40,21 +40,7 @@ const LoginPage = lazy(() => import('./components/LoginPage').then(m => ({ defau
 const WABubble = lazy(() => import('./components/WABubble').then(m => ({ default: m.WABubble })));
 const AIAssistant = lazy(() => import('./components/AIAssistant').then(m => ({ default: m.AIAssistant })));
 function LiquidBackground() {
-  return (
-    <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden" aria-hidden="true">
-      <video
-        src="/earth-bg.mp4"
-        className="w-full h-full object-cover opacity-30 blur-[2px] scale-110"
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
-        poster="/hero-bg.png"
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/50" />
-    </div>
-  );
+  return null;
 }
 
 function AdminFallback() {
@@ -169,8 +155,8 @@ export default function App() {
         '#services': { ar: 'الخدمات', fr: 'Services', en: 'Services' },
         '#contact':  { ar: 'اتصل بنا', fr: 'Contact', en: 'Contact Us' },
       };
-      const name = titles[hash]?.[lang] || 'AOS Tech Store';
-      document.title = `${name} | AOS Tech Store`;
+      const name = titles[hash]?.[lang] || 'AYOUB OFFICE SERVICES';
+      document.title = `${name} | AYOUB OFFICE SERVICES`;
     };
     updateTitle();
     window.addEventListener('hashchange', updateTitle);

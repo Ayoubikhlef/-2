@@ -2,10 +2,10 @@ import { Truck, BadgeCheck, ShieldCheck, Zap } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const ITEMS: { ar: string; fr: string; en: string }[] = [
-  { ar: '🚚 توصيل مجاني للطلبات فوق 5000 د.ج', fr: '🚚 Livraison gratuite dès 5000 DA', en: '🚚 Free delivery on orders over 5000 DA' },
-  { ar: '💵 الدفع عند الاستلام في 58 ولاية', fr: '💵 Paiement à la livraison dans 58 wilayas', en: '💵 Cash on delivery in all 58 wilayas' },
-  { ar: '🔧 خدمات إصلاح وصيانة للمعلوميات', fr: '🔧 Réparation et maintenance informatique', en: '🔧 Computer repair & maintenance services' },
-  { ar: '⚡ عروض خاصة أسبوعية على الطابعات والشاشات', fr: '⚡ Offres spéciales chaque semaine', en: '⚡ Weekly deals on printers & monitors' },
+  { ar: 'توصيل مجاني للطلبات فوق 5000 د.ج', fr: 'Livraison gratuite dès 5000 DA', en: 'Free delivery on orders over 5000 DA' },
+  { ar: 'الدفع عند الاستلام في 58 ولاية', fr: 'Paiement à la livraison dans 58 wilayas', en: 'Cash on delivery in all 58 wilayas' },
+  { ar: 'خدمات إصلاح وصيانة للمعلوميات', fr: 'Réparation et maintenance informatique', en: 'Computer repair & maintenance services' },
+  { ar: 'عروض خاصة أسبوعية على الطابعات والشاشات', fr: 'Offres spéciales chaque semaine', en: 'Weekly deals on printers & monitors' },
 ];
 
 export function AnnouncementBar() {
@@ -14,7 +14,7 @@ export function AnnouncementBar() {
   const all = langs.flatMap(lang => ITEMS.map(i => i[lang]));
 
   return (
-    <div className="relative top-0 z-[60] overflow-hidden bg-gradient-to-r from-blue-800 via-blue-600 to-cyan-600 text-white py-1.5 select-none">
+    <div className="relative z-[60] overflow-hidden bg-primary text-white py-2 select-none">
       <div className="flex w-max animate-[aos-marquee_30s_linear_infinite]">
         {[0, 1].map(dup => (
           <div key={dup} className="flex shrink-0" aria-hidden={dup === 1}>
