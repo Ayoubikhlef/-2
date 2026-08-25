@@ -49,13 +49,14 @@ export function OrderForm() {
   const validateCoupon = (code: string) => {
     const raw = localStorage.getItem('aos_coupons');
     if (!raw) return { valid: false, reason: t({ ar: 'الكود غير صحيح', fr: 'Code invalide', en: 'Invalid code' }) };
-    const coupons = JSON.parse(raw);
+    let coupons: any[] = [];
+    try { coupons = JSON.parse(raw); } catch { return { valid: false, reason: t({ ar: 'خطأ في البيانات', fr: 'Erreur de données', en: 'Data error' }) }; }
     const coupon = coupons.find((c: any) => c.code.toLowerCase() === code.toLowerCase() && c.active);
     if (!coupon) return { valid: false, reason: t({ ar: 'الكود غير موجود أو غير نشط', fr: 'Code inexistant ou inactif', en: 'Code not found or inactive' }) };
     if (coupon.expiryDate && new Date(coupon.expiryDate) < new Date()) return { valid: false, reason: t({ ar: 'الكود منتهي الصلاحية', fr: 'Code expiré', en: 'Code expired' }) };
     if (coupon.minOrder > 0 && total < coupon.minOrder) return { valid: false, reason: t({ ar: `الحد الأدنى للطلب ${coupon.minOrder.toLocaleString()} د.ج`, fr: `Minimum de commande ${coupon.minOrder.toLocaleString()} DZD`, en: `Min order ${coupon.minOrder.toLocaleString()} DZD` }) };
-    const usageRaw = localStorage.getItem('aos_coupon_usage');
-    const usageData = usageRaw ? JSON.parse(usageRaw) : [];
+    let usageData: any[] = [];
+    try { const usageRaw = localStorage.getItem('aos_coupon_usage'); usageData = usageRaw ? JSON.parse(usageRaw) : []; } catch { usageData = []; }
     const usage = usageData.find((u: any) => u.code === coupon.code);
     const usedCount = usage?.usedCount || 0;
     if (coupon.maxUses > 0 && usedCount >= coupon.maxUses) return { valid: false, reason: t({ ar: 'الكود استنفذ عدد الاستخدامات', fr: 'Code épuisé', en: 'Code exhausted' }) };
@@ -174,7 +175,6 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
     setFormData({ fullName: '', phone: '', email: '', address: '', wilaya: '1', municipality: '1' });
     clear();
     setSubmitting(false);
-    setTimeout(() => { setSubmitted(false); setLastLoyalty(null); setLastOrder(null); }, 15000);
   };
 
   return (

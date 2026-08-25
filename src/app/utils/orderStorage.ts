@@ -111,7 +111,7 @@ export async function saveOrder(order: Omit<OrderRecord, 'id' | 'createdAt' | 's
       (p) => p.nameAr === item.name || p.nameFr === item.name || p.nameEn === item.name
     );
     if (idx !== -1 && products[idx].stock !== undefined) {
-      products[idx].stock = Math.max(0, products[idx].stock - item.quantity);
+      products[idx].stock = Math.max(0, (products[idx].stock ?? 0) - item.quantity);
       changed = true;
     }
   }

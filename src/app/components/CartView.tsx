@@ -43,7 +43,10 @@ export function Cart() {
               type="number"
               min="1"
               value={item.quantity}
-              onChange={(e) => updateQuantity(item.productId, parseInt(e.target.value))}
+              onChange={(e) => {
+                const val = parseInt(e.target.value, 10);
+                if (!isNaN(val) && val > 0) updateQuantity(item.productId, val);
+              }}
               className="w-16 px-2 py-1 border border-border rounded text-center"
             />
             <p className="font-semibold w-24 text-right">

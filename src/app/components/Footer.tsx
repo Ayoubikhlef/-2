@@ -23,7 +23,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-10">
           {/* Brand */}
           <div className="lg:col-span-1">
-            <img src="/logo.png" alt="AYOUB OFFICE SERVICES" className="h-14 w-auto mb-4" />
+            <img src="/logo.png" alt="AYOUB OFFICE SERVICES" className="h-14 w-auto mb-4" width="56" height="56" />
             <p className="text-white/60 text-sm leading-relaxed mb-4">
               {t(content.footer.description)}
             </p>

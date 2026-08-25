@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import crypto from 'crypto';
 import { z } from 'zod';
 import { prisma } from '../utils/prisma';
 import { sendWhatsAppNotification, sendNewOrderAlert } from '../services/whatsapp';
@@ -17,18 +18,18 @@ const orderItemSchema = z.object({
 });
 
 const createOrderSchema = z.object({
-  id: z.string().optional(),
-  customer: z.string().min(1),
-  phone: z.string().min(1),
-  email: z.string().optional(),
-  wilaya: z.string(),
-  municipality: z.string(),
-  address: z.string(),
-  note: z.string().optional(),
-  items: z.array(orderItemSchema).min(1),
-  total: z.number().nonnegative(),
+  id: z.string().uuid().optional(),
+  customer: z.string().min(1).max(200),
+  phone: z.string().min(1).max(20),
+  email: z.string().email().optional(),
+  wilaya: z.string().min(1),
+  municipality: z.string().min(1),
+  address: z.string().min(1).max(500),
+  note: z.string().max(500).optional(),
+  items: z.array(orderItemSchema).min(1).max(50),
+  total: z.number().nonnegative().max(10000000),
   source: z.enum(['form', 'quick-order', 'service-booking']),
-  discountCode: z.string().optional(),
+  discountCode: z.string().max(50).optional(),
 });
 
 orderRouter.post('/', async (req: Request, res: Response) => {
@@ -63,9 +64,10 @@ orderRouter.post('/', async (req: Request, res: Response) => {
       }
     }
 
+    const orderId = data.id || crypto.randomUUID();
     const order = await prisma.order.create({
       data: {
-        id: data.id || undefined,
+        id: orderId,
         customer: data.customer,
         phone: data.phone,
         email: data.email || '',

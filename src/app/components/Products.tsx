@@ -67,7 +67,7 @@ export function Products() {
   useEffect(() => {
     const refresh = () => setProducts(loadProducts());
     window.addEventListener('aos:data-changed', refresh);
-    loadProductsFromServer(defaultProducts).then(setProducts);
+    loadProductsFromServer(defaultProducts).then(setProducts).catch(() => {});
     return () => window.removeEventListener('aos:data-changed', refresh);
   }, []);
 
@@ -100,7 +100,7 @@ export function Products() {
     else if (sortBy === 'priceDesc') result = [...result].sort((a, b) => priceOf(b) - priceOf(a));
     else if (sortBy === 'name') result = [...result].sort((a, b) => (language === 'ar' ? a.nameAr : language === 'fr' ? a.nameFr : a.nameEn).localeCompare(language === 'ar' ? b.nameAr : language === 'fr' ? b.nameFr : b.nameEn));
     return result;
-  }, [activeCategory, debouncedSearch, sortBy, language]);
+  }, [activeCategory, debouncedSearch, sortBy, language, products]);
   const suggestions = useMemo(() => {
     if (!debouncedSearch.trim()) return [];
     const q = debouncedSearch.toLowerCase();
@@ -989,14 +989,15 @@ export function Products() {
                               if (!couponCode.trim()) return;
                               const raw = localStorage.getItem('aos_coupons');
                               if (!raw) { setCouponError(t({ ar: 'الكود غير صحيح', fr: 'Code invalide', en: 'Invalid code' })); return; }
-                              const coupons = JSON.parse(raw);
+                              let coupons: any[] = [];
+                              try { coupons = JSON.parse(raw); } catch { setCouponError(t({ ar: 'خطأ في البيانات', fr: 'Erreur de données', en: 'Data error' })); return; }
                               const coupon = coupons.find((c: any) => c.code.toLowerCase() === couponCode.trim().toLowerCase() && c.active);
                               if (!coupon) { setCouponError(t({ ar: 'الكود غير موجود', fr: 'Code inexistant', en: 'Code not found' })); return; }
                               if (coupon.expiryDate && new Date(coupon.expiryDate) < new Date()) { setCouponError(t({ ar: 'منتهي الصلاحية', fr: 'Expiré', en: 'Expired' })); return; }
                               const sub = selectedProduct ? selectedProduct.price * orderData.quantity : 0;
                               if (coupon.minOrder > 0 && sub < coupon.minOrder) { setCouponError(t({ ar: `الحد الأدنى ${coupon.minOrder.toLocaleString()} د.ج`, fr: `Min ${coupon.minOrder.toLocaleString()} DZD`, en: `Min ${coupon.minOrder.toLocaleString()} DZD` })); return; }
-                              const usageRaw = localStorage.getItem('aos_coupon_usage');
-                              const usageData = usageRaw ? JSON.parse(usageRaw) : [];
+                              let usageData: any[] = [];
+                              try { const usageRaw = localStorage.getItem('aos_coupon_usage'); usageData = usageRaw ? JSON.parse(usageRaw) : []; } catch { usageData = []; }
                               const usage = usageData.find((u: any) => u.code === coupon.code);
                               const usedCount = usage?.usedCount || 0;
                               if (coupon.maxUses > 0 && usedCount >= coupon.maxUses) { setCouponError(t({ ar: 'استنفذ', fr: 'Épuisé', en: 'Exhausted' })); return; }
@@ -1080,13 +1081,19 @@ export function Products() {
               <p className="text-muted-foreground text-sm">
                 {language === 'ar' ? quickViewProduct.shortDescAr : language === 'fr' ? quickViewProduct.shortDescFr : quickViewProduct.shortDescEn}
               </p>
-              <div className="flex items-center justify-between">
-                <span className="text-2xl font-bold text-primary">
-                  {quickViewProduct.price.toLocaleString()} د.ج
-                </span>
-                {quickViewProduct.salePrice && (
-                  <span className="text-sm text-muted-foreground line-through">
-                    {quickViewProduct.salePrice.toLocaleString()} د.ج
+              <div className="flex items-center gap-3">
+                {quickViewProduct.salePrice && quickViewProduct.saleEnd && new Date(quickViewProduct.saleEnd) > new Date() ? (
+                  <>
+                    <span className="text-2xl font-bold text-primary">
+                      {quickViewProduct.salePrice.toLocaleString()} د.ج
+                    </span>
+                    <span className="text-sm text-muted-foreground line-through">
+                      {quickViewProduct.price.toLocaleString()} د.ج
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-2xl font-bold text-primary">
+                    {quickViewProduct.price.toLocaleString()} د.ج
                   </span>
                 )}
               </div>

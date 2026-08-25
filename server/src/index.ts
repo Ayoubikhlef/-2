@@ -30,7 +30,20 @@ const PORT = Number(process.env.PORT) || 3001;
 
 app.use(helmet({
   strictTransportSecurity: { maxAge: 31536000, includeSubDomains: true, preload: true },
-  contentSecurityPolicy: false,
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "https:"],
+      fontSrc: ["'self'", "data:"],
+      connectSrc: ["'self'"],
+      frameSrc: ["https://www.google.com", "https://www.google.dz", "https://www.google.co.dz"],
+      frameAncestors: ["'none'"],
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
+    },
+  },
 }));
 app.use(cors({
   origin: (origin, cb) => {
@@ -50,9 +63,14 @@ app.use((_req, res, next) => {
 });
 
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100, message: { error: 'Too many attempts' }, validate: { xForwardedForHeader: false } });
+const adminGateLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: { error: 'Too many gate attempts' }, validate: { xForwardedForHeader: false } });
+const passwordResetLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: { error: 'Too many reset attempts' }, validate: { xForwardedForHeader: false } });
 const orderLimiter = rateLimit({ windowMs: 60 * 1000, max: 200, message: { error: 'Too many requests' }, validate: { xForwardedForHeader: false } });
 const generalLimiter = rateLimit({ windowMs: 60 * 1000, max: 600, message: { error: 'Too many requests' }, validate: { xForwardedForHeader: false } });
 app.use('/api/auth', authLimiter);
+app.use('/api/auth/admin-gate', adminGateLimiter);
+app.use('/api/auth/forgot-password', passwordResetLimiter);
+app.use('/api/auth/reset-password', passwordResetLimiter);
 app.use('/api/newsletter', generalLimiter);
 app.use('/api/chat', generalLimiter);
 app.use('/api/orders', orderLimiter);

@@ -8,9 +8,10 @@ dist/
 .DS_Store
 Thumbs.db
 
-
 .vercel
-
 .env.vercel
-
 .env.vercel.prod
+
+# Server secrets
+server/.env
+server/.env.*

@@ -64,14 +64,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const updateQuantity = (productId: number, quantity: number) => {
-    if (quantity <= 0) {
+    if (!Number.isFinite(quantity) || quantity <= 0) {
       removeItem(productId);
       return;
     }
     setItems((prev) =>
       prev.map((item) =>
         item.productId === productId
-          ? { ...item, quantity }
+          ? { ...item, quantity: Math.floor(quantity) }
           : item
       )
     );

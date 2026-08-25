@@ -144,7 +144,7 @@ export function ManageProductsTab({ products, onUpdate }: { products: Product[];
             <button type="button" onClick={() => setShowForm(false)} className="p-3 rounded-xl bg-slate-800 hover:bg-slate-700 transition-all border border-white/10">
               <X className="w-5 h-5" />
             </button>
-            <button type="button" onClick={() => setEditing((prev) => ({ ...prev, key: '' }))}
+            <button type="button" onClick={() => setEditing((prev) => ({ ...prev, specs: prev?.specs || [] }))}
               className="p-3 rounded-xl bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition-all border border-emerald-500/20">
               <Tag className="w-5 h-5" />
             </button>

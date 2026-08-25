@@ -119,22 +119,6 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-@keyframes tech-gradient {
-  0% { background-position: 0% 0%; }
-  25% { background-position: 100% 0%; }
-  50% { background-position: 100% 100%; }
-  75% { background-position: 0% 100%; }
-  100% { background-position: 0% 0%; }
-}
-
-@keyframes orb-float {
-  0% { transform: translate(0, 0); }
-  25% { transform: translate(2%, -3%); }
-  50% { transform: translate(-1%, 2%); }
-  75% { transform: translate(3%, 1%); }
-  100% { transform: translate(0, 0); }
-}
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -149,7 +133,12 @@
 
   html {
     font-size: var(--font-size);
-    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
 
   ::selection {
@@ -208,25 +197,12 @@ body {
   background: var(--background);
 }
 
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: -1;
-  background: none;
-}
-
 .dark body,
 :root.dark body {
   font-family: 'Plus Jakarta Sans', 'Tajawal', sans-serif;
   font-weight: 500;
   color: var(--foreground);
   background: var(--background);
-}
-
-.dark body::before {
-  background: none;
 }
 
 #root {

@@ -51,7 +51,7 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
         <div className="flex justify-between items-center h-16 md:h-20">
           {/* Logo */}
           <a href="/" className="flex items-center gap-2 shrink-0" onClick={(e) => { e.preventDefault(); handleLogoClick(); }}>
-            <img src="/logo.png" alt="AYOUB OFFICE SERVICES" className="h-10 md:h-12 w-auto" />
+            <img src="/logo.png" alt="AYOUB OFFICE SERVICES" className="h-10 md:h-12 w-auto" width="48" height="48" />
           </a>
 
           {/* Desktop Navigation */}

@@ -7,7 +7,7 @@ export function getAllowedOrigins(): string[] {
 }
 
 export function isOriginAllowed(origin: string | undefined): boolean {
-  if (!origin) return true;
+  if (!origin) return false;
   const allowedOrigins = getAllowedOrigins();
   return allowedOrigins.includes(origin);
 }

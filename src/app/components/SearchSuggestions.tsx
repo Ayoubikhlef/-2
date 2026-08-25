@@ -25,7 +25,7 @@ export function SearchSuggestions({ query, products, onSelect, onClose }: Search
         {products.map((product) => (
           <button
             key={product.id}
-            onClick={() => { onSelect(product); onClose(); }}
+            onMouseDown={(e) => { e.preventDefault(); onSelect(product); onClose(); }}
             className="w-full flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted transition text-right"
           >
             <div className="w-10 h-10 rounded-lg overflow-hidden bg-muted shrink-0">
