@@ -7,6 +7,7 @@ export type OrderItem = {
   quantity: number;
   price: number;
   total: number;
+  productId?: number;
 };
 
 export type OrderStatus = 'new' | 'processing' | 'completed' | 'cancelled';

@@ -132,7 +132,9 @@ export function Products() {
 
   const updateQuantity = (productId: number, delta: number) => {
     const current = quantities[productId] || 1;
-    const newQty = Math.max(1, current + delta);
+    const product = products.find(p => p.id === productId);
+    const maxStock = product?.stock ?? 10000;
+    const newQty = Math.max(1, Math.min(current + delta, maxStock));
     setQuantities((prev) => ({ ...prev, [productId]: newQty }));
   };
 
@@ -218,6 +220,7 @@ export function Products() {
       quantity: orderData.quantity,
       price: selectedProduct.price,
       name: productName,
+      stock: selectedProduct.stock ?? 0,
     });
 
     const record = await saveOrder({
@@ -415,6 +418,16 @@ export function Products() {
                   )}
                 </div>
 
+                {(product.stock ?? 0) > 0 ? (
+                  <p className={`text-xs mb-3 ${(product.stock ?? 0) <= 5 ? 'text-orange-500 font-semibold' : 'text-emerald-500'}`}>
+                    {t({ ar: `المخزون: ${product.stock}`, fr: `Stock: ${product.stock}`, en: `Stock: ${product.stock}` })}
+                  </p>
+                ) : (
+                  <p className="text-xs text-red-500 font-semibold mb-3">
+                    {t({ ar: 'نفذ من المخزون', fr: 'Rupture de stock', en: 'Out of stock' })}
+                  </p>
+                )}
+
                 <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center gap-1 bg-muted rounded-lg p-0.5">
                     <button onClick={() => updateQuantity(product.id, -1)} className="p-1.5 hover:bg-background rounded-md transition">
@@ -425,10 +438,10 @@ export function Products() {
                       <Plus className="w-3.5 h-3.5" />
                     </button>
                   </div>
-                  <button onClick={() => openOrderModal(product)} aria-label={t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}
-                    className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95">
+                  <button onClick={() => openOrderModal(product)} disabled={(product.stock ?? 0) <= 0} aria-label={t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}
+                    className={`flex-1 px-3 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95 ${(product.stock ?? 0) <= 0 ? 'bg-muted text-muted-foreground cursor-not-allowed' : 'bg-primary text-primary-foreground hover:bg-primary/90'}`}>
                     <ShoppingCart className="w-3.5 h-3.5" />
-                    <span>{t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}</span>
+                    <span>{(product.stock ?? 0) <= 0 ? t({ ar: 'نفذ', fr: 'Épuisé', en: 'Sold out' }) : t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}</span>
                   </button>
                   <button onClick={(e) => { e.stopPropagation(); openQuickView(product); }}
                     className="p-2 rounded-lg border border-border hover:bg-muted transition"
@@ -892,7 +905,7 @@ export function Products() {
                             <span className="flex-1 text-center font-bold text-xl">{orderData.quantity}</span>
                             <button
                               type="button"
-                              onClick={() => setOrderData((prev) => ({ ...prev, quantity: prev.quantity + 1 }))}
+                              onClick={() => setOrderData((prev) => ({ ...prev, quantity: Math.min(prev.quantity + 1, selectedProduct?.stock ?? 10000) }))}
                               className="w-10 h-10 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 flex items-center justify-center transition-colors"
                             >
                               <Plus className="w-5 h-5" />

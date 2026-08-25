@@ -16,7 +16,7 @@ paymentRouter.post('/init', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), as
     const { orderId, method, phone } = initSchema.parse(req.body);
     const order = await prisma.$queryRaw<{ id: string; total: number; status: string; wilaya: string }[]>`SELECT id, total, status, wilaya FROM aos_orders WHERE id = ${orderId}`;
     if (!order.length) return res.status(404).json({ error: 'Order not found' });
-    if (order[0].status !== 'pending') return res.status(400).json({ error: 'Order already processed' });
+    if (!['new', 'pending'].includes(order[0].status)) return res.status(400).json({ error: 'Order already processed' });
 
     const paymentId = `PAY-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 

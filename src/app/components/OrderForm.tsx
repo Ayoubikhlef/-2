@@ -123,6 +123,7 @@ export function OrderForm() {
         quantity: item.quantity,
         price: item.price,
         total: item.price * item.quantity,
+        productId: item.productId,
       })),
       total: grandTotal,
       source: 'form',

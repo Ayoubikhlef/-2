@@ -12,13 +12,13 @@ export const orderRouter = Router();
 
 const orderItemSchema = z.object({
   name: z.string(),
-  quantity: z.number().int().positive(),
+  quantity: z.number().int().positive().max(10000),
   price: z.number().nonnegative(),
   total: z.number().nonnegative(),
+  productId: z.number().optional(),
 });
 
 const createOrderSchema = z.object({
-  id: z.string().uuid().optional(),
   customer: z.string().min(1).max(200),
   phone: z.string().min(1).max(20),
   email: z.string().email().optional(),
@@ -36,14 +36,53 @@ orderRouter.post('/', async (req: Request, res: Response) => {
   try {
     const data = createOrderSchema.parse(req.body);
 
-    let finalTotal = data.items.reduce((sum, item) => sum + item.total, 0);
+    const setting = await prisma.setting.findUnique({ where: { key: 'aos_products' } });
+    const products: any[] = setting ? JSON.parse(setting.value) : [];
+
+    let serverTotal = 0;
+    const validatedItems: { name: string; quantity: number; price: number; total: number; productId?: number }[] = [];
+
+    for (const item of data.items) {
+      const product = item.productId
+        ? products.find((p: any) => p.id === item.productId)
+        : products.find((p: any) => p.nameAr === item.name || p.nameFr === item.name || p.nameEn === item.name);
+
+      if (!product) {
+        return res.status(400).json({ error: `Product not found: ${item.name}` });
+      }
+
+      const stock = product.stock ?? 0;
+      if (stock <= 0) {
+        return res.status(400).json({ error: `Out of stock: ${product.nameAr || item.name}` });
+      }
+      if (item.quantity > stock) {
+        return res.status(400).json({ error: `Insufficient stock for ${product.nameAr || item.name}: requested ${item.quantity}, available ${stock}` });
+      }
+
+      const serverPrice = product.salePrice && product.saleEnd && new Date(product.saleEnd) > new Date()
+        ? product.salePrice
+        : product.price;
+
+      const itemTotal = Math.round(serverPrice * item.quantity);
+      serverTotal += itemTotal;
+
+      validatedItems.push({
+        name: product.nameAr || item.name,
+        quantity: item.quantity,
+        price: serverPrice,
+        total: itemTotal,
+        productId: product.id,
+      });
+    }
+
+    let finalTotal = serverTotal;
     let discountAmount = 0;
     let appliedCode: string | undefined;
 
     if (data.discountCode) {
-      const setting = await prisma.setting.findUnique({ where: { key: 'aos_coupons' } });
-      if (setting) {
-        const coupons = JSON.parse(setting.value);
+      const couponSetting = await prisma.setting.findUnique({ where: { key: 'aos_coupons' } });
+      if (couponSetting) {
+        const coupons = JSON.parse(couponSetting.value);
         const coupon = Array.isArray(coupons) ? coupons.find(
           (c: any) => c.code?.toLowerCase() === data.discountCode?.toLowerCase() && c.active
         ) : null;
@@ -64,32 +103,55 @@ orderRouter.post('/', async (req: Request, res: Response) => {
       }
     }
 
-    const orderId = data.id || crypto.randomUUID();
-    const order = await prisma.order.create({
-      data: {
-        id: orderId,
-        customer: data.customer,
-        phone: data.phone,
-        email: data.email || '',
-        wilaya: data.wilaya,
-        municipality: data.municipality,
-        address: data.address,
-        note: data.note || '',
-        total: finalTotal,
-        status: 'new',
-        source: data.source,
-        paymentMethod: appliedCode ? ('discount:' + appliedCode) : undefined,
-        items: {
-          create: data.items.map(item => ({
-            name: item.name,
-            quantity: item.quantity,
-            price: item.price,
-            total: item.total,
-          })),
+    const orderId = crypto.randomUUID();
+    const order = await prisma.$transaction(async (tx) => {
+      for (const item of validatedItems) {
+        if (item.productId) {
+          const [updated] = await tx.$queryRaw<{ stock: number }[]>`
+            UPDATE aos_products SET value = json_set(value, '$.stock', CAST(json_extract(value, '$.stock') AS INTEGER) - ${item.quantity})
+            WHERE key = 'aos_products'
+            RETURNING json_extract(value, '$.stock') as stock
+          `;
+          if (updated && updated.stock < 0) {
+            throw new Error(`Insufficient stock for ${item.name}`);
+          }
+        }
+      }
+
+      return tx.order.create({
+        data: {
+          id: orderId,
+          customer: data.customer,
+          phone: data.phone,
+          email: data.email || '',
+          wilaya: data.wilaya,
+          municipality: data.municipality,
+          address: data.address,
+          note: data.note || '',
+          total: finalTotal,
+          status: 'new',
+          source: data.source,
+          paymentMethod: appliedCode ? ('discount:' + appliedCode) : undefined,
+          items: {
+            create: validatedItems.map(item => ({
+              name: item.name,
+              quantity: item.quantity,
+              price: item.price,
+              total: item.total,
+              productId: item.productId,
+            })),
+          },
         },
-      },
-      include: { items: true },
+        include: { items: true },
+      });
     });
+
+    if (order) {
+      const updatedSetting = await prisma.setting.findUnique({ where: { key: 'aos_products' } });
+      if (updatedSetting) {
+        clearCache('products');
+      }
+    }
 
     console.log(`[Orders] Created order ${order.id} (${order.total} DZD)`);
     clearCache('orders:list');
@@ -128,6 +190,9 @@ orderRouter.post('/', async (req: Request, res: Response) => {
   } catch (err) {
     if (err instanceof z.ZodError) {
       return res.status(400).json({ error: 'Validation failed', details: err.errors });
+    }
+    if (err instanceof Error && err.message.includes('Insufficient stock')) {
+      return res.status(400).json({ error: err.message });
     }
     console.error('[Orders] Create error:', err);
     res.status(500).json({ error: 'Failed to create order' });

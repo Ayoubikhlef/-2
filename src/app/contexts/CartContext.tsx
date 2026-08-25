@@ -6,7 +6,10 @@ export interface CartItem {
   quantity: number;
   price: number;
   name: string;
+  stock?: number;
 }
+
+const MAX_QUANTITY = 10000;
 
 interface CartContextType {
   items: CartItem[];
@@ -51,11 +54,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
       if (existing) {
         return prev.map((item) =>
           item.productId === newItem.productId
-            ? { ...item, quantity: item.quantity + newItem.quantity }
+            ? { ...item, quantity: Math.min(item.quantity + newItem.quantity, newItem.stock ?? MAX_QUANTITY) }
             : item
         );
       }
-      return [...prev, newItem];
+      return [...prev, { ...newItem, quantity: Math.min(newItem.quantity, newItem.stock ?? MAX_QUANTITY) }];
     });
   };
 
@@ -71,7 +74,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems((prev) =>
       prev.map((item) =>
         item.productId === productId
-          ? { ...item, quantity: Math.floor(quantity) }
+          ? { ...item, quantity: Math.min(Math.floor(quantity), item.stock ?? MAX_QUANTITY) }
           : item
       )
     );
