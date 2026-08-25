@@ -31,6 +31,7 @@ dataRouter.post('/save', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async
     }
     clearCache(`data:${key}`);
     clearCache(`data:all`);
+    if (key === 'aos_products') clearCache('products');
     await prisma.setting.upsert({
       where: { key },
       update: { value: serialized },
