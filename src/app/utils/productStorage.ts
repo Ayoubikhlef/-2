@@ -6,6 +6,12 @@ const STORAGE_KEY_LOCAL = 'aos_products';
 const INIT_KEY = 'aos_products_initialized';
 const SERVER_KEY = 'aos_products';
 
+let _lastLocalWrite = 0;
+
+export function isPendingLocalWrite(): boolean {
+  return Date.now() - _lastLocalWrite < 5000;
+}
+
 function dispatchChange() {
   if (typeof window === 'undefined') return;
   window.dispatchEvent(new CustomEvent('aos:data-changed'));
@@ -32,6 +38,7 @@ export function initializeProducts(defaults: Product[]): void {
 }
 
 export function saveProducts(products: Product[]): void {
+  _lastLocalWrite = Date.now();
   localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(products));
   dispatchChange();
   syncToServer(SERVER_KEY, products);
@@ -97,11 +104,14 @@ export function getProductsOnSale(products: Product[]): Product[] {
 }
 
 export async function loadProductsFromServer(defaults: Product[]): Promise<Product[]> {
+  if (isPendingLocalWrite()) return getStoredProducts(defaults);
   try {
     const result = await api.fetchProducts();
     if (result.products && result.products.length > 0) {
-      localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(result.products));
-      localStorage.setItem(INIT_KEY, 'true');
+      if (!isPendingLocalWrite()) {
+        localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(result.products));
+        localStorage.setItem(INIT_KEY, 'true');
+      }
       return result.products as Product[];
     }
   } catch {

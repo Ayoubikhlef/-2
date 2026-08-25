@@ -5,6 +5,8 @@ const STORAGE_KEY = 'aos_services';
 const INIT_KEY = 'aos_services_initialized';
 const SERVER_KEY = 'aos_services';
 
+let _lastLocalWrite = 0;
+
 function dispatchChange() {
   if (typeof window === 'undefined') return;
   window.dispatchEvent(new CustomEvent('aos:data-changed'));
@@ -31,6 +33,7 @@ export function initializeServices(defaults: ServiceCategory[]): void {
 }
 
 export function saveServices(services: ServiceCategory[]): void {
+  _lastLocalWrite = Date.now();
   localStorage.setItem(STORAGE_KEY, JSON.stringify(services));
   dispatchChange();
   syncToServer(SERVER_KEY, services);
@@ -63,11 +66,14 @@ export function deleteService(id: number): boolean {
 }
 
 export async function loadServicesFromServer(defaults: ServiceCategory[]): Promise<ServiceCategory[]> {
+  if (Date.now() - _lastLocalWrite < 5000) return getStoredServices(defaults);
   try {
     const data = await loadFromServer<ServiceCategory[]>(SERVER_KEY);
     if (data && data.length > 0) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      localStorage.setItem(INIT_KEY, 'true');
+      if (Date.now() - _lastLocalWrite >= 5000) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        localStorage.setItem(INIT_KEY, 'true');
+      }
       return data;
     }
   } catch {
