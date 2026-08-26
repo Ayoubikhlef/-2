@@ -418,13 +418,9 @@ export function Products() {
                   )}
                 </div>
 
-                {(product.stock ?? 0) > 0 ? (
+                {(product.stock ?? 0) > 0 && (
                   <p className={`text-xs mb-3 ${(product.stock ?? 0) <= 5 ? 'text-orange-500 font-semibold' : 'text-emerald-500'}`}>
                     {t({ ar: `المخزون: ${product.stock}`, fr: `Stock: ${product.stock}`, en: `Stock: ${product.stock}` })}
-                  </p>
-                ) : (
-                  <p className="text-xs text-red-500 font-semibold mb-3">
-                    {t({ ar: 'نفذ من المخزون', fr: 'Rupture de stock', en: 'Out of stock' })}
                   </p>
                 )}
 
@@ -441,7 +437,7 @@ export function Products() {
                   <button onClick={() => openOrderModal(product)} disabled={(product.stock ?? 0) <= 0} aria-label={t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}
                     className={`flex-1 px-3 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95 ${(product.stock ?? 0) <= 0 ? 'bg-muted text-muted-foreground cursor-not-allowed' : 'bg-primary text-primary-foreground hover:bg-primary/90'}`}>
                     <ShoppingCart className="w-3.5 h-3.5" />
-                    <span>{(product.stock ?? 0) <= 0 ? t({ ar: 'نفذ', fr: 'Épuisé', en: 'Sold out' }) : t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}</span>
+                    <span>{t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}</span>
                   </button>
                   <button onClick={(e) => { e.stopPropagation(); openQuickView(product); }}
                     className="p-2 rounded-lg border border-border hover:bg-muted transition"
