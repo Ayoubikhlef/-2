@@ -434,8 +434,8 @@ export function Products() {
                       <Plus className="w-3.5 h-3.5" />
                     </button>
                   </div>
-                  <button onClick={() => openOrderModal(product)} disabled={(product.stock ?? 0) <= 0} aria-label={t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}
-                    className={`flex-1 px-3 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95 ${(product.stock ?? 0) <= 0 ? 'bg-muted text-muted-foreground cursor-not-allowed' : 'bg-primary text-primary-foreground hover:bg-primary/90'}`}>
+                  <button onClick={() => openOrderModal(product)} aria-label={t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}
+                    className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95">
                     <ShoppingCart className="w-3.5 h-3.5" />
                     <span>{t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}</span>
                   </button>
