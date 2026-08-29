@@ -197,6 +197,36 @@ authRouter.post('/reset-password', async (req, res: Response) => {
   }
 });
 
+const adminResetSchema = z.object({
+  code: z.string().min(1),
+  email: z.string().email(),
+  password: z.string().min(8),
+});
+
+authRouter.post('/admin-reset-password', async (req, res: Response) => {
+  try {
+    const { code, email, password } = adminResetSchema.parse(req.body);
+    const expected = process.env.ADMIN_GATE_CODE || '';
+    if (!expected || code !== expected) {
+      return res.status(401).json({ error: 'Invalid gate code' });
+    }
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const passwordHash = await bcrypt.hash(password, 12);
+    await prisma.user.update({ where: { id: user.id }, data: { passwordHash, refreshToken: null } });
+    res.clearCookie('refreshToken');
+    console.log(`[Auth] Admin reset password for ${email.slice(0, 3)}***`);
+    res.json({ ok: true });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Validation failed', details: err.errors });
+    }
+    console.error('[Auth] Admin reset error:', err);
+    res.status(500).json({ error: 'Failed to reset password' });
+  }
+});
+
 authRouter.post('/refresh', async (req, res: Response) => {
   const token = req.cookies?.refreshToken;
   if (!token) throw new Unauthorized('No refresh token');
