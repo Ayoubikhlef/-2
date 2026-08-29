@@ -112,9 +112,25 @@ async function initDb() {
   } catch { /* table may not exist yet */ }
 }
 
+async function ensureAdmin() {
+  try {
+    const bcrypt = await import('bcryptjs');
+    const email = process.env.SEED_ADMIN_EMAIL || 'admin@aos.dz';
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (!existing) {
+      const password = process.env.SEED_ADMIN_PASSWORD || 'Admin@AOS2025!';
+      const hash = await bcrypt.hash(password, 12);
+      await prisma.user.create({
+        data: { email, passwordHash: hash, name: 'Admin AOS', role: 'SUPER_ADMIN', phone: '' },
+      });
+      console.log('[AOS] Admin user created');
+    }
+  } catch { /* DB may not be ready yet */ }
+}
+
 initLive(server);
 initRAG();
-initDb();
+initDb().then(() => ensureAdmin());
 
 server.listen(PORT, '0.0.0.0', () => {
   const networkInterfaces: any[] = Object.values(require('os').networkInterfaces()).flat();
