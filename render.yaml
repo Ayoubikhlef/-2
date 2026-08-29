@@ -23,6 +23,10 @@ services:
       - key: JWT_REFRESH_SECRET
         generateValue: true
       - key: CORS_ORIGIN
-        value: https://aos-tech-store.vercel.app
+        value: https://aostech.vercel.app
       - key: NODE_ENV
         value: production
+      - key: SEED_ADMIN_PASSWORD
+        generateValue: true
+      - key: ADMIN_GATE_CODE
+        value: "312757"

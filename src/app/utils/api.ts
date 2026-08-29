@@ -1,6 +1,6 @@
 const isDev = import.meta.env.DEV;
 
-const PRIMARY_URL: string = import.meta.env.VITE_API_URL || '/api';
+const PRIMARY_URL: string = import.meta.env.VITE_API_URL || 'https://iueefgma6y.onrender.com/api';
 const FALLBACK_URLS: string[] = [];
 
 export function getAccessToken(): string | null {

@@ -107,13 +107,18 @@ orderRouter.post('/', async (req: Request, res: Response) => {
     const order = await prisma.$transaction(async (tx) => {
       for (const item of validatedItems) {
         if (item.productId) {
-          const [updated] = await tx.$queryRaw<{ stock: number }[]>`
-            UPDATE aos_products SET value = json_set(value, '$.stock', CAST(json_extract(value, '$.stock') AS INTEGER) - ${item.quantity})
-            WHERE key = 'aos_products'
-            RETURNING json_extract(value, '$.stock') as stock
-          `;
-          if (updated && updated.stock < 0) {
-            throw new Error(`Insufficient stock for ${item.name}`);
+          const setting = await tx.setting.findUnique({ where: { key: 'aos_products' } });
+          if (setting) {
+            const products: any[] = JSON.parse(setting.value);
+            const pIdx = products.findIndex((p: any) => p.id === item.productId);
+            if (pIdx !== -1) {
+              const currentStock = products[pIdx].stock ?? 0;
+              if (currentStock < item.quantity) {
+                throw new Error(`Insufficient stock for ${item.name}: requested ${item.quantity}, available ${currentStock}`);
+              }
+              products[pIdx].stock = currentStock - item.quantity;
+              await tx.setting.update({ where: { key: 'aos_products' }, data: { value: JSON.stringify(products) } });
+            }
           }
         }
       }

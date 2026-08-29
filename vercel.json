@@ -2,13 +2,19 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://iueefgma6y.onrender.com/api/$1"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: images.unsplash.com capmicrodz.com kolshzin.com www.maxframe.dz www.techcenter-dz.com; font-src 'self' data:; connect-src 'self' https://iueefgma6y.onrender.com wss://iueefgma6y.onrender.com; frame-src https://www.google.com https://www.google.dz https://www.google.co.dz; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+          "value": "default-src 'self'; script-src 'self' https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://iueefgma6y.onrender.com wss://iueefgma6y.onrender.com; frame-src https://www.google.com https://www.google.dz https://www.google.co.dz; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
         },
         {
           "key": "X-Frame-Options",

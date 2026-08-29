@@ -116,7 +116,7 @@ model Order {
   address        String
   note           String?
   total          Float
-  status         String   @default("NEW")
+  status         String   @default("new")
   paymentMethod  String?
   paymentStatus  String?
   trackingNumber String?

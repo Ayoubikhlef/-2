@@ -13,21 +13,24 @@ const initSchema = z.object({
 
 paymentRouter.post('/init', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
-    const { orderId, method, phone } = initSchema.parse(req.body);
-    const order = await prisma.$queryRaw<{ id: string; total: number; status: string; wilaya: string }[]>`SELECT id, total, status, wilaya FROM aos_orders WHERE id = ${orderId}`;
-    if (!order.length) return res.status(404).json({ error: 'Order not found' });
-    if (!['new', 'pending'].includes(order[0].status)) return res.status(400).json({ error: 'Order already processed' });
+    const { orderId, method } = initSchema.parse(req.body);
+    const order = await prisma.order.findUnique({ where: { id: orderId } });
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    if (!['new', 'pending', 'NEW'].includes(order.status)) return res.status(400).json({ error: 'Order already processed' });
 
     const paymentId = `PAY-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 
-    await prisma.$executeRaw`UPDATE aos_orders SET status = 'processing', payment_method = ${method}, payment_id = ${paymentId} WHERE id = ${orderId}`;
+    await prisma.order.update({
+      where: { id: orderId },
+      data: { status: 'processing', paymentMethod: method, paymentStatus: paymentId },
+    });
 
-    console.log(`[Payment] Initiated ${method.toUpperCase()} for order ${orderId}: ${order[0].total} DZD`);
+    console.log(`[Payment] Initiated ${method.toUpperCase()} for order ${orderId}: ${order.total} DZD`);
 
     res.json({
       success: true,
       paymentId,
-      amount: order[0].total,
+      amount: order.total,
       method,
       instructions: getInstructions(method),
     });
@@ -41,10 +44,13 @@ paymentRouter.post('/init', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), as
 paymentRouter.post('/confirm', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
     const { paymentId } = z.object({ paymentId: z.string() }).parse(req.body);
-    const order = await prisma.$queryRaw<{ id: string }[]>`SELECT id FROM aos_orders WHERE payment_id = ${paymentId}`;
-    if (!order.length) return res.status(404).json({ error: 'Payment not found' });
+    const order = await prisma.order.findFirst({ where: { paymentStatus: paymentId } });
+    if (!order) return res.status(404).json({ error: 'Payment not found' });
 
-    await prisma.$executeRaw`UPDATE aos_orders SET status = 'paid', paid_at = NOW() WHERE payment_id = ${paymentId}`;
+    await prisma.order.update({
+      where: { id: order.id },
+      data: { status: 'completed', paymentStatus: 'paid' },
+    });
     console.log(`[Payment] Confirmed ${paymentId}`);
     res.json({ success: true, status: 'paid' });
   } catch {

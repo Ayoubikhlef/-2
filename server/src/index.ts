@@ -33,7 +33,7 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'"],
+      scriptSrc: ["'self'", "https://va.vercel-scripts.com"],
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https:"],
       fontSrc: ["'self'", "data:"],
@@ -106,9 +106,9 @@ app.use(errorHandler);
 
 async function initDb() {
   try {
-    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS idx_orders_created ON aos_orders (created_at DESC)`;
-    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS idx_orders_status ON aos_orders (status)`;
-    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS idx_newsletter_created ON aos_newsletter (created_at DESC)`;
+    await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS idx_orders_created ON "Order" ("createdAt" DESC)`);
+    await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS idx_orders_status ON "Order" (status)`);
+    await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS idx_newsletter_created ON aos_newsletter ("createdAt" DESC)`);
   } catch { /* table may not exist yet */ }
 }
 
