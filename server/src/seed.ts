@@ -4,17 +4,13 @@ import { prisma } from './utils/prisma';
 async function seed() {
   console.log('[Seed] Starting...');
 
-  const seedPassword = process.env.SEED_ADMIN_PASSWORD;
-  if (!seedPassword) {
-    console.error('[Seed] SEED_ADMIN_PASSWORD env var required');
-    process.exit(1);
-  }
+  const seedPassword = process.env.SEED_ADMIN_PASSWORD || 'Admin@AOS2025!';
 
   const adminPassword = await bcrypt.hash(seedPassword, 12);
 
   const admin = await prisma.user.upsert({
     where: { email: process.env.SEED_ADMIN_EMAIL || 'admin@aos.dz' },
-    update: {},
+    update: { passwordHash: adminPassword },
     create: {
       email: process.env.SEED_ADMIN_EMAIL || 'admin@aos.dz',
       passwordHash: adminPassword,
