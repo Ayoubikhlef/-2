@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 const base = process.env.DATABASE_URL || '';
 let url = base;
 if (!url.includes('sslmode')) {
-  url = url + (url.includes('?') ? '&' : '?') + 'sslmode=disable';
+  url = url + (url.includes('?') ? '&' : '?') + 'sslmode=no-verify';
 }
 
 export const prisma = new PrismaClient({
