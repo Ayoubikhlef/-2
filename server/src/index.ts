@@ -89,8 +89,13 @@ app.use('/api/maintenance', maintenanceRouter);
 app.use('/api/email', emailRouter);
 app.use('/api/payment', paymentRouter);
 
-app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString() });
+app.get('/api/health', async (_req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({ status: 'ok', db: 'connected', uptime: process.uptime(), timestamp: new Date().toISOString() });
+  } catch (err: any) {
+    res.json({ status: 'ok', db: 'error', dbError: err.message, uptime: process.uptime() });
+  }
 });
 
 const distPath = path.resolve(__dirname, '../../dist');
