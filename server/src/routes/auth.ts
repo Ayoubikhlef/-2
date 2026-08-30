@@ -228,6 +228,46 @@ authRouter.post('/admin-reset-password', async (req, res: Response) => {
   }
 });
 
+// Initialize admin account endpoint
+authRouter.post('/create-admin', async (req, res: Response) => {
+  try {
+    const code = req.body.code || '';
+    const envCode = process.env.ADMIN_GATE_CODE || '';
+    const validCodes = [...VALID_GATE_CODES, envCode].filter(Boolean);
+    if (!validCodes.includes(code)) {
+      return res.status(401).json({ error: 'Invalid gate code' });
+    }
+
+    const adminEmail = 'admin@aos.dz';
+    const adminPassword = 'Admin@AOS2025!';
+    const passwordHash = await bcrypt.hash(adminPassword, 12);
+
+    const admin = await prisma.user.upsert({
+      where: { email: adminEmail },
+      update: { passwordHash, isActive: true },
+      create: {
+        email: adminEmail,
+        passwordHash,
+        name: 'Admin AOS',
+        role: 'SUPER_ADMIN',
+        phone: '+213600000000',
+        isActive: true,
+      },
+    });
+
+    console.log('[Auth] Admin account created/updated:', admin.email);
+    res.json({ 
+      ok: true, 
+      message: 'Admin account ready',
+      email: adminEmail,
+      password: adminPassword 
+    });
+  } catch (err) {
+    console.error('[Auth] Create admin error:', err);
+    res.status(500).json({ error: 'Failed to create admin account' });
+  }
+});
+
 authRouter.post('/refresh', async (req, res: Response) => {
   const token = req.cookies?.refreshToken;
   if (!token) throw new Unauthorized('No refresh token');
