@@ -30,6 +30,7 @@ function AdminGate({ onUnlock }: { onUnlock: () => void }) {
   const { t } = useLanguage();
   const [code, setCode] = useState('');
   const [error, setError] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const [checking, setChecking] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,10 +38,16 @@ function AdminGate({ onUnlock }: { onUnlock: () => void }) {
     if (!code.trim() || checking) return;
     setChecking(true);
     setError(false);
+    setErrorMsg('');
     try {
-      await api.post<{ ok: boolean }>('/auth/admin-gate', { code: code.trim() });
+      console.log('[AdminGate] Submitting code:', code.trim());
+      const response = await api.post<{ ok: boolean }>('/auth/admin-gate', { code: code.trim() });
+      console.log('[AdminGate] Success:', response);
       onUnlock();
-    } catch {
+    } catch (err: any) {
+      const msg = err.message || 'خطأ في الاتصال بالخادم';
+      console.error('[AdminGate] Error:', msg, err);
+      setErrorMsg(msg);
       setError(true);
     } finally {
       setChecking(false);
@@ -89,7 +96,7 @@ function AdminGate({ onUnlock }: { onUnlock: () => void }) {
           />
           {error && (
             <p className="text-xs text-red-400/80">
-              {t({ ar: 'رمز غير صحيح', fr: 'Code incorrect', en: 'Incorrect code' })}
+              {errorMsg || t({ ar: 'رمز غير صحيح', fr: 'Code incorrect', en: 'Incorrect code' })}
             </p>
           )}
           <button
