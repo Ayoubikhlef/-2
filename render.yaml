@@ -29,4 +29,4 @@ services:
       - key: SEED_ADMIN_PASSWORD
         generateValue: true
       - key: ADMIN_GATE_CODE
-        value: "312757"
+        value: "752918"
