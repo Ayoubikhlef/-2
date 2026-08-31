@@ -1,0 +1,24 @@
+src/app/components/LiquidEther.tsx(2,24): error TS7016: Could not find a declaration file for module 'three'. 'C:/Users/PC/Desktop/AyoubWorkTechStore/node_modules/three/build/three.module.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/three` if it exists or add a new declaration (.d.ts) file containing `declare module 'three';`
+src/app/components/LiquidEther.tsx(597,7): error TS2416: Property 'update' in type 'Advection' is not assignable to the same property in base type 'ShaderPass'.
+  Type '({ dt, isBounce, BFECC }: any) => void' is not assignable to type '() => void'.
+    Target signature provides too few arguments. Expected 1 or more, but got 0.
+src/app/components/LiquidEther.tsx(611,7): error TS2416: Property 'init' in type 'ExternalForce' is not assignable to the same property in base type 'ShaderPass'.
+  Type '(simProps: any) => void' is not assignable to type '() => void'.
+    Target signature provides too few arguments. Expected 1 or more, but got 0.
+src/app/components/LiquidEther.tsx(629,7): error TS2416: Property 'update' in type 'ExternalForce' is not assignable to the same property in base type 'ShaderPass'.
+  Type '(props: any) => void' is not assignable to type '() => void'.
+    Target signature provides too few arguments. Expected 1 or more, but got 0.
+src/app/components/LiquidEther.tsx(671,7): error TS2416: Property 'update' in type 'Viscous' is not assignable to the same property in base type 'ShaderPass'.
+  Type '({ viscous, iterations, dt }: any) => any' is not assignable to type '() => void'.
+    Target signature provides too few arguments. Expected 1 or more, but got 0.
+src/app/components/LiquidEther.tsx(708,7): error TS2416: Property 'update' in type 'Divergence' is not assignable to the same property in base type 'ShaderPass'.
+  Type '({ vel }: any) => void' is not assignable to type '() => void'.
+    Target signature provides too few arguments. Expected 1 or more, but got 0.
+src/app/components/LiquidEther.tsx(733,7): error TS2416: Property 'update' in type 'Poisson' is not assignable to the same property in base type 'ShaderPass'.
+  Type '({ iterations }: any) => any' is not assignable to type '() => void'.
+    Target signature provides too few arguments. Expected 1 or more, but got 0.
+src/app/components/LiquidEther.tsx(769,7): error TS2416: Property 'update' in type 'Pressure' is not assignable to the same property in base type 'ShaderPass'.
+  Type '({ vel, pressure }: any) => void' is not assignable to type '() => void'.
+    Target signature provides too few arguments. Expected 1 or more, but got 0.
+src/app/components/LiquidEther.tsx(933,27): error TS2554: Expected 1 arguments, but got 0.

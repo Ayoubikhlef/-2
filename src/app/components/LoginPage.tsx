@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../utils/api';
@@ -11,9 +11,21 @@ export function LoginPage({ onClose }: { onClose: () => void; standalone?: boole
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [form, setForm] = useState({ email: '', password: '' });
-  const [mode, setMode] = useState<'login' | 'forgot' | 'reset'>('login');
+  const [mode, setMode] = useState<'login' | 'forgot' | 'reset' | 'forgot-sent'>('login');
   const [forgotEmail, setForgotEmail] = useState('');
-  const [resetForm, setResetForm] = useState({ code: '', password: '' });
+  const [resetForm, setResetForm] = useState({ password: '', confirmPassword: '' });
+  const [resetMode, setResetMode] = useState<'code' | 'new-password'>('new-password');
+  const [token, setToken] = useState<string | null>(null);
+
+  // Extract token from URL on component mount
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const extractedToken = urlParams.get('token');
+    if (extractedToken) {
+      setToken(extractedToken);
+      setMode('reset');
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,13 +49,14 @@ export function LoginPage({ onClose }: { onClose: () => void; standalone?: boole
     try {
       await api.post('/auth/forgot-password', { email: forgotEmail });
       toast.success(t({
-        ar: 'تم إرسال رمز الاسترجاع إلى هاتفك عبر واتساب (إن وجد)',
-        fr: 'Code de récupération envoyé sur votre téléphone (WhatsApp)',
-        en: 'Reset code sent to your phone via WhatsApp (if on file)',
+        ar: 'تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني',
+        fr: 'L\'e-mail de réinitialisation du mot de passe a été envoyé',
+        en: 'Password reset link sent to your email',
       }));
-      setMode('reset');
+      setMode('forgot-sent');
     } catch (err: any) {
-      setError(err.message || t({ ar: 'حدث خطأ، تحقق من البريد', fr: 'Erreur, vérifiez votre email', en: 'Error, check your email' }));
+      // Show generic error - don't reveal if email exists
+      setError(t({ ar: 'إذا كان البريد الإلكتروني مسجلًا، فسيصلك رابط', fr: 'Si l\'email est enregistré, vous recevrez un lien', en: 'If email is registered, you will receive a link' }));
     } finally {
       setLoading(false);
     }
@@ -52,20 +65,45 @@ export function LoginPage({ onClose }: { onClose: () => void; standalone?: boole
   const handleReset = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    if (resetForm.password.length < 8) {
-      setError(t({ ar: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل', fr: 'Le mot de passe doit avoir au moins 8 caractères', en: 'Password must be at least 8 characters' }));
-      return;
-    }
-    setLoading(true);
-    try {
-      await api.post('/auth/reset-password', { email: forgotEmail, code: resetForm.code.trim(), password: resetForm.password });
-      toast.success(t({ ar: 'تم تغيير كلمة المرور، سجّل الدخول الآن', fr: 'Mot de passe changé, connectez-vous', en: 'Password changed, log in now' }));
-      setMode('login');
-      setResetForm({ code: '', password: '' });
-    } catch (err: any) {
-      setError(err.message || t({ ar: 'فشل الاسترجاع', fr: 'Échec de la récupération', en: 'Reset failed' }));
-    } finally {
-      setLoading(false);
+    
+    if (resetMode === 'code') {
+      // Verifying code mode - check if we have a valid session
+      setLoading(true);
+      try {
+        // In the new system, we directly go to password entry after email sent
+        // So we'll just transition to new-password mode
+        setResetMode('new-password');
+      } catch (err: any) {
+        setError(err.message || 'Error verifying code');
+      } finally {
+        setLoading(false);
+      }
+    } else if (resetMode === 'new-password') {
+      // Set new password
+      const { password, confirmPassword } = resetForm;
+      
+      if (password.length < 8) {
+        setError(t({ ar: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل', fr: 'Le mot de passe doit avoir au moins 8 caractères', en: 'Password must be at least 8 characters' }));
+        return;
+      }
+      
+      if (password !== confirmPassword) {
+        setError(t({ ar: 'كلمة المرور غير متطابقة', fr: 'Les mots de passe ne correspondent pas', en: 'Passwords do not match' }));
+        return;
+      }
+      
+      setLoading(true);
+      try {
+        await api.post('/auth/reset-password', { email: forgotEmail, password });
+        toast.success(t({ ar: 'تم تغيير كلمة المرور، سجّل الدخول الآن', fr: 'Mot de passe changé, connectez-vous', en: 'Password changed, log in now' }));
+        setMode('login');
+        setResetForm({ password: '', confirmPassword: '' });
+        setToken(null);
+      } catch (err: any) {
+        setError(err.message || 'Failed to reset password');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -99,8 +137,10 @@ export function LoginPage({ onClose }: { onClose: () => void; standalone?: boole
           <h1 style={{ margin: 0, fontSize: '38px', fontWeight: 700, color: '#f1f5f9' }}>
             {mode === 'login'
               ? t({ ar: 'دخول الأدمين', fr: 'Connexion Admin', en: 'Admin Login' })
-              : t({ ar: 'استرجاع كلمة المرور', fr: 'Récupération', en: 'Password Recovery' })}
-          </h1>
+              : mode === 'forgot'
+                ? t({ ar: 'استرجاع كلمة المرور', fr: 'Récupération', en: 'Password Recovery' })
+                : t({ ar: 'كلمة مرور جديدة', fr: 'Nouveau mot de passe', en: 'New Password' })}
+            </h1>
           <button
             type="button"
             style={{
@@ -218,9 +258,9 @@ export function LoginPage({ onClose }: { onClose: () => void; standalone?: boole
           <form onSubmit={handleForgot} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '22px' }}>
             <p style={{ margin: 0, fontSize: '15px', color: '#94a3b8', textAlign: 'center' }}>
               {t({
-                ar: 'أدخل بريدك الإلكتروني وسنرسل رمز استرجاع إلى هاتفك عبر واتساب',
-                fr: 'Entrez votre email, un code sera envoyé sur votre téléphone via WhatsApp',
-                en: 'Enter your email and we will send a recovery code to your phone via WhatsApp',
+                ar: 'أدخل بريدك الإلكتروني وسنرسل رابط إعادة تعيين كلمة المرور',
+                fr: 'Entrez votre email, un lien sera envoyé',
+                en: 'Enter your email and we will send a password reset link',
               })}
             </p>
             <input
@@ -270,7 +310,7 @@ export function LoginPage({ onClose }: { onClose: () => void; standalone?: boole
               }}
             >
               {loading ? <Loader2 className="animate-spin" size={24} /> : null}
-              {t({ ar: 'إرسال الرمز', fr: 'Envoyer le code', en: 'Send code' })}
+              {t({ ar: 'إرسال الرابط', fr: 'Envoyer le lien', en: 'Send link' })}
             </button>
             <button
               type="button"
@@ -284,20 +324,49 @@ export function LoginPage({ onClose }: { onClose: () => void; standalone?: boole
                 textDecoration: 'underline',
               }}
             >
-              {t({ ar: 'العودة للدخول', fr: 'Retour', en: 'Back to login' })}
+              {t({ ar: 'عودة للدخول', fr: 'Retour', en: 'Back to login' })}
             </button>
           </form>
         )}
 
-        {mode === 'reset' && (
+        {mode === 'forgot-sent' && (
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+            <p style={{ margin: 0, fontSize: '18px', color: '#22c55e' }}>
+              {t({
+                ar: 'تم إرسال الرابط بنجاح',
+                fr: 'Lien envoyé avec succès',
+                en: 'Link sent successfully',
+              })}
+            </p>
+            <p style={{ margin: 0, fontSize: '15px', color: '#64748b' }}>
+              إذا كان البريد الإلكتروني مسجلاً، فسيصلك رسالة تحتوي على رابط لإعادة تعيين كلمة المرور.
+            </p>
+            <button
+              type="button"
+              onClick={() => { setMode('login'); setError(''); }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#60a5fa',
+                fontSize: '15px',
+                cursor: 'pointer',
+                textDecoration: 'underline',
+              }}
+            >
+              {t({ ar: 'عودة للدخول', fr: 'Retour', en: 'Back to login' })}
+            </button>
+          </div>
+        )}
+
+        {mode === 'reset' && token && (
           <form onSubmit={handleReset} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '22px' }}>
             <input
-              type="text"
-              value={resetForm.code}
-              onChange={(e) => setResetForm({ ...resetForm, code: e.target.value })}
-              placeholder={t({ ar: 'رمز الاسترجاع (6 أرقام)', fr: 'Code (6 chiffres)', en: 'Recovery code (6 digits)' })}
+              type="password"
+              value={resetForm.password}
+              onChange={(e) => setResetForm({ ...resetForm, password: e.target.value })}
+              placeholder={t({ ar: 'كلمة المرور الجديدة', fr: 'Nouveau mot de passe', en: 'New password' })}
               required
-              inputMode="numeric"
+              minLength={8}
               style={{
                 width: '100%',
                 height: '64px',
@@ -314,9 +383,9 @@ export function LoginPage({ onClose }: { onClose: () => void; standalone?: boole
             />
             <input
               type="password"
-              value={resetForm.password}
-              onChange={(e) => setResetForm({ ...resetForm, password: e.target.value })}
-              placeholder={t({ ar: 'كلمة المرور الجديدة', fr: 'Nouveau mot de passe', en: 'New password' })}
+              value={resetForm.confirmPassword}
+              onChange={(e) => setResetForm({ ...resetForm, confirmPassword: e.target.value })}
+              placeholder={t({ ar: 'تأكيد كلمة المرور', fr: 'Confirmation du mot de passe', en: 'Confirm password' })}
               required
               minLength={8}
               style={{
@@ -360,8 +429,29 @@ export function LoginPage({ onClose }: { onClose: () => void; standalone?: boole
               }}
             >
               {loading ? <Loader2 className="animate-spin" size={24} /> : null}
-              {t({ ar: 'تغيير كلمة المرور', fr: 'Changer le mot de passe', en: 'Reset password' })}
+              {t({ ar: 'تعيين كلمة المرور', fr: 'Définir le mot de passe', en: 'Set password' })}
             </button>
+            <button
+              type="button"
+              onClick={() => { setMode('login'); setError(''); setToken(null); }}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#60a5fa',
+                fontSize: '15px',
+                cursor: 'pointer',
+                textDecoration: 'underline',
+              }}
+            >
+              {t({ ar: 'عودة للدخول', fr: 'Retour', en: 'Back to login' })}
+            </button>
+          </form>
+        )}
+
+        {mode === 'reset' || mode === 'forgot-sent' && !token && (
+          <div style={{ textAlign: 'center', marginTop: '50px' }}>
+            <h2>{t({ ar: 'رابط غير صالح', fr: 'Lien invalide', en: 'Invalid link' })}</h2>
+            <p>{t({ ar: 'الرابط غير صالح أو منتهي الصلاحية', fr: 'Le lien est invalide ou expiré', en: 'The link is invalid or expired' })}</p>
             <button
               type="button"
               onClick={() => { setMode('login'); setError(''); }}
@@ -374,9 +464,9 @@ export function LoginPage({ onClose }: { onClose: () => void; standalone?: boole
                 textDecoration: 'underline',
               }}
             >
-              {t({ ar: 'العودة للدخول', fr: 'Retour', en: 'Back to login' })}
+              {t({ ar: 'عودة للدخول', fr: 'Retour', en: 'Back to login' })}
             </button>
-          </form>
+          </div>
         )}
       </div>
     </div>
