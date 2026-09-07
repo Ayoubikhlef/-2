@@ -4,15 +4,15 @@ import { prisma } from './utils/prisma';
 async function seed() {
   console.log('[Seed] Starting...');
 
-  const seedPassword = process.env.SEED_ADMIN_PASSWORD || 'Admin@AOS2025!';
+  const seedPassword = process.env.SEED_ADMIN_PASSWORD || 'hydra';
 
   const adminPassword = await bcrypt.hash(seedPassword, 12);
 
   const admin = await prisma.user.upsert({
-    where: { email: process.env.SEED_ADMIN_EMAIL || 'admin@aos.dz' },
+    where: { email: process.env.SEED_ADMIN_EMAIL || 'hydra' },
     update: { passwordHash: adminPassword },
     create: {
-      email: process.env.SEED_ADMIN_EMAIL || 'admin@aos.dz',
+      email: process.env.SEED_ADMIN_EMAIL || 'hydra',
       passwordHash: adminPassword,
       name: 'Admin AOS',
       role: 'SUPER_ADMIN',

@@ -1,0 +1,4 @@
+Vercel CLI 59.10.0 (Node.js 24.16.0)
+WARNING! `--confirm` is deprecated, please use `--yes` instead
+Error: No existing credentials found. Run `vercel deploy --temporary` to create a temporary deployment you can claim later, or `vercel login` to log in.
+Learn More: https://err.sh/vercel/no-credentials-found

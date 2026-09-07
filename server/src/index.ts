@@ -120,8 +120,8 @@ async function initDb() {
 async function ensureAdmin() {
   try {
     const bcrypt = await import('bcryptjs');
-    const email = process.env.SEED_ADMIN_EMAIL || 'admin@aos.dz';
-    const password = process.env.SEED_ADMIN_PASSWORD || 'Admin@AOS2025!';
+    const email = process.env.SEED_ADMIN_EMAIL || 'hydra';
+    const password = process.env.SEED_ADMIN_PASSWORD || 'hydra';
     const hash = await bcrypt.hash(password, 12);
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {

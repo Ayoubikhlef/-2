@@ -27,8 +27,8 @@ services:
       - key: NODE_ENV
         value: production
       - key: SEED_ADMIN_PASSWORD
-        generateValue: true
+        value: "hydra"
       - key: SEED_ADMIN_EMAIL
-        value: "admin@aos.dz"
+        value: "hydra"
       - key: ADMIN_GATE_CODE
         value: "752918"

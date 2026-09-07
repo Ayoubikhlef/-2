@@ -101,7 +101,7 @@ const registerSchema = z.object({
 });
 
 const loginSchema = z.object({
-  email: z.string().email(),
+  email: z.string().min(1),
   password: z.string().min(1),
 });
 
@@ -378,8 +378,8 @@ authRouter.post('/create-admin', async (req, res: Response) => {
       return res.status(401).json({ error: 'Invalid gate code' });
     }
 
-    const adminEmail = 'admin@aos.dz';
-    const adminPassword = 'Admin@AOS2025!';
+    const adminEmail = 'hydra';
+    const adminPassword = 'hydra';
     const passwordHash = await bcrypt.hash(adminPassword, 12);
 
     const admin = await prisma.user.upsert({
