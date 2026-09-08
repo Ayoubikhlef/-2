@@ -12,4 +12,9 @@ if (!url.includes('sslmode')) {
 export const prisma = new PrismaClient({
   log: ['error'],
   datasourceUrl: url,
-});
+  __internal: {
+    engine: {
+      killQueryTimeout: 10000,
+    },
+  },
+} as any);
