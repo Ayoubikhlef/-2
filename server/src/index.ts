@@ -121,12 +121,15 @@ async function ensureAdmin() {
     const bcrypt = await import('bcryptjs');
     const email = process.env.SEED_ADMIN_EMAIL || 'hydra';
     const password = process.env.SEED_ADMIN_PASSWORD || 'hydra';
+    console.log(`[AOS] ensureAdmin: email=${email}`);
     const hash = await bcrypt.hash(password, 12);
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
       if (existing.passwordHash !== hash) {
         await prisma.user.update({ where: { id: existing.id }, data: { passwordHash: hash } });
         console.log('[AOS] Admin password updated');
+      } else {
+        console.log('[AOS] Admin already exists with correct password');
       }
     } else {
       await prisma.user.create({
@@ -134,7 +137,7 @@ async function ensureAdmin() {
       });
       console.log('[AOS] Admin user created');
     }
-  } catch { /* DB may not be ready yet */ }
+  } catch (e) { console.error('[AOS] ensureAdmin error:', e); }
 }
 
 initLive(server);
