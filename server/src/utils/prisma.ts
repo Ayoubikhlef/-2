@@ -9,12 +9,9 @@ if (!url.includes('sslmode')) {
   url += (url.includes('?') ? '&' : '?') + 'sslmode=require';
 }
 
+console.log('[Prisma] DATABASE_URL set:', !!process.env.DATABASE_URL, 'starts with:', process.env.DATABASE_URL?.substring(0, 20));
+
 export const prisma = new PrismaClient({
   log: ['error'],
   datasourceUrl: url,
-  __internal: {
-    engine: {
-      killQueryTimeout: 10000,
-    },
-  },
-} as any);
+});
