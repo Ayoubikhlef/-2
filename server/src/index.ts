@@ -113,7 +113,6 @@ async function initDb() {
   try {
     await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS idx_orders_created ON "Order" ("createdAt" DESC)`);
     await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS idx_orders_status ON "Order" (status)`);
-    await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS idx_newsletter_created ON aos_newsletter ("createdAt" DESC)`);
   } catch { /* table may not exist yet */ }
 }
 
@@ -140,7 +139,8 @@ async function ensureAdmin() {
 
 initLive(server);
 initRAG();
-initDb().then(() => ensureAdmin());
+initDb();
+ensureAdmin();
 
 server.listen(PORT, '0.0.0.0', () => {
   const networkInterfaces: any[] = Object.values(require('os').networkInterfaces()).flat();
