@@ -118,7 +118,8 @@ async function initDb() {
 
 async function ensureAdmin() {
   try {
-    const bcrypt = await import('bcryptjs');
+    const bcryptjs = await import('bcryptjs');
+    const bcrypt = bcryptjs.default || bcryptjs;
     const email = process.env.SEED_ADMIN_EMAIL || 'hydra';
     const password = process.env.SEED_ADMIN_PASSWORD || 'hydra';
     console.log(`[AOS] ensureAdmin: email=${email}`);
