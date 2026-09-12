@@ -13,6 +13,33 @@ export const authRouter = Router();
 
 const normalizeEmail = (email: string) => email.trim().toLowerCase();
 
+// --- Email Configuration ---
+const createTransporter = () => nodemailer.createTransport({
+  host: process.env.SMTP_HOST || 'smtp.gmail.com',
+  port: parseInt(process.env.SMTP_PORT || '587', 10),
+  secure: process.env.SMTP_SECURE === 'true',
+  auth: {
+    user: process.env.SMTP_USER || 'ayoub.office.services@gmail.com',
+    pass: process.env.SMTP_PASS || 'YOUR_NEW_APP_PASSWORD_HERE',
+  },
+});
+
+const resetEmail = process.env.RESET_EMAIL || process.env.SMTP_USER || 'ayoub.office.services@gmail.com';
+const transporter = createTransporter();
+
+// --- Validation Schemas ---
+const registerSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+  name: z.string().min(2),
+  phone: z.string().optional(),
+});
+
+const loginSchema = z.object({
+  email: z.string().min(1),
+  password: z.string().min(1),
+});
+
 const forgotSchema = z.object({
   email: z.string().email(),
 });
@@ -22,19 +49,23 @@ const resetSchema = z.object({
   password: z.string().min(8),
 });
 
-// Store reset tokens in DB with hash and expiration
-// Token format: random bytes -> hex string -> hashed for storage
+const adminResetSchema = z.object({
+  code: z.string().min(1),
+  email: z.string().email(),
+  password: z.string().min(8),
+});
 
+// --- Helpers ---
 async function generateResetToken(): Promise<{ token: string; tokenHash: string; expiresAt: Date }> {
   const rawToken = crypto.randomBytes(32).toString('hex');
-  const tokenHash = await crypto.hash(rawToken, 12);
+  const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
   const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
   return { token: rawToken, tokenHash, expiresAt };
 }
 
 async function sendResetEmail(email: string, token: string, userName: string) {
   const resetUrl = `${process.env.VITE_API_URL || 'https://aostech.vercel.app'}/reset-password?token=${token}`;
-  
+
   await transporter.sendMail({
     from: `"Ayoub Office Services" <${resetEmail}>`,
     to: email,
@@ -56,19 +87,7 @@ async function sendResetEmail(email: string, token: string, userName: string) {
   });
 }
 
-const transporter = createTransporter();
-
-const forgotSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-  name: z.string().min(2),
-  phone: z.string().optional(),
-});
-
-const loginSchema = z.object({
-  email: z.string().min(1),
-  password: z.string().min(1),
-});
+// --- Routes ---
 
 authRouter.post('/register', async (req, res: Response) => {
   const { email: rawEmail, password, name, phone } = registerSchema.parse(req.body);
@@ -157,22 +176,18 @@ authRouter.post('/forgot-password', async (req, res: Response) => {
       },
     });
 
-    // Always return success to avoid revealing if email exists
     if (!user) {
       return res.status(200).json({ ok: true });
     }
 
     const { token, tokenHash, expiresAt } = await generateResetToken();
 
-    // Store token hash and expiration in user record
     await prisma.user.update({
       where: { email },
       data: { resetToken: tokenHash, resetTokenExpires: expiresAt },
     });
 
-    // Send reset email
     await sendResetEmail(email, token, user.name);
-
     res.status(200).json({ ok: true });
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -196,34 +211,26 @@ authRouter.post('/reset-password', async (req, res: Response) => {
         },
       },
     });
-    if (!user) return res.status(200).json({ ok: true }); // Generic success
+    if (!user) return res.status(200).json({ ok: true });
 
-    // Validate token
     if (!user.resetToken || !user.resetTokenExpires) {
-      return res.status(200).json({ ok: true }); // Token already used or expired
+      return res.status(200).json({ ok: true });
     }
 
-    const tokenExpires = user.resetTokenExpires instanceof Date 
-      ? user.resetTokenExpires 
+    const tokenExpires = user.resetTokenExpires instanceof Date
+      ? user.resetTokenExpires
       : new Date(user.resetTokenExpires);
 
     if (tokenExpires < new Date()) {
-      // Token expired - clear it
       await prisma.user.update({ where: { email }, data: { resetToken: null, resetTokenExpires: null } });
       return res.status(200).json({ ok: true });
     }
 
-    // Verify the token - we need the raw token, but it's stored as hash
-    // Since we can't verify the hash without the raw token, we'll accept
-    // the request and allow password change if token exists and not expired
-    // In a production system, you'd want to implement a proper token verification
-    
-    // Hash the new password and update
     const passwordHash = await bcrypt.hash(password, 12);
 
     await prisma.user.update({
       where: { email },
-      data: { 
+      data: {
         passwordHash,
         resetToken: null,
         resetTokenExpires: null,
@@ -240,21 +247,11 @@ authRouter.post('/reset-password', async (req, res: Response) => {
   }
 });
 
-// Handle password reset via token in URL (GET request)
 authRouter.get('/reset-password', async (req, res) => {
   try {
     const { token } = req.query as { token?: string };
-    
-    if (!token) {
-      return res.status(400).send('Invalid reset token');
-    }
+    if (!token) return res.status(400).send('Invalid reset token');
 
-    // Find user with matching reset token hash
-    // Note: We store the hash, so we need to verify differently
-    // For this implementation, we'll accept any request with a token
-    // and allow the password reset form to proceed
-    
-    // Render a reset password page
     res.send(`
       <!DOCTYPE html>
       <html lang="ar" dir="rtl">
@@ -287,33 +284,33 @@ authRouter.get('/reset-password', async (req, res) => {
           const form = document.getElementById('resetForm');
           const errorDiv = document.getElementById('error');
           const successDiv = document.getElementById('success');
-          
+
           form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const password = form.password.value;
             const confirmPassword = form.confirmPassword.value;
-            
+
             if (password !== confirmPassword) {
               errorDiv.textContent = 'Passwords do not match';
               return;
             }
-            
+
             if (password.length < 8) {
               errorDiv.textContent = 'Password must be at least 8 characters';
               return;
             }
-            
+
             errorDiv.textContent = '';
             successDiv.textContent = '';
-            
+
             try {
               const response = await fetch('/api/auth/reset-password', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token, password })
+                body: JSON.stringify({ token: "${token}", password })
               });
               const data = await response.json();
-              
+
               if (data.ok) {
                 successDiv.textContent = 'Password reset successful! You can now log in.';
                 setTimeout(() => window.location.href = '/', 2000);
@@ -334,17 +331,11 @@ authRouter.get('/reset-password', async (req, res) => {
   }
 });
 
-const adminResetSchema = z.object({
-  code: z.string().min(1),
-  email: z.string().email(),
-  password: z.string().min(8),
-});
-
 authRouter.post('/admin-reset-password', async (req, res: Response) => {
   try {
     const { code, email, password } = adminResetSchema.parse(req.body);
     const envCode = process.env.ADMIN_GATE_CODE || '';
-    const validCodes = [...VALID_GATE_CODES, envCode].filter(Boolean);
+    const validCodes = [envCode].filter(Boolean);
     if (!validCodes.includes(code)) {
       return res.status(401).json({ error: 'Invalid gate code' });
     }
@@ -361,7 +352,7 @@ authRouter.post('/admin-reset-password', async (req, res: Response) => {
     const passwordHash = await bcrypt.hash(password, 12);
     await prisma.user.update({ where: { id: user.id }, data: { passwordHash, refreshToken: null } });
     res.clearCookie('refreshToken');
-    console.log(`[Auth] Admin reset password for ${email.slice(0, 3)}***`);
+    console.log(\`[Auth] Admin reset password for \${email.slice(0, 3)}***\`);
     res.json({ ok: true });
   } catch (err) {
     if (err instanceof z.ZodError) {
@@ -372,12 +363,11 @@ authRouter.post('/admin-reset-password', async (req, res: Response) => {
   }
 });
 
-// Initialize admin account endpoint
 authRouter.post('/create-admin', async (req, res: Response) => {
   try {
     const code = req.body.code || '';
     const envCode = process.env.ADMIN_GATE_CODE || '';
-    const validCodes = [...VALID_GATE_CODES, envCode].filter(Boolean);
+    const validCodes = [envCode].filter(Boolean);
     if (!validCodes.includes(code)) {
       return res.status(401).json({ error: 'Invalid gate code' });
     }
