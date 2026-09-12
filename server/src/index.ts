@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import compression from 'compression';
 import rateLimit from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
+import hpp from 'hpp';
 import path from 'path';
 import http from 'http';
 import { authRouter } from './routes/auth';
@@ -37,7 +38,7 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https:"],
       fontSrc: ["'self'", "data:"],
-      connectSrc: ["'self'"],
+      connectSrc: ["'self'", "https://aos-api-production.up.railway.app"],
       frameSrc: ["https://www.google.com", "https://www.google.dz", "https://www.google.co.dz"],
       frameAncestors: ["'none'"],
       baseUri: ["'self'"],
@@ -55,6 +56,7 @@ app.use(cors({
 app.use(compression({ level: 6 }));
 app.use(express.json({ limit: '1mb' }));
 app.use(cookieParser());
+app.use(hpp());
 
 app.use((_req, res, next) => {
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
@@ -76,6 +78,11 @@ app.use('/api/chat', generalLimiter);
 app.use('/api/orders', orderLimiter);
 app.use('/api/loyalty', orderLimiter);
 app.use('/api/reviews', generalLimiter);
+app.use('/api/products', generalLimiter);
+app.use('/api/data', generalLimiter);
+app.use('/api/maintenance', generalLimiter);
+app.use('/api/email', generalLimiter);
+app.use('/api/payment', orderLimiter);
 
 app.use('/api/auth', authRouter);
 app.use('/api/chat', chatRouter);

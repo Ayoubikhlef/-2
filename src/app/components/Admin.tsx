@@ -70,10 +70,12 @@ const neumorphicCard: React.CSSProperties = {
   alignItems: 'center',
   padding: 30,
   textAlign: 'center',
+  border: '1px solid rgba(255,255,255,0.5)',
 };
 
 const darkCard: React.CSSProperties = {
-  background: '#0F172A',
+  background: 'rgba(15, 23, 42, 0.7)',
+  backdropFilter: 'blur(16px)',
   borderRadius: 20,
   display: 'flex',
   flexDirection: 'column',
@@ -81,8 +83,8 @@ const darkCard: React.CSSProperties = {
   alignItems: 'center',
   padding: 30,
   textAlign: 'center',
-  boxShadow: '0 0 40px rgba(59,130,246,0.15), 0 0 80px rgba(59,130,246,0.05)',
-  border: '1px solid rgba(59,130,246,0.1)',
+  boxShadow: '0 0 40px rgba(59,130,246,0.2), 0 0 80px rgba(59,130,246,0.1)',
+  border: '1px solid rgba(59,130,246,0.3)',
 };
 
 const darkInput: React.CSSProperties = {
@@ -361,10 +363,26 @@ export function Admin() {
     return (
       <section
         id="admin"
-        className="min-h-screen flex items-center justify-center"
+        className="min-h-screen flex items-center justify-center relative overflow-hidden"
         style={{ background: isOn ? '#0B1120' : '#e0e5ec', transition: 'background 0.6s' }}
       >
-        <div className="flex flex-col items-center text-center" style={{
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {isOn ? (
+            <>
+              <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-600/20 blur-[120px] animate-pulse" />
+              <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-600/20 blur-[120px] animate-pulse delay-700" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] rounded-full bg-cyan-600/10 blur-[150px] animate-pulse delay-1000" />
+            </>
+          ) : (
+            <>
+              <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-white/50 blur-[100px] animate-pulse" />
+              <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-slate-300/50 blur-[100px] animate-pulse delay-700" />
+            </>
+          )}
+        </div>
+
+        <div className="flex flex-col items-center text-center relative z-10" style={{
           ...(isOn ? darkCard : neumorphicCard),
           width: 360,
           transition: 'background 0.6s, box-shadow 0.6s',

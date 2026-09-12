@@ -40,7 +40,31 @@ const LoginPage = lazy(() => import('./components/LoginPage').then(m => ({ defau
 const WABubble = lazy(() => import('./components/WABubble').then(m => ({ default: m.WABubble })));
 const AIAssistant = lazy(() => import('./components/AIAssistant').then(m => ({ default: m.AIAssistant })));
 function LiquidBackground() {
-  return null;
+  return (
+    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+      <div className="absolute inset-0 bg-slate-50 dark:bg-slate-950" />
+      <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-400/10 blur-[120px] animate-blob" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-400/10 blur-[120px] animate-blob animation-delay-2000" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] rounded-full bg-sky-400/5 blur-[120px] animate-blob animation-delay-4000" />
+      <style>{`
+        @keyframes blob {
+          0% { transform: translate(0px, 0px) scale(1); }
+          33% { transform: translate(30px, -50px) scale(1.1); }
+          66% { transform: translate(-20px, 20px) scale(0.9); }
+          100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob {
+          animation: blob 7s infinite alternate;
+        }
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+        .animation-delay-4000 {
+          animation-delay: 4s;
+        }
+      `}</style>
+    </div>
+  );
 }
 
 function AdminFallback() {
@@ -97,6 +121,12 @@ export default function App() {
   const is404 = typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#admin', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq'].includes(hash);
   const [showLogin, setShowLogin] = useState(false);
   const [maintenance, setMaintenance] = useState(false);
+
+  useEffect(() => {
+    const handleOpenLogin = () => setShowLogin(true);
+    window.addEventListener('aos:open-login', handleOpenLogin);
+    return () => window.removeEventListener('aos:open-login', handleOpenLogin);
+  }, []);
 
   useEffect(() => {
     const onHashChange = () => setHash(window.location.hash);

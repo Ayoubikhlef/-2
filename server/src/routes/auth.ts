@@ -163,10 +163,7 @@ authRouter.post('/forgot-password', async (req, res: Response) => {
     const email = normalizeEmail(rawEmail);
     const user = await prisma.user.findFirst({
       where: {
-        email: {
-          equals: email,
-          mode: 'insensitive',
-        },
+        email: email,
       },
     });
 
@@ -199,10 +196,7 @@ authRouter.post('/reset-password', async (req, res: Response) => {
 
     const user = await prisma.user.findFirst({
       where: {
-        email: {
-          equals: email,
-          mode: 'insensitive',
-        },
+        email: email,
       },
     });
     if (!user) return res.status(200).json({ ok: true });
@@ -245,6 +239,8 @@ authRouter.get('/reset-password', async (req, res) => {
   try {
     const { token } = req.query as { token?: string };
     if (!token) return res.status(400).send('Invalid reset token');
+
+    const sanitizedToken = String(token).replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
     res.send(`
       <!DOCTYPE html>
@@ -301,7 +297,7 @@ authRouter.get('/reset-password', async (req, res) => {
               const response = await fetch('/api/auth/reset-password', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token: "${token}", password })
+                body: JSON.stringify({ token: "${sanitizedToken}", password })
               });
               const data = await response.json();
 
@@ -335,10 +331,7 @@ authRouter.post('/admin-reset-password', async (req, res: Response) => {
     }
     const user = await prisma.user.findFirst({
       where: {
-        email: {
-          equals: email,
-          mode: 'insensitive',
-        },
+        email: email,
       },
     });
     if (!user) return res.status(404).json({ error: 'User not found' });
