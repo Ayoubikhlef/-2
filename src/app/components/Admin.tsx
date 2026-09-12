@@ -131,7 +131,7 @@ function TabLoading() {
 export function Admin() {
   const { t, language } = useLanguage();
   const { user, isAdmin, login } = useAuth();
-  const [showAdmin, setShowAdmin] = useState(() => window.location.hash === '#admin');
+  const [showAdmin, setShowAdmin] = useState(() => window.location.hash === '#hqpanel');
   const [isAuthenticated, setIsAuthenticated] = useState(!!user);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -184,7 +184,7 @@ export function Admin() {
   }, []);
 
   useEffect(() => {
-    const onHashChange = () => setShowAdmin(window.location.hash === '#admin');
+    const onHashChange = () => setShowAdmin(window.location.hash === '#hqpanel');
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);

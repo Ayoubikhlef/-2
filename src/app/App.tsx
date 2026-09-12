@@ -118,7 +118,7 @@ function AdminLoadingPage() {
 
 export default function App() {
   const [hash, setHash] = useState(() => (typeof window !== 'undefined' ? window.location.hash : ''));
-  const is404 = typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#admin', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq'].includes(hash);
+  const is404 = typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#hqpanel', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq'].includes(hash);
   const [showLogin, setShowLogin] = useState(false);
   const [maintenance, setMaintenance] = useState(false);
 
@@ -180,7 +180,7 @@ export default function App() {
         '#checkout': { ar: 'إتمام الطلب', fr: 'Finaliser la commande', en: 'Checkout' },
         '#loyalty':  { ar: 'برنامج الولاء', fr: 'Programme de fidélité', en: 'Loyalty Program' },
         '#account':  { ar: 'حسابي', fr: 'Mon compte', en: 'My Account' },
-        '#admin':    { ar: 'لوحة الأدمين', fr: 'Administration', en: 'Admin Panel' },
+        '#hqpanel':    { ar: 'لوحة الأدمين', fr: 'Administration', en: 'Admin Panel' },
         '#products': { ar: 'المنتجات', fr: 'Produits', en: 'Products' },
         '#services': { ar: 'الخدمات', fr: 'Services', en: 'Services' },
         '#contact':  { ar: 'اتصل بنا', fr: 'Contact', en: 'Contact Us' },
@@ -193,7 +193,7 @@ export default function App() {
     return () => window.removeEventListener('hashchange', updateTitle);
   }, []);
 
-  if (maintenance && hash !== '#admin') {
+  if (maintenance && hash !== '#hqpanel') {
     const savedLang = localStorage.getItem('language') || 'ar';
     const lang = savedLang as 'ar' | 'fr' | 'en';
     const msg = getMaintenanceMessage();
@@ -258,7 +258,7 @@ export default function App() {
         <AuthProvider>
         <CartProvider>
           <ErrorBoundary>
-            {hash === '#admin' ? (
+            {hash === '#hqpanel' ? (
               <div className="min-h-screen">
                 <Suspense fallback={<AdminLoadingPage />}>
                   <Admin />

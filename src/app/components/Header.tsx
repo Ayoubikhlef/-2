@@ -152,7 +152,7 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
                     <User className="w-5 h-5 text-primary" />
                     <span className="font-semibold truncate">{user.name}</span>
                     {isAdmin && (
-                      <a href="#admin" className="text-sm text-primary font-bold ms-auto">
+                      <a href="#hqpanel" className="text-sm text-primary font-bold ms-auto">
                         {t({ ar: 'أدمين', fr: 'Admin', en: 'Admin' })}
                       </a>
                     )}
