@@ -3,6 +3,17 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { getOrders, clearOrders, updateOrderStatus, removeOrder, getOrderStats, loadOrdersFromServer, OrderRecord, OrderStatus } from '../utils/orderStorage';
 import { getStoredProducts, initializeProducts } from '../utils/productStorage';
 import { products as defaultProducts, type Product } from '../data/products';
+import { getStoredServices, initializeServices } from '../utils/serviceStorage';
+import { defaultServices, type ServiceCategory } from '../data/services';
+import { RefreshCw, Trash2, ChevronDown, Phone, MapPin, Mail, DollarSign, Package, Eye, Lightbulb, Wrench, FileText, Globe, Settings, Star, MailOpen } from 'lucide-react';
+import { generateInvoice } from './InvoicePDF';
+import { toast } from 'sonner';
+import { isMaintenanceMode, setMaintenanceMode, getMaintenanceMessage, setMaintenanceMessage } from '../utils/maintenanceStorage';
+import { api, setAccessToken, setStoredUser } from '../utils/api';
+import { syncAllFromServer, getSyncStatus, getLastSyncTime } from '../utils/globalSync';
+import { motion, AnimatePresence } from 'motion/react';
+import { useAuth } from '../contexts/AuthContext';
+
 const ManageProductsTab = lazy(() => import('./ManageProductsTab').then(m => ({ default: m.ManageProductsTab })));
 const ManageServicesTab = lazy(() => import('./ManageServicesTab').then(m => ({ default: m.ManageServicesTab })));
 const AdminDashboard = lazy(() => import('./AdminDashboard').then(m => ({ default: m.AdminDashboard })));
@@ -13,104 +24,6 @@ const ManageContentTab = lazy(() => import('./ManageContentTab').then(m => ({ de
 const SiteSettingsTab = lazy(() => import('./SiteSettingsTab').then(m => ({ default: m.SiteSettingsTab })));
 const ReviewsTab = lazy(() => import('./ReviewsTab').then(m => ({ default: m.ReviewsTab })));
 const NewsletterTab = lazy(() => import('./NewsletterTab').then(m => ({ default: m.NewsletterTab })));
-import { getStoredServices, initializeServices } from '../utils/serviceStorage';
-import { defaultServices, type ServiceCategory } from '../data/services';
-import { RefreshCw, Trash2, ChevronDown, Phone, MapPin, Mail, DollarSign, Package, Eye, Lightbulb, Wrench, FileText, Globe, Settings, Star, MailOpen } from 'lucide-react';
-import { generateInvoice } from './InvoicePDF';
-import { toast } from 'sonner';
-import { isMaintenanceMode, setMaintenanceMode, getMaintenanceMessage, setMaintenanceMessage } from '../utils/maintenanceStorage';
-import { api, setAccessToken, setStoredUser } from '../utils/api';
-import { syncAllFromServer, getSyncStatus, getLastSyncTime } from '../utils/globalSync';
-import { motion, AnimatePresence } from 'motion/react';
-import { Lock, ShieldAlert } from 'lucide-react';
-
-const UNLOCK_STORAGE_KEY = 'aos_admin_unlocked_v1';
-
-function AdminGate({ onUnlock }: { onUnlock: () => void }) {
-  const { t } = useLanguage();
-  const [code, setCode] = useState('');
-  const [error, setError] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
-  const [checking, setChecking] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!code.trim() || checking) return;
-    setChecking(true);
-    setError(false);
-    setErrorMsg('');
-    try {
-      console.log('[AdminGate] Submitting code:', code.trim());
-      const response = await api.post<{ ok: boolean }>('/auth/admin-gate', { code: code.trim() });
-      console.log('[AdminGate] Success:', response);
-      onUnlock();
-    } catch (err: any) {
-      const msg = err.message || 'خطأ في الاتصال بالخادم';
-      console.error('[AdminGate] Error:', msg, err);
-      setErrorMsg(msg);
-      setError(true);
-    } finally {
-      setChecking(false);
-    }
-  };
-
-  return (
-    <section id="admin" className="min-h-screen flex items-center justify-center px-4 py-20" style={{ background: '#0B1120', transition: 'background 0.6s' }}>
-      <div className="w-full max-w-md text-center" style={{
-        background: '#0F172A',
-        borderRadius: 20,
-        padding: 36,
-        boxShadow: '0 0 40px rgba(239,68,68,0.12), 0 0 80px rgba(239,68,68,0.05)',
-        border: '1px solid rgba(239,68,68,0.15)',
-      }}>
-        <div className="mx-auto mb-6 w-20 h-20 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center">
-          <ShieldAlert className="w-10 h-10 text-red-400" />
-        </div>
-        <h1 className="text-2xl font-extrabold text-red-400 mb-4">
-          {t({ ar: 'صفحة الويب محظورة !', fr: 'Page web bloquée !', en: 'Web page blocked!' })}
-        </h1>
-        <p className="text-sm text-slate-400 leading-relaxed mb-8">
-          {t({
-            ar: 'لا يمكن عرض هذه الصفحة. يرجى الاتصال بالمسؤول للحصول على معلومات إضافية',
-            fr: "Impossible d'afficher cette page. Veuillez contacter l'administrateur pour plus d'informations",
-            en: 'This page cannot be displayed. Please contact the administrator for more information.',
-          })}
-        </p>
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <input
-            type="password"
-            value={code}
-            onChange={(e) => { setCode(e.target.value); setError(false); }}
-            placeholder={t({ ar: 'رمز الوصول', fr: "Code d'accès", en: 'Access code' })}
-            style={{
-              background: '#1e293b',
-              borderRadius: 14,
-              width: '100%',
-              padding: '13px 16px',
-              fontSize: 14,
-              color: '#e2e8f0',
-              border: error ? '1px solid rgba(239,68,68,0.5)' : '1px solid rgba(255,255,255,0.08)',
-              outline: 'none',
-              fontFamily: 'inherit',
-            }}
-          />
-          {error && (
-            <p className="text-xs text-red-400/80">
-              {errorMsg || t({ ar: 'رمز غير صحيح', fr: 'Code incorrect', en: 'Incorrect code' })}
-            </p>
-          )}
-          <button
-            type="submit"
-            className="w-full flex items-center justify-center gap-2 rounded-2xl bg-red-500/15 hover:bg-red-500/25 border border-red-500/25 text-red-400 font-bold py-3 text-sm transition-colors"
-          >
-            <Lock className="w-4 h-4" />
-            {t({ ar: 'فتح اللوحة', fr: 'Déverrouiller', en: 'Unlock' })}
-          </button>
-        </form>
-      </div>
-    </section>
-  );
-}
 
 const statusConfig: Record<OrderStatus, { label: Record<string, string>; color: string; icon: string }> = {
   new: {
@@ -215,18 +128,9 @@ function TabLoading() {
 
 export function Admin() {
   const { t, language } = useLanguage();
+  const { user, isAdmin } = useAuth();
   const [showAdmin, setShowAdmin] = useState(() => window.location.hash === '#admin');
-  const [isUnlocked, setIsUnlocked] = useState(() => {
-    try {
-      return localStorage.getItem(UNLOCK_STORAGE_KEY) === '1';
-    } catch {
-      return false;
-    }
-  });
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [loginError, setLoginError] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(!!user);
   const [orders, setOrders] = useState<OrderRecord[]>([]);
   const [filter, setFilter] = useState<FilterMode>('all');
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -279,23 +183,12 @@ export function Admin() {
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
-      const handleLogin = async (e: React.FormEvent) => {
-        e.preventDefault();
-        try {
-          const data = await api.auth.login({ email: username.trim(), password: password.trim() });
-          const userRole = data.user?.role;
-          if (userRole !== 'SUPER_ADMIN' && userRole !== 'ADMIN') {
-            setLoginError(true);
-            return;
-          }
-          setAccessToken(data.accessToken);
-          setStoredUser(data.user);
-          setIsAuthenticated(true);
-          setLoginError(false);
-        } catch {
-          setLoginError(true);
-        }
-      };
+  useEffect(() => {
+    if (showAdmin && !isAuthenticated && !isAdmin) {
+      // Redirect to login or open login modal
+      // For now, we just rely on the return statement below
+    }
+  }, [showAdmin, isAuthenticated, isAdmin]);
 
   const handleLogout = () => {
     setIsAuthenticated(false);
@@ -445,13 +338,7 @@ export function Admin() {
     { key: 'cancelled', label: { ar: 'ملغي', fr: 'Annulé', en: 'Cancelled' } },
   ];
 
-  if (showAdmin && !isUnlocked) {
-    return <AdminGate onUnlock={handleUnlock} />;
-  }
-
-  if (!showAdmin && !isAuthenticated) return null;
-
-  if (!isAuthenticated) {
+  if (showAdmin && !isAuthenticated) {
     return (
       <section
         id="admin"
@@ -484,61 +371,24 @@ export function Admin() {
               />
             </button>
           </div>
-          <form onSubmit={handleLogin} className="flex flex-col items-center gap-4 w-full">
-            <input
-              type="text"
-              placeholder={t({ ar: 'اسم المستخدم', fr: 'Nom d\'utilisateur', en: 'Username' })}
-              value={username}
-              onChange={(e) => { setUsername(e.target.value); setLoginError(false); }}
-              style={isOn ? darkInput : {
-                ...neumorphicInset,
-                width: '100%',
-                padding: '14px 18px',
-                fontSize: 15,
-                color: '#2d3436',
-                border: 'none',
-                outline: 'none',
-                fontFamily: 'inherit',
-              }}
-              autoFocus
-            />
-            <input
-              type="password"
-              placeholder={t({ ar: 'كلمة المرور', fr: 'Mot de passe', en: 'Password' })}
-              value={password}
-              onChange={(e) => { setPassword(e.target.value); setLoginError(false); }}
-              style={isOn ? darkInput : {
-                ...neumorphicInset,
-                width: '100%',
-                padding: '14px 18px',
-                fontSize: 15,
-                color: '#2d3436',
-                border: 'none',
-                outline: 'none',
-                fontFamily: 'inherit',
-              }}
-            />
-            {loginError && (
-              <p className="text-sm" style={{ color: '#ef4444' }}>
-                {t({ ar: 'اسم مستخدم أو كلمة مرور خاطئة', fr: 'Nom d\'utilisateur ou mot de passe incorrect', en: 'Invalid username or password' })}
-              </p>
-            )}
-            <button
-              type="submit"
-              style={isOn ? darkButton : {
-                ...neumorphic,
-                padding: '14px 40px',
-                fontSize: 15,
-                fontWeight: 700,
-                color: '#2d3436',
-                border: 'none',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-              }}
-            >
-              {t({ ar: 'دخول', fr: 'Connexion', en: 'Sign In' })}
-            </button>
-          </form>
+          <p className="mb-6 text-sm text-slate-500">
+            {t({ ar: 'يرجى استخدام صفحة تسجيل الدخول الرئيسية', fr: 'Veuillez utiliser la page de connexion principale', en: 'Please use the main login page' })}
+          </p>
+          <button
+            onClick={() => { window.location.hash = ''; }}
+            style={isOn ? darkButton : {
+              ...neumorphic,
+              padding: '14px 40px',
+              fontSize: 15,
+              fontWeight: 700,
+              color: '#2d3436',
+              border: 'none',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+            }}
+          >
+            {t({ ar: 'الذهاب لتسجيل الدخول', fr: 'Aller à la connexion', en: 'Go to Login' })}
+          </button>
         </div>
       </section>
     );

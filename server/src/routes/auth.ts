@@ -11,26 +11,7 @@ import nodemailer from 'nodemailer';
 
 export const authRouter = Router();
 
-const gateSchema = z.object({
-  code: z.string().min(1),
-});
-
-const VALID_GATE_CODES = ['312757'];
-
-// Configure nodemailer transport
-const createTransporter = () => nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587', 10),
-  secure: process.env.SMTP_SECURE === 'true',
-  auth: {
-    user: process.env.SMTP_USER || 'ayoub.office.services@gmail.com',
-    pass: process.env.SMTP_PASS || 'YOUR_NEW_APP_PASSWORD_HERE',
-  },
-});
-
-const resetEmail = process.env.RESET_EMAIL || process.env.SMTP_USER || 'ayoub.office.services@gmail.com';
-
-const transporter = createTransporter();
+const normalizeEmail = (email: string) => email.trim().toLowerCase();
 
 const forgotSchema = z.object({
   email: z.string().email(),
@@ -75,25 +56,9 @@ async function sendResetEmail(email: string, token: string, userName: string) {
   });
 }
 
-authRouter.post('/admin-gate', async (req, res: Response) => {
-  try {
-    const { code } = gateSchema.parse(req.body);
-    const envCode = process.env.ADMIN_GATE_CODE || '';
-    const validCodes = [...VALID_GATE_CODES, envCode].filter(Boolean);
-    if (!validCodes.includes(code)) {
-      return res.status(401).json({ error: 'Invalid gate code' });
-    }
-    res.json({ ok: true });
-  } catch (err) {
-    if (err instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation failed', details: err.errors });
-    }
-    console.error('[Auth] Gate error:', err);
-    res.status(500).json({ error: 'Gate check failed' });
-  }
-});
+const transporter = createTransporter();
 
-const registerSchema = z.object({
+const forgotSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
   name: z.string().min(2),
@@ -106,7 +71,8 @@ const loginSchema = z.object({
 });
 
 authRouter.post('/register', async (req, res: Response) => {
-  const { email, password, name, phone } = registerSchema.parse(req.body);
+  const { email: rawEmail, password, name, phone } = registerSchema.parse(req.body);
+  const email = normalizeEmail(rawEmail);
 
   const exists = await prisma.user.findFirst({
     where: {
@@ -142,7 +108,8 @@ authRouter.post('/register', async (req, res: Response) => {
 });
 
 authRouter.post('/login', async (req, res: Response) => {
-  const { email, password } = loginSchema.parse(req.body);
+  const { email: rawEmail, password } = loginSchema.parse(req.body);
+  const email = normalizeEmail(rawEmail);
 
   const user = await prisma.user.findFirst({
     where: {
@@ -179,7 +146,8 @@ authRouter.post('/login', async (req, res: Response) => {
 
 authRouter.post('/forgot-password', async (req, res: Response) => {
   try {
-    const { email } = forgotSchema.parse(req.body);
+    const { email: rawEmail } = forgotSchema.parse(req.body);
+    const email = normalizeEmail(rawEmail);
     const user = await prisma.user.findFirst({
       where: {
         email: {
@@ -188,7 +156,7 @@ authRouter.post('/forgot-password', async (req, res: Response) => {
         },
       },
     });
-    
+
     // Always return success to avoid revealing if email exists
     if (!user) {
       return res.status(200).json({ ok: true });
@@ -217,7 +185,8 @@ authRouter.post('/forgot-password', async (req, res: Response) => {
 
 authRouter.post('/reset-password', async (req, res: Response) => {
   try {
-    const { email, password } = resetSchema.parse(req.body);
+    const { email: rawEmail, password } = resetSchema.parse(req.body);
+    const email = normalizeEmail(rawEmail);
 
     const user = await prisma.user.findFirst({
       where: {
@@ -413,15 +382,23 @@ authRouter.post('/create-admin', async (req, res: Response) => {
       return res.status(401).json({ error: 'Invalid gate code' });
     }
 
-    const adminEmail = 'hydra';
-    const adminPassword = 'hydra';
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPassword = process.env.ADMIN_PASSWORD;
+
+    if (!adminEmail || !adminPassword) {
+      return res.status(500).json({
+        error: 'Admin provisioning failed: ADMIN_EMAIL or ADMIN_PASSWORD not set in environment'
+      });
+    }
+
+    const normalizedAdminEmail = normalizeEmail(adminEmail);
     const passwordHash = await bcrypt.hash(adminPassword, 12);
 
     const admin = await prisma.user.upsert({
-      where: { email: adminEmail },
+      where: { email: normalizedAdminEmail },
       update: { passwordHash, isActive: true },
       create: {
-        email: adminEmail,
+        email: normalizedAdminEmail,
         passwordHash,
         name: 'Admin AOS',
         role: 'SUPER_ADMIN',
@@ -431,11 +408,10 @@ authRouter.post('/create-admin', async (req, res: Response) => {
     });
 
     console.log('[Auth] Admin account created/updated:', admin.email);
-    res.json({ 
-      ok: true, 
+    res.json({
+      ok: true,
       message: 'Admin account ready',
-      email: adminEmail,
-      password: adminPassword 
+      email: admin.email,
     });
   } catch (err) {
     console.error('[Auth] Create admin error:', err);

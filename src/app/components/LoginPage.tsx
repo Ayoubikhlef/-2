@@ -32,7 +32,7 @@ export function LoginPage({ onClose }: { onClose: () => void; standalone?: boole
     setError('');
     setLoading(true);
     try {
-      await login(form.email, form.password);
+      await login(form.email.trim(), form.password.trim());
       toast.success(t({ ar: 'تم تسجيل الدخول', fr: 'Connecté', en: 'Logged in' }));
       onClose();
     } catch (err: any) {
