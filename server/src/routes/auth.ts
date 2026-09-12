@@ -108,7 +108,14 @@ const loginSchema = z.object({
 authRouter.post('/register', async (req, res: Response) => {
   const { email, password, name, phone } = registerSchema.parse(req.body);
 
-  const exists = await prisma.user.findUnique({ where: { email } });
+  const exists = await prisma.user.findFirst({
+    where: {
+      email: {
+        equals: email,
+        mode: 'insensitive',
+      },
+    },
+  });
   if (exists) throw new Conflict('Email already registered');
 
   const passwordHash = await bcrypt.hash(password, 12);
@@ -137,7 +144,14 @@ authRouter.post('/register', async (req, res: Response) => {
 authRouter.post('/login', async (req, res: Response) => {
   const { email, password } = loginSchema.parse(req.body);
 
-  const user = await prisma.user.findUnique({ where: { email } });
+  const user = await prisma.user.findFirst({
+    where: {
+      email: {
+        equals: email,
+        mode: 'insensitive',
+      },
+    },
+  });
   if (!user) throw new BadRequest('Invalid email or password');
 
   const valid = await bcrypt.compare(password, user.passwordHash);
@@ -166,7 +180,14 @@ authRouter.post('/login', async (req, res: Response) => {
 authRouter.post('/forgot-password', async (req, res: Response) => {
   try {
     const { email } = forgotSchema.parse(req.body);
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findFirst({
+      where: {
+        email: {
+          equals: email,
+          mode: 'insensitive',
+        },
+      },
+    });
     
     // Always return success to avoid revealing if email exists
     if (!user) {
@@ -198,7 +219,14 @@ authRouter.post('/reset-password', async (req, res: Response) => {
   try {
     const { email, password } = resetSchema.parse(req.body);
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findFirst({
+      where: {
+        email: {
+          equals: email,
+          mode: 'insensitive',
+        },
+      },
+    });
     if (!user) return res.status(200).json({ ok: true }); // Generic success
 
     // Validate token
@@ -351,7 +379,14 @@ authRouter.post('/admin-reset-password', async (req, res: Response) => {
     if (!validCodes.includes(code)) {
       return res.status(401).json({ error: 'Invalid gate code' });
     }
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findFirst({
+      where: {
+        email: {
+          equals: email,
+          mode: 'insensitive',
+        },
+      },
+    });
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     const passwordHash = await bcrypt.hash(password, 12);
