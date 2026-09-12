@@ -124,60 +124,69 @@ authRouter.post('/register', async (req, res: Response) => {
 });
 
 authRouter.post('/login', async (req, res: Response) => {
-  const { email: rawEmail, password } = loginSchema.parse(req.body);
-  const email = normalizeEmail(rawEmail);
-
-  // Fallback for the seed admin account to ensure it always works
-  if (email === 'hydra' && password === 'hydra') {
-    try {
-      const user = await prisma.user.findFirst({
-        where: {
-          OR: [
-            { email: 'hydra' },
-            { email: process.env.SEED_ADMIN_EMAIL || 'hydra' }
-          ]
-        }
-      });
-      if (user) {
-        const accessToken = signAccessToken({ userId: String(user.id), role: String(user.role) });
-        const refreshToken = signRefreshToken({ userId: String(user.id) });
-        try {
-          await prisma.user.update({ where: { id: user.id }, data: { refreshToken } });
-        } catch (dbErr) {
-          console.error('[Auth] Admin session update failed, but allowing login anyway:', dbErr);
-        }
-        res.cookie('refreshToken', refreshToken, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict',
-          maxAge: 7 * 24 * 60 * 60 * 1000,
-        });
-        return res.json({
-          user: { id: user.id, email: user.email, name: user.name, role: user.role },
-          accessToken,
-        });
-      }
-    } catch (err) {
-      console.error('[Auth] Hydra fallback error:', err);
-      // Fall through to normal login or throw a clearer error
-    }
-  }
-
-  const user = await prisma.user.findFirst({
-    where: {
-      email: email,
-    },
-  });
-  if (!user) throw new BadRequest('Invalid email or password');
-
-  const valid = user.passwordHash
-    ? await bcrypt.compare(password, user.passwordHash)
-    : false;
-  if (!valid) throw new BadRequest('Invalid email or password');
-
-  if (!user.isActive) throw new Unauthorized('Account is deactivated');
-
   try {
+    // 1. Health check: Verify DB is reachable before anything else
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+    } catch (dbErr) {
+      console.error('[Auth] Database connection failed during login:', dbErr);
+      return res.status(503).json({ error: 'Database is temporarily unavailable. Please try again later.' });
+    }
+
+    const { email: rawEmail, password } = loginSchema.parse(req.body);
+    const email = normalizeEmail(rawEmail);
+
+    // 2. Super-Robust Fallback for the seed admin account
+    if (email === 'hydra' && password === 'hydra') {
+      try {
+        const user = await prisma.user.findFirst({
+          where: {
+            OR: [
+              { email: 'hydra' },
+              { email: process.env.SEED_ADMIN_EMAIL || 'hydra' }
+            ]
+          }
+        });
+        if (user) {
+          const accessToken = signAccessToken({ userId: String(user.id), role: String(user.role) });
+          const refreshToken = signRefreshToken({ userId: String(user.id) });
+          try {
+            await prisma.user.update({ where: { id: user.id }, data: { refreshToken } });
+          } catch (dbUpdateErr) {
+            console.warn('[Auth] Admin session update failed, allowing login anyway:', dbUpdateErr);
+          }
+          res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+          });
+          return res.json({
+            user: { id: user.id, email: user.email, name: user.name, role: user.role },
+            accessToken,
+          });
+        }
+      } catch (fallbackErr) {
+        console.error('[Auth] Hydra fallback failed:', fallbackErr);
+      }
+    }
+
+    // 3. Normal Login Flow
+    const user = await prisma.user.findFirst({
+      where: {
+        email: email,
+      },
+    });
+    if (!user) throw new BadRequest('Invalid email or password');
+
+    const valid = user.passwordHash
+      ? await bcrypt.compare(password, user.passwordHash)
+      : false;
+    if (!valid) throw new BadRequest('Invalid email or password');
+
+    if (!user.isActive) throw new Unauthorized('Account is deactivated');
+
+    // 4. Session Creation
     const accessToken = signAccessToken({
       userId: String(user.id),
       role: String(user.role)
@@ -202,9 +211,13 @@ authRouter.post('/login', async (req, res: Response) => {
       user: { id: user.id, email: user.email, name: user.name, role: user.role },
       accessToken,
     });
-  } catch (err) {
-    console.error('[Auth Login Error] Token/DB Update failed:', err);
-    throw new Error('Authentication failed during session creation');
+  } catch (err: any) {
+    if (err instanceof AppError) throw err;
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Validation failed', details: err.errors });
+    }
+    console.error('[Auth Login Critical Error]:', err);
+    throw new BadRequest('An unexpected error occurred. Please try again.');
   }
 });
 
