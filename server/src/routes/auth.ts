@@ -141,22 +141,35 @@ authRouter.post('/login', async (req, res: Response) => {
 
   if (!user.isActive) throw new Unauthorized('Account is deactivated');
 
-  const accessToken = signAccessToken({ userId: user.id, role: user.role });
-  const refreshToken = signRefreshToken({ userId: user.id });
+  try {
+    const accessToken = signAccessToken({
+      userId: String(user.id),
+      role: String(user.role)
+    });
+    const refreshToken = signRefreshToken({
+      userId: String(user.id)
+    });
 
-  await prisma.user.update({ where: { id: user.id }, data: { refreshToken } });
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { refreshToken }
+    });
 
-  res.cookie('refreshToken', refreshToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  });
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
 
-  res.json({
-    user: { id: user.id, email: user.email, name: user.name, role: user.role },
-    accessToken,
-  });
+    res.json({
+      user: { id: user.id, email: user.email, name: user.name, role: user.role },
+      accessToken,
+    });
+  } catch (err) {
+    console.error('[Auth Login Error] Token/DB Update failed:', err);
+    throw new Error('Authentication failed during session creation');
+  }
 });
 
 authRouter.post('/forgot-password', async (req, res: Response) => {
