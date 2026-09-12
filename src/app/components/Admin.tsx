@@ -279,23 +279,23 @@ export function Admin() {
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const data = await api.auth.login({ email: username, password });
-      const userRole = data.user?.role;
-      if (userRole !== 'SUPER_ADMIN' && userRole !== 'ADMIN') {
-        setLoginError(true);
-        return;
-      }
-      setAccessToken(data.accessToken);
-      setStoredUser(data.user);
-      setIsAuthenticated(true);
-      setLoginError(false);
-    } catch {
-      setLoginError(true);
-    }
-  };
+      const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+          const data = await api.auth.login({ email: username.trim(), password: password.trim() });
+          const userRole = data.user?.role;
+          if (userRole !== 'SUPER_ADMIN' && userRole !== 'ADMIN') {
+            setLoginError(true);
+            return;
+          }
+          setAccessToken(data.accessToken);
+          setStoredUser(data.user);
+          setIsAuthenticated(true);
+          setLoginError(false);
+        } catch {
+          setLoginError(true);
+        }
+      };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
