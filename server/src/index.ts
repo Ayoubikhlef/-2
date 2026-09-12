@@ -38,7 +38,7 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https:"],
       fontSrc: ["'self'", "data:"],
-      connectSrc: ["'self'", "https://aos-api-production.up.railway.app"],
+      connectSrc: ["'self'", "https://iueefgma6y.onrender.com"],
       frameSrc: ["https://www.google.com", "https://www.google.dz", "https://www.google.co.dz"],
       frameAncestors: ["'none'"],
       baseUri: ["'self'"],
