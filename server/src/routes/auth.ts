@@ -5,7 +5,7 @@ import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '../utils/prisma';
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../utils/jwt';
-import { BadRequest, Conflict, Unauthorized } from '../utils/errors';
+import { AppError, BadRequest, Conflict, Unauthorized } from '../utils/errors';
 import { requireAuth, AuthRequest } from '../middleware/auth';
 import nodemailer from 'nodemailer';
 
