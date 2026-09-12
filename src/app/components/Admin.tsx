@@ -128,9 +128,13 @@ function TabLoading() {
 
 export function Admin() {
   const { t, language } = useLanguage();
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, login } = useAuth();
   const [showAdmin, setShowAdmin] = useState(() => window.location.hash === '#admin');
   const [isAuthenticated, setIsAuthenticated] = useState(!!user);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [loginError, setLoginError] = useState('');
   const [orders, setOrders] = useState<OrderRecord[]>([]);
   const [filter, setFilter] = useState<FilterMode>('all');
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -194,6 +198,21 @@ export function Admin() {
     setIsAuthenticated(false);
     setAccessToken(null);
     setStoredUser(null);
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError('');
+    setLoginLoading(true);
+    try {
+      await login(email.trim(), password.trim());
+      setIsAuthenticated(true);
+      toast.success(t({ ar: 'تم تسجيل الدخول بنجاح', fr: 'Connexion réussie', en: 'Login successful' }));
+    } catch (err: any) {
+      setLoginError(err.message || t({ ar: 'بيانات الاعتماد غير صحيحة', fr: 'Identifiants incorrects', en: 'Invalid credentials' }));
+    } finally {
+      setLoginLoading(false);
+    }
   };
 
   const handleUnlock = () => {
@@ -347,12 +366,12 @@ export function Admin() {
       >
         <div className="flex flex-col items-center text-center" style={{
           ...(isOn ? darkCard : neumorphicCard),
-          width: 320,
+          width: 360,
           transition: 'background 0.6s, box-shadow 0.6s',
         }}>
-          <div className="flex items-center gap-3 mb-6">
+          <div className="flex items-center gap-3 mb-8">
             <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: isOn ? '#f1f5f9' : '#2d3436' }}>
-              {t({ ar: 'دخول الأدمين', fr: 'Connexion Admin', en: 'Login' })}
+              {t({ ar: 'دخول الأدمين', fr: 'Connexion Admin', en: 'Admin Login' })}
             </h1>
             <button
               type="button"
@@ -371,24 +390,69 @@ export function Admin() {
               />
             </button>
           </div>
-          <p className="mb-6 text-sm text-slate-500">
-            {t({ ar: 'يرجى استخدام صفحة تسجيل الدخول الرئيسية', fr: 'Veuillez utiliser la page de connexion principale', en: 'Please use the main login page' })}
-          </p>
-          <button
-            onClick={() => { window.location.hash = ''; }}
-            style={isOn ? darkButton : {
-              ...neumorphic,
-              padding: '14px 40px',
-              fontSize: 15,
-              fontWeight: 700,
-              color: '#2d3436',
-              border: 'none',
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-            }}
-          >
-            {t({ ar: 'الذهاب لتسجيل الدخول', fr: 'Aller à la connexion', en: 'Go to Login' })}
-          </button>
+          <form onSubmit={handleLogin} className="w-full flex flex-col gap-4">
+            <input
+              type="text"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder={t({ ar: 'البريد الإلكتروني أو اسم المستخدم', fr: 'E-mail ou nom d\'utilisateur', en: 'Email or Username' })}
+              required
+              style={{
+                ...darkInput,
+                textAlign: 'center',
+                ...(isOn ? {} : {
+                  background: '#ffffff',
+                  color: '#2d3436',
+                  boxShadow: 'inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff',
+                }),
+              }}
+            />
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder={t({ ar: 'كلمة المرور', fr: 'Mot de passe', en: 'Password' })}
+              required
+              style={{
+                ...darkInput,
+                textAlign: 'center',
+                ...(isOn ? {} : {
+                  background: '#ffffff',
+                  color: '#2d3436',
+                  boxShadow: 'inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff',
+                }),
+              }}
+            />
+            {loginError && (
+              <p style={{ margin: 0, fontSize: 14, color: '#ef4444', textAlign: 'center' }}>
+                {loginError}
+              </p>
+            )}
+            <button
+              type="submit"
+              disabled={loginLoading}
+              style={isOn ? darkButton : {
+                ...neumorphic,
+                padding: '14px 40px',
+                fontSize: 15,
+                fontWeight: 700,
+                color: '#2d3436',
+                border: 'none',
+                cursor: loginLoading ? 'not-allowed' : 'pointer',
+                fontFamily: 'inherit',
+                opacity: loginLoading ? 0.6 : 1,
+              }}
+            >
+              {loginLoading ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  {t({ ar: 'جاري التحقق...', fr: 'Vérification...', en: 'Checking...' })}
+                </div>
+              ) : (
+                t({ ar: 'دخول', fr: 'Connexion', en: 'Login' })
+              )}
+            </button>
+          </form>
         </div>
       </section>
     );
