@@ -1,0 +1,4 @@
+[phases]
+install = { cmds = ["cd server && npm install", "cd server && npx prisma generate"] }
+build = { cmds = [] }
+start = { cmd = "cd server && npx prisma db push --accept-data-loss && npx tsx src/seed.ts && npx tsx src/index.ts" }
