@@ -5,7 +5,7 @@
     "buildCommand": "cd server && npm install && npx prisma generate"
   },
   "deploy": {
-    "startCommand": "cd server && npx prisma db push --accept-data-loss && npx tsx src/seed.ts && npm start",
+    "startCommand": "cd server && npx prisma db push --accept-data-loss && npx tsx src/seed.ts && npx tsx src/index.ts",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }
