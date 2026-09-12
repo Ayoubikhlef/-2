@@ -143,7 +143,7 @@ orderRouter.post('/', async (req: Request, res: Response) => {
               quantity: item.quantity,
               price: item.price,
               total: item.total,
-              productId: item.productId,
+              productId: item.productId ? String(item.productId) : null,
             })),
           },
         },
