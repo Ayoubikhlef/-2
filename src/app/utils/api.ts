@@ -1,6 +1,8 @@
 const isDev = import.meta.env.DEV;
 
-const PRIMARY_URL: string = import.meta.env.VITE_API_URL || (typeof window !== 'undefined' && window.location.hostname === 'localhost' ? 'https://iueefgma6y.onrender.com/api' : '/api');
+const PRIMARY_URL: string = typeof window !== 'undefined' && window.location.hostname === 'localhost'
+  ? (import.meta.env.VITE_API_URL || 'http://localhost:3001/api')
+  : '/api';
 const FALLBACK_URLS: string[] = [];
 
 export function getAccessToken(): string | null {
