@@ -95,10 +95,7 @@ authRouter.post('/register', async (req, res: Response) => {
 
   const exists = await prisma.user.findFirst({
     where: {
-      email: {
-        equals: email,
-        mode: 'insensitive',
-      },
+      email: email,
     },
   });
   if (exists) throw new Conflict('Email already registered');
@@ -132,10 +129,7 @@ authRouter.post('/login', async (req, res: Response) => {
 
   const user = await prisma.user.findFirst({
     where: {
-      email: {
-        equals: email,
-        mode: 'insensitive',
-      },
+      email: email,
     },
   });
   if (!user) throw new BadRequest('Invalid email or password');
@@ -352,7 +346,7 @@ authRouter.post('/admin-reset-password', async (req, res: Response) => {
     const passwordHash = await bcrypt.hash(password, 12);
     await prisma.user.update({ where: { id: user.id }, data: { passwordHash, refreshToken: null } });
     res.clearCookie('refreshToken');
-    console.log(\`[Auth] Admin reset password for \${email.slice(0, 3)}***\`);
+    console.log(`[Auth] Admin reset password for ${email.slice(0, 3)}***`);
     res.json({ ok: true });
   } catch (err) {
     if (err instanceof z.ZodError) {
