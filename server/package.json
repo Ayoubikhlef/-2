@@ -7,14 +7,14 @@
   },
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "npx prisma generate",
-    "start": "npx prisma db push --accept-data-loss && npx tsx src/index.ts",
+    "build": "prisma generate && tsc",
+    "start": "node dist/index.js",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx src/seed.ts",
     "db:studio": "prisma studio",
-    "deploy": "prisma generate && prisma db push && tsx src/seed.ts && node dist/index.js"
+    "deploy": "npm run build && npx prisma db push && npx tsx src/seed.ts && npm start"
   },
   "dependencies": {
     "@prisma/client": "^6.0.0",
