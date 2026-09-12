@@ -51,14 +51,6 @@ orderRouter.post('/', async (req: Request, res: Response) => {
         return res.status(400).json({ error: `Product not found: ${item.name}` });
       }
 
-      const stock = product.stock ?? 0;
-      if (stock <= 0) {
-        return res.status(400).json({ error: `Out of stock: ${product.nameAr || item.name}` });
-      }
-      if (item.quantity > stock) {
-        return res.status(400).json({ error: `Insufficient stock for ${product.nameAr || item.name}: requested ${item.quantity}, available ${stock}` });
-      }
-
       const serverPrice = product.salePrice && product.saleEnd && new Date(product.saleEnd) > new Date()
         ? product.salePrice
         : product.price;
@@ -105,24 +97,6 @@ orderRouter.post('/', async (req: Request, res: Response) => {
 
     const orderId = crypto.randomUUID();
     const order = await prisma.$transaction(async (tx) => {
-      for (const item of validatedItems) {
-        if (item.productId) {
-          const setting = await tx.setting.findUnique({ where: { key: 'aos_products' } });
-          if (setting) {
-            const products: any[] = JSON.parse(setting.value);
-            const pIdx = products.findIndex((p: any) => p.id === item.productId);
-            if (pIdx !== -1) {
-              const currentStock = products[pIdx].stock ?? 0;
-              if (currentStock < item.quantity) {
-                throw new Error(`Insufficient stock for ${item.name}: requested ${item.quantity}, available ${currentStock}`);
-              }
-              products[pIdx].stock = currentStock - item.quantity;
-              await tx.setting.update({ where: { key: 'aos_products' }, data: { value: JSON.stringify(products) } });
-            }
-          }
-        }
-      }
-
       return tx.order.create({
         data: {
           id: orderId,
