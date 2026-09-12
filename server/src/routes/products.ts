@@ -1,7 +1,7 @@
 import { Router, Response } from 'express';
 import { z } from 'zod';
 import { prisma } from '../utils/prisma';
-import { syncProducts, isReady } from '../services/rag';
+import { syncProducts, isReady, type ProductRecord } from '../services/rag';
 import { requireAuth, requireRole, type AuthRequest } from '../middleware/auth';
 import { getCached, setCache, clearCache } from '../utils/cache';
 
@@ -55,7 +55,7 @@ productRouter.post('/sync', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), as
       create: { key: SETTINGS_KEY_PRODUCTS, value: JSON.stringify(products) },
     });
     clearCache('products');
-    await syncProducts(products);
+    await syncProducts(products as ProductRecord[]);
     res.json({ ok: true, indexed: products.length });
   } catch (err) {
     if (err instanceof z.ZodError) {
