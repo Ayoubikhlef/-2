@@ -12,7 +12,7 @@ services:
     plan: free
     rootDir: server
     buildCommand: npm install && npx prisma generate && npx tsc
-    startCommand: npx prisma db push --accept-data-loss && npx tsx src/seed.ts && npm start
+    startCommand: npx prisma db push --accept-data-loss && npx tsx src/seed.ts && npx tsx src/index.ts
     envVars:
       - key: DATABASE_URL
         fromDatabase:
