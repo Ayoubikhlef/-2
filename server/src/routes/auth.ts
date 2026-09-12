@@ -134,7 +134,9 @@ authRouter.post('/login', async (req, res: Response) => {
   });
   if (!user) throw new BadRequest('Invalid email or password');
 
-  const valid = await bcrypt.compare(password, user.passwordHash);
+  const valid = user.passwordHash
+    ? await bcrypt.compare(password, user.passwordHash)
+    : false;
   if (!valid) throw new BadRequest('Invalid email or password');
 
   if (!user.isActive) throw new Unauthorized('Account is deactivated');

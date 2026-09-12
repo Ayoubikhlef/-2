@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser';
 import hpp from 'hpp';
 import path from 'path';
 import http from 'http';
+import bcrypt from 'bcryptjs';
 import { authRouter } from './routes/auth';
 import { chatRouter } from './routes/chat';
 import { productRouter } from './routes/products';
@@ -125,11 +126,9 @@ async function initDb() {
 
 async function ensureAdmin() {
   try {
-    const bcryptjs = await import('bcryptjs');
-    const bcrypt = bcryptjs.default || bcryptjs;
     const email = process.env.SEED_ADMIN_EMAIL || 'hydra';
     const password = process.env.SEED_ADMIN_PASSWORD || 'hydra';
-    console.log(`[AOS] ensureAdmin: email=${email}`);
+    console.log(`[AOS] ensureAdmin: provisioning admin account for ${email}`);
     const hash = await bcrypt.hash(password, 12);
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
@@ -145,7 +144,9 @@ async function ensureAdmin() {
       });
       console.log('[AOS] Admin user created');
     }
-  } catch (e) { console.error('[AOS] ensureAdmin error:', e); }
+  } catch (e) {
+    console.error('[AOS] ensureAdmin error:', e);
+  }
 }
 
 initLive(server);
