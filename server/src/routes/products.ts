@@ -55,7 +55,20 @@ productRouter.post('/sync', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), as
       create: { key: SETTINGS_KEY_PRODUCTS, value: JSON.stringify(products) },
     });
     clearCache('products');
-    await syncProducts(products as ProductRecord[]);
+    const ragProducts: ProductRecord[] = products.map(p => ({
+      id: p.id,
+      nameAr: p.nameAr,
+      nameFr: p.nameFr,
+      nameEn: p.nameEn,
+      descAr: p.descAr,
+      descFr: p.descFr,
+      descEn: p.descEn,
+      price: p.price,
+      image: p.image,
+      category: p.category,
+      brand: p.brand,
+    }));
+    await syncProducts(ragProducts);
     res.json({ ok: true, indexed: products.length });
   } catch (err) {
     if (err instanceof z.ZodError) {
