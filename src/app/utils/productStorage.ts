@@ -5,8 +5,21 @@ import { api } from './api';
 const STORAGE_KEY_LOCAL = 'aos_products';
 const INIT_KEY = 'aos_products_initialized';
 const SERVER_KEY = 'aos_products';
+const DATA_VERSION_KEY = 'aos_data_version';
+const CURRENT_DATA_VERSION = 2;
 
 let _lastLocalWrite = 0;
+
+function checkAndClearCorruptedData(): void {
+  try {
+    const storedVersion = Number(localStorage.getItem(DATA_VERSION_KEY)) || 0;
+    if (storedVersion < CURRENT_DATA_VERSION) {
+      localStorage.removeItem(STORAGE_KEY_LOCAL);
+      localStorage.removeItem(INIT_KEY);
+      localStorage.setItem(DATA_VERSION_KEY, String(CURRENT_DATA_VERSION));
+    }
+  } catch {}
+}
 
 export function isPendingLocalWrite(): boolean {
   return Date.now() - _lastLocalWrite < 5000;
@@ -18,6 +31,7 @@ function dispatchChange() {
 }
 
 export function getStoredProducts(defaults: Product[]): Product[] {
+  checkAndClearCorruptedData();
   try {
     const raw = localStorage.getItem(STORAGE_KEY_LOCAL);
     if (raw) {
