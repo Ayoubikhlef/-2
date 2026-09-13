@@ -191,7 +191,7 @@
 
 body {
   position: relative;
-  font-family: 'Plus Jakarta Sans', 'Tajawal', sans-serif;
+  font-family: 'Plus Jakarta Sans', 'Tajawal', 'Noto Sans Arabic', 'Segoe UI', 'Arial', sans-serif;
   font-weight: 500;
   color: var(--foreground);
   background: var(--background);
@@ -199,7 +199,7 @@ body {
 
 .dark body,
 :root.dark body {
-  font-family: 'Plus Jakarta Sans', 'Tajawal', sans-serif;
+  font-family: 'Plus Jakarta Sans', 'Tajawal', 'Noto Sans Arabic', 'Segoe UI', 'Arial', sans-serif;
   font-weight: 500;
   color: var(--foreground);
   background: var(--background);
