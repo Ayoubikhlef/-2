@@ -36,9 +36,9 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       scriptSrc: ["'self'", "https://va.vercel-scripts.com"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       imgSrc: ["'self'", "data:", "https:"],
-      fontSrc: ["'self'", "data:"],
+      fontSrc: ["'self'", "data:", "https://fonts.gstatic.com"],
       connectSrc: ["'self'", "https://iueefgma6y.onrender.com", "https://aos-api-production.up.railway.app"],
       frameSrc: ["https://www.google.com", "https://www.google.dz", "https://www.google.co.dz"],
       frameAncestors: ["'none'"],
