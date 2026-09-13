@@ -1,5 +1,5 @@
 import { Suspense, lazy, useState, useEffect } from 'react';
-import { isMaintenanceMode, getMaintenanceMessage } from './utils/maintenanceStorage';
+import { isMaintenanceMode, getMaintenanceMessage, loadMaintenanceFromServer } from './utils/maintenanceStorage';
 import { initCrossTabSync } from './utils/sync';
 import { Wrench, Construction } from 'lucide-react';
 import { Toaster } from 'sonner';
@@ -148,8 +148,11 @@ export default function App() {
 
   useEffect(() => {
     initCrossTabSync();
-    setMaintenance(isMaintenanceMode());
     startAutoSync();
+    loadMaintenanceFromServer().then((data) => {
+      if (data) setMaintenance(data.enabled);
+    });
+    setMaintenance(isMaintenanceMode());
     const handleChange = () => {
       setMaintenance(isMaintenanceMode());
     };
