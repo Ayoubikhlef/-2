@@ -6,7 +6,7 @@ const STORAGE_KEY_LOCAL = 'aos_products';
 const INIT_KEY = 'aos_products_initialized';
 const SERVER_KEY = 'aos_products';
 const DATA_VERSION_KEY = 'aos_data_version';
-const CURRENT_DATA_VERSION = 2;
+const CURRENT_DATA_VERSION = 3;
 
 let _lastLocalWrite = 0;
 

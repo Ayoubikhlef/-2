@@ -25,6 +25,7 @@ import { initLive } from './services/live';
 import { initRAG } from './services/rag';
 import { prisma } from './utils/prisma';
 import { isOriginAllowed } from './utils/cors';
+import { fixMojibakeData } from './utils/encoding';
 
 const app = express();
 const server = http.createServer(app);
@@ -124,6 +125,35 @@ async function initDb() {
   } catch { /* table may not exist yet */ }
 }
 
+async function fixMojibakeSettings() {
+  try {
+    const settings = await prisma.setting.findMany();
+    let fixedCount = 0;
+    for (const setting of settings) {
+      try {
+        const parsed = JSON.parse(setting.value);
+        const fixed = fixMojibakeData(parsed);
+        const fixedJson = JSON.stringify(fixed);
+        if (fixedJson !== setting.value) {
+          await prisma.setting.update({
+            where: { key: setting.key },
+            data: { value: fixedJson },
+          });
+          fixedCount++;
+          console.log(`[AOS] Fixed mojibake in setting: ${setting.key}`);
+        }
+      } catch { /* not JSON or other error, skip */ }
+    }
+    if (fixedCount > 0) {
+      console.log(`[AOS] Fixed mojibake in ${fixedCount} settings`);
+    } else {
+      console.log('[AOS] No mojibake detected in settings');
+    }
+  } catch (e) {
+    console.error('[AOS] fixMojibakeSettings error:', e);
+  }
+}
+
 async function ensureAdmin() {
   try {
     const email = process.env.SEED_ADMIN_EMAIL || 'hydra';
@@ -153,6 +183,7 @@ initLive(server);
 initRAG();
 initDb();
 ensureAdmin();
+fixMojibakeSettings();
 
 server.listen(PORT, '0.0.0.0', () => {
   const networkInterfaces: any[] = Object.values(require('os').networkInterfaces()).flat();

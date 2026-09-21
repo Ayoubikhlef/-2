@@ -4,6 +4,7 @@ import { prisma } from '../utils/prisma';
 import { syncProducts, isReady, type ProductRecord } from '../services/rag';
 import { requireAuth, requireRole, type AuthRequest } from '../middleware/auth';
 import { getCached, setCache, clearCache } from '../utils/cache';
+import { fixMojibakeData } from '../utils/encoding';
 
 export const productRouter = Router();
 
@@ -88,7 +89,19 @@ productRouter.get('/', async (_req, res: Response) => {
     if (!setting) {
       return res.json({ products: [] });
     }
-    const data = { products: JSON.parse(setting.value) };
+    const parsed = JSON.parse(setting.value);
+    const fixed = fixMojibakeData(parsed);
+
+    const fixedJson = JSON.stringify(fixed);
+    if (fixedJson !== setting.value) {
+      console.log('[Products] Mojibake detected and fixed, re-saving to database');
+      await prisma.setting.update({
+        where: { key: SETTINGS_KEY_PRODUCTS },
+        data: { value: fixedJson },
+      });
+    }
+
+    const data = { products: fixed };
     setCache('products', data, 30_000);
     res.json(data);
   } catch (err) {

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '../utils/prisma';
 import { requireAuth, requireRole, type AuthRequest } from '../middleware/auth';
 import { getCached, setCache, clearCache } from '../utils/cache';
+import { fixMojibakeData } from '../utils/encoding';
 
 export const dataRouter = Router();
 
@@ -62,7 +63,19 @@ dataRouter.get('/:key', async (req: Request, res: Response) => {
     if (!setting) {
       return res.json({ value: null });
     }
-    const data = { value: JSON.parse(setting.value) };
+    const parsed = JSON.parse(setting.value);
+    const fixed = fixMojibakeData(parsed);
+
+    const fixedJson = JSON.stringify(fixed);
+    if (fixedJson !== setting.value) {
+      console.log(`[Data] Mojibake detected in ${key}, re-saving to database`);
+      await prisma.setting.update({
+        where: { key },
+        data: { value: fixedJson },
+      });
+    }
+
+    const data = { value: fixed };
     setCache(cacheKey, data, 30_000);
     res.json(data);
   } catch (err) {
