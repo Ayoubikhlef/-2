@@ -7,6 +7,7 @@ import { sendNewOrderTelegramAlert, sendNewOrderDiscordAlert } from '../services
 import { emitNewOrder } from '../services/live';
 import { requireAuth, requireRole, type AuthRequest } from '../middleware/auth';
 import { getCached, setCache, clearCache } from '../utils/cache';
+import { fixMojibakeData } from '../utils/encoding';
 
 export const orderRouter = Router();
 
@@ -37,7 +38,7 @@ orderRouter.post('/', async (req: Request, res: Response) => {
     const data = createOrderSchema.parse(req.body);
 
     const setting = await prisma.setting.findUnique({ where: { key: 'aos_products' } });
-    const products: any[] = setting ? JSON.parse(setting.value) : [];
+    const products: any[] = setting ? fixMojibakeData(JSON.parse(setting.value)) : [];
 
     let serverTotal = 0;
     const validatedItems: { name: string; quantity: number; price: number; total: number; productId?: number }[] = [];
@@ -74,7 +75,7 @@ orderRouter.post('/', async (req: Request, res: Response) => {
     if (data.discountCode) {
       const couponSetting = await prisma.setting.findUnique({ where: { key: 'aos_coupons' } });
       if (couponSetting) {
-        const coupons = JSON.parse(couponSetting.value);
+        const coupons = fixMojibakeData(JSON.parse(couponSetting.value));
         const coupon = Array.isArray(coupons) ? coupons.find(
           (c: any) => c.code?.toLowerCase() === data.discountCode?.toLowerCase() && c.active
         ) : null;

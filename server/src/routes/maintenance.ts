@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { prisma } from '../utils/prisma';
 import { requireAuth, requireRole, type AuthRequest } from '../middleware/auth';
 import { getCached, setCache, clearCache } from '../utils/cache';
+import { fixMojibakeData } from '../utils/encoding';
 
 export const maintenanceRouter = Router();
 
@@ -26,7 +27,7 @@ maintenanceRouter.get('/', async (_req: Request, res: Response) => {
     if (cached) return res.json(cached);
 
     const setting = await prisma.setting.findUnique({ where: { key: MAINTENANCE_KEY } });
-    const data = setting ? { value: JSON.parse(setting.value) } : { value: null };
+    const data = setting ? { value: fixMojibakeData(JSON.parse(setting.value)) } : { value: null };
     setCache(cacheKey, data, 10_000);
     res.json(data);
   } catch (err) {
