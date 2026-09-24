@@ -5,7 +5,7 @@ import { getStoredProducts, initializeProducts } from '../utils/productStorage';
 import { products as defaultProducts, type Product } from '../data/products';
 import { getStoredServices, initializeServices } from '../utils/serviceStorage';
 import { defaultServices, type ServiceCategory } from '../data/services';
-import { RefreshCw, Trash2, ChevronDown, Phone, MapPin, Mail, DollarSign, Package, Eye, Lightbulb, Wrench, FileText, Globe, Settings, Star, MailOpen } from 'lucide-react';
+import { RefreshCw, Trash2, ChevronDown, Phone, MapPin, Mail, DollarSign, Package, Eye, Lightbulb, Wrench, FileText, Globe, Settings, Star, MailOpen, Download } from 'lucide-react';
 import { generateInvoice } from './InvoicePDF';
 import { toast } from 'sonner';
 import { isMaintenanceMode, setMaintenanceMode, getMaintenanceMessage, setMaintenanceMessage } from '../utils/maintenanceStorage';
@@ -13,6 +13,7 @@ import { api, setAccessToken, setStoredUser } from '../utils/api';
 import { syncAllFromServer, getSyncStatus, getLastSyncTime } from '../utils/globalSync';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../contexts/AuthContext';
+import * as XLSX from 'xlsx';
 
 const ManageProductsTab = lazy(() => import('./ManageProductsTab').then(m => ({ default: m.ManageProductsTab })));
 const ManageServicesTab = lazy(() => import('./ManageServicesTab').then(m => ({ default: m.ManageServicesTab })));
@@ -305,6 +306,35 @@ export function Admin() {
     );
   };
 
+  const exportOrdersExcel = () => {
+    if (filteredOrders.length === 0) {
+      toast.error(t({ ar: 'لا توجد طلبات للتصدير', fr: 'Aucune commande à exporter', en: 'No orders to export' }));
+      return;
+    }
+
+    const rows = filteredOrders.map((order) => ({
+      [t({ ar: 'رقم الطلب', fr: 'N° commande', en: 'Order ID' })]: order.id,
+      [t({ ar: 'التاريخ', fr: 'Date', en: 'Date' })]: new Date(order.createdAt).toLocaleString('en-CA'),
+      [t({ ar: 'العميل', fr: 'Client', en: 'Customer' })]: order.customer,
+      [t({ ar: 'الهاتف', fr: 'Téléphone', en: 'Phone' })]: order.phone,
+      [t({ ar: 'الولاية', fr: 'Wilaya', en: 'Wilaya' })]: order.wilaya,
+      [t({ ar: 'البلدية', fr: 'Commune', en: 'Commune' })]: order.municipality,
+      [t({ ar: 'العنوان', fr: 'Adresse', en: 'Address' })]: order.address,
+      [t({ ar: 'المنتجات', fr: 'Produits', en: 'Items' })]: order.items.map((i) => `${i.name} x${i.quantity}`).join(' + '),
+      [t({ ar: 'الإجمالي (د.ج)', fr: 'Total (DZD)', en: 'Total (DZD)' })]: Number(order.total) || 0,
+      [t({ ar: 'الحالة', fr: 'Statut', en: 'Status' })]: statusConfig[order.status].label[language],
+      [t({ ar: 'المصدر', fr: 'Source', en: 'Source' })]: order.source,
+      [t({ ar: 'الدفع', fr: 'Paiement', en: 'Payment' })]: order.paymentMethod || 'cod',
+      [t({ ar: 'ملاحظات', fr: 'Notes', en: 'Notes' })]: order.note || '',
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, t({ ar: 'الطلبات', fr: 'Commandes', en: 'Orders' }));
+    XLSX.writeFile(wb, `orders-${new Date().toISOString().slice(0, 10)}.xlsx`);
+    toast.success(t({ ar: 'تم تصدير ملف Excel', fr: 'Fichier Excel exporté', en: 'Excel file exported' }));
+  };
+
   const productOrders = orders.filter((o) => o.source !== 'service-booking');
   const serviceOrders = orders.filter((o) => o.source === 'service-booking');
   const visibleOrders = tab === 'orders' ? orders : tab === 'products' ? productOrders : serviceOrders;
@@ -517,6 +547,13 @@ export function Admin() {
                   <span>{t({ ar: 'آخر مزامنة', fr: 'Dernière synchro', en: 'Last sync' })}: {new Date(lastSyncTime).toLocaleTimeString()}</span>
                 )}
               </div>
+              <button
+                onClick={exportOrdersExcel}
+                className="inline-flex items-center gap-2 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-5 py-3 text-sm font-semibold hover:bg-emerald-500/30 transition-all"
+              >
+                <Download className="w-4 h-4" />
+                {t({ ar: 'تصدير Excel', fr: 'Exporter Excel', en: 'Export Excel' })}
+              </button>
               <button
                 onClick={handleRefresh}
                 disabled={isRefreshing}

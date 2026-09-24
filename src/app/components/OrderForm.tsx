@@ -12,6 +12,7 @@ import { TrustBadges } from './AnnouncementBar';
 import { getSiteSettings } from '../utils/siteSettingsStorage';
 import confetti from 'canvas-confetti';
 import { generateInvoice } from './InvoicePDF';
+import { submitOrderToSheet } from '../utils/googleForm';
 
 type PaymentMethod = 'cod';
 
@@ -134,6 +135,15 @@ export function OrderForm() {
       });
 
       setLastOrder(savedRecord);
+
+      void submitOrderToSheet({
+        name: formData.fullName,
+        phone: normalizedPhone,
+        product: items.map((i) => `${i.name} ×${i.quantity}`).join(' + '),
+        quantity: items.reduce((s, i) => s + i.quantity, 0),
+        address: `${wilayas.find((w) => w.id.toString() === formData.wilaya)?.[language === 'ar' ? 'nameAr' : language === 'fr' ? 'nameFr' : 'nameEn'] || ''} - ${formData.address}`,
+        notes: `الإجمالي: ${grandTotal} د.ج | الدفع: عند الاستلام | المصدر: إتمام الطلب${appliedCoupon ? ` | كود: ${appliedCoupon.code}` : ''}`,
+      });
 
       const paymentLabel = t({ ar: 'عند الاستلام', fr: 'À la livraison', en: 'Cash on delivery' });
 

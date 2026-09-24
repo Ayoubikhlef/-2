@@ -4,7 +4,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { saveOrder } from '../utils/orderStorage';
 import { getStoredServices, initializeServices } from '../utils/serviceStorage';
 import { defaultServices, getAllServiceOptions, getServiceByValue } from '../data/services';
-import { openOrderForm } from '../utils/googleForm';
+import { openOrderForm, submitOrderToSheet } from '../utils/googleForm';
 import { toast } from 'sonner';
 import { motion } from 'motion/react';
 
@@ -50,6 +50,13 @@ export function ServiceBooking() {
 
       setSubmitted(true);
       toast.success(t({ ar: 'تم حجز الخدمة بنجاح!', fr: 'Service réservé avec succès!', en: 'Service booked successfully!' }));
+      void submitOrderToSheet({
+        name: form.name,
+        phone: form.phone,
+        product: option[language],
+        quantity: 1,
+        notes: form.note ? `ملاحظات: ${form.note} | المصدر: حجز خدمة` : 'المصدر: حجز خدمة',
+      });
       openOrderForm({
         name: form.name,
         phone: form.phone,

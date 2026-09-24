@@ -1,6 +1,9 @@
 const ORDER_FORM_URL =
   'https://docs.google.com/forms/d/e/1FAIpQLSfoyIiDJPB_SwCbjJ1aZehvsoqci8HooeS0SB8tgCuoc6Y1uw/viewform';
 
+const FORM_RESPONSE_URL =
+  'https://docs.google.com/forms/d/e/1FAIpQLSfoyIiDJPB_SwCbjJ1aZehvsoqci8HooeS0SB8tgCuoc6Y1uw/formResponse';
+
 const ENTRY = {
   name: 'entry.1160619647',
   phone: 'entry.1957563317',
@@ -37,4 +40,26 @@ export function buildOrderFormUrl(prefill: OrderFormPrefill = {}): string {
 
 export function openOrderForm(prefill: OrderFormPrefill = {}): void {
   window.open(buildOrderFormUrl(prefill), '_blank', 'noopener,noreferrer');
+}
+
+export async function submitOrderToSheet(prefill: OrderFormPrefill = {}): Promise<void> {
+  const body = new URLSearchParams();
+
+  body.set(ENTRY.name, prefill.name?.trim() || '-');
+  body.set(ENTRY.phone, prefill.phone?.trim() || '-');
+  body.set(ENTRY.product, prefill.product?.trim() || '-');
+  body.set(ENTRY.quantity, String(prefill.quantity ?? 1));
+  body.set(ENTRY.address, prefill.address?.trim() || '-');
+  body.set(ENTRY.notes, prefill.notes?.trim() || '-');
+
+  try {
+    await fetch(FORM_RESPONSE_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body.toString(),
+    });
+  } catch (err) {
+    console.warn('[googleForm] submitOrderToSheet failed:', err);
+  }
 }

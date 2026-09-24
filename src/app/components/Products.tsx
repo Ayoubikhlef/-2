@@ -18,7 +18,7 @@ import { SearchSuggestions } from './SearchSuggestions';
 import { ProductSuggestions } from './ProductSuggestions';
 import TiltedCard from './TiltedCard';
 import { TrustBadges } from './AnnouncementBar';
-import { openOrderForm } from '../utils/googleForm';
+import { openOrderForm, submitOrderToSheet } from '../utils/googleForm';
 
 function loadProducts() {
   return getStoredProducts(defaultProducts);
@@ -246,6 +246,14 @@ export function Products() {
 
       setSubmitted(true);
       setLastOrderId(record.id);
+      void submitOrderToSheet({
+        name: orderData.fullName,
+        phone: orderData.phone,
+        product: productName,
+        quantity: orderData.quantity,
+        address: `${wilayaName} - ${orderData.address}`,
+        notes: `الإجمالي: ${grandTotal} د.ج | المصدر: طلب سريع${appliedCoupon ? ` | كود: ${appliedCoupon.code}` : ''}`,
+      });
       toast.success(t({ ar: 'تم تسجيل الطلب بنجاح!', fr: 'Commande enregistrée avec succès!', en: 'Order saved successfully!' }));
     } catch (err: any) {
       console.error('[Products] quick-order failed:', err);
