@@ -13,6 +13,7 @@ export function ServiceBooking() {
   const [services, setServices] = useState(() => { initializeServices(defaultServices); return getStoredServices(defaultServices); });
   const [form, setForm] = useState({ name: '', phone: '', service: '', note: '' });
   const [submitted, setSubmitted] = useState(false);
+  const [bookingSummary, setBookingSummary] = useState<{ serviceName: string; name: string; phone: string; note: string } | null>(null);
   const serviceOptions = useMemo(() => getAllServiceOptions(services), [services]);
 
   useEffect(() => {
@@ -49,6 +50,7 @@ export function ServiceBooking() {
       });
 
       setSubmitted(true);
+      setBookingSummary({ serviceName: option[language], name: form.name, phone: form.phone, note: form.note });
       toast.success(t({ ar: 'تم حجز الخدمة بنجاح!', fr: 'Service réservé avec succès!', en: 'Service booked successfully!' }));
       void submitOrderToSheet({
         name: form.name,
@@ -76,6 +78,7 @@ export function ServiceBooking() {
 
   const resetForm = () => {
     setSubmitted(false);
+    setBookingSummary(null);
     setForm({ name: '', phone: '', service: '', note: '' });
   };
 
@@ -96,21 +99,52 @@ export function ServiceBooking() {
           </p>
         </div>
 
-        {submitted ? (
+        {submitted && bookingSummary ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             className="max-w-md mx-auto text-center"
           >
-            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-emerald-500 flex items-center justify-center shadow-2xl shadow-emerald-500/30">
+            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-2xl shadow-emerald-500/30">
               <CheckCircle className="w-10 h-10 text-white" />
             </div>
             <h3 className="text-2xl font-bold mb-2">
-              {t({ ar: 'تم الحجز!', fr: 'Réservé!', en: 'Booked!' })}
+              {t({ ar: 'تم الحجز بنجاح!', fr: 'Réservé avec succès!', en: 'Booked successfully!' })}
             </h3>
-            <p className="text-muted-foreground mb-8">
-              {t({ ar: `شكراً ${form.name}، سنتصل بك قريباً لتأكيد الخدمة`, fr: `Merci ${form.name}, nous vous contacterons bientôt`, en: `Thank you ${form.name}, we will contact you soon` })}
+            <p className="text-muted-foreground mb-6">
+              {t({ ar: `شكراً ${bookingSummary.name}، سنتصل بك قريباً لتأكيد الخدمة`, fr: `Merci ${bookingSummary.name}, nous vous contacterons bientôt`, en: `Thank you ${bookingSummary.name}, we will contact you soon` })}
             </p>
+
+            <div className="rounded-xl bg-card border border-border p-5 mb-6 text-right shadow-lg" dir="auto">
+              <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3 text-center">
+                {t({ ar: 'ملخص الحجز', fr: 'Résumé', en: 'Booking Summary' })}
+              </div>
+              <div className="space-y-2.5 text-sm">
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">{t({ ar: 'الخدمة', fr: 'Service', en: 'Service' })}</span>
+                  <span className="font-bold text-primary">{bookingSummary.serviceName}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">{t({ ar: 'الاسم', fr: 'Nom', en: 'Name' })}</span>
+                  <span className="font-medium">{bookingSummary.name}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground">{t({ ar: 'الهاتف', fr: 'Téléphone', en: 'Phone' })}</span>
+                  <span className="font-medium" dir="ltr">{bookingSummary.phone}</span>
+                </div>
+                {bookingSummary.note && (
+                  <div className="pt-2 border-t border-border">
+                    <div className="text-muted-foreground text-xs mb-1">{t({ ar: 'ملاحظات', fr: 'Notes', en: 'Notes' })}</div>
+                    <div className="text-sm">{bookingSummary.note}</div>
+                  </div>
+                )}
+                <div className="pt-2.5 border-t border-border flex justify-between items-center">
+                  <span className="text-muted-foreground">{t({ ar: 'الدفع', fr: 'Paiement', en: 'Payment' })}</span>
+                  <span className="font-medium text-emerald-600">{t({ ar: 'عند الاستلام / حسب الخدمة', fr: 'À la livraison', en: 'On delivery' })}</span>
+                </div>
+              </div>
+            </div>
+
             <button onClick={resetForm} className="bg-primary text-primary-foreground px-8 py-4 rounded-2xl font-bold text-lg hover:bg-primary/90 transition-all">
               {t({ ar: 'حجز خدمة أخرى', fr: 'Réserver un autre service', en: 'Book another service' })}
             </button>

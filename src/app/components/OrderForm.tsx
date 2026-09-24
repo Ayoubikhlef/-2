@@ -22,6 +22,17 @@ export function OrderForm() {
   const [submitted, setSubmitted] = useState(false);
   const [lastOrder, setLastOrder] = useState<any | null>(null);
   const [lastLoyalty, setLastLoyalty] = useState<{ name: string; phone: string; amount: number } | null>(null);
+  const [orderSummary, setOrderSummary] = useState<{
+    items: { name: string; quantity: number; price: number }[];
+    total: number;
+    wilaya: string;
+    municipality: string;
+    address: string;
+    name: string;
+    phone: string;
+    discount: number;
+    coupon: string | null;
+  } | null>(null);
   const paymentMethod: PaymentMethod = 'cod';
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number; type: 'percentage' | 'fixed' } | null>(null);
@@ -136,6 +147,21 @@ export function OrderForm() {
 
       setLastOrder(savedRecord);
 
+      const wilayaName = wilayas.find((w) => w.id.toString() === formData.wilaya)?.[language === 'ar' ? 'nameAr' : language === 'fr' ? 'nameFr' : 'nameEn'] || '';
+      const municipalityName = getMunicipalities(Number(formData.wilaya)).find((m) => m.id === formData.municipality)?.[language === 'ar' ? 'nameAr' : language === 'fr' ? 'nameFr' : 'nameEn'] || '';
+
+      setOrderSummary({
+        items: items.map((i) => ({ name: i.name, quantity: i.quantity, price: i.price })),
+        total: grandTotal,
+        wilaya: wilayaName,
+        municipality: municipalityName,
+        address: formData.address,
+        name: formData.fullName,
+        phone: formData.phone,
+        discount: discountAmount,
+        coupon: appliedCoupon?.code || null,
+      });
+
       void submitOrderToSheet({
         name: formData.fullName,
         phone: normalizedPhone,
@@ -143,7 +169,7 @@ export function OrderForm() {
         quantity: items.reduce((s, i) => s + i.quantity, 0),
         address: formData.address,
         email: formData.email,
-        wilaya: wilayas.find((w) => w.id.toString() === formData.wilaya)?.[language === 'ar' ? 'nameAr' : language === 'fr' ? 'nameFr' : 'nameEn'] || '',
+        wilaya: wilayaName,
         total: grandTotal,
         notes: `المصدر: إتمام الطلب${appliedCoupon ? ` | كود: ${appliedCoupon.code}` : ''}`,
       });
@@ -327,32 +353,81 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
                   : t({ ar: 'تأكيد الطلب', fr: 'Confirmer la commande', en: 'Confirm Order' })}
               </button>
 
-              {submitted && (
-                <div className="bg-green-500/10 border border-green-500/20 text-green-700 dark:text-green-400 p-6 rounded-2xl text-center font-semibold animate-fade-in flex flex-col items-center justify-center gap-4">
-                  <div className="text-lg">{t({ ar: 'تم استقبال طلبك بنجاح!', fr: 'Votre commande a été reçue!', en: 'Order received successfully!' })}</div>
-                  {lastOrder && (
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        await generateInvoice(lastOrder, language);
-                      }}
-                      className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 px-6 py-3 text-sm font-bold text-white hover:from-emerald-400 hover:to-green-500 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
-                    >
-                      <FileText className="w-4 h-4" />
-                      {t({ ar: 'تحميل الفاتورة PDF', fr: 'Télécharger la facture PDF', en: 'Download PDF Invoice' })}
-                    </button>
-                  )}
-                  {whatsappLink && (
-                    <a
-                      href={whatsappLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 px-6 py-3 text-sm font-bold text-white hover:from-green-400 hover:to-emerald-500 shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
-                    >
-                      <Phone className="w-4 h-4" />
-                      {t({ ar: 'إرسال ملخص الطلب عبر واتساب', fr: 'Envoyer le résumé via WhatsApp', en: 'Send order summary via WhatsApp' })}
-                    </a>
-                  )}
+              {submitted && orderSummary && (
+                <div className="bg-gradient-to-br from-emerald-500/10 via-green-500/5 to-transparent border border-emerald-500/30 p-6 rounded-2xl animate-fade-in">
+                  <div className="text-center mb-5">
+                    <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                      <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <div className="text-2xl font-bold text-emerald-700 dark:text-emerald-400 mb-1">
+                      {t({ ar: 'تم الطلب بنجاح!', fr: 'Commande réussie!', en: 'Order successful!' })}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {t({ ar: 'شكراً لك! سنتصل بك قريباً لتأكيد الطلب.', fr: 'Merci! Nous vous contacterons bientôt.', en: 'Thank you! We will contact you soon.' })}
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl bg-card/80 border border-border p-4 mb-4 space-y-2.5">
+                    <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
+                      {t({ ar: 'ملخص الطلب', fr: 'Résumé', en: 'Order Summary' })}
+                    </div>
+                    {orderSummary.items.map((item, idx) => (
+                      <div key={idx} className="flex justify-between items-center text-sm">
+                        <span>{item.name} × {item.quantity}</span>
+                        <span className="font-semibold">{formatPrice(item.price * item.quantity)}</span>
+                      </div>
+                    ))}
+                    {orderSummary.discount > 0 && (
+                      <div className="flex justify-between items-center text-sm text-emerald-600">
+                        <span>{t({ ar: 'الخصم', fr: 'Remise', en: 'Discount' })}{orderSummary.coupon ? ` (${orderSummary.coupon})` : ''}</span>
+                        <span className="font-semibold">-{formatPrice(orderSummary.discount)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center pt-2.5 border-t border-border text-base font-bold">
+                      <span>{t({ ar: 'المجموع', fr: 'Total', en: 'Total' })}</span>
+                      <span className="text-primary">{formatPrice(orderSummary.total)}</span>
+                    </div>
+                    <div className="pt-2.5 border-t border-border space-y-1.5 text-sm text-muted-foreground">
+                      <div className="flex justify-between">
+                        <span>{t({ ar: 'الولاية', fr: 'Wilaya', en: 'Wilaya' })}</span>
+                        <span className="font-medium text-foreground">{orderSummary.wilaya} - {orderSummary.municipality}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>{t({ ar: 'العنوان', fr: 'Adresse', en: 'Address' })}</span>
+                        <span className="font-medium text-foreground text-left max-w-[60%]">{orderSummary.address}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>{t({ ar: 'الدفع', fr: 'Paiement', en: 'Payment' })}</span>
+                        <span className="font-medium text-foreground">{t({ ar: 'عند الاستلام', fr: 'À la livraison', en: 'Cash on delivery' })}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    {lastOrder && (
+                      <button
+                        type="button"
+                        onClick={async () => { await generateInvoice(lastOrder, language); }}
+                        className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 px-5 py-3 text-sm font-bold text-white hover:from-emerald-400 hover:to-green-500 shadow-md transition-all"
+                      >
+                        <FileText className="w-4 h-4" />
+                        {t({ ar: 'الفاتورة PDF', fr: 'Facture PDF', en: 'PDF Invoice' })}
+                      </button>
+                    )}
+                    {whatsappLink && (
+                      <a
+                        href={whatsappLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 px-5 py-3 text-sm font-bold text-white hover:from-green-400 hover:to-emerald-500 shadow-md transition-all"
+                      >
+                        <Phone className="w-4 h-4" />
+                        {t({ ar: 'واتساب', fr: 'WhatsApp', en: 'WhatsApp' })}
+                      </a>
+                    )}
+                  </div>
                 </div>
               )}
               {lastLoyalty && (
