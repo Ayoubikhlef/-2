@@ -141,8 +141,11 @@ export function OrderForm() {
         phone: normalizedPhone,
         product: items.map((i) => `${i.name} ×${i.quantity}`).join(' + '),
         quantity: items.reduce((s, i) => s + i.quantity, 0),
-        address: `${wilayas.find((w) => w.id.toString() === formData.wilaya)?.[language === 'ar' ? 'nameAr' : language === 'fr' ? 'nameFr' : 'nameEn'] || ''} - ${formData.address}`,
-        notes: `الإجمالي: ${grandTotal} د.ج | الدفع: عند الاستلام | المصدر: إتمام الطلب${appliedCoupon ? ` | كود: ${appliedCoupon.code}` : ''}`,
+        address: formData.address,
+        email: formData.email,
+        wilaya: wilayas.find((w) => w.id.toString() === formData.wilaya)?.[language === 'ar' ? 'nameAr' : language === 'fr' ? 'nameFr' : 'nameEn'] || '',
+        total: grandTotal,
+        notes: `المصدر: إتمام الطلب${appliedCoupon ? ` | كود: ${appliedCoupon.code}` : ''}`,
       });
 
       const paymentLabel = t({ ar: 'عند الاستلام', fr: 'À la livraison', en: 'Cash on delivery' });

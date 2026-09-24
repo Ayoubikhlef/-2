@@ -251,8 +251,11 @@ export function Products() {
         phone: orderData.phone,
         product: productName,
         quantity: orderData.quantity,
-        address: `${wilayaName} - ${orderData.address}`,
-        notes: `الإجمالي: ${grandTotal} د.ج | المصدر: طلب سريع${appliedCoupon ? ` | كود: ${appliedCoupon.code}` : ''}`,
+        address: orderData.address,
+        email: orderData.email,
+        wilaya: wilayaName,
+        total: grandTotal,
+        notes: `المصدر: طلب سريع${appliedCoupon ? ` | كود: ${appliedCoupon.code}` : ''}`,
       });
       toast.success(t({ ar: 'تم تسجيل الطلب بنجاح!', fr: 'Commande enregistrée avec succès!', en: 'Order saved successfully!' }));
     } catch (err: any) {
