@@ -51,11 +51,15 @@ export function initializeProducts(defaults: Product[]): void {
   }
 }
 
-export function saveProducts(products: Product[]): void {
+export function saveProducts(
+  products: Product[],
+  opts: { sync?: boolean; dispatch?: boolean } = {}
+): void {
+  const { sync = true, dispatch = true } = opts;
   _lastLocalWrite = Date.now();
   localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(products));
-  dispatchChange();
-  syncToServer(SERVER_KEY, products);
+  if (dispatch) dispatchChange();
+  if (sync) syncToServer(SERVER_KEY, products);
 }
 
 export function addProduct(product: Omit<Product, 'id'>): Product {

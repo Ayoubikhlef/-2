@@ -348,9 +348,14 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
                 disabled={submitting}
                 className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-bold text-lg hover:bg-primary/90 transition-all transform hover:scale-105 active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
-                {submitting
-                  ? t({ ar: 'جارٍ الإرسال...', fr: 'Envoi en cours...', en: 'Sending...' })
-                  : t({ ar: 'تأكيد الطلب', fr: 'Confirmer la commande', en: 'Confirm Order' })}
+                <span className="inline-flex items-center justify-center gap-2">
+                  {submitting && (
+                    <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  )}
+                  {submitting
+                    ? t({ ar: 'جارٍ الإرسال...', fr: 'Envoi en cours...', en: 'Sending...' })
+                    : t({ ar: 'تأكيد الطلب', fr: 'Confirmer la commande', en: 'Confirm Order' })}
+                </span>
               </button>
 
               {submitted && orderSummary && (

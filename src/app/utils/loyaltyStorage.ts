@@ -1,4 +1,4 @@
-import { api } from './api';
+import { api, getStoredUser } from './api';
 
 export type LoyaltyRecord = {
   customerPhone: string;
@@ -31,6 +31,13 @@ function getAllRaw(): LoyaltyRecord[] {
 
 function saveAllRaw(records: LoyaltyRecord[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+}
+
+// Server add/redeem routes require an ADMIN session; guests would only
+// trigger a 401 plus a pointless /auth/refresh attempt.
+function canSyncToServer(): boolean {
+  const role = getStoredUser()?.role;
+  return role === 'SUPER_ADMIN' || role === 'ADMIN';
 }
 
 export function getLoyalty(phone: string): LoyaltyRecord | null {
@@ -66,9 +73,11 @@ export function addPoints(phone: string, name: string, amount: number): LoyaltyR
   saveAllRaw(records);
   log('info', `Added ${points} points for ${phone} (total: ${record.points})`);
 
-  api.loyalty.addPoints(phone, name, amount)
-    .then(() => log('info', `Points synced to server for ${phone}`))
-    .catch((err: any) => log('warn', `Failed to sync points to server`, err?.message));
+  if (canSyncToServer()) {
+    api.loyalty.addPoints(phone, name, amount)
+      .then(() => log('info', `Points synced to server for ${phone}`))
+      .catch((err: any) => log('warn', `Failed to sync points to server`, err?.message));
+  }
 
   window.dispatchEvent(new CustomEvent('aos:data-changed'));
   return record;
@@ -89,9 +98,11 @@ export function redeemPoints(phone: string, points: number): { success: boolean;
   saveAllRaw(records);
   log('info', `Redeemed ${points} points for ${phone} (discount: ${discount} DZD)`);
 
-  api.loyalty.redeem(phone, points)
-    .then(() => log('info', `Redemption synced to server for ${phone}`))
-    .catch((err: any) => log('warn', `Failed to sync redemption to server`, err?.message));
+  if (canSyncToServer()) {
+    api.loyalty.redeem(phone, points)
+      .then(() => log('info', `Redemption synced to server for ${phone}`))
+      .catch((err: any) => log('warn', `Failed to sync redemption to server`, err?.message));
+  }
 
   window.dispatchEvent(new CustomEvent('aos:data-changed'));
   return { success: true, discount };

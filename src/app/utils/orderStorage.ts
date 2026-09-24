@@ -79,6 +79,25 @@ function dispatchChange() {
   window.dispatchEvent(new CustomEvent('aos:data-changed'));
 }
 
+// Notify listeners in a separate task so the ~18 listener re-renders never
+// extend the synchronous work of a submit click.
+function deferDispatchChange() {
+  if (typeof window === 'undefined') return;
+  window.setTimeout(dispatchChange, 0);
+}
+
+// Yield a frame so the caller's "submitting" state paints before the heavy
+// synchronous localStorage bookkeeping below runs.
+function nextPaint(): Promise<void> {
+  return new Promise((resolve) => {
+    if (typeof requestAnimationFrame === 'function') {
+      requestAnimationFrame(() => window.setTimeout(resolve, 0));
+    } else {
+      window.setTimeout(resolve, 0);
+    }
+  });
+}
+
 export function getOrders(): OrderRecord[] {
   if (typeof window === 'undefined') return [];
   try {
@@ -102,6 +121,9 @@ function safeId(): string {
 }
 
 export async function saveOrder(order: Omit<OrderRecord, 'id' | 'createdAt' | 'status'>): Promise<OrderRecord> {
+  // Let React paint the "submitting" state before any synchronous work.
+  await nextPaint();
+
   const record: OrderRecord = {
     ...order,
     id: safeId(),
@@ -125,9 +147,11 @@ export async function saveOrder(order: Omit<OrderRecord, 'id' | 'createdAt' | 's
       changed = true;
     }
   }
-  if (changed) saveProducts(products);
+  // Local-only: customers cannot push the whole catalog to /data/save (401),
+  // and re-rendering every listener here would block the submit click.
+  if (changed) saveProducts(products, { sync: false, dispatch: false });
 
-  dispatchChange();
+  deferDispatchChange();
 
   try {
     const id = safeId();
