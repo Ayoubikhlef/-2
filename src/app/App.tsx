@@ -121,6 +121,9 @@ export default function App() {
   const is404 = typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#hqpanel', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq'].includes(hash);
   const [showLogin, setShowLogin] = useState(false);
   const [maintenance, setMaintenance] = useState(false);
+  // Block the public UI until the maintenance flag is known, so the site
+  // never flashes its content while maintenance mode is on.
+  const [maintenanceChecked, setMaintenanceChecked] = useState(() => isMaintenanceMode());
 
   useEffect(() => {
     const handleOpenLogin = () => setShowLogin(true);
@@ -149,15 +152,24 @@ export default function App() {
   useEffect(() => {
     initCrossTabSync();
     startAutoSync();
-    loadMaintenanceFromServer().then((data) => {
-      if (data) setMaintenance(data.enabled);
-    });
-    setMaintenance(isMaintenanceMode());
+    let settled = false;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      setMaintenance(isMaintenanceMode());
+      setMaintenanceChecked(true);
+    };
+    // Cap the wait: if the API is slow/down we still render the site.
+    const timer = setTimeout(finish, 3000);
+    loadMaintenanceFromServer().then(finish).catch(finish);
     const handleChange = () => {
       setMaintenance(isMaintenanceMode());
     };
     window.addEventListener('aos:data-changed', handleChange);
-    return () => window.removeEventListener('aos:data-changed', handleChange);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('aos:data-changed', handleChange);
+    };
   }, []);
 
   useEffect(() => {
@@ -196,6 +208,22 @@ export default function App() {
     window.addEventListener('hashchange', updateTitle);
     return () => window.removeEventListener('hashchange', updateTitle);
   }, []);
+
+  if (!maintenanceChecked && hash !== '#hqpanel') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 flex items-center justify-center" dir="rtl">
+        <div className="text-center">
+          <div className="w-20 h-20 mx-auto mb-6 rounded-[24px] bg-white/5 backdrop-blur-xl border border-white/10 flex items-center justify-center">
+            <span className="text-2xl font-black bg-gradient-to-br from-sky-300 to-cyan-500 bg-clip-text text-transparent">AOS</span>
+          </div>
+          <div className="w-48 mx-auto h-1.5 rounded-full bg-white/10 overflow-hidden" dir="ltr">
+            <div className="h-full w-1/2 rounded-full bg-gradient-to-r from-sky-500 via-cyan-400 to-indigo-400 animate-[aos-loading_1.2s_ease-in-out_infinite]" />
+          </div>
+        </div>
+        <style>{`@keyframes aos-loading { 0% { margin-left: -50%; } 100% { margin-left: 100%; } }`}</style>
+      </div>
+    );
+  }
 
   if (maintenance && hash !== '#hqpanel') {
     const savedLang = localStorage.getItem('language') || 'ar';

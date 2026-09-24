@@ -218,13 +218,6 @@ export function Admin() {
     }
   };
 
-  const handleUnlock = () => {
-    try {
-      localStorage.setItem(UNLOCK_STORAGE_KEY, '1');
-    } catch {}
-    setIsUnlocked(true);
-  };
-
   const toggleLamp = () => {
     const next = !isOn;
     setIsOn(next);
@@ -743,10 +736,14 @@ export function Admin() {
                   </div>
                 </div>
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     const next = !isMaintenanceMode();
-                    setMaintenanceMode(next);
-                    window.dispatchEvent(new CustomEvent('aos:data-changed'));
+                    const synced = await setMaintenanceMode(next);
+                    if (synced) {
+                      toast.success(t({ ar: 'تم حفظ وضع الصيانة للجميع', fr: 'Mode maintenance enregistré pour tous', en: 'Maintenance mode saved for everyone' }));
+                    } else {
+                      toast.error(t({ ar: 'تعذر حفظ الحالة على السيرفر — لن يراها الزوار', fr: 'Échec de sauvegarde serveur — invisible pour les visiteurs', en: 'Failed to save to server — visitors will not see it' }));
+                    }
                   }}
                   className={`relative w-12 h-6 rounded-full transition-all cursor-pointer ${isMaintenanceMode() ? 'bg-amber-500' : 'bg-slate-700'}`}
                 >

@@ -6,7 +6,6 @@ export type MaintenanceData = {
 };
 
 import { api } from './api';
-import { syncToServer } from './serverSync';
 
 function getData(): MaintenanceData {
   try {
@@ -26,20 +25,28 @@ function dispatchChange() {
   window.dispatchEvent(new CustomEvent('aos:data-changed'));
 }
 
-function pushToServer(data: MaintenanceData) {
-  syncToServer('aos_maintenance', data);
+function pushToServer(data: MaintenanceData): Promise<boolean> {
+  return api.post('/maintenance', data).then(
+    () => true,
+    (err) => {
+      console.warn('[Maintenance] Failed to save to server:', err?.message);
+      return false;
+    }
+  );
 }
+
+let messagePushTimer: ReturnType<typeof setTimeout> | null = null;
 
 export function isMaintenanceMode(): boolean {
   return getData().enabled;
 }
 
-export function setMaintenanceMode(enabled: boolean): void {
+export function setMaintenanceMode(enabled: boolean): Promise<boolean> {
   const data = getData();
   data.enabled = enabled;
   saveData(data);
-  pushToServer(data);
   dispatchChange();
+  return pushToServer(data);
 }
 
 export function getMaintenanceMessage(): MaintenanceData['message'] {
@@ -50,8 +57,13 @@ export function setMaintenanceMessage(msg: MaintenanceData['message']): void {
   const data = getData();
   data.message = msg;
   saveData(data);
-  pushToServer(data);
   dispatchChange();
+  // Debounced: typing sends one request after the user stops, not per keystroke.
+  if (messagePushTimer) clearTimeout(messagePushTimer);
+  messagePushTimer = setTimeout(() => {
+    messagePushTimer = null;
+    void pushToServer(getData());
+  }, 700);
 }
 
 export async function loadMaintenanceFromServer(): Promise<MaintenanceData | null> {
