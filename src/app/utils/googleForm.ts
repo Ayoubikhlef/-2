@@ -12,7 +12,7 @@ const ENTRY = {
   address: 'entry.1104176477',
   notes: 'entry.627585486',
   email: 'entry.1437699221',
-  wilaya: 'entry.1873619564',
+  wilaya: 'entry.279959772',
   total: 'entry.975354422',
   payment: 'entry.1221188104',
 } as const;
