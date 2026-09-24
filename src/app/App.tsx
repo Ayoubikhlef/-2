@@ -184,6 +184,7 @@ export default function App() {
         '#loyalty':  { ar: 'برنامج الولاء', fr: 'Programme de fidélité', en: 'Loyalty Program' },
         '#account':  { ar: 'حسابي', fr: 'Mon compte', en: 'My Account' },
         '#hqpanel':    { ar: 'لوحة الأدمين', fr: 'Administration', en: 'Admin Panel' },
+        '#admin':    { ar: 'الصفحة غير موجودة', fr: 'Page introuvable', en: 'Page Not Found' },
         '#products': { ar: 'المنتجات', fr: 'Produits', en: 'Products' },
         '#services': { ar: 'الخدمات', fr: 'Services', en: 'Services' },
         '#contact':  { ar: 'اتصل بنا', fr: 'Contact', en: 'Contact Us' },
@@ -250,7 +251,15 @@ export default function App() {
     );
   }
 
-  if (is404) return <NotFound />;
+  if (is404) {
+    return (
+      <ThemeProvider>
+        <LanguageProvider>
+          <NotFound />
+        </LanguageProvider>
+      </ThemeProvider>
+    );
+  }
 
   const currentHash = hash;
   const isPage = ['#about', '#terms', '#privacy', '#checkout', '#loyalty', '#account'].includes(currentHash);

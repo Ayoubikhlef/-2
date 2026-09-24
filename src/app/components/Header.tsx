@@ -7,6 +7,7 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import { Cart } from './CartView';
 import { motion, AnimatePresence } from 'motion/react';
 import { getSiteSettings } from '../utils/siteSettingsStorage';
+import { buildOrderFormUrl } from '../utils/googleForm';
 
 export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -97,7 +98,9 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
             </button>
 
             <a
-              href="#contact"
+              href={buildOrderFormUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-primary/90 transition-all shadow-sm shadow-primary/20 hover:shadow-md hover:shadow-primary/30"
             >
               {t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}
@@ -182,7 +185,9 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
                 ))}
                 <div className="pt-2 px-2">
                   <a
-                    href="#contact"
+                    href={buildOrderFormUrl()}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="block w-full text-center bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary/90 transition-all"
                     onClick={() => setMobileMenuOpen(false)}
                   >

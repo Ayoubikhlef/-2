@@ -110,33 +110,34 @@ export function OrderForm() {
     const normalizedPhone = formData.phone.replace(/[\s\-.]/g, '');
 
     setSubmitting(true);
-    const savedRecord = await saveOrder({
-      customer: formData.fullName,
-      phone: normalizedPhone,
-      email: formData.email,
-      wilaya: wilayas.find((w) => w.id.toString() === formData.wilaya)?.[language === 'ar' ? 'nameAr' : language === 'fr' ? 'nameFr' : 'nameEn'] || '',
-      municipality: getMunicipalities(Number(formData.wilaya)).find((m) => m.id === formData.municipality)?.[language === 'ar' ? 'nameAr' : language === 'fr' ? 'nameFr' : 'nameEn'] || '',
-      address: formData.address,
-      note: '',
-      items: items.map((item) => ({
-        name: item.name,
-        quantity: item.quantity,
-        price: item.price,
-        total: item.price * item.quantity,
-        productId: item.productId,
-      })),
-      total: grandTotal,
-      source: 'form',
-      paymentMethod,
-      discount: discountAmount > 0 ? discountAmount : undefined,
-      discountCode: appliedCoupon?.code,
-    });
+    try {
+      const savedRecord = await saveOrder({
+        customer: formData.fullName,
+        phone: normalizedPhone,
+        email: formData.email.trim() || undefined,
+        wilaya: wilayas.find((w) => w.id.toString() === formData.wilaya)?.[language === 'ar' ? 'nameAr' : language === 'fr' ? 'nameFr' : 'nameEn'] || '',
+        municipality: getMunicipalities(Number(formData.wilaya)).find((m) => m.id === formData.municipality)?.[language === 'ar' ? 'nameAr' : language === 'fr' ? 'nameFr' : 'nameEn'] || '',
+        address: formData.address,
+        note: '',
+        items: items.map((item) => ({
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price,
+          total: item.price * item.quantity,
+          productId: item.productId,
+        })),
+        total: grandTotal,
+        source: 'form',
+        paymentMethod,
+        discount: discountAmount > 0 ? discountAmount : undefined,
+        discountCode: appliedCoupon?.code,
+      });
 
-    setLastOrder(savedRecord);
+      setLastOrder(savedRecord);
 
-    const paymentLabel = t({ ar: 'عند الاستلام', fr: 'À la livraison', en: 'Cash on delivery' });
+      const paymentLabel = t({ ar: 'عند الاستلام', fr: 'À la livraison', en: 'Cash on delivery' });
 
-    const orderSummary = `
+      const orderSummary = `
 🛒 ${t({ ar: 'ملخص الطلب', fr: 'Résumé de la commande', en: 'Order Summary' })}
 ━━━━━━━━━━━━━━━━━━━━━
 📋 ${t({ ar: 'المنتجات:', fr: 'Produits:', en: 'Products:' })}
@@ -154,28 +155,36 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
 ━━━━━━━━━━━━━━━━━━━━━
     `;
 
-    toast.success(t({ ar: 'تم إرسال الطلب! سيتم التواصل معك قريباً.', fr: 'Commande envoyée! Nous vous contacterons bientôt.', en: 'Order sent! We will contact you soon.' }));
+      toast.success(t({ ar: 'تم إرسال الطلب! سيتم التواصل معك قريباً.', fr: 'Commande envoyée! Nous vous contacterons bientôt.', en: 'Order sent! We will contact you soon.' }));
 
-    // Trigger confetti explosion!
-    try {
-      confetti({
-        particleCount: 150,
-        spread: 80,
-        origin: { y: 0.6 }
-      });
-    } catch (e) {
-      if (import.meta.env.DEV) console.warn('Confetti error:', e);
+      try {
+        confetti({
+          particleCount: 150,
+          spread: 80,
+          origin: { y: 0.6 }
+        });
+      } catch (e) {
+        if (import.meta.env.DEV) console.warn('Confetti error:', e);
+      }
+
+      const whatsappMessage = `${orderSummary}\n\n✅ ${t({ ar: 'سيتم التواصل معك قريباً', fr: 'Nous vous contacterons bientôt', en: 'We will contact you soon' })}`;
+      const whatsappNumber = getSiteSettings().contact.phoneInternational;
+      setWhatsappLink(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`);
+
+      setSubmitted(true);
+      setLastLoyalty({ name: formData.fullName, phone: normalizedPhone, amount: grandTotal });
+      setFormData({ fullName: '', phone: '', email: '', address: '', wilaya: '1', municipality: '1' });
+      clear();
+    } catch (err: any) {
+      console.error('[OrderForm] submit failed:', err);
+      toast.error(err?.message || t({
+        ar: 'تعذر إرسال الطلب. حاول مرة أخرى.',
+        fr: 'Impossible d\'envoyer la commande. Réessayez.',
+        en: 'Could not send the order. Please try again.',
+      }));
+    } finally {
+      setSubmitting(false);
     }
-
-    const whatsappMessage = `${orderSummary}\n\n✅ ${t({ ar: 'سيتم التواصل معك قريباً', fr: 'Nous vous contacterons bientôt', en: 'We will contact you soon' })}`;
-    const whatsappNumber = getSiteSettings().contact.phoneInternational;
-    setWhatsappLink(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`);
-
-    setSubmitted(true);
-    setLastLoyalty({ name: formData.fullName, phone: normalizedPhone, amount: grandTotal });
-    setFormData({ fullName: '', phone: '', email: '', address: '', wilaya: '1', municipality: '1' });
-    clear();
-    setSubmitting(false);
   };
 
   return (

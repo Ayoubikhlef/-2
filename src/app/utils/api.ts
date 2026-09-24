@@ -36,7 +36,8 @@ function getUrls(path: string): string[] {
 
 async function request<T>(
   path: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  retryAuth = true
 ): Promise<T> {
   const token = getAccessToken();
   const headers: Record<string, string> = {
@@ -49,23 +50,38 @@ async function request<T>(
   let lastError: Error | null = null;
 
   for (let i = 0; i < urls.length; i++) {
+    const url = urls[i];
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000);
     try {
-      const url = urls[i];
       if (isDev) console.log(`[API] ${options.method || 'GET'} ${url} (attempt ${i + 1}/${urls.length})`);
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 20000);
       const res = await fetch(url, { ...options, headers, credentials: 'include', signal: controller.signal });
-      clearTimeout(timeout);
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || `Request failed (${res.status})`);
+        const message = body.error || body.details?.[0]?.message || `Request failed (${res.status})`;
+        const error: any = new Error(message);
+        error.status = res.status;
+        error.details = body.details;
+        // Auto-refresh once on expired token (admin polling on mobile/Safari).
+        if (res.status === 401 && retryAuth && path !== '/auth/refresh' && path !== '/auth/login') {
+          clearTimeout(timeout);
+          const refreshed = await refreshToken();
+          if (refreshed) {
+            return request<T>(path, options, false);
+          }
+        }
+        throw error;
       }
       return res.json();
     } catch (err: any) {
       lastError = err;
+      // HTTP error statuses are definitive — no point trying another URL.
+      if (err?.status && err.status < 500) break;
       if (i < urls.length - 1 && isDev) {
         console.warn(`[API] Attempt ${i + 1} failed, trying next URL`);
       }
+    } finally {
+      clearTimeout(timeout);
     }
   }
 
@@ -76,15 +92,23 @@ export async function refreshToken(): Promise<{
   user: any;
   accessToken: string;
 } | null> {
+  if ((refreshToken as any)._inFlight) return null;
+  (refreshToken as any)._inFlight = true;
   try {
-    const data = await request<any>('/auth/refresh', { method: 'POST' });
+    const data = await request<any>('/auth/refresh', { method: 'POST' }, false);
     setAccessToken(data.accessToken);
     setStoredUser(data.user);
     return data;
-  } catch {
-    setAccessToken(null);
-    setStoredUser(null);
+  } catch (err: any) {
+    // Only clear the session when the server explicitly rejects the refresh.
+    // Network/5xx must not wipe a valid local session (mobile flakiness).
+    if (err?.status && err.status >= 400 && err.status < 500) {
+      setAccessToken(null);
+      setStoredUser(null);
+    }
     return null;
+  } finally {
+    (refreshToken as any)._inFlight = false;
   }
 }
 

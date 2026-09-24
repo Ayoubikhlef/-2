@@ -4,6 +4,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { saveOrder } from '../utils/orderStorage';
 import { getStoredServices, initializeServices } from '../utils/serviceStorage';
 import { defaultServices, getAllServiceOptions, getServiceByValue } from '../data/services';
+import { openOrderForm } from '../utils/googleForm';
 import { toast } from 'sonner';
 import { motion } from 'motion/react';
 
@@ -33,21 +34,37 @@ export function ServiceBooking() {
 
     const option = serviceOptions.find((s) => s.value === form.service)!;
 
-    await saveOrder({
-      customer: form.name,
-      phone: form.phone,
-      email: '',
-      wilaya: '',
-      municipality: '',
-      address: '',
-      note: `${t({ ar: 'الخدمة', fr: 'Service', en: 'Service' })}: ${option[language]}${form.note ? ` | ${t({ ar: 'ملاحظات', fr: 'Notes', en: 'Notes' })}: ${form.note}` : ''}`,
-      items: [{ name: option[language], quantity: 1, price: 0, total: 0 }],
-      total: 0,
-      source: 'service-booking',
-    });
+    try {
+      await saveOrder({
+        customer: form.name,
+        phone: form.phone,
+        email: '',
+        wilaya: '',
+        municipality: '',
+        address: '',
+        note: `${t({ ar: 'الخدمة', fr: 'Service', en: 'Service' })}: ${option[language]}${form.note ? ` | ${t({ ar: 'ملاحظات', fr: 'Notes', en: 'Notes' })}: ${form.note}` : ''}`,
+        items: [{ name: option[language], quantity: 1, price: 0, total: 0 }],
+        total: 0,
+        source: 'service-booking',
+      });
 
-    setSubmitted(true);
-    toast.success(t({ ar: 'تم حجز الخدمة بنجاح!', fr: 'Service réservé avec succès!', en: 'Service booked successfully!' }));
+      setSubmitted(true);
+      toast.success(t({ ar: 'تم حجز الخدمة بنجاح!', fr: 'Service réservé avec succès!', en: 'Service booked successfully!' }));
+      openOrderForm({
+        name: form.name,
+        phone: form.phone,
+        product: option[language],
+        notes: form.note,
+        quantity: 1,
+      });
+    } catch (err: any) {
+      console.error('[ServiceBooking] submit failed:', err);
+      toast.error(err?.message || t({
+        ar: 'تعذر إرسال الحجز. حاول مرة أخرى.',
+        fr: 'Impossible d\'envoyer la réservation. Réessayez.',
+        en: 'Could not send the booking. Please try again.',
+      }));
+    }
   };
 
   const resetForm = () => {

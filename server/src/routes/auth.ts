@@ -113,7 +113,10 @@ authRouter.post('/register', async (req, res: Response) => {
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    // lax: works for same-site XHR via Vercel proxy; strict breaks some
+    // cross-site / redirect flows on Safari and iOS.
+    sameSite: 'lax',
+    path: '/',
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
@@ -158,7 +161,8 @@ authRouter.post('/login', async (req, res: Response) => {
           res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict',
+            sameSite: 'lax',
+            path: '/',
             maxAge: 7 * 24 * 60 * 60 * 1000,
           });
           return res.json({
@@ -203,7 +207,8 @@ authRouter.post('/login', async (req, res: Response) => {
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: 'lax',
+      path: '/',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -484,7 +489,8 @@ authRouter.post('/refresh', async (req, res: Response) => {
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    sameSite: 'lax',
+    path: '/',
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
@@ -500,7 +506,7 @@ authRouter.post('/logout', requireAuth, async (req: AuthRequest, res: Response) 
     data: { refreshToken: null },
   });
 
-  res.clearCookie('refreshToken');
+  res.clearCookie('refreshToken', { path: '/', sameSite: 'lax', secure: process.env.NODE_ENV === 'production', httpOnly: true });
   res.json({ message: 'Logged out' });
 });
 

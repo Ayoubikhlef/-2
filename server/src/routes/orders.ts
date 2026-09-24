@@ -12,60 +12,104 @@ import { fixMojibakeData } from '../utils/encoding';
 export const orderRouter = Router();
 
 const orderItemSchema = z.object({
-  name: z.string(),
+  name: z.string().min(1),
   quantity: z.number().int().positive().max(10000),
   price: z.number().nonnegative(),
   total: z.number().nonnegative(),
   productId: z.number().optional(),
 });
 
-const createOrderSchema = z.object({
-  customer: z.string().min(1).max(200),
-  phone: z.string().min(1).max(20),
-  email: z.string().email().optional(),
-  wilaya: z.string().min(1),
-  municipality: z.string().min(1),
-  address: z.string().min(1).max(500),
-  note: z.string().max(500).optional(),
-  items: z.array(orderItemSchema).min(1).max(50),
-  total: z.number().nonnegative().max(10000000),
-  source: z.enum(['form', 'quick-order', 'service-booking']),
-  discountCode: z.string().max(50).optional(),
-});
+// Empty string email is common on mobile autofill-off — treat as omitted.
+const optionalEmail = z.preprocess(
+  (v) => (typeof v === 'string' && v.trim() === '' ? undefined : v),
+  z.string().email().optional()
+);
+
+const createOrderSchema = z
+  .object({
+    customer: z.string().min(1).max(200),
+    phone: z.string().min(1).max(20),
+    email: optionalEmail,
+    wilaya: z.string().max(200),
+    municipality: z.string().max(200),
+    address: z.string().max(500),
+    note: z.string().max(500).optional(),
+    items: z.array(orderItemSchema).min(1).max(50),
+    total: z.number().nonnegative().max(10000000),
+    source: z.enum(['form', 'quick-order', 'service-booking']),
+    discountCode: z.string().max(50).optional(),
+  })
+  .superRefine((data, ctx) => {
+    // Product orders require delivery address; service bookings do not.
+    if (data.source === 'service-booking') return;
+    if (!data.wilaya.trim()) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['wilaya'], message: 'Wilaya is required' });
+    }
+    if (!data.municipality.trim()) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['municipality'], message: 'Municipality is required' });
+    }
+    if (!data.address.trim()) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['address'], message: 'Address is required' });
+    }
+  });
 
 orderRouter.post('/', async (req: Request, res: Response) => {
   try {
     const data = createOrderSchema.parse(req.body);
-
-    const setting = await prisma.setting.findUnique({ where: { key: 'aos_products' } });
-    const products: any[] = setting ? fixMojibakeData(JSON.parse(setting.value)) : [];
+    console.log(
+      `[Orders] POST create source=${data.source} email=${data.email ? 'yes' : 'empty'} ` +
+      `wilaya=${JSON.stringify(data.wilaya)} items=${data.items.length} ua=${req.headers['user-agent'] || 'n/a'}`
+    );
+    const isService = data.source === 'service-booking';
 
     let serverTotal = 0;
     const validatedItems: { name: string; quantity: number; price: number; total: number; productId?: number }[] = [];
 
-    for (const item of data.items) {
-      const product = item.productId
-        ? products.find((p: any) => p.id === item.productId)
-        : products.find((p: any) => p.nameAr === item.name || p.nameFr === item.name || p.nameEn === item.name);
-
-      if (!product) {
-        return res.status(400).json({ error: `Product not found: ${item.name}` });
+    if (isService) {
+      // Service bookings are free-form (no product catalog entry).
+      for (const item of data.items) {
+        const itemTotal = Math.round(item.price * item.quantity);
+        serverTotal += itemTotal;
+        validatedItems.push({
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price,
+          total: itemTotal,
+          productId: item.productId,
+        });
       }
+      if (data.total > 0 && Math.abs(serverTotal - data.total) > 1) {
+        serverTotal = data.total;
+      }
+    } else {
+      const setting = await prisma.setting.findUnique({ where: { key: 'aos_products' } });
+      const products: any[] = setting ? fixMojibakeData(JSON.parse(setting.value)) : [];
 
-      const serverPrice = product.salePrice && product.saleEnd && new Date(product.saleEnd) > new Date()
-        ? product.salePrice
-        : product.price;
+      for (const item of data.items) {
+        const product = item.productId
+          ? products.find((p: any) => p.id === item.productId)
+          : products.find((p: any) => p.nameAr === item.name || p.nameFr === item.name || p.nameEn === item.name);
 
-      const itemTotal = Math.round(serverPrice * item.quantity);
-      serverTotal += itemTotal;
+        if (!product) {
+          console.warn(`[Orders] Product not found (source=${data.source}): ${item.name} productId=${item.productId ?? 'none'}`);
+          return res.status(400).json({ error: `Product not found: ${item.name}` });
+        }
 
-      validatedItems.push({
-        name: product.nameAr || item.name,
-        quantity: item.quantity,
-        price: serverPrice,
-        total: itemTotal,
-        productId: product.id,
-      });
+        const serverPrice = product.salePrice && product.saleEnd && new Date(product.saleEnd) > new Date()
+          ? product.salePrice
+          : product.price;
+
+        const itemTotal = Math.round(serverPrice * item.quantity);
+        serverTotal += itemTotal;
+
+        validatedItems.push({
+          name: product.nameAr || item.name,
+          quantity: item.quantity,
+          price: serverPrice,
+          total: itemTotal,
+          productId: product.id,
+        });
+      }
     }
 
     let finalTotal = serverTotal;
@@ -168,6 +212,7 @@ orderRouter.post('/', async (req: Request, res: Response) => {
     res.status(201).json(order);
   } catch (err) {
     if (err instanceof z.ZodError) {
+      console.warn('[Orders] Create validation failed:', JSON.stringify(err.errors), 'body keys:', Object.keys(req.body || {}));
       return res.status(400).json({ error: 'Validation failed', details: err.errors });
     }
     if (err instanceof Error && err.message.includes('Insufficient stock')) {

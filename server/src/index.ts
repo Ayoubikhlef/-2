@@ -50,10 +50,14 @@ app.use(helmet({
 }));
 app.use(cors({
   origin: (origin, cb) => {
+    // Same-origin / non-browser clients omit Origin — allow them.
+    if (!origin) return cb(null, true);
     if (isOriginAllowed(origin)) cb(null, true);
     else cb(null, false);
   },
   credentials: true,
+  methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
 }));
 app.use(compression({ level: 6 }));
 app.use(express.json({ limit: '1mb' }));

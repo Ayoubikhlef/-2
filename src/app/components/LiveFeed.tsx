@@ -6,13 +6,17 @@ import { ShoppingCart, Bell, Activity } from 'lucide-react';
 
 const WS_URL = (() => {
   const apiUrl = import.meta.env.VITE_API_URL as string | undefined;
-  if (apiUrl && !apiUrl.startsWith('/')) {
-    return apiUrl.replace(/\/api\/?$/, '');
+  if (apiUrl && apiUrl.startsWith('http')) {
+    return apiUrl.replace(/\/api\/?$/, '').replace(/\/$/, '');
   }
-  if (typeof window !== 'undefined' && window.location.origin.startsWith('http')) {
-    return window.location.origin;
+  if (typeof window !== 'undefined') {
+    const { hostname, protocol } = window.location;
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return `${protocol}//${hostname}:3001`;
+    }
   }
-  return 'http://localhost:3001';
+  // Production frontend (Vercel) does not host Socket.IO — connect to API host.
+  return 'https://aos-api-production.up.railway.app';
 })();
 
 interface LiveOrder {
@@ -32,11 +36,21 @@ export function LiveFeed() {
 
   useEffect(() => {
     const token = localStorage.getItem('aos_access_token') || undefined;
-    const s = io(WS_URL, { auth: { token } });
+    const s = io(WS_URL, {
+      auth: { token },
+      path: '/socket.io',
+      transports: ['websocket', 'polling'],
+      reconnectionAttempts: 8,
+      timeout: 15000,
+    });
     setSocket(s);
 
     s.on('connect', () => {
       s.emit('join-admin');
+    });
+
+    s.on('connect_error', (err) => {
+      if (import.meta.env.DEV) console.warn('[LiveFeed] connect_error:', err.message);
     });
 
     s.on('new-order', (order: LiveOrder) => {

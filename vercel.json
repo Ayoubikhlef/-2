@@ -6,6 +6,10 @@
     {
       "source": "/api/(.*)",
       "destination": "https://aos-api-production.up.railway.app/api/$1"
+    },
+    {
+      "source": "/socket.io/(.*)",
+      "destination": "https://aos-api-production.up.railway.app/socket.io/$1"
     }
   ],
   "headers": [
@@ -31,7 +35,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://aos-api-production.up.railway.app wss://aos-api-production.up.railway.app; frame-src https://www.google.com https://www.google.dz https://www.google.co.dz; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+          "value": "default-src 'self'; script-src 'self' https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://aos-api-production.up.railway.app wss://aos-api-production.up.railway.app https://iueefgma6y.onrender.com wss://iueefgma6y.onrender.com; frame-src https://www.google.com https://www.google.dz https://www.google.co.dz; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
         },
         {
           "key": "X-Frame-Options",

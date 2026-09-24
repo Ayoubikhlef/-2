@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, lazy, Suspense } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { getOrders, clearOrders, updateOrderStatus, removeOrder, getOrderStats, loadOrdersFromServer, OrderRecord, OrderStatus } from '../utils/orderStorage';
+import { getOrders, clearOrders, updateOrderStatus, removeOrder, getOrderStats, loadOrdersFromServer, pushUnsyncedOrders, OrderRecord, OrderStatus } from '../utils/orderStorage';
 import { getStoredProducts, initializeProducts } from '../utils/productStorage';
 import { products as defaultProducts, type Product } from '../data/products';
 import { getStoredServices, initializeServices } from '../utils/serviceStorage';
@@ -234,6 +234,7 @@ export function Admin() {
   const loadOrders = useCallback(async () => {
     setOrders(getOrders());
     try {
+      await pushUnsyncedOrders().catch(() => {});
       const serverOrders = await loadOrdersFromServer();
       setOrders(serverOrders);
     } catch {}

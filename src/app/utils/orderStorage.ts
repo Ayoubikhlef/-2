@@ -1,4 +1,4 @@
-import { api, getAccessToken, getStoredUser } from './api';
+import { api, getAccessToken, getStoredUser, refreshToken } from './api';
 import { getStoredProducts, saveProducts } from './productStorage';
 import { products as defaultProducts } from '../data/products';
 
@@ -92,10 +92,19 @@ export function getOrders(): OrderRecord[] {
   }
 }
 
+function safeId(): string {
+  try {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+  } catch { /* insecure context / older Safari */ }
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
 export async function saveOrder(order: Omit<OrderRecord, 'id' | 'createdAt' | 'status'>): Promise<OrderRecord> {
   const record: OrderRecord = {
     ...order,
-    id: crypto.randomUUID() ?? `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+    id: safeId(),
     createdAt: new Date().toISOString(),
     status: 'new',
   };
@@ -121,11 +130,34 @@ export async function saveOrder(order: Omit<OrderRecord, 'id' | 'createdAt' | 's
   dispatchChange();
 
   try {
-    await api.orders.create({ ...order, id: record.id });
-    log('info', `Order ${record.id} synced to server`);
+    const id = safeId();
+    const payload: Record<string, any> = {
+      customer: order.customer,
+      phone: order.phone,
+      email: order.email || undefined,
+      wilaya: order.wilaya || (order.source === 'service-booking' ? '' : order.wilaya),
+      municipality: order.municipality || '',
+      address: order.address || '',
+      note: order.note || '',
+      items: order.items,
+      total: order.total,
+      source: order.source,
+      discountCode: order.discountCode,
+      id,
+    };
+    // Product orders may omit productId when only a display name is known;
+    // server matches by name. Empty optional fields are stripped.
+    Object.keys(payload).forEach((k) => {
+      if (payload[k] === undefined) delete payload[k];
+    });
+    await api.orders.create(payload);
+    log('info', `Order ${order.id} synced to server`);
     markSynced(record.id);
   } catch (err: any) {
     log('warn', `Server sync failed for order ${record.id}`, err?.message);
+    // Local copy stays queued for pushUnsyncedOrders, but the UI must know
+    // the server rejected/failed so it does not fake a success.
+    throw err instanceof Error ? err : new Error(String(err));
   }
 
   return record;
@@ -182,7 +214,7 @@ export async function pushUnsyncedOrders(): Promise<void> {
       await api.orders.create({
         customer: order.customer,
         phone: order.phone,
-        email: order.email,
+        email: order.email || undefined,
         wilaya: order.wilaya,
         municipality: order.municipality,
         address: order.address,
@@ -190,12 +222,19 @@ export async function pushUnsyncedOrders(): Promise<void> {
         items: order.items,
         total: order.total,
         source: order.source,
+        discountCode: order.discountCode,
         id: order.id,
       });
       markSynced(order.id);
       log('info', `Order ${order.id} pushed to server`);
     } catch (err: any) {
-      log('warn', `Failed to push order ${order.id}`, err?.message);
+      // Permanent validation errors: stop infinite retry, surface in console.
+      if (err?.status && err.status >= 400 && err.status < 500) {
+        console.warn(`[Orders] Dropping permanently rejected order ${order.id}:`, err.message);
+        markSynced(order.id);
+      } else {
+        log('warn', `Failed to push order ${order.id}`, err?.message);
+      }
     }
   }
 }
@@ -204,7 +243,7 @@ export async function loadOrdersFromServer(): Promise<OrderRecord[]> {
   if (!getAccessToken()) {
     return getOrders();
   }
-  try {
+  const fetchServerOrders = async () => {
     const storedUser = getStoredUser();
     const isAdmin = storedUser?.role === 'SUPER_ADMIN' || storedUser?.role === 'ADMIN';
     const params = !isAdmin
@@ -214,7 +253,23 @@ export async function loadOrdersFromServer(): Promise<OrderRecord[]> {
           ? { phone: storedUser.phone }
           : undefined
       : undefined;
-    const serverOrders = await api.orders.list(params);
+    return api.orders.list(params);
+  };
+
+  try {
+    let serverOrders: any[];
+    try {
+      serverOrders = await fetchServerOrders();
+    } catch (err: any) {
+      // Expired access token: refresh once and retry (Safari/mobile sessions).
+      if (err?.status === 401) {
+        const ok = await refreshToken();
+        if (!ok) return getOrders();
+        serverOrders = await fetchServerOrders();
+      } else {
+        throw err;
+      }
+    }
     log('info', `Loaded ${serverOrders.length} orders from server`);
     const deleted = getSoftDeletedIds();
     const localOrders = getOrders();

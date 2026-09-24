@@ -77,10 +77,15 @@ export function startAutoSync() {
   let interval: ReturnType<typeof setInterval> | null = null;
   let syncing = false;
 
-  const maybeSync = () => {
+  const maybeSync = async () => {
     if (document.hidden || syncing) return;
     syncing = true;
-    syncAllFromServer().finally(() => { syncing = false; });
+    try {
+      await pushUnsyncedOrders();
+      await syncAllFromServer();
+    } finally {
+      syncing = false;
+    }
   };
 
   maybeSync();
@@ -91,4 +96,6 @@ export function startAutoSync() {
   });
 
   window.addEventListener('focus', maybeSync);
+  // iOS Safari resumes from bgpause without always firing visibilitychange.
+  window.addEventListener('pageshow', maybeSync);
 }

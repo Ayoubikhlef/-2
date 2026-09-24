@@ -17,6 +17,8 @@ interface AuthContextType {
   register: (data: { email: string; password: string; name: string; phone?: string }) => Promise<void>;
   logout: () => Promise<void>;
   isAdmin: boolean;
+  /** Force a token refresh (used when an API call returns 401). */
+  refreshAuth: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -32,6 +34,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const refreshed = await refreshToken();
         if (refreshed) {
           setUser(refreshed.user);
+        } else if (getStoredUser()) {
+          // Refresh failed (network) but session still stored — keep user
+          // so admin dashboard can retry; only force logout on hard reject.
+          setUser(getStoredUser());
         } else {
           setUser(null);
         }
@@ -62,10 +68,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
+  const refreshAuth = useCallback(async () => {
+    const refreshed = await refreshToken();
+    if (refreshed) {
+      setUser(refreshed.user);
+      return true;
+    }
+    setUser(null);
+    return false;
+  }, []);
+
   const isAdmin = user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN';
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, isAdmin }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, isAdmin, refreshAuth }}>
       {children}
     </AuthContext.Provider>
   );

@@ -18,6 +18,7 @@ import { SearchSuggestions } from './SearchSuggestions';
 import { ProductSuggestions } from './ProductSuggestions';
 import TiltedCard from './TiltedCard';
 import { TrustBadges } from './AnnouncementBar';
+import { openOrderForm } from '../utils/googleForm';
 
 function loadProducts() {
   return getStoredProducts(defaultProducts);
@@ -170,14 +171,11 @@ export function Products() {
   };
 
   const openOrderModal = (product: Product) => {
-    const defaultMunicipality = getMunicipalities(1)[0]?.id || '1';
-    setSelectedProduct(product);
-    setOrderData((prev) => ({
-      ...prev,
-      wilaya: '1',
-      municipality: defaultMunicipality,
+    const productName = language === 'ar' ? product.nameAr : language === 'fr' ? product.nameFr : product.nameEn;
+    openOrderForm({
+      product: productName,
       quantity: quantities[product.id] || 1,
-    }));
+    });
   };
 
   const closeOrderModal = () => {
@@ -223,25 +221,40 @@ export function Products() {
       stock: selectedProduct.stock ?? 0,
     });
 
-    const record = await saveOrder({
-      customer: orderData.fullName,
-      phone: orderData.phone,
-      email: orderData.email,
-      wilaya: wilayaName,
-      municipality: municipalityName,
-      address: orderData.address,
-      note: orderData.note,
-      items: [{ name: productName, quantity: orderData.quantity, price: selectedProduct.price, total: selectedProduct.price * orderData.quantity }],
-      total: grandTotal,
-      source: 'quick-order',
-      paymentMethod,
-      discount: discountAmount > 0 ? discountAmount : undefined,
-      discountCode: appliedCoupon?.code,
-    });
+    try {
+      const record = await saveOrder({
+        customer: orderData.fullName,
+        phone: orderData.phone,
+        email: orderData.email.trim() || undefined,
+        wilaya: wilayaName,
+        municipality: municipalityName,
+        address: orderData.address,
+        note: orderData.note,
+        items: [{
+          name: productName,
+          quantity: orderData.quantity,
+          price: selectedProduct.price,
+          total: selectedProduct.price * orderData.quantity,
+          productId: selectedProduct.id,
+        }],
+        total: grandTotal,
+        source: 'quick-order',
+        paymentMethod,
+        discount: discountAmount > 0 ? discountAmount : undefined,
+        discountCode: appliedCoupon?.code,
+      });
 
-    setSubmitted(true);
-    setLastOrderId(record.id);
-    toast.success(t({ ar: 'تم تسجيل الطلب بنجاح!', fr: 'Commande enregistrée avec succès!', en: 'Order saved successfully!' }));
+      setSubmitted(true);
+      setLastOrderId(record.id);
+      toast.success(t({ ar: 'تم تسجيل الطلب بنجاح!', fr: 'Commande enregistrée avec succès!', en: 'Order saved successfully!' }));
+    } catch (err: any) {
+      console.error('[Products] quick-order failed:', err);
+      toast.error(err?.message || t({
+        ar: 'تعذر إرسال الطلب. حاول مرة أخرى.',
+        fr: 'Impossible d\'envoyer la commande. Réessayez.',
+        en: 'Could not send the order. Please try again.',
+      }));
+    }
   };
 
   const selectedName = selectedProduct

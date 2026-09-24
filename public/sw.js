@@ -1,5 +1,5 @@
-const CACHE = 'aos-cache-v7';
-const STATIC_CACHE = 'aos-static-v7';
+const CACHE = 'aos-cache-v9';
+const STATIC_CACHE = 'aos-static-v9';
 const OFFLINE_URL = '/offline.html';
 
 const PRECACHE_URLS = [
@@ -113,6 +113,8 @@ self.addEventListener('fetch', (e) => {
   }
 
   if (url.pathname.startsWith('/api/')) {
+    // Never cache API responses: stale auth/orders/settings break checkout & admin.
+    // Non-GET goes straight to network; offline returns 503 (client queues retries).
     if (request.method !== 'GET') {
       e.respondWith((async () => {
         try {
@@ -129,15 +131,8 @@ self.addEventListener('fetch', (e) => {
     e.respondWith(
       (async () => {
         try {
-          const networkResponse = await fetch(request);
-          if (networkResponse.ok) {
-            const cache = await caches.open(CACHE);
-            cache.put(request, networkResponse.clone());
-          }
-          return networkResponse;
+          return await fetch(request);
         } catch {
-          const cached = await caches.match(request);
-          if (cached) return cached;
           return new Response(JSON.stringify({ error: 'offline' }), {
             status: 503,
             headers: { 'Content-Type': 'application/json' },
