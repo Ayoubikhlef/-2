@@ -4,7 +4,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { saveOrder } from '../utils/orderStorage';
 import { getStoredServices, initializeServices } from '../utils/serviceStorage';
 import { defaultServices, getAllServiceOptions, getServiceByValue } from '../data/services';
-import { openOrderForm, submitOrderToSheet } from '../utils/googleForm';
+import { submitOrderToSheet } from '../utils/googleForm';
 import { toast } from 'sonner';
 import { motion } from 'motion/react';
 
@@ -58,13 +58,6 @@ export function ServiceBooking() {
         product: option[language],
         quantity: 1,
         notes: form.note ? `ملاحظات: ${form.note} | المصدر: حجز خدمة` : 'المصدر: حجز خدمة',
-      });
-      openOrderForm({
-        name: form.name,
-        phone: form.phone,
-        product: option[language],
-        notes: form.note,
-        quantity: 1,
       });
     } catch (err: any) {
       console.error('[ServiceBooking] submit failed:', err);

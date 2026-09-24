@@ -4,11 +4,12 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { products as defaultProducts, type Product } from '../data/products';
 import { getStoredProducts } from '../utils/productStorage';
 import { getWishlist, toggleWishlist, clearWishlist } from '../utils/wishlistStorage';
-import { openOrderForm } from '../utils/googleForm';
+import { useCart } from '../contexts/CartContext';
 import { motion, AnimatePresence } from 'motion/react';
 
 export function Wishlist() {
   const { t, language } = useLanguage();
+  const { addItem } = useCart();
   const [wishlistIds, setWishlistIds] = useState<number[]>([]);
 
   useEffect(() => {
@@ -37,6 +38,17 @@ export function Wishlist() {
   const handleClear = () => {
     clearWishlist();
     setWishlistIds([]);
+  };
+
+  const handleOrder = (product: Product) => {
+    addItem({
+      productId: product.id,
+      quantity: 1,
+      price: product.salePrice && product.saleEnd && new Date(product.saleEnd) > new Date() ? (product.salePrice ?? product.price) : product.price,
+      name: language === 'ar' ? product.nameAr : language === 'fr' ? product.nameFr : product.nameEn,
+      stock: product.stock ?? 0,
+    });
+    document.getElementById('checkout')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
@@ -133,9 +145,7 @@ export function Wishlist() {
                       </span>
                       <button
                         type="button"
-                        onClick={() => openOrderForm({
-                          product: language === 'ar' ? product.nameAr : language === 'fr' ? product.nameFr : product.nameEn,
-                        })}
+                        onClick={() => handleOrder(product)}
                         className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-all"
                       >
                         {t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order' })}

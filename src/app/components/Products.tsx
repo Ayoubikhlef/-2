@@ -18,7 +18,7 @@ import { SearchSuggestions } from './SearchSuggestions';
 import { ProductSuggestions } from './ProductSuggestions';
 import TiltedCard from './TiltedCard';
 import { TrustBadges } from './AnnouncementBar';
-import { openOrderForm, submitOrderToSheet } from '../utils/googleForm';
+import { submitOrderToSheet } from '../utils/googleForm';
 
 function loadProducts() {
   return getStoredProducts(defaultProducts);
@@ -171,11 +171,11 @@ export function Products() {
   };
 
   const openOrderModal = (product: Product) => {
-    const productName = language === 'ar' ? product.nameAr : language === 'fr' ? product.nameFr : product.nameEn;
-    openOrderForm({
-      product: productName,
-      quantity: quantities[product.id] || 1,
-    });
+    setSelectedProduct(product);
+    setViewingProduct(null);
+    setQuickViewProduct(null);
+    setSubmitted(false);
+    setLastOrderId(null);
   };
 
   const closeOrderModal = () => {
