@@ -54,19 +54,19 @@ function Stepper({ status }: { status: OrderStatus }) {
                     ? 'bg-gradient-to-br from-red-500 to-rose-600 ring-2 ring-red-300/50'
                     : isActive
                       ? `bg-gradient-to-br ${statusColors[step]} ring-2 ring-white/20`
-                      : 'bg-slate-700/60 ring-1 ring-slate-600/30'
+                      : 'bg-muted ring-1 ring-border'
                 }`}
               >
                 <Icon className={`w-5 h-5 sm:w-6 sm:h-6 transition-colors ${
-                  isActive || isCancelledStep ? 'text-white' : 'text-slate-500'
+                  isActive || isCancelledStep ? 'text-white' : 'text-muted-foreground'
                 }`} />
               </motion.div>
               <span className={`mt-2 text-xs sm:text-sm font-semibold transition-colors duration-300 ${
                 isCancelledStep
-                  ? 'text-red-400'
+                  ? 'text-red-500 dark:text-red-400'
                   : isActive
                     ? 'text-primary'
-                    : 'text-slate-500'
+                    : 'text-muted-foreground'
               }`}>
                 {statusLabels[language][step]}
               </span>
@@ -74,7 +74,7 @@ function Stepper({ status }: { status: OrderStatus }) {
 
             {!isLast && (
               <div className="flex-1 mx-2 sm:mx-4 relative">
-                <div className="h-1 bg-slate-700/60 rounded-full overflow-hidden">
+                <div className="h-1 bg-muted rounded-full overflow-hidden">
                   <motion.div
                     initial={{ width: '0%' }}
                     animate={{ width: isActive ? '100%' : '0%' }}
@@ -103,7 +103,7 @@ function Stepper({ status }: { status: OrderStatus }) {
             >
               <XCircle className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </motion.div>
-            <span className="mt-2 text-xs sm:text-sm font-semibold text-red-400">
+            <span className="mt-2 text-xs sm:text-sm font-semibold text-red-500 dark:text-red-400">
               {statusLabels[language].cancelled}
             </span>
           </div>
@@ -146,20 +146,20 @@ function OrderCard({ order }: { order: OrderRecord }) {
         <Stepper status={order.status} />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="bg-slate-800/40 rounded-xl p-4">
+          <div className="bg-muted rounded-xl p-4">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
               {t({ ar: 'العميل', fr: 'Client', en: 'Customer' })}
             </p>
             <p className="font-semibold">{order.customer}</p>
           </div>
-          <div className="bg-slate-800/40 rounded-xl p-4">
+          <div className="bg-muted rounded-xl p-4">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
               {t({ ar: 'الهاتف', fr: 'Téléphone', en: 'Phone' })}
             </p>
             <p className="font-semibold" dir="ltr">{order.phone}</p>
           </div>
           {order.email && (
-            <div className="bg-slate-800/40 rounded-xl p-4 sm:col-span-2">
+            <div className="bg-muted rounded-xl p-4 sm:col-span-2">
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
                 {t({ ar: 'البريد الإلكتروني', fr: 'Email', en: 'Email' })}
               </p>
@@ -172,9 +172,9 @@ function OrderCard({ order }: { order: OrderRecord }) {
           <p className="text-sm font-semibold text-muted-foreground mb-3">
             {t({ ar: 'المنتجات', fr: 'Produits', en: 'Items' })}
           </p>
-          <div className="divide-y divide-slate-700/40 border border-slate-700/40 rounded-xl overflow-hidden">
+          <div className="divide-y divide-border border border-border rounded-xl overflow-hidden">
             {order.items.map((item, idx) => (
-              <div key={idx} className="flex items-center justify-between px-4 py-3 bg-slate-800/20 hover:bg-slate-800/40 transition-colors">
+              <div key={idx} className="flex items-center justify-between px-4 py-3 bg-muted/50 hover:bg-muted transition-colors">
                 <div className="flex items-center gap-3 min-w-0">
                   <Package className="w-4 h-4 text-primary flex-shrink-0" />
                   <span className="font-medium truncate">{item.name}</span>
@@ -192,12 +192,12 @@ function OrderCard({ order }: { order: OrderRecord }) {
           <div className="flex items-center gap-2">
             <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${
               order.status === 'cancelled'
-                ? 'bg-red-500/15 text-red-400 ring-1 ring-red-500/30'
+                ? 'bg-red-500/15 text-red-500 dark:text-red-400 ring-1 ring-red-500/30'
                 : order.status === 'completed'
-                  ? 'bg-green-500/15 text-green-400 ring-1 ring-green-500/30'
+                  ? 'bg-green-500/15 text-green-600 dark:text-green-400 ring-1 ring-green-500/30'
                   : order.status === 'processing'
-                    ? 'bg-amber-500/15 text-amber-400 ring-1 ring-amber-500/30'
-                    : 'bg-blue-500/15 text-blue-400 ring-1 ring-blue-500/30'
+                    ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/30'
+                    : 'bg-blue-500/15 text-blue-600 dark:text-blue-400 ring-1 ring-blue-500/30'
             }`}>
               {statusLabels[language][order.status]}
             </span>

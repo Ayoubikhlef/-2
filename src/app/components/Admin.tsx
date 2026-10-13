@@ -583,7 +583,7 @@ export function Admin() {
         </div>
 
         {/* Tabs: Products / Services */}
-        <div className="flex gap-2 mb-6">
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-1 -mx-1 px-1">
           <button
             onClick={() => { setTab('orders'); setFilter('all'); }}
             className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all border ${

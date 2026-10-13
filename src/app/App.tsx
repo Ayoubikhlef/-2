@@ -299,7 +299,7 @@ export default function App() {
         <CartProvider>
           <ErrorBoundary>
             {hash === '#hqpanel' ? (
-              <div className="min-h-screen">
+              <div className="dark min-h-screen bg-background text-foreground">
                 <Suspense fallback={<AdminLoadingPage />}>
                   <Admin />
                 </Suspense>

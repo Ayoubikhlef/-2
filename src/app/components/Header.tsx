@@ -1,8 +1,9 @@
-import { Phone, Menu, X, ShoppingCart, User, LogOut } from 'lucide-react';
+import { Phone, Menu, X, ShoppingCart, User, LogOut, Sun, Moon } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { Cart } from './CartView';
 import { motion, AnimatePresence } from 'motion/react';
@@ -17,6 +18,7 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
   const { t, language } = useLanguage();
   const { items } = useCart();
   const { user, logout, isAdmin } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const itemCount = items.length;
 
   useEffect(() => {
@@ -84,6 +86,15 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
             <LanguageSwitcher />
 
             <button
+              onClick={toggleTheme}
+              className="p-2.5 rounded-lg hover:bg-primary/5 transition-colors"
+              aria-label={theme === 'dark' ? t({ ar: 'الوضع الفاتح', fr: 'Mode clair', en: 'Light mode' }) : t({ ar: 'الوضع الداكن', fr: 'Mode sombre', en: 'Dark mode' })}
+              title={theme === 'dark' ? t({ ar: 'الوضع الفاتح', fr: 'Mode clair', en: 'Light mode' }) : t({ ar: 'الوضع الداكن', fr: 'Mode sombre', en: 'Dark mode' })}
+            >
+              {theme === 'dark' ? <Sun className="w-5 h-5 text-foreground/70" /> : <Moon className="w-5 h-5 text-foreground/70" />}
+            </button>
+
+            <button
               onClick={() => setCartOpen(!cartOpen)}
               className="relative p-2.5 rounded-lg hover:bg-primary/5 transition-colors"
               aria-label={t({ ar: 'سلة التسوق', fr: 'Panier', en: 'Cart' })}
@@ -107,6 +118,13 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
           {/* Mobile Actions */}
           <div className="flex lg:hidden items-center gap-2">
             <LanguageSwitcher />
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg hover:bg-muted transition-colors"
+              aria-label={theme === 'dark' ? t({ ar: 'الوضع الفاتح', fr: 'Mode clair', en: 'Light mode' }) : t({ ar: 'الوضع الداكن', fr: 'Mode sombre', en: 'Dark mode' })}
+            >
+              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
             <button
               onClick={() => setCartOpen(!cartOpen)}
               className="relative p-2 rounded-lg hover:bg-muted transition-colors"

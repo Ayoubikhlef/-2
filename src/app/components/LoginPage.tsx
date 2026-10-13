@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { api } from '../utils/api';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -8,6 +9,20 @@ import { toast } from 'sonner';
 export function LoginPage({ onClose }: { onClose: () => void; standalone?: boolean }) {
   const { t, language } = useLanguage();
   const { login } = useAuth();
+  const { theme } = useTheme();
+  const lightMode = theme === 'light';
+  const C = {
+    card: lightMode ? '#ffffff' : '#0f172a',
+    cardBorder: lightMode ? 'rgba(15,23,42,0.08)' : 'rgba(59,130,246,.1)',
+    cardShadow: lightMode ? '0 10px 40px rgba(15,23,42,0.10)' : '0 0 40px rgba(59,130,246,.15), 0 0 80px rgba(59,130,246,.05)',
+    title: lightMode ? '#1e293b' : '#f1f5f9',
+    field: lightMode ? '#f1f5f9' : '#1e293b',
+    fieldText: lightMode ? '#1e293b' : '#e2e8f0',
+    in1: lightMode ? '#cbd5e1' : '#0f172a',
+    in2: lightMode ? '#ffffff' : '#2d3a4c',
+    btn1: lightMode ? '#cbd5e1' : '#0f172a',
+    btn2: lightMode ? '#ffffff' : '#2d3a4c',
+  };
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [form, setForm] = useState({ email: '', password: '' });
@@ -118,10 +133,10 @@ export function LoginPage({ onClose }: { onClose: () => void; standalone?: boole
       <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          background: '#0f172a',
+          background: C.card,
           borderRadius: '28px',
-          boxShadow: '0 0 40px rgba(59,130,246,.15), 0 0 80px rgba(59,130,246,.05)',
-          border: '1px solid rgba(59,130,246,.1)',
+          boxShadow: C.cardShadow,
+          border: `1px solid ${C.cardBorder}`,
           width: '520px',
           minHeight: '620px',
           padding: '50px',
@@ -134,7 +149,7 @@ export function LoginPage({ onClose }: { onClose: () => void; standalone?: boole
       >
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '35px' }}>
-          <h1 style={{ margin: 0, fontSize: '38px', fontWeight: 700, color: '#f1f5f9' }}>
+          <h1 style={{ margin: 0, fontSize: '38px', fontWeight: 700, color: C.title }}>
             {mode === 'login'
               ? t({ ar: 'دخول الأدمين', fr: 'Connexion Admin', en: 'Admin Login' })
               : mode === 'forgot'
@@ -174,12 +189,12 @@ export function LoginPage({ onClose }: { onClose: () => void; standalone?: boole
                 height: '64px',
                 padding: '20px 24px',
                 fontSize: '19px',
-                color: '#e2e8f0',
-                background: '#1e293b',
+                color: C.fieldText,
+                background: C.field,
                 border: 'none',
                 borderRadius: '20px',
                 outline: 'none',
-                boxShadow: 'inset 4px 4px 8px #0f172a, inset -4px -4px 8px #2d3a4c',
+                boxShadow: `inset 4px 4px 8px ${C.in1}, inset -4px -4px 8px ${C.in2}`,
                 boxSizing: 'border-box',
               }}
             />
@@ -196,12 +211,12 @@ export function LoginPage({ onClose }: { onClose: () => void; standalone?: boole
                 height: '64px',
                 padding: '20px 24px',
                 fontSize: '19px',
-                color: '#e2e8f0',
-                background: '#1e293b',
+                color: C.fieldText,
+                background: C.field,
                 border: 'none',
                 borderRadius: '20px',
                 outline: 'none',
-                boxShadow: 'inset 4px 4px 8px #0f172a, inset -4px -4px 8px #2d3a4c',
+                boxShadow: `inset 4px 4px 8px ${C.in1}, inset -4px -4px 8px ${C.in2}`,
                 boxSizing: 'border-box',
               }}
             />
@@ -218,15 +233,15 @@ export function LoginPage({ onClose }: { onClose: () => void; standalone?: boole
               style={{
                 width: '100%',
                 height: '64px',
-                background: '#1e293b',
-                color: '#e2e8f0',
+                background: C.field,
+                color: C.fieldText,
                 fontSize: '20px',
                 fontWeight: 700,
                 border: 'none',
                 borderRadius: '20px',
                 cursor: loading ? 'not-allowed' : 'pointer',
                 opacity: loading ? 0.6 : 1,
-                boxShadow: '4px 4px 8px #0f172a, -4px -4px 8px #2d3a4c',
+                boxShadow: `${C.btn1} 4px 4px 8px, -4px -4px 8px ${C.btn2}`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -274,12 +289,12 @@ export function LoginPage({ onClose }: { onClose: () => void; standalone?: boole
                 height: '64px',
                 padding: '20px 24px',
                 fontSize: '19px',
-                color: '#e2e8f0',
-                background: '#1e293b',
+                color: C.fieldText,
+                background: C.field,
                 border: 'none',
                 borderRadius: '20px',
                 outline: 'none',
-                boxShadow: 'inset 4px 4px 8px #0f172a, inset -4px -4px 8px #2d3a4c',
+                boxShadow: `inset 4px 4px 8px ${C.in1}, inset -4px -4px 8px ${C.in2}`,
                 boxSizing: 'border-box',
               }}
             />
@@ -294,15 +309,15 @@ export function LoginPage({ onClose }: { onClose: () => void; standalone?: boole
               style={{
                 width: '100%',
                 height: '64px',
-                background: '#1e293b',
-                color: '#e2e8f0',
+                background: C.field,
+                color: C.fieldText,
                 fontSize: '20px',
                 fontWeight: 700,
                 border: 'none',
                 borderRadius: '20px',
                 cursor: loading ? 'not-allowed' : 'pointer',
                 opacity: loading ? 0.6 : 1,
-                boxShadow: '4px 4px 8px #0f172a, -4px -4px 8px #2d3a4c',
+                boxShadow: `${C.btn1} 4px 4px 8px, -4px -4px 8px ${C.btn2}`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -372,12 +387,12 @@ export function LoginPage({ onClose }: { onClose: () => void; standalone?: boole
                 height: '64px',
                 padding: '20px 24px',
                 fontSize: '19px',
-                color: '#e2e8f0',
-                background: '#1e293b',
+                color: C.fieldText,
+                background: C.field,
                 border: 'none',
                 borderRadius: '20px',
                 outline: 'none',
-                boxShadow: 'inset 4px 4px 8px #0f172a, inset -4px -4px 8px #2d3a4c',
+                boxShadow: `inset 4px 4px 8px ${C.in1}, inset -4px -4px 8px ${C.in2}`,
                 boxSizing: 'border-box',
               }}
             />
@@ -393,12 +408,12 @@ export function LoginPage({ onClose }: { onClose: () => void; standalone?: boole
                 height: '64px',
                 padding: '20px 24px',
                 fontSize: '19px',
-                color: '#e2e8f0',
-                background: '#1e293b',
+                color: C.fieldText,
+                background: C.field,
                 border: 'none',
                 borderRadius: '20px',
                 outline: 'none',
-                boxShadow: 'inset 4px 4px 8px #0f172a, inset -4px -4px 8px #2d3a4c',
+                boxShadow: `inset 4px 4px 8px ${C.in1}, inset -4px -4px 8px ${C.in2}`,
                 boxSizing: 'border-box',
               }}
             />
@@ -413,15 +428,15 @@ export function LoginPage({ onClose }: { onClose: () => void; standalone?: boole
               style={{
                 width: '100%',
                 height: '64px',
-                background: '#1e293b',
-                color: '#e2e8f0',
+                background: C.field,
+                color: C.fieldText,
                 fontSize: '20px',
                 fontWeight: 700,
                 border: 'none',
                 borderRadius: '20px',
                 cursor: loading ? 'not-allowed' : 'pointer',
                 opacity: loading ? 0.6 : 1,
-                boxShadow: '4px 4px 8px #0f172a, -4px -4px 8px #2d3a4c',
+                boxShadow: `${C.btn1} 4px 4px 8px, -4px -4px 8px ${C.btn2}`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
