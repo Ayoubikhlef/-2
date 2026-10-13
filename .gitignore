@@ -15,3 +15,4 @@ Thumbs.db
 # Server secrets
 server/.env
 server/.env.*
+.neon
