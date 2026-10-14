@@ -38,6 +38,11 @@ self.addEventListener('fetch', (e) => {
   const { request } = e;
   const url = new URL(request.url);
 
+  // Cross-origin traffic (Google Fonts, Render API, Google Sheets) is not ours
+  // to cache, and a passthrough fetch can be refused by the page's CSP — the
+  // error path below would then hand the browser a fake 404.
+  if (url.origin !== self.location.origin) return;
+
   if (request.mode === 'navigate') {
     e.respondWith(
       (async () => {
