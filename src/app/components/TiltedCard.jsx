@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { motion, useMotionValue, useSpring } from 'motion/react';
 import './TiltedCard.css';
 
@@ -25,6 +25,12 @@ export default function TiltedCard({
 }) {
   const ref = useRef(null);
   const [imgFailed, setImgFailed] = useState(false);
+
+  // A failed URL must not stick forever: if the product's image changes (the
+  // admin fixed a bad link), give it another chance.
+  useEffect(() => {
+    setImgFailed(false);
+  }, [imageSrc]);
 
   const x = useMotionValue();
   const y = useMotionValue();

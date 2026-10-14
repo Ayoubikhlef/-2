@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback, lazy, Suspense } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getOrders, clearOrders, updateOrderStatus, removeOrder, getOrderStats, loadOrdersFromServer, pushUnsyncedOrders, OrderRecord, OrderStatus } from '../utils/orderStorage';
-import { getStoredProducts, initializeProducts } from '../utils/productStorage';
+import { getStoredProducts, initializeProducts, pullProductsFromServer } from '../utils/productStorage';
 import { products as defaultProducts, type Product } from '../data/products';
 import { getStoredServices, initializeServices } from '../utils/serviceStorage';
 import { defaultServices, type ServiceCategory } from '../data/services';
@@ -9,7 +9,7 @@ import { RefreshCw, Trash2, ChevronDown, Phone, MapPin, Mail, DollarSign, Packag
 import { generateInvoice } from './InvoicePDF';
 import { toast } from 'sonner';
 import { isMaintenanceMode, setMaintenanceMode, getMaintenanceMessage, setMaintenanceMessage } from '../utils/maintenanceStorage';
-import { api, setAccessToken, setStoredUser } from '../utils/api';
+import { setAccessToken, setStoredUser } from '../utils/api';
 import { syncAllFromServer, getSyncStatus, getLastSyncTime } from '../utils/globalSync';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../contexts/AuthContext';
@@ -164,6 +164,9 @@ export function Admin() {
     if (isAuthenticated) {
       initializeProducts(defaultProducts);
       setManageProducts(getStoredProducts(defaultProducts));
+      // The store on the server is what the shop shows; pull it so the panel
+      // never lists a stale/local-only copy of the catalogue.
+      pullProductsFromServer(defaultProducts).then(setManageProducts).catch(() => {});
       initializeServices(defaultServices);
       setManageServices(getStoredServices(defaultServices));
     }
@@ -237,12 +240,13 @@ export function Admin() {
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
     try {
-      api.syncProducts(getStoredProducts(defaultProducts)).catch(() => {});
-      api.data.save('aos_services', getStoredServices(defaultServices)).catch(() => {});
+      // Refresh is a pull: pushing the local copy here would let a stale
+      // browser (or a fresh one seeded with the bundled demo catalogue)
+      // overwrite everything the shop is actually selling.
       await syncAllFromServer();
       const serverOrders = await loadOrdersFromServer();
       setOrders(serverOrders);
-      setManageProducts(getStoredProducts(defaultProducts));
+      setManageProducts(await pullProductsFromServer(defaultProducts));
       setManageServices(getStoredServices(defaultServices));
       toast.success(t({ ar: 'تم تحديث جميع البيانات', fr: 'Toutes les données actualisées', en: 'All data refreshed' }));
     } catch (error) {

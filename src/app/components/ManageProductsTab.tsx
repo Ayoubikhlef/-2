@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getStoredProducts, addProduct, updateProduct, deleteProduct, copyProduct, toggleProductVisibility } from '../utils/productStorage';
 import { getAllCategories, getBuiltInCategories, getCustomCategories, addCustomCategory, removeCustomCategory, type CustomCategory } from '../utils/categoryStorage';
+import { normalizeImageUrl, isImageUrl } from '../utils/imageUrl';
 import { products as defaultProducts, type Product, type ProductSpec } from '../data/products';
 import { Plus, Edit3, Trash2, Save, X, Tag, Copy, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
@@ -41,16 +42,19 @@ export function ManageProductsTab({ products, onUpdate }: { products: Product[];
   const [editing, setEditing] = useState<Partial<Product> | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [specs, setSpecs] = useState<ProductSpec[]>([]);
+  const [imageBroken, setImageBroken] = useState(false);
 
   const handleEdit = (product: Product) => {
     setEditing(product);
     setSpecs(product.specs.map((s) => ({ label: s.label, value: s.value })));
+    setImageBroken(false);
     setShowForm(true);
   };
 
   const handleNew = () => {
     setEditing(emptyProduct());
     setSpecs([]);
+    setImageBroken(false);
     setShowForm(true);
   };
 
@@ -75,6 +79,12 @@ export function ManageProductsTab({ products, onUpdate }: { products: Product[];
       toast.error(t({ ar: 'الرجاء ملء الحقول المطلوبة', fr: 'Veuillez remplir les champs obligatoires', en: 'Please fill required fields' }));
       return;
     }
+    const image = normalizeImageUrl(editing.image);
+    if (image && !isImageUrl(image)) {
+      toast.error(t({ ar: 'رابط الصورة غير صالح — استعمل رابطاً مباشراً للصورة', fr: "URL d'image invalide — utilisez un lien direct vers l'image", en: 'Invalid image URL — use a direct link to the image file' }));
+      return;
+    }
+    const images = (editing.images || []).map(normalizeImageUrl).filter(Boolean);
     const productData: Omit<Product, 'id'> = {
       nameAr: editing.nameAr!,
       nameFr: editing.nameFr!,
@@ -96,8 +106,8 @@ export function ManageProductsTab({ products, onUpdate }: { products: Product[];
       seoKeywords: editing.seoKeywords || '',
       hidden: editing.hidden ?? false,
       stock: Number(editing.stock) ?? 0,
-      images: editing.images || [],
-      image: editing.image || '',
+      images,
+      image,
       category: editing.category || 'accessories',
       brand: editing.brand || '',
       specs: specs.map((s) => ({
@@ -301,27 +311,35 @@ export function ManageProductsTab({ products, onUpdate }: { products: Product[];
 
         <div>
           <label className="block text-sm font-semibold mb-2 text-white/80">{t({ ar: 'صور إضافية (روابط مفصولة بفواصل)', fr: 'Images supplémentaires (URLs séparées par des virgules)', en: 'Additional Images (comma-separated URLs)' })}</label>
-          <input value={editing?.images?.join(', ') || ''} onChange={(e) => setEditing({ ...editing!, images: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
-            className="w-full rounded-xl border border-white/10 bg-slate-800 px-4 py-3 text-sm text-white outline-none focus:border-primary" />
+            <input value={editing?.images?.join(', ') || ''} onChange={(e) => setEditing({ ...editing!, images: e.target.value.split(',').map(s => s.trim()).filter(Boolean) })}
+              onBlur={(e) => setEditing((prev) => (prev ? { ...prev, images: e.target.value.split(',').map(normalizeImageUrl).filter(Boolean) } : prev))}
+              className="w-full rounded-xl border border-white/10 bg-slate-800 px-4 py-3 text-sm text-white outline-none focus:border-primary" />
         </div>
 
         <div>
           <label className="block text-sm font-semibold mb-2 text-white/80">{t({ ar: 'رابط الصورة', fr: 'URL de l\'image', en: 'Image URL' })}</label>
           <div className="flex gap-3">
-            <input value={editing?.image || ''} onChange={(e) => setEditing({ ...editing!, image: e.target.value })}
+            <input value={editing?.image || ''} onChange={(e) => { setEditing({ ...editing!, image: e.target.value }); setImageBroken(false); }}
+              onBlur={(e) => setEditing((prev) => (prev ? { ...prev, image: normalizeImageUrl(prev.image) } : prev))}
               className="flex-1 rounded-xl border border-white/10 bg-slate-800 px-4 py-3 text-sm text-white outline-none focus:border-primary"
               placeholder="https://..." />
             {editing?.image && (
               <div className="w-14 h-14 rounded-xl overflow-hidden border border-white/10 bg-slate-800 flex-shrink-0">
                 <img
-                  src={editing.image}
-                  alt={editing?.nameEn || editing?.nameAr || editing?.nameFr || ''}
+                  key={editing.image}
+                  src={normalizeImageUrl(editing.image)}
+                  alt=""
                   className="w-full h-full object-contain"
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                  onError={() => setImageBroken(true)}
                 />
               </div>
             )}
           </div>
+          {imageBroken && (
+            <p className="text-xs text-red-400 mt-2">
+              {t({ ar: 'تعذر تحميل هذا الرابط — تأكد أنه رابط مباشر للصورة (ينتهي عادة بـ .jpg / .png) وليس صفحة نتيجة بحث في Google', fr: "Impossible de charger ce lien — vérifiez qu'il pointe directement vers le fichier de l'image", en: 'This link could not be loaded — make sure it points straight at the image file, not a search-results page' })}
+            </p>
+          )}
         </div>
 
         <div>
@@ -404,7 +422,17 @@ export function ManageProductsTab({ products, onUpdate }: { products: Product[];
         {products.map((product) => (
           <div key={product.id} className="rounded-2xl border border-white/10 bg-slate-900/80 p-3 sm:p-4 flex items-center gap-3 sm:gap-4 hover:bg-slate-800/80 transition-all flex-wrap sm:flex-nowrap">
             <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl overflow-hidden bg-slate-800 flex-shrink-0">
-              <img src={product.image} alt={product.nameEn || product.nameAr || product.nameFr || ''} className="w-full h-full object-contain p-1" onError={(e) => { (e.target as HTMLImageElement).src = ''; }} />
+              <img
+                src={normalizeImageUrl(product.image) || '/aos-logo3.png'}
+                alt={product.nameEn || product.nameAr || product.nameFr || ''}
+                className="w-full h-full object-contain p-1"
+                onError={(e) => {
+                  const el = e.currentTarget as HTMLImageElement;
+                  if (el.dataset.fallback) return;
+                  el.dataset.fallback = '1';
+                  el.src = '/aos-logo3.png';
+                }}
+              />
             </div>
             <div className="flex-1 min-w-0 order-last sm:order-none basis-full sm:basis-auto mt-2 sm:mt-0">
               <div className="flex items-center gap-2 flex-wrap">

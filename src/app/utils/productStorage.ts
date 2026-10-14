@@ -137,3 +137,10 @@ export async function loadProductsFromServer(defaults: Product[]): Promise<Produ
   }
   return getStoredProducts(defaults);
 }
+
+/** The server copy is what visitors actually see — treat it as the truth. */
+export async function pullProductsFromServer(defaults: Product[]): Promise<Product[]> {
+  const products = await loadProductsFromServer(defaults);
+  dispatchChange();
+  return products;
+}
