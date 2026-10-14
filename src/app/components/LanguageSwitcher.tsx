@@ -82,10 +82,13 @@ export function LanguageSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2.5 text-sm font-semibold text-foreground shadow-sm hover:shadow-md hover:border-primary/30 transition-all duration-200 cursor-pointer outline-none select-none">
+        <button
+          aria-label={`Language: ${current.code.toUpperCase()}`}
+          className="flex min-w-[44px] min-h-[44px] items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-2.5 min-[480px]:px-3 py-2.5 text-sm font-semibold text-foreground shadow-sm hover:shadow-md hover:border-primary/30 transition-all duration-200 cursor-pointer outline-none select-none"
+        >
           <Globe className="w-4 h-4 text-muted-foreground" />
-          <span className="text-xs font-bold tracking-wide">{current.code.toUpperCase()}</span>
-          <ChevronDown className="w-3.5 h-3.5 text-muted-foreground transition-transform duration-200 data-[state=open]:rotate-180" />
+          <span className="hidden min-[480px]:inline text-xs font-bold tracking-wide">{current.code.toUpperCase()}</span>
+          <ChevronDown className="hidden min-[480px]:block w-3.5 h-3.5 text-muted-foreground transition-transform duration-200 data-[state=open]:rotate-180" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent

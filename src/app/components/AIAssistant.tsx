@@ -314,7 +314,7 @@ export function AIAssistant() {
             transition={{ y: { duration: 2, repeat: Infinity, ease: 'easeInOut' } }}
             exit={{ scale: 0, opacity: 0 }}
             onClick={() => { setOpen(true); setShowBubble(false); }}
-            className="fixed bottom-20 left-6 z-50 w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-xl hover:shadow-2xl hover:scale-110 transition-all flex items-center justify-center"
+            className="fixed bottom-20 left-6 z-[var(--z-float)] w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-xl hover:shadow-2xl hover:scale-110 transition-all flex items-center justify-center"
           >
             <Sparkles className="w-6 h-6" />
           </motion.button>
@@ -329,7 +329,7 @@ export function AIAssistant() {
             exit={{ opacity: 0, y: 24, scale: 0.95 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             dir={dir}
-            className="fixed bottom-4 left-4 z-50 w-[400px] max-w-[calc(100vw-1.5rem)] h-[600px] max-h-[calc(100vh-32px)] rounded-2xl border border-border bg-background shadow-2xl flex flex-col overflow-hidden"
+            className="fixed bottom-4 left-4 z-[var(--z-float)] w-[400px] max-w-[calc(100vw-1.5rem)] h-[600px] max-h-[calc(100vh-32px)] rounded-2xl border border-border bg-background shadow-2xl flex flex-col overflow-hidden"
           >
             <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-background">
               <div className="flex items-center gap-3">

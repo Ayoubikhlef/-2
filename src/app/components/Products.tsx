@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { ShoppingCart, Plus, Minus, X, User, Phone, Mail, MapPin, CheckCircle, Info, Heart, Search, Camera, Share2, Eye, Banknote } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useCart } from '../contexts/CartContext';
@@ -184,6 +185,37 @@ export function Products() {
     setSubmitted(false);
     setLastOrderId(null);
   };
+
+  // Order sheet: freeze background scroll, allow Escape, and make the page behind inert.
+  const orderSheetOpen = !!selectedProduct;
+  useEffect(() => {
+    if (!orderSheetOpen) return;
+    const scrollY = window.scrollY;
+    const opener = document.activeElement as HTMLElement | null;
+    document.body.classList.add('modal-open');
+
+    let inerted: HTMLElement[] = [];
+    const sheet = document.querySelector('.aos-order-sheet');
+    const root = document.getElementById('root');
+    if (sheet && root && !root.contains(sheet)) {
+      root.inert = true;
+      inerted = [root];
+    }
+
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeOrderModal();
+    };
+    window.addEventListener('keydown', onKey);
+
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.classList.remove('modal-open');
+      window.scrollTo({ top: scrollY });
+      inerted.forEach((el) => { el.inert = false; });
+      opener?.focus?.({ preventScroll: true });
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderSheetOpen]);
 
   const handleOrderChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -371,7 +403,7 @@ export function Products() {
           </div>
         ) : (
         <>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 min-[360px]:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
           {paginatedProducts.map((product) => (
             <div
               key={product.id}
@@ -412,14 +444,14 @@ export function Products() {
                 }
               />
 
-              <div className="p-5">
+              <div className="p-4 sm:p-5">
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <h3 className="text-base font-bold leading-tight flex-1">
                     {language === 'ar' ? product.nameAr : language === 'fr' ? product.nameFr : product.nameEn}
                   </h3>
                   <button
                     onClick={(e) => { e.stopPropagation(); const added = toggleWishlist(product.id); toast.success(added ? t({ ar: 'أضيف إلى المفضلة', fr: 'Ajouté aux favoris', en: 'Added to wishlist' }) : t({ ar: 'أزيل من المفضلة', fr: 'Retiré des favoris', en: 'Removed from wishlist' })); }}
-                    className="shrink-0 p-1.5 rounded-full hover:bg-muted transition"
+                    className="shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-muted transition"
                   >
                     <Heart className={`w-4 h-4 ${isInWishlist(product.id) ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} />
                   </button>
@@ -448,26 +480,28 @@ export function Products() {
                   </p>
                 )}
 
-                <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                <div className="flex flex-wrap items-center gap-2" onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center gap-1 bg-muted rounded-lg p-0.5">
-                    <button onClick={() => updateQuantity(product.id, -1)} className="p-1.5 hover:bg-background rounded-md transition">
-                      <Minus className="w-3.5 h-3.5" />
+                    <button onClick={() => updateQuantity(product.id, -1)} aria-label={t({ ar: 'إنقاص الكمية', fr: 'Diminuer', en: 'Decrease' })} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-background rounded-md transition">
+                      <Minus className="w-4 h-4" />
                     </button>
-                    <span className="px-2 font-semibold text-sm min-w-[1.5rem] text-center">{quantities[product.id] || 1}</span>
-                    <button onClick={() => updateQuantity(product.id, 1)} className="p-1.5 hover:bg-background rounded-md transition">
-                      <Plus className="w-3.5 h-3.5" />
+                    <span className="px-1 font-semibold text-sm min-w-[1.5rem] text-center">{quantities[product.id] || 1}</span>
+                    <button onClick={() => updateQuantity(product.id, 1)} aria-label={t({ ar: 'زيادة الكمية', fr: 'Augmenter', en: 'Increase' })} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-background rounded-md transition">
+                      <Plus className="w-4 h-4" />
                     </button>
                   </div>
-                  <button onClick={() => openOrderModal(product)} aria-label={t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}
-                    className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95">
-                    <ShoppingCart className="w-3.5 h-3.5" />
-                    <span>{t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}</span>
-                  </button>
-                  <button onClick={(e) => { e.stopPropagation(); openQuickView(product); }}
-                    className="p-2 rounded-lg border border-border hover:bg-muted transition"
-                    aria-label={t({ ar: 'معاينة', fr: 'Aperçu', en: 'Quick view' })}>
-                    <Eye className="w-3.5 h-3.5 text-muted-foreground" />
-                  </button>
+                  <div className="flex flex-1 items-center gap-2 min-w-[150px]">
+                    <button onClick={() => openOrderModal(product)} aria-label={t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}
+                      className="flex-1 min-h-[44px] bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95">
+                      <ShoppingCart className="w-3.5 h-3.5" />
+                      <span>{t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}</span>
+                    </button>
+                    <button onClick={(e) => { e.stopPropagation(); openQuickView(product); }}
+                      className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg border border-border hover:bg-muted transition"
+                      aria-label={t({ ar: 'معاينة', fr: 'Aperçu', en: 'Quick view' })}>
+                      <Eye className="w-4 h-4 text-muted-foreground" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -507,7 +541,7 @@ export function Products() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60"
+          className="fixed inset-0 z-[var(--z-modal)] flex items-end sm:items-center justify-center sm:p-6 bg-black/60"
           onClick={closeProductDetails}
         >
           <motion.div
@@ -515,7 +549,7 @@ export function Products() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: 'spring', duration: 0.5 }}
-            className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-[32px] border border-border bg-background shadow-2xl"
+            className="w-full sm:max-w-4xl aos-sheet rounded-t-[28px] sm:rounded-[32px] border border-border bg-background shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="relative">
@@ -634,21 +668,26 @@ export function Products() {
       )}
       </AnimatePresence>
 
-      {/* Order Form Modal */}
-      <AnimatePresence>
-      {selectedProduct && (
+      {/* Order Form Modal — portalled to <body> so it escapes the page stacking context */}
+      {selectedProduct && createPortal(
+        <AnimatePresence>
         <motion.div
+          key="order-sheet"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-sm"
+          className="fixed inset-0 z-[var(--z-modal)] flex items-end sm:items-center justify-center sm:p-6 bg-black/60 backdrop-blur-sm"
+          onClick={closeOrderModal}
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.92, y: 30 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: 30 }}
             transition={{ type: 'spring', duration: 0.6 }}
-            className="w-full max-w-4xl max-h-[95vh] overflow-y-auto rounded-[40px] border border-border bg-background shadow-2xl"
+            role="dialog"
+            aria-modal="true"
+            aria-label={t({ ar: 'نموذج طلب', fr: 'Formulaire de commande', en: 'Order Form' })}
+            className="aos-order-sheet aos-sheet w-full sm:max-w-4xl rounded-t-[28px] sm:rounded-[40px] border border-border bg-background shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {submitted ? (
@@ -758,23 +797,45 @@ export function Products() {
             ) : (
               /* 📝 Order Form */
               <form onSubmit={handleOrderSubmit}>
-                {/* Header */}
-                <div className="relative px-6 sm:px-8 pt-8 pb-6 border-b border-border bg-gradient-to-br from-primary/[0.04] to-transparent">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
+                {/* Header + compact product summary */}
+                <div className="relative px-5 sm:px-8 pt-6 sm:pt-8 pb-6 border-b border-border bg-gradient-to-br from-primary/[0.04] to-transparent safe-area-top">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
                       <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-semibold mb-3">
                         <ShoppingCart className="w-4 h-4" />
                         {t({ ar: 'نموذج طلب', fr: 'Formulaire de commande', en: 'Order Form' })}
                       </div>
-                      <h3 className="text-3xl sm:text-4xl font-bold mb-1">{selectedName}</h3>
-                      <p className="text-base text-muted-foreground">
+
+                      {/* Compact summary: image · name · price */}
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-14 h-14 shrink-0 rounded-xl overflow-hidden bg-muted">
+                          <img
+                            src={selectedProduct!.image}
+                            alt={selectedName}
+                            loading="lazy"
+                            className="w-full h-full object-contain bg-white/50 dark:bg-white/5"
+                          />
+                        </div>
+                        <div className="min-w-0">
+                          <h3 className="text-lg sm:text-2xl font-bold leading-snug line-clamp-2">{selectedName}</h3>
+                          <p className="text-sm font-black text-primary">
+                            {(selectedProduct!.salePrice && selectedProduct!.saleEnd && new Date(selectedProduct!.saleEnd) > new Date()
+                              ? selectedProduct!.salePrice
+                              : selectedProduct!.price
+                            ).toLocaleString()} د.ج
+                          </p>
+                        </div>
+                      </div>
+
+                      <p className="text-sm sm:text-base text-muted-foreground">
                         {t({ ar: 'املأ البيانات أدناه لإتمام طلبك', fr: 'Remplissez les informations ci-dessous', en: 'Fill in your details below' })}
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={closeOrderModal}
-                      className="rounded-2xl border border-border bg-card p-3 text-muted-foreground hover:text-foreground hover:border-primary hover:shadow-lg transition-all shrink-0"
+                      aria-label={t({ ar: 'إغلاق', fr: 'Fermer', en: 'Close' })}
+                      className="shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-2xl border border-border bg-card p-3 text-muted-foreground hover:text-foreground hover:border-primary hover:shadow-lg transition-all"
                     >
                       <X className="w-5 h-5" />
                     </button>
@@ -1048,23 +1109,34 @@ export function Products() {
                       <TrustBadges />
                       <button
                         type="submit"
-                        className="w-full rounded-2xl bg-gradient-to-r from-primary to-blue-700 px-6 py-5 text-primary-foreground font-bold text-xl shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 hover:scale-[1.02] transition-all duration-300 btn-liquid"
+                        className="hidden sm:block w-full rounded-2xl bg-gradient-to-r from-primary to-blue-700 px-6 py-5 text-primary-foreground font-bold text-xl shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 hover:scale-[1.02] transition-all duration-300 btn-liquid"
                       >
                         {t({ ar: 'تأكيد الطلب', fr: 'Confirmer la commande', en: 'Confirm Order' })}
                       </button>
 
-                      <p className="text-xs text-center text-muted-foreground">
+                      <p className="hidden sm:block text-xs text-center text-muted-foreground">
                         {t({ ar: 'بإتمام الطلب، أنت توافق على شروط الخدمة', fr: 'En commandant, vous acceptez nos conditions', en: 'By ordering, you agree to our terms' })}
                       </p>
                     </div>
                   </div>
                 </div>
+
+                {/* Mobile: sticky action bar so Confirm is always reachable above the keyboard */}
+                <div className="sm:hidden sticky bottom-0 z-10 border-t border-border bg-background/95 backdrop-blur px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+                  <button
+                    type="submit"
+                    className="w-full rounded-2xl bg-gradient-to-r from-primary to-blue-700 px-6 py-4 min-h-[52px] text-primary-foreground font-bold text-lg shadow-xl shadow-primary/20 transition-all duration-300 btn-liquid"
+                  >
+                    {t({ ar: 'تأكيد الطلب', fr: 'Confirmer la commande', en: 'Confirm Order' })}
+                  </button>
+                </div>
               </form>
             )}
           </motion.div>
         </motion.div>
+        </AnimatePresence>,
+        document.body
       )}
-      </AnimatePresence>
 
       <AnimatePresence>
         {visualSearchOpen && <VisualSearch onClose={() => setVisualSearchOpen(false)} />}
@@ -1077,7 +1149,7 @@ export function Products() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+          className="fixed inset-0 z-[var(--z-modal)] flex items-end sm:items-center justify-center sm:p-6 bg-black/50"
           onClick={closeQuickView}
         >
           <motion.div
@@ -1085,7 +1157,7 @@ export function Products() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: 'spring', duration: 0.4 }}
-            className="w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl bg-background border border-border shadow-2xl"
+            className="w-full max-w-md aos-sheet rounded-t-[28px] sm:rounded-2xl bg-background border border-border shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="relative">

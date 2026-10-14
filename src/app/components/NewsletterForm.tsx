@@ -117,7 +117,7 @@ export function NewsletterForm() {
 
         {showUnsubscribe && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+            className="fixed inset-0 z-[var(--z-overlay)] flex items-center justify-center bg-black/60 p-4"
             onClick={() => setShowUnsubscribe(false)}
           >
             <div

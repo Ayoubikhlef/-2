@@ -39,6 +39,15 @@
   --sidebar-accent-foreground: #1e293b;
   --sidebar-border: #e2e8f0;
   --sidebar-ring: #0b5ed7;
+
+  /* Layer scale — keep floating UI below modals, everything below the header */
+  --z-content: 1;
+  --z-float: 90;
+  --z-header: 100;
+  --z-chrome: 120;
+  --z-overlay: 1000;
+  --z-modal: 1001;
+  --z-toast: 1100;
 }
 
 .dark {
@@ -382,4 +391,53 @@ body {
 
 .chat-link:hover {
   opacity: 0.8;
+}
+
+/* Prevent background scroll bleed while a modal / bottom sheet is open.
+   Scroll position is restored by the component that toggles the class. */
+body.modal-open {
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+
+/* Order sheet: bottom-sheet on phones, centred dialog from 640px up.
+   dvh keeps it clear of the mobile browser chrome (vh does not). */
+.aos-sheet {
+  max-height: 90vh;
+  max-height: 90dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* iPhone notch / home indicator */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* iOS auto-zooms any input rendered below 16px — never let it drop under. */
+@media (max-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Flex items default to min-width:auto, so a form control with an intrinsic
+   width (size=20 ≈ 202px) refuses to shrink and pushes its row off-screen. */
+input,
+select,
+textarea {
+  min-width: 0;
+}
+
+/* The skip-link sits flush against the right edge under RTL and would add a
+   stray pixel of horizontal scroll before it ever receives focus. */
+.sr-only {
+  inset-inline-start: -99999px;
 }

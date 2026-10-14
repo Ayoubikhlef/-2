@@ -33,7 +33,7 @@ export function ProductComparison({ onClose }: Props) {
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 bg-black/60 overflow-y-auto" onClick={onClose}>
+    <div className="fixed inset-0 z-[var(--z-overlay)] flex items-start justify-center p-4 bg-black/60 overflow-y-auto" onClick={onClose}>
       <div className="w-full max-w-6xl mt-8 mb-8 rounded-[32px] border border-border bg-card p-6" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-foreground">{t({ ar: 'مقارنة المنتجات', fr: 'Comparaison de produits', en: 'Product Comparison' })}</h2>

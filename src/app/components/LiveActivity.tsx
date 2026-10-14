@@ -100,7 +100,7 @@ export function LiveActivity() {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 30, scale: 0.95 }}
           transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-          className="fixed bottom-6 left-6 z-[90] max-w-sm rounded-2xl border border-white/10 bg-slate-950/80 p-4 shadow-2xl backdrop-blur-md flex items-center gap-3 text-white"
+          className="fixed bottom-6 left-6 z-[var(--z-float)] max-w-sm rounded-2xl border border-white/10 bg-slate-950/80 p-4 shadow-2xl backdrop-blur-md flex items-center gap-3 text-white"
           dir={language === 'ar' ? 'rtl' : 'ltr'}
         >
           <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white shadow-md ${

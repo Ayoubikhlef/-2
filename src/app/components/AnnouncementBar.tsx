@@ -14,7 +14,7 @@ export function AnnouncementBar() {
   const all = langs.flatMap(lang => ITEMS.map(i => i[lang]));
 
   return (
-    <div className="relative z-[60] overflow-hidden bg-primary text-white py-2 select-none">
+    <div className="relative z-[var(--z-chrome)] overflow-hidden bg-primary text-white py-2 select-none">
       <div className="flex w-max animate-[aos-marquee_30s_linear_infinite]">
         {[0, 1].map(dup => (
           <div key={dup} className="flex shrink-0" aria-hidden={dup === 1}>

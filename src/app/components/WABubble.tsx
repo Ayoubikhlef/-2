@@ -23,7 +23,7 @@ export function WABubble() {
   }, []);
 
   return (
-    <div className="fixed bottom-6 left-6 z-50 flex items-end gap-3" dir="ltr">
+    <div className="fixed bottom-6 left-6 z-[var(--z-float)] flex items-end gap-3" dir="ltr">
       <a
         href={`https://wa.me/${PHONE}?text=${encodeURIComponent(t({ ar: 'مرحباً، أريد الاستفسار عن خدماتكم', fr: 'Bonjour, je voudrais me renseigner sur vos services', en: 'Hello, I would like to inquire about your services' }))}`}
         target="_blank"

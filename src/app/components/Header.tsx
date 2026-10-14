@@ -48,7 +48,7 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
   const navLinks = settings.settings.headerNavLinks;
 
   return (
-    <header className={`sticky top-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl shadow-lg shadow-black/5 border-b border-border/50' : 'bg-white dark:bg-slate-900 border-b border-border/30'}`}>
+    <header className={`sticky top-0 z-[var(--z-header)] transition-all duration-300 ${scrolled ? 'bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl shadow-lg shadow-black/5 border-b border-border/50' : 'bg-white dark:bg-slate-900 border-b border-border/30'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 md:h-20">
           {/* Logo */}
@@ -116,18 +116,18 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
           </div>
 
           {/* Mobile Actions */}
-          <div className="flex lg:hidden items-center gap-2">
+          <div className="flex lg:hidden items-center gap-1 min-[480px]:gap-2">
             <LanguageSwitcher />
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-lg hover:bg-muted transition-colors"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-muted transition-colors"
               aria-label={theme === 'dark' ? t({ ar: 'الوضع الفاتح', fr: 'Mode clair', en: 'Light mode' }) : t({ ar: 'الوضع الداكن', fr: 'Mode sombre', en: 'Dark mode' })}
             >
               {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
             <button
               onClick={() => setCartOpen(!cartOpen)}
-              className="relative p-2 rounded-lg hover:bg-muted transition-colors"
+              className="relative min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-muted transition-colors"
               aria-label={t({ ar: 'سلة التسوق', fr: 'Panier', en: 'Cart' })}
             >
               <ShoppingCart className="w-5 h-5" />
@@ -139,14 +139,14 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
             </button>
             <a
               href={`tel:${settings.contact.phone}`}
-              className="bg-primary text-white p-2 rounded-lg"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-primary text-white rounded-lg"
               aria-label={t({ ar: 'اتصل بنا', fr: 'Appelez-nous', en: 'Call us' })}
             >
               <Phone className="w-5 h-5" />
             </a>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg hover:bg-muted transition-colors"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-muted transition-colors"
               aria-label={t({ ar: 'القائمة', fr: 'Menu', en: 'Menu' })}
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -220,14 +220,14 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-black/50 z-40"
+                className="fixed inset-0 bg-black/50 z-[var(--z-overlay)]"
                 onClick={() => setCartOpen(false)}
               />
               <motion.div
                 initial={{ opacity: 0, x: language === 'ar' ? -50 : 50 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: language === 'ar' ? -50 : 50 }}
-                className={`fixed top-0 ${language === 'ar' ? 'left-0' : 'right-0'} w-full max-w-sm h-full bg-white dark:bg-slate-900 shadow-2xl z-50 overflow-y-auto`}
+                className={`fixed top-0 start-0 end-0 ms-auto w-full max-w-sm h-full bg-white dark:bg-slate-900 shadow-2xl z-[var(--z-modal)] overflow-y-auto`}
               >
                 <div className="p-6">
                   <div className="flex justify-between items-center mb-6">
@@ -236,7 +236,7 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
                     </h3>
                     <button
                       onClick={() => setCartOpen(false)}
-                      className="p-2 hover:bg-muted rounded-lg transition-colors"
+                      className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-muted rounded-lg transition-colors"
                       aria-label={t({ ar: 'إغلاق', fr: 'Fermer', en: 'Close' })}
                     >
                       <X className="w-5 h-5" />
