@@ -331,6 +331,7 @@ export function ManageProductsTab({ products, onUpdate }: { products: Product[];
                   alt=""
                   className="w-full h-full object-contain"
                   onError={() => setImageBroken(true)}
+                  onLoad={() => setImageBroken(false)}
                 />
               </div>
             )}
