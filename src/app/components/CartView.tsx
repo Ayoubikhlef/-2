@@ -50,11 +50,6 @@ export function Cart() {
               }}
               className="w-16 px-2 py-1 border border-border rounded text-center"
             />
-            {item.stock !== undefined && item.stock <= 5 && (
-              <span className="text-xs text-orange-500">
-                {t({ ar: `متبقي ${item.stock}`, fr: `${item.stock} restants`, en: `${item.stock} left` })}
-              </span>
-            )}
             <p className="font-semibold w-24 text-right">
               {formatPrice(item.price * item.quantity)}
             </p>

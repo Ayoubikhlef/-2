@@ -26,7 +26,6 @@ export function ProductComparison({ onClose }: Props) {
   const fields = [
     { label: t({ ar: 'السعر', fr: 'Prix', en: 'Price' }), get: (p: Product) => p.salePrice || p.price },
     { label: t({ ar: 'العلامة التجارية', fr: 'Marque', en: 'Brand' }), get: (p: Product) => p.brand || '-' },
-    { label: t({ ar: 'المخزون', fr: 'Stock', en: 'Stock' }), get: (p: Product) => p.stock !== undefined ? (p.stock > 0 ? `${p.stock}` : t({ ar: 'غير متوفر', fr: 'Rupture', en: 'Out of stock' })) : '-' },
     { label: t({ ar: 'الوزن', fr: 'Poids', en: 'Weight' }), get: (p: Product) => p.weight || '-' },
     { label: t({ ar: 'الأبعاد', fr: 'Dimensions', en: 'Dimensions' }), get: (p: Product) => p.dimensions || '-' },
     { label: t({ ar: 'الضمان', fr: 'Garantie', en: 'Warranty' }), get: (p: Product) => p.warranty || '-' },

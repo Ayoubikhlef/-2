@@ -474,12 +474,6 @@ export function Products() {
                   )}
                 </div>
 
-                {(product.stock ?? 0) > 0 && (
-                  <p className={`text-xs mb-3 ${(product.stock ?? 0) <= 5 ? 'text-orange-500 font-semibold' : 'text-emerald-500'}`}>
-                    {t({ ar: `المخزون: ${product.stock}`, fr: `Stock: ${product.stock}`, en: `Stock: ${product.stock}` })}
-                  </p>
-                )}
-
                 <div className="flex flex-wrap items-center gap-2" onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center gap-1 bg-muted rounded-lg p-0.5">
                     <button onClick={() => updateQuantity(product.id, -1)} aria-label={t({ ar: 'إنقاص الكمية', fr: 'Diminuer', en: 'Decrease' })} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-background rounded-md transition">

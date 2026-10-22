@@ -4,7 +4,7 @@ import { getStoredProducts, addProduct, updateProduct, deleteProduct, copyProduc
 import { getAllCategories, getBuiltInCategories, getCustomCategories, addCustomCategory, removeCustomCategory, type CustomCategory } from '../utils/categoryStorage';
 import { normalizeImageUrl, isImageUrl } from '../utils/imageUrl';
 import { products as defaultProducts, type Product, type ProductSpec } from '../data/products';
-import { Plus, Edit3, Trash2, Save, X, Tag, Copy, Eye, EyeOff } from 'lucide-react';
+import { Plus, Minus, Edit3, Trash2, Save, X, Tag, Copy, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 
 const builtIn = getBuiltInCategories();
@@ -72,6 +72,21 @@ export function ManageProductsTab({ products, onUpdate }: { products: Product[];
     toast.success(t({ ar: 'تم نسخ المنتج', fr: 'Produit dupliqué', en: 'Product duplicated' }));
   };
 
+  const adjustStock = (id: number, delta: number) => {
+    const product = products.find((p) => p.id === id);
+    if (!product) return;
+    updateProduct(id, { stock: Math.max(0, (product.stock ?? 0) + delta) });
+    onUpdate();
+  };
+
+  const setStock = (id: number, value: string) => {
+    const product = products.find((p) => p.id === id);
+    if (!product) return;
+    const parsed = Number(value);
+    updateProduct(id, { stock: Number.isFinite(parsed) ? Math.max(0, Math.floor(parsed)) : 0 });
+    onUpdate();
+  };
+
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editing) return;
@@ -105,7 +120,7 @@ export function ManageProductsTab({ products, onUpdate }: { products: Product[];
       warranty: editing.warranty || '',
       seoKeywords: editing.seoKeywords || '',
       hidden: editing.hidden ?? false,
-      stock: Number(editing.stock) ?? 0,
+      stock: Number.isFinite(Number(editing.stock)) ? Math.max(0, Math.floor(Number(editing.stock))) : 0,
       images,
       image,
       category: editing.category || 'accessories',
@@ -455,11 +470,28 @@ export function ManageProductsTab({ products, onUpdate }: { products: Product[];
                 {product.price.toLocaleString()} د.ج · {product.brand}
                 {product.sku && <span className="ml-2 text-white/30">{product.sku}</span>}
               </p>
-              <p className={`text-xs ${(product.stock ?? 0) > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                {(product.stock ?? 0) > 0
-                  ? t({ ar: `المخزون: ${product.stock}`, fr: `Stock: ${product.stock}`, en: `Stock: ${product.stock}` })
-                  : t({ ar: 'نفذ من المخزون', fr: 'Rupture de stock', en: 'Out of stock' })}
-              </p>
+              <div className="flex items-center gap-2 mt-2">
+                <span className="text-xs text-white/50">{t({ ar: 'المخزون:', fr: 'Stock:', en: 'Stock:' })}</span>
+                <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-slate-800 p-0.5">
+                  <button type="button" onClick={() => adjustStock(product.id, -1)} aria-label={t({ ar: 'إنقاص المخزون', fr: 'Diminuer le stock', en: 'Decrease stock' })}
+                    className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-slate-700 transition-colors">
+                    <Minus className="w-3.5 h-3.5" />
+                  </button>
+                  <input type="number" min="0" defaultValue={product.stock ?? 0} key={`stock-${product.id}-${product.stock ?? 0}`}
+                    onBlur={(e) => setStock(product.id, e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
+                    className={`w-14 bg-transparent text-center text-sm font-bold outline-none ${(product.stock ?? 0) > 0 ? 'text-emerald-400' : 'text-red-400'}`} />
+                  <button type="button" onClick={() => adjustStock(product.id, 1)} aria-label={t({ ar: 'زيادة المخزون', fr: 'Augmenter le stock', en: 'Increase stock' })}
+                    className="w-7 h-7 flex items-center justify-center rounded-md hover:bg-slate-700 transition-colors">
+                    <Plus className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                {(product.stock ?? 0) <= 0 && (
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 border border-red-500/20">
+                    {t({ ar: 'نفذ', fr: 'Rupture', en: 'Out' })}
+                  </span>
+                )}
+              </div>
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2">
               <button onClick={() => { toggleProductVisibility(product.id); onUpdate(); }}
