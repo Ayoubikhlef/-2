@@ -140,29 +140,37 @@ export function SecurityTab() {
   const cards = [
     {
       label: t({ ar: 'تنبيهات الأمان', fr: 'Alertes de sécurité', en: 'Security alerts' }),
-      value: status?.alertsConfigured
-        ? t({ ar: 'مفعّلة', fr: 'Activées', en: 'Enabled' })
-        : t({ ar: 'غير مفعّلة', fr: 'Désactivées', en: 'Disabled' }),
-      icon: status?.alertsConfigured ? ShieldCheck : ShieldAlert,
-      color: status?.alertsConfigured ? 'text-emerald-400 bg-emerald-500/20' : 'text-red-400 bg-red-500/20',
+      value: !status
+        ? '…'
+        : status.alertsConfigured
+          ? t({ ar: 'مفعّلة', fr: 'Activées', en: 'Enabled' })
+          : t({ ar: 'غير مفعّلة', fr: 'Désactivées', en: 'Disabled' }),
+      icon: !status ? Shield : status.alertsConfigured ? ShieldCheck : ShieldAlert,
+      color: !status
+        ? 'text-slate-400 bg-slate-500/20'
+        : status.alertsConfigured
+          ? 'text-emerald-400 bg-emerald-500/20'
+          : 'text-red-400 bg-red-500/20',
     },
     {
       label: t({ ar: 'حوادث مسجلة', fr: 'Incidents enregistrés', en: 'Recorded incidents' }),
-      value: String(status?.incidentsInMemory ?? rows.length),
+      value: status ? String(rows.length) : '…',
       icon: AlertTriangle,
       color: 'text-amber-400 bg-amber-500/20',
     },
     {
       label: t({ ar: 'عناوين محظورة', fr: 'IP bloquées', en: 'Blocked IPs' }),
-      value: String(status?.blockedIps ?? data?.blockedIps.length ?? 0),
+      value: status ? String(status.blockedIps) : '…',
       icon: Ban,
       color: 'text-orange-400 bg-orange-500/20',
     },
     {
       label: t({ ar: 'الحظر التلقائي', fr: 'Blocage automatique', en: 'Auto-block' }),
-      value: status?.autoBlockEnabled
-        ? t({ ar: 'مفعّل', fr: 'Activé', en: 'On' })
-        : t({ ar: 'معطّل', fr: 'Désactivé', en: 'Off' }),
+      value: !status
+        ? '…'
+        : status.autoBlockEnabled
+          ? t({ ar: 'مفعّل', fr: 'Activé', en: 'On' })
+          : t({ ar: 'معطّل', fr: 'Désactivé', en: 'Off' }),
       icon: Shield,
       color: status?.autoBlockEnabled ? 'text-sky-400 bg-sky-500/20' : 'text-slate-400 bg-slate-500/20',
     },
@@ -204,7 +212,7 @@ export function SecurityTab() {
         </div>
       </div>
 
-      {!status?.alertsConfigured && (
+      {data && !status?.alertsConfigured && (
         <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-200">
           {t({
             ar: 'التنبيهات غير مفعّلة. أضف TELEGRAM_BOT_TOKEN و TELEGRAM_CHAT_ID في متغيرات بيئة السيرفر (Render) لتصلك التنبيهات.',
@@ -225,6 +233,23 @@ export function SecurityTab() {
           </div>
         ))}
       </div>
+
+      {status && (
+        <div className="flex flex-wrap items-center gap-4 px-1 text-[11px] text-white/40">
+          <span>
+            Discord:{' '}
+            <span className={status.discordConfigured ? 'text-emerald-400' : 'text-red-400'}>
+              {status.discordConfigured ? '✓' : '✗'}
+            </span>
+          </span>
+          <span>
+            Telegram:{' '}
+            <span className={status.telegramConfigured ? 'text-emerald-400' : 'text-red-400'}>
+              {status.telegramConfigured ? '✓' : '✗'}
+            </span>
+          </span>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_320px] gap-4">
         <div className="rounded-2xl border border-white/10 bg-slate-900/70 overflow-hidden">
