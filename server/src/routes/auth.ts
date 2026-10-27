@@ -55,9 +55,23 @@ const resetSchema = z.object({
 
 const adminResetSchema = z.object({
   code: z.string().min(1),
-  email: z.string().email(),
-  password: z.string().min(8),
+  email: z.string().min(1),
+  password: z.string().min(12),
 });
+
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z.string().min(12),
+});
+
+// The old gate code was published in render.yaml. Refuse it (and anything
+// short) so a leaked value cannot be used to reset an admin password.
+const LEAKED_GATE_CODE = '752918';
+function resolveGateCode(): string | null {
+  const code = (process.env.ADMIN_GATE_CODE || '').trim();
+  if (!code || code === LEAKED_GATE_CODE || code.length < 12) return null;
+  return code;
+}
 
 // --- Helpers ---
 async function generateResetToken(): Promise<{ token: string; tokenHash: string; expiresAt: Date }> {
@@ -164,6 +178,26 @@ authRouter.post('/login', async (req, res: Response) => {
         autoBlock: false,
       });
       throw new BadRequest('Invalid email or password');
+    }
+
+    // A publicly known default admin password must never grant access.
+    // Set a new SEED_ADMIN_PASSWORD in the server environment, restart, then log in.
+    if (user.role === 'SUPER_ADMIN' || user.role === 'ADMIN') {
+      const usesKnownDefaultPassword = await bcrypt.compare('hydra', user.passwordHash || '');
+      if (usesKnownDefaultPassword) {
+        reportSecurityEvent({
+          type: 'failed_login',
+          severity: 'critical',
+          req,
+          details: 'Blocked login with the public default admin password',
+          autoBlock: false,
+        });
+        res.status(403).json({
+          error:
+            'The default admin password is disabled. Set a new SEED_ADMIN_PASSWORD of at least 12 characters in the server environment, restart the API, then log in.',
+        });
+        return;
+      }
     }
 
     if (!user.isActive) throw new Unauthorized('Account is deactivated');
@@ -373,8 +407,14 @@ authRouter.get('/reset-password', async (req, res) => {
 authRouter.post('/admin-reset-password', async (req, res: Response) => {
   try {
     const { code, email, password } = adminResetSchema.parse(req.body);
-    const envCode = process.env.ADMIN_GATE_CODE || '';
-    const validCodes = [envCode].filter(Boolean);
+    const envCode = resolveGateCode();
+    if (!envCode) {
+      return res.status(503).json({
+        error:
+          'Admin gate is disabled. Set a new ADMIN_GATE_CODE of at least 12 characters in the server environment.',
+      });
+    }
+    const validCodes = [envCode];
     if (!validCodes.includes(code)) {
       reportSecurityEvent({
         type: 'admin_gate',
@@ -409,8 +449,14 @@ authRouter.post('/admin-reset-password', async (req, res: Response) => {
 authRouter.post('/create-admin', async (req, res: Response) => {
   try {
     const code = req.body.code || '';
-    const envCode = process.env.ADMIN_GATE_CODE || '';
-    const validCodes = [envCode].filter(Boolean);
+    const envCode = resolveGateCode();
+    if (!envCode) {
+      return res.status(503).json({
+        error:
+          'Admin gate is disabled. Set a new ADMIN_GATE_CODE of at least 12 characters in the server environment.',
+      });
+    }
+    const validCodes = [envCode];
     if (!validCodes.includes(code)) {
       reportSecurityEvent({
         type: 'admin_gate',
@@ -503,6 +549,44 @@ authRouter.post('/logout', requireAuth, async (req: AuthRequest, res: Response) 
   res.clearCookie('refreshToken', { path: '/', sameSite: 'lax', secure: process.env.NODE_ENV === 'production', httpOnly: true });
   await logAction(req.userId, 'LOGOUT', 'User', undefined, req.ip);
   res.json({ message: 'Logged out' });
+});
+
+authRouter.post('/change-password', requireAuth, async (req: AuthRequest, res: Response) => {
+  const { currentPassword, newPassword } = changePasswordSchema.parse(req.body);
+  const user = await prisma.user.findUnique({ where: { id: req.userId } });
+  if (!user) throw new Unauthorized('User not found');
+
+  const validCurrent = user.passwordHash
+    ? await bcrypt.compare(currentPassword, user.passwordHash)
+    : false;
+  if (!validCurrent) {
+    reportSecurityEvent({
+      type: 'failed_login',
+      severity: 'high',
+      req,
+      details: 'Failed password change attempt',
+      autoBlock: false,
+    });
+    throw new BadRequest('Current password is incorrect');
+  }
+
+  if (user.passwordHash && (await bcrypt.compare(newPassword, user.passwordHash))) {
+    throw new BadRequest('New password must be different from the current password');
+  }
+
+  const passwordHash = await bcrypt.hash(newPassword, 12);
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { passwordHash, refreshToken: null },
+  });
+  res.clearCookie('refreshToken', {
+    path: '/',
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+  });
+  await logAction(req.userId, 'PASSWORD_CHANGED', 'User', { role: user.role }, req.ip);
+  res.json({ ok: true });
 });
 
 authRouter.get('/me', requireAuth, async (req: AuthRequest, res: Response) => {

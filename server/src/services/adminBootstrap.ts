@@ -25,6 +25,14 @@ export async function ensureSeedAdmin(): Promise<void> {
     return;
   }
 
+  if (password.length < 12 || password === 'hydra') {
+    console.warn(
+      '[Admin] SECURITY: SEED_ADMIN_PASSWORD must be at least 12 characters and must not be the ' +
+        'old default. Change it in the Render dashboard, then restart the service.'
+    );
+    return;
+  }
+
   try {
     const existing = await prisma.user.findUnique({ where: { email } });
     const fingerprint = passwordFingerprint(password);
