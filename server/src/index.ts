@@ -139,6 +139,32 @@ async function initDb() {
   } catch { /* table may not exist yet */ }
 }
 
+// The production database was created before AuditLog was added to the Prisma
+// schema. Keep this idempotent so the Security Center history works even when
+// the Render start command does not run `prisma db push`.
+async function ensureAuditLogTable() {
+  try {
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "AuditLog" (
+        "id" TEXT NOT NULL,
+        "userId" TEXT,
+        "action" TEXT NOT NULL,
+        "resource" TEXT,
+        "details" JSONB,
+        "ipAddress" TEXT,
+        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        CONSTRAINT "AuditLog_pkey" PRIMARY KEY ("id")
+      )
+    `);
+    await prisma.$executeRawUnsafe(
+      `CREATE INDEX IF NOT EXISTS "AuditLog_action_createdAt_idx" ON "AuditLog" ("action", "createdAt" DESC)`
+    );
+    console.log('[AOS] AuditLog table ready');
+  } catch (err) {
+    console.error('[AOS] Failed to ensure AuditLog table:', err);
+  }
+}
+
 async function fixMojibakeSettings() {
   try {
     const settings = await prisma.setting.findMany();
@@ -171,6 +197,7 @@ async function fixMojibakeSettings() {
 initLive(server);
 initRAG();
 initDb();
+void ensureAuditLogTable();
 void ensureSeedAdmin();
 fixMojibakeSettings();
 
