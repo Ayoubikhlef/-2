@@ -22,7 +22,12 @@ export type OrderRecord = {
   municipality: string;
   address: string;
   note: string;
+  wilayaId?: number;
+  municipalityId?: string;
   items: OrderItem[];
+  subtotal?: number;
+  deliveryFee?: number;
+  deliveryMethod?: 'home' | 'desk';
   total: number;
   source: 'form' | 'quick-order' | 'service-booking';
   status: OrderStatus;
@@ -163,7 +168,12 @@ export async function saveOrder(order: Omit<OrderRecord, 'id' | 'createdAt' | 's
       municipality: order.municipality || '',
       address: order.address || '',
       note: order.note || '',
+      wilayaId: order.wilayaId,
+      municipalityId: order.municipalityId,
       items: order.items,
+      subtotal: order.subtotal,
+      deliveryFee: order.deliveryFee,
+      deliveryMethod: order.deliveryMethod,
       total: order.total,
       source: order.source,
       discountCode: order.discountCode,
@@ -175,7 +185,7 @@ export async function saveOrder(order: Omit<OrderRecord, 'id' | 'createdAt' | 's
       if (payload[k] === undefined) delete payload[k];
     });
     await api.orders.create(payload);
-    log('info', `Order ${order.id} synced to server`);
+    log('info', `Order ${record.id} synced to server`);
     markSynced(record.id);
   } catch (err: any) {
     log('warn', `Server sync failed for order ${record.id}`, err?.message);
@@ -243,7 +253,12 @@ export async function pushUnsyncedOrders(): Promise<void> {
         municipality: order.municipality,
         address: order.address,
         note: order.note || '',
+        wilayaId: order.wilayaId,
+        municipalityId: order.municipalityId,
         items: order.items,
+        subtotal: order.subtotal,
+        deliveryFee: order.deliveryFee,
+        deliveryMethod: order.deliveryMethod,
         total: order.total,
         source: order.source,
         discountCode: order.discountCode,

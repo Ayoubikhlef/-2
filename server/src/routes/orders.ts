@@ -8,6 +8,8 @@ import { emitNewOrder } from '../services/live';
 import { requireAuth, requireRole, type AuthRequest } from '../middleware/auth';
 import { getCached, setCache, clearCache } from '../utils/cache';
 import { fixMojibakeData } from '../utils/encoding';
+import { quoteOrderDelivery, parseLocalityIdFromLabel } from '../services/delivery';
+import type { PricedItemInput } from '../data/deliveryTariff';
 
 export const orderRouter = Router();
 
@@ -34,6 +36,10 @@ const createOrderSchema = z
     municipality: z.string().max(200),
     address: z.string().max(500),
     note: z.string().max(500).optional(),
+    wilayaId: z.number().int().min(1).max(69).optional(),
+    municipalityId: z.string().max(20).optional(),
+    deliveryMethod: z.enum(['home', 'desk']).optional(),
+    deliveryFee: z.number().nonnegative().max(1000000).optional(),
     items: z.array(orderItemSchema).min(1).max(50),
     total: z.number().nonnegative().max(10000000),
     source: z.enum(['form', 'quick-order', 'service-booking']),
@@ -64,6 +70,7 @@ orderRouter.post('/', async (req: Request, res: Response) => {
 
     let serverTotal = 0;
     const validatedItems: { name: string; quantity: number; price: number; total: number; productId?: number }[] = [];
+    const deliveryItems: PricedItemInput[] = [];
 
     if (isService) {
       // Service bookings are free-form (no product catalog entry).
@@ -109,7 +116,39 @@ orderRouter.post('/', async (req: Request, res: Response) => {
           total: itemTotal,
           productId: product.id,
         });
+
+        deliveryItems.push({
+          quantity: item.quantity,
+          weight: product.weight ?? '',
+          dimensions: product.dimensions ?? '',
+        });
       }
+    }
+
+    // The client estimate is never trusted: delivery is recomputed here from
+    // the catalog weight/dimensions and the admin tariff.
+    let deliveryFee = 0;
+    let deliveryMethod: 'home' | 'desk' = 'home';
+    let localityId: number | null = null;
+
+    if (!isService) {
+      localityId = data.wilayaId
+        ?? parseLocalityIdFromLabel(data.wilaya)
+        ?? 18;
+      deliveryMethod = data.deliveryMethod ?? 'home';
+
+      const quote = await quoteOrderDelivery({
+        localityId,
+        method: deliveryMethod,
+        subtotal: serverTotal,
+        items: deliveryItems,
+      });
+      deliveryFee = quote.deliveryFee;
+      console.log(
+        `[Orders] Delivery locality=${localityId} method=${deliveryMethod} ` +
+        `weight=${quote.billedWeightKg}kg fee=${deliveryFee} ` +
+        `(base=${quote.baseFee} weightFee=${quote.weightFee} oversize=${quote.oversizeSurcharge})`
+      );
     }
 
     let finalTotal = serverTotal;
@@ -129,15 +168,24 @@ orderRouter.post('/', async (req: Request, res: Response) => {
         if (coupon.expiryDate && new Date(coupon.expiryDate) < new Date()) {
           return res.status(400).json({ error: 'Coupon has expired' });
         }
-        if (coupon.minOrder > 0 && finalTotal < coupon.minOrder) {
+        if (coupon.minOrder > 0 && serverTotal < coupon.minOrder) {
           return res.status(400).json({ error: `Minimum order amount is ${coupon.minOrder}` });
         }
         discountAmount = coupon.type === 'percentage'
-          ? Math.round(finalTotal * (coupon.value / 100))
-          : Math.min(coupon.value, finalTotal);
-        finalTotal -= discountAmount;
+          ? Math.round(serverTotal * (coupon.value / 100))
+          : Math.min(coupon.value, serverTotal);
+        discountAmount = Math.min(discountAmount, serverTotal);
+        finalTotal = Math.max(0, serverTotal - discountAmount);
         appliedCode = coupon.code;
       }
+    }
+
+    finalTotal = Math.max(0, finalTotal) + deliveryFee;
+
+    // The server total is authoritative; log disagreements instead of
+    // rejecting legitimate orders from a slightly stale client bundle.
+    if (!isService && Math.abs(data.total - finalTotal) > 1) {
+      console.warn(`[Orders] Client total ${data.total} != server total ${finalTotal} (delivery ${deliveryFee})`);
     }
 
     const orderId = crypto.randomUUID();
@@ -153,6 +201,10 @@ orderRouter.post('/', async (req: Request, res: Response) => {
           address: data.address,
           note: data.note || '',
           total: finalTotal,
+          subtotal: serverTotal,
+          deliveryMethod: isService ? null : deliveryMethod,
+          deliveryFee,
+          wilayaId: isService ? null : localityId,
           status: 'new',
           source: data.source,
           paymentMethod: appliedCode ? ('discount:' + appliedCode) : undefined,
@@ -187,6 +239,9 @@ orderRouter.post('/', async (req: Request, res: Response) => {
       municipality: order.municipality,
       address: order.address,
       total: order.total,
+      subtotal: order.subtotal,
+      deliveryFee: order.deliveryFee,
+      deliveryMethod: order.deliveryMethod,
       items: order.items,
     });
     sendNewOrderTelegramAlert({
@@ -197,6 +252,9 @@ orderRouter.post('/', async (req: Request, res: Response) => {
       municipality: order.municipality,
       address: order.address,
       total: order.total,
+      subtotal: order.subtotal,
+      deliveryFee: order.deliveryFee,
+      deliveryMethod: order.deliveryMethod,
       items: order.items,
     });
     sendNewOrderDiscordAlert({
@@ -207,6 +265,9 @@ orderRouter.post('/', async (req: Request, res: Response) => {
       municipality: order.municipality,
       address: order.address,
       total: order.total,
+      subtotal: order.subtotal,
+      deliveryFee: order.deliveryFee,
+      deliveryMethod: order.deliveryMethod,
       items: order.items,
     });
     res.status(201).json(order);

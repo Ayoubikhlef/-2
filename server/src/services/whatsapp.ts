@@ -74,11 +74,19 @@ export async function sendNewOrderAlert(order: {
   municipality: string;
   address: string;
   total: number;
+  subtotal?: number | null;
+  deliveryFee?: number;
+  deliveryMethod?: string | null;
   items: { name: string; quantity: number }[];
 }) {
   const itemsText = order.items
     .map(item => `• ${item.name} × ${item.quantity}`)
     .join('\n');
+
+  const deliveryLine = order.deliveryMethod
+    ? `🚚 التوصيل: ${(order.deliveryFee || 0).toLocaleString()} د.ج` +
+      ` (${order.deliveryMethod === 'desk' ? 'مكتب' : 'منزل'})\n`
+    : '';
 
   const message = `🛒 *طلب جديد!*
 ━━━━━━━━━━━━
@@ -88,7 +96,7 @@ export async function sendNewOrderAlert(order: {
 ━━━━━━━━━━━━
 ${itemsText}
 ━━━━━━━━━━━━
-💰 المجموع: ${order.total.toLocaleString()} د.ج
+${deliveryLine}💰 المجموع: ${order.total.toLocaleString()} د.ج
 🆔 #${order.id.slice(0, 8)}`;
 
   console.log(`[WhatsApp] New order alert for admin: ${order.id.slice(0, 8)}`);

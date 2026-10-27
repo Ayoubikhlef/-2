@@ -2,6 +2,13 @@ const SETTINGS_KEY = 'aos_site_settings';
 const DELIVERY_KEY = 'aos_delivery_config';
 
 import { syncToServer, loadFromServer } from './serverSync';
+import {
+  DEFAULT_DELIVERY_RULES,
+  buildDefaultFeeMap,
+  getDeliveryTariff,
+  type DeliveryMethod,
+  type DeliveryRules,
+} from '../data/deliveryTariff';
 
 export interface LangString {
   ar: string;
@@ -22,6 +29,7 @@ export interface ContactInfo {
   mapsEmbedUrl: string;
 }
 
+/** Legacy tier shape kept so old saved configs still deserialize. */
 export interface DeliveryTier {
   label: string;
   wilayaIds: number[];
@@ -29,8 +37,14 @@ export interface DeliveryTier {
 }
 
 export interface DeliveryConfig {
-  tiers: DeliveryTier[];
   freeThreshold: number;
+  /** Locality id (1..69) -> home delivery fee in DZD. */
+  homeFees: Record<string, number>;
+  /** Locality id (1..69) -> stop-desk fee in DZD. */
+  deskFees: Record<string, number>;
+  rules: DeliveryRules;
+  /** @deprecated Legacy tiers; pricing no longer reads them. */
+  tiers?: DeliveryTier[];
 }
 
 export interface NavLink {
@@ -89,15 +103,17 @@ const defaultContact: ContactInfo = {
   mapsEmbedUrl: 'https://www.google.com/maps?q=Ayoub+Office+Services,+Grand+Boulevard,+El+Milia,+Jijel+18300&hl=ar&z=15&output=embed',
 };
 
-const defaultDelivery: DeliveryConfig = {
-  freeThreshold: 5000,
-  tiers: [
-    { label: 'Tier 1 (200 DA)', fee: 200, wilayaIds: [18] },
-    { label: 'Tier 2 (400 DA)', fee: 400, wilayaIds: [6, 10, 15, 19, 21, 34, 35, 43, 25, 24, 36, 23, 41, 12, 40, 4] },
-    { label: 'Tier 3 (600 DA)', fee: 600, wilayaIds: [16, 9, 26, 42, 44, 2, 27, 48, 29, 31, 46, 22, 13, 20, 14, 38, 17, 28, 5, 7, 3, 32, 45] },
-    { label: 'Tier 4 (900 DA)', fee: 900, wilayaIds: [30, 47, 39, 55, 57, 58, 1, 49, 37, 11, 33, 53, 54, 56, 8, 52, 50] },
-  ],
-};
+export function getDefaultDeliveryConfig(): DeliveryConfig {
+  return {
+    freeThreshold: 5000,
+    homeFees: buildDefaultFeeMap('home'),
+    deskFees: buildDefaultFeeMap('desk'),
+    rules: {
+      ...DEFAULT_DELIVERY_RULES,
+      remoteLocalityIds: [...DEFAULT_DELIVERY_RULES.remoteLocalityIds],
+    },
+  };
+}
 
 const defaultSettings: SiteSettings = {
   siteName: 'Ayoub Office Services',
@@ -156,10 +172,25 @@ function saveContact(data: ContactInfo): void {
 }
 
 function getDelivery(): DeliveryConfig {
+  const defaults = getDefaultDeliveryConfig();
   try {
     const raw = localStorage.getItem(DELIVERY_KEY);
-    return raw ? { ...defaultDelivery, ...JSON.parse(raw) } : defaultDelivery;
-  } catch { return defaultDelivery; }
+    if (!raw) return defaults;
+    const parsed = JSON.parse(raw) as Partial<DeliveryConfig>;
+    return {
+      ...defaults,
+      ...parsed,
+      homeFees: { ...defaults.homeFees, ...(parsed.homeFees || {}) },
+      deskFees: { ...defaults.deskFees, ...(parsed.deskFees || {}) },
+      rules: {
+        ...defaults.rules,
+        ...(parsed.rules || {}),
+        remoteLocalityIds: Array.isArray(parsed.rules?.remoteLocalityIds)
+          ? parsed.rules.remoteLocalityIds.map(Number).filter((id) => Number.isFinite(id))
+          : defaults.rules.remoteLocalityIds,
+      },
+    };
+  } catch { return defaults; }
 }
 function saveDelivery(data: DeliveryConfig): void {
   localStorage.setItem(DELIVERY_KEY, JSON.stringify(data));
@@ -185,7 +216,16 @@ export function updateContact(data: Partial<ContactInfo>): ContactInfo {
   const cur = getContact(); const next = { ...cur, ...data }; saveContact(next); return next;
 }
 export function updateDelivery(data: Partial<DeliveryConfig>): DeliveryConfig {
-  const cur = getDelivery(); const next = { ...cur, ...data }; if (data.tiers) next.tiers = data.tiers; saveDelivery(next); return next;
+  const cur = getDelivery();
+  const next: DeliveryConfig = {
+    ...cur,
+    ...data,
+    homeFees: data.homeFees ? { ...cur.homeFees, ...data.homeFees } : cur.homeFees,
+    deskFees: data.deskFees ? { ...cur.deskFees, ...data.deskFees } : cur.deskFees,
+    rules: data.rules ? { ...cur.rules, ...data.rules } : cur.rules,
+  };
+  saveDelivery(next);
+  return next;
 }
 export function updateSiteSettings(data: Partial<SiteSettings>): SiteSettings {
   const cur = getSettings(); const next = { ...cur, ...data }; saveSettings(next); return next;
@@ -204,12 +244,20 @@ export async function loadSiteSettingsFromServer(): Promise<boolean> {
   return false;
 }
 
-export function getDeliveryFee(wilayaId: number): number {
+export function getDeliveryConfig(): DeliveryConfig {
+  return getDelivery();
+}
+
+export function getDeliveryFee(localityId: number, method: DeliveryMethod = 'home'): number {
   const config = getDelivery();
-  for (const tier of config.tiers) { if (tier.wilayaIds.includes(wilayaId)) return tier.fee; }
-  return 600;
+  const fees = method === 'desk' ? config.deskFees : config.homeFees;
+  const configured = Number(fees[String(localityId)]);
+  if (Number.isFinite(configured) && configured >= 0) return configured;
+  const fallback = getDeliveryTariff(localityId);
+  return method === 'desk' ? fallback.desk : fallback.home;
 }
 export function isFreeDelivery(subtotal: number): boolean {
-  return subtotal >= getDelivery().freeThreshold;
+  const threshold = getDelivery().freeThreshold;
+  return threshold > 0 && subtotal >= threshold;
 }
 export const FREE_DELIVERY_THRESHOLD = 5000;

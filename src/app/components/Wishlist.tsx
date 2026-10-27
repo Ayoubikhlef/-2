@@ -47,6 +47,8 @@ export function Wishlist() {
       price: product.salePrice && product.saleEnd && new Date(product.saleEnd) > new Date() ? (product.salePrice ?? product.price) : product.price,
       name: language === 'ar' ? product.nameAr : language === 'fr' ? product.nameFr : product.nameEn,
       stock: product.stock ?? 0,
+      weight: product.weight,
+      dimensions: product.dimensions,
     });
     document.getElementById('checkout')?.scrollIntoView({ behavior: 'smooth' });
   };

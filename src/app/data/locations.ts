@@ -58,16 +58,16 @@ export const wilayas = [
   { id: 57, nameAr: '57 المغير', nameFr: '57 El Mghair', nameEn: '57 El Mghair' },
   { id: 58, nameAr: '58 المنيعة', nameFr: '58 El Meniaa', nameEn: '58 El Meniaa' },
   { id: 59, nameAr: '59 آفلو', nameFr: '59 Aflou', nameEn: '59 Aflou' },
-  { id: 60, nameAr: '60 بريكة', nameFr: '60 Bir El Ater', nameEn: '60 Bir El Ater' },
+  { id: 60, nameAr: '60 بريكة', nameFr: '60 Barika', nameEn: '60 Barika' },
   { id: 61, nameAr: '61 القنطرة', nameFr: '61 El Kantara', nameEn: '61 El Kantara' },
-  { id: 62, nameAr: '62 بير العاتر', nameFr: '62 Berriane', nameEn: '62 Berriane' },
+  { id: 62, nameAr: '62 بير العاتر', nameFr: '62 Bir El Ater', nameEn: '62 Bir El Ater' },
   { id: 63, nameAr: '63 العريشة', nameFr: '63 El Aricha', nameEn: '63 El Aricha' },
   { id: 64, nameAr: '64 قصر الشلالة', nameFr: '64 Ksar El Chellala', nameEn: '64 Ksar El Chellala' },
   { id: 65, nameAr: '65 عين وسارة', nameFr: '65 Ain Wisahra', nameEn: '65 Ain Wisahra' },
-  { id: 66, nameAr: '66 مسعد', nameFr: '66 Métlili', nameEn: '66 Metlili' },
+  { id: 66, nameAr: '66 متليلي', nameFr: '66 Métlili', nameEn: '66 Metlili' },
   { id: 67, nameAr: '67 قصر البخاري', nameFr: '67 Kasr El Boukhari', nameEn: '67 Kasr El Boukhari' },
   { id: 68, nameAr: '68 بوسعادة', nameFr: '68 Bou Saada', nameEn: '68 Bou Saada' },
-  { id: 69, nameAr: '69 الأبيض سيدي الشيخ', nameFr: '69 El Beyedh Sidi Cheikh', nameEn: '69 El Beyedh Sidi Cheikh' }
+  { id: 69, nameAr: '69 الأبيض سيدي الشيخ', nameFr: '69 El Abiodh Sidi Cheikh', nameEn: '69 El Abiodh Sidi Cheikh' }
 ];
 
 export const municipalities = [

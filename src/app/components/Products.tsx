@@ -1,11 +1,12 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { ShoppingCart, Plus, Minus, X, User, Phone, Mail, MapPin, CheckCircle, Info, Heart, Search, Camera, Share2, Eye, Banknote } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, X, User, Phone, Mail, MapPin, CheckCircle, Info, Heart, Search, Camera, Share2, Eye, Banknote, Home, Store } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useCart } from '../contexts/CartContext';
 import { products as defaultProducts, wilayas, getMunicipalities, type Product } from '../data/products';
 import { getStoredProducts, loadProductsFromServer } from '../utils/productStorage';
 import { saveOrder } from '../utils/orderStorage';
+import { getDeliveryQuote, type DeliveryMethod } from '../data/deliveryFees';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
 import { SkeletonGrid } from './SkeletonCard';
@@ -120,8 +121,8 @@ export function Products() {
     phone: '',
     email: '',
     address: '',
-    wilaya: '1',
-    municipality: '1',
+    wilaya: '18',
+    municipality: getMunicipalities(18)[0]?.id || '1',
     quantity: 1,
     note: '',
   });
@@ -129,6 +130,7 @@ export function Products() {
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number; type: 'percentage' | 'fixed' } | null>(null);
   const [couponError, setCouponError] = useState('');
+  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>('home');
   const [submitted, setSubmitted] = useState(false);
   const [lastOrderId, setLastOrderId] = useState<string | null>(null);
 
@@ -228,6 +230,24 @@ export function Products() {
     setOrderData((prev) => ({ ...prev, [name]: name === 'quantity' ? Math.max(1, Number(value)) : value }));
   };
 
+  const quickSubtotal = selectedProduct ? selectedProduct.price * orderData.quantity : 0;
+  const quickDiscount = appliedCoupon ? Math.min(appliedCoupon.discount, quickSubtotal) : 0;
+  const quickDeliveryMethod = deliveryMethod;
+  const quickQuote = selectedProduct
+    ? getDeliveryQuote({
+        localityId: Number(orderData.wilaya),
+        method: quickDeliveryMethod,
+        subtotal: quickSubtotal,
+        items: [{
+          quantity: orderData.quantity,
+          weight: selectedProduct.weight,
+          dimensions: selectedProduct.dimensions,
+        }],
+      })
+    : null;
+  const quickDeliveryFee = quickQuote?.deliveryFee ?? 0;
+  const quickTotal = quickSubtotal + quickDeliveryFee - quickDiscount;
+
   const handleOrderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -242,8 +262,8 @@ export function Products() {
     const wilayaName = wilayas.find((w) => w.id.toString() === orderData.wilaya)?.[language === 'ar' ? 'nameAr' : language === 'fr' ? 'nameFr' : 'nameEn'] || '';
     const municipalityName = getMunicipalities(Number(orderData.wilaya)).find((m) => m.id === orderData.municipality)?.[language === 'ar' ? 'nameAr' : language === 'fr' ? 'nameFr' : 'nameEn'] || '';
 
-    const discountAmount = appliedCoupon ? Math.min(appliedCoupon.discount, selectedProduct.price * orderData.quantity) : 0;
-    const grandTotal = selectedProduct.price * orderData.quantity - discountAmount;
+    const discountAmount = quickDiscount;
+    const grandTotal = quickTotal;
 
     addItem({
       productId: selectedProduct.id,
@@ -251,17 +271,21 @@ export function Products() {
       price: selectedProduct.price,
       name: productName,
       stock: selectedProduct.stock ?? 0,
+      weight: selectedProduct.weight,
+      dimensions: selectedProduct.dimensions,
     });
 
     try {
       const record = await saveOrder({
         customer: orderData.fullName,
         phone: orderData.phone,
-        email: orderData.email.trim() || undefined,
+        email: orderData.email.trim(),
         wilaya: wilayaName,
         municipality: municipalityName,
         address: orderData.address,
         note: orderData.note,
+        wilayaId: Number(orderData.wilaya),
+        municipalityId: orderData.municipality,
         items: [{
           name: productName,
           quantity: orderData.quantity,
@@ -269,6 +293,9 @@ export function Products() {
           total: selectedProduct.price * orderData.quantity,
           productId: selectedProduct.id,
         }],
+        subtotal: quickSubtotal,
+        deliveryFee: quickDeliveryFee,
+        deliveryMethod: quickDeliveryMethod,
         total: grandTotal,
         source: 'quick-order',
         paymentMethod,
@@ -927,6 +954,36 @@ export function Products() {
                         </div>
                       </div>
 
+                      <div className="mb-4">
+                        <label className="block text-base font-bold mb-2">
+                          {t({ ar: 'طريقة التوصيل', fr: 'Mode de livraison', en: 'Delivery method' })}
+                        </label>
+                        <div className="grid grid-cols-2 gap-3">
+                          {([
+                            { id: 'home' as const, icon: Home, label: t({ ar: 'توصيل للمنزل', fr: 'À domicile', en: 'Home delivery' }) },
+                            { id: 'desk' as const, icon: Store, label: t({ ar: 'مكتب التوصيل', fr: 'Point relais', en: 'Stop desk' }) },
+                          ]).map((method) => {
+                            const Icon = method.icon;
+                            const active = deliveryMethod === method.id;
+                            return (
+                              <button
+                                key={method.id}
+                                type="button"
+                                onClick={() => setDeliveryMethod(method.id)}
+                                className={`flex items-center justify-center gap-2 rounded-2xl border-2 px-4 py-3 text-sm font-bold transition ${
+                                  active
+                                    ? 'border-primary bg-primary/10 text-primary'
+                                    : 'border-border bg-background hover:bg-muted'
+                                }`}
+                              >
+                                <Icon className="w-4 h-4" />
+                                {method.label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
                       <div>
                         <label className="block text-base font-bold mb-2">
                           {t({ ar: 'العنوان الكامل', fr: 'Adresse complète', en: 'Full Address' })}
@@ -1034,25 +1091,40 @@ export function Products() {
                               <span className="text-muted-foreground">{t({ ar: 'الكمية', fr: 'Quantité', en: 'Quantity' })}</span>
                               <span className="font-bold">{orderData.quantity}</span>
                             </div>
-                            <div className="flex justify-between text-lg border-t border-border pt-3">
-                              <span className="font-bold text-primary">{t({ ar: 'الإجمالي', fr: 'Total', en: 'Total' })}</span>
-                              <span className="font-bold text-primary text-xl">{(selectedProduct.price * orderData.quantity).toLocaleString()} د.ج</span>
+                            <div className="flex justify-between text-base border-t border-border pt-3">
+                              <span className="text-muted-foreground">{t({ ar: 'المجموع الفرعي', fr: 'Sous-total', en: 'Subtotal' })}</span>
+                              <span className="font-bold">{quickSubtotal.toLocaleString()} د.ج</span>
                             </div>
-                            {(() => {
-                              const discountAmt = appliedCoupon ? Math.min(appliedCoupon.discount, selectedProduct.price * orderData.quantity) : 0;
-                              return discountAmt > 0 ? (
-                                <>
-                                  <div className="flex justify-between text-sm text-green-600 dark:text-green-400 pt-2">
-                                    <span>{t({ ar: 'الخصم', fr: 'Réduction', en: 'Discount' })}</span>
-                                    <span className="font-semibold">-{discountAmt.toLocaleString()} د.ج</span>
-                                  </div>
-                                  <div className="flex justify-between text-lg font-bold text-primary border-t border-border pt-2 mt-2">
-                                    <span>{t({ ar: 'المجموع بعد الخصم', fr: 'Total après réduc.', en: 'Total after discount' })}</span>
-                                    <span className="text-xl">{(selectedProduct.price * orderData.quantity - discountAmt).toLocaleString()} د.ج</span>
-                                  </div>
-                                </>
-                              ) : null;
-                            })()}
+                            <div className="flex justify-between text-base">
+                              <span className="text-muted-foreground">
+                                {t({ ar: 'التوصيل', fr: 'Livraison', en: 'Delivery' })}
+                                {' · '}
+                                {deliveryMethod === 'desk'
+                                  ? t({ ar: 'مكتب', fr: 'Point relais', en: 'Stop desk' })
+                                  : t({ ar: 'منزل', fr: 'Domicile', en: 'Home' })}
+                                {quickQuote && quickQuote.billedWeightKg > 0 ? ` (${quickQuote.billedWeightKg} kg)` : ''}
+                              </span>
+                              <span className="font-bold">
+                                {quickDeliveryFee === 0
+                                  ? t({ ar: 'مجاني', fr: 'Gratuit', en: 'Free' })
+                                  : `${quickDeliveryFee.toLocaleString()} د.ج`}
+                              </span>
+                            </div>
+                            {quickQuote && quickQuote.oversizeSurcharge > 0 && (
+                              <p className="text-[11px] text-amber-600 dark:text-amber-400">
+                                {t({ ar: 'يشمل زيادة المنتج كبير الحجم', fr: 'Inclut le supplément volumineux', en: 'Includes the large-item surcharge' })}
+                              </p>
+                            )}
+                            {quickDiscount > 0 && (
+                              <div className="flex justify-between text-sm text-green-600 dark:text-green-400">
+                                <span>{t({ ar: 'الخصم', fr: 'Réduction', en: 'Discount' })}</span>
+                                <span className="font-semibold">-{quickDiscount.toLocaleString()} د.ج</span>
+                              </div>
+                            )}
+                            <div className="flex justify-between text-lg font-bold text-primary border-t border-border pt-3">
+                              <span>{t({ ar: 'الإجمالي', fr: 'Total', en: 'Total' })}</span>
+                              <span className="text-xl">{quickTotal.toLocaleString()} د.ج</span>
+                            </div>
                           </div>
                         </div>
                       </div>

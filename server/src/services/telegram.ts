@@ -44,11 +44,19 @@ export function sendNewOrderTelegramAlert(order: {
   municipality: string;
   address: string;
   total: number;
+  subtotal?: number | null;
+  deliveryFee?: number;
+  deliveryMethod?: string | null;
   items: { name: string; quantity: number }[];
 }) {
   const itemsText = order.items
     .map(item => `• <b>${escapeHtml(item.name)}</b> × ${item.quantity}`)
     .join('\n');
+
+  const deliveryLine = order.deliveryMethod
+    ? `🚚 التوصيل: ${(order.deliveryFee || 0).toLocaleString()} د.ج` +
+      ` (${order.deliveryMethod === 'desk' ? 'مكتب' : 'منزل'})\n`
+    : '';
 
   const text = `<b>🛒 طلب جديد!</b>
 ━━━━━━━━━━━━
@@ -58,7 +66,7 @@ export function sendNewOrderTelegramAlert(order: {
 ━━━━━━━━━━━━
 ${itemsText}
 ━━━━━━━━━━━━
-💰 المجموع: <b>${order.total.toLocaleString()} د.ج</b>
+${deliveryLine}💰 المجموع: <b>${order.total.toLocaleString()} د.ج</b>
 🆔 #${order.id.slice(0, 8)}`;
 
   return sendTelegramMessage(text);
@@ -101,13 +109,21 @@ export function sendNewOrderDiscordAlert(order: {
   municipality: string;
   address: string;
   total: number;
+  subtotal?: number | null;
+  deliveryFee?: number;
+  deliveryMethod?: string | null;
   items: { name: string; quantity: number }[];
 }) {
   const itemsText = order.items
     .map(item => `• **${item.name}** × ${item.quantity}`)
     .join('\n');
 
-  const text = `**🛒 طلب جديد!**\n━━━━━━━━━━━━\n👤 ${order.customer} | ${order.phone}\n📍 ${order.wilaya} - ${order.municipality}\n📌 ${order.address}\n━━━━━━━━━━━━\n${itemsText}\n━━━━━━━━━━━━\n💰 المجموع: **${order.total.toLocaleString()} د.ج**\n🆔 #${order.id.slice(0, 8)}`;
+  const deliveryLine = order.deliveryMethod
+    ? `🚚 التوصيل: ${(order.deliveryFee || 0).toLocaleString()} د.ج` +
+      ` (${order.deliveryMethod === 'desk' ? 'مكتب' : 'منزل'})\n`
+    : '';
+
+  const text = `**🛒 طلب جديد!**\n━━━━━━━━━━━━\n👤 ${order.customer} | ${order.phone}\n📍 ${order.wilaya} - ${order.municipality}\n📌 ${order.address}\n━━━━━━━━━━━━\n${itemsText}\n━━━━━━━━━━━━\n${deliveryLine}💰 المجموع: **${order.total.toLocaleString()} د.ج**\n🆔 #${order.id.slice(0, 8)}`;
 
   return sendDiscordWebhook(text);
 }

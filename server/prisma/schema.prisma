@@ -118,6 +118,10 @@ model Order {
   address        String
   note           String?
   total          Float
+  subtotal       Float?
+  wilayaId       Int?
+  deliveryFee    Float    @default(0)
+  deliveryMethod String?
   status         String   @default("new")
   paymentMethod  String?
   paymentStatus  String?

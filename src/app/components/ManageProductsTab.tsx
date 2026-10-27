@@ -283,11 +283,13 @@ export function ManageProductsTab({ products, onUpdate }: { products: Product[];
           <div>
             <label className="block text-sm font-semibold mb-2 text-white/80">{t({ ar: 'الوزن', fr: 'Poids', en: 'Weight' })}</label>
             <input value={editing?.weight || ''} onChange={(e) => setEditing({ ...editing!, weight: e.target.value })}
+              placeholder="0.8 kg"
               className="w-full rounded-xl border border-white/10 bg-slate-800 px-4 py-3 text-sm text-white outline-none focus:border-primary" />
           </div>
           <div>
             <label className="block text-sm font-semibold mb-2 text-white/80">{t({ ar: 'الأبعاد', fr: 'Dimensions', en: 'Dimensions' })}</label>
             <input value={editing?.dimensions || ''} onChange={(e) => setEditing({ ...editing!, dimensions: e.target.value })}
+              placeholder="40 x 30 x 20 cm"
               className="w-full rounded-xl border border-white/10 bg-slate-800 px-4 py-3 text-sm text-white outline-none focus:border-primary" />
           </div>
         </div>

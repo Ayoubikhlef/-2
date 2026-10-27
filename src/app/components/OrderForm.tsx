@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useCart } from '../contexts/CartContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { LoyaltyCard } from './LoyaltyCard';
@@ -17,7 +17,7 @@ import { submitOrderToSheet } from '../utils/googleForm';
 type PaymentMethod = 'cod';
 
 export function OrderForm() {
-  const { items, total, deliveryFee, clear } = useCart();
+  const { items, total, deliveryFee, deliveryMethod, setDeliveryWilaya, clear } = useCart();
   const { t, language } = useLanguage();
   const [submitted, setSubmitted] = useState(false);
   const [lastOrder, setLastOrder] = useState<any | null>(null);
@@ -25,6 +25,8 @@ export function OrderForm() {
   const [orderSummary, setOrderSummary] = useState<{
     items: { name: string; quantity: number; price: number }[];
     total: number;
+    deliveryFee: number;
+    deliveryMethod: 'home' | 'desk';
     wilaya: string;
     municipality: string;
     address: string;
@@ -37,16 +39,22 @@ export function OrderForm() {
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number; type: 'percentage' | 'fixed' } | null>(null);
   const [couponError, setCouponError] = useState('');
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState(() => ({
     fullName: '',
     phone: '',
     email: '',
     address: '',
-    wilaya: '1',
-    municipality: '1',
-  });
+    wilaya: '18',
+    municipality: getMunicipalities(18)[0]?.id || '1',
+  }));
   const [submitting, setSubmitting] = useState(false);
   const [whatsappLink, setWhatsappLink] = useState('');
+
+  // Keep the cart's delivery estimate in sync with the address form.
+  useEffect(() => {
+    const id = Number(formData.wilaya);
+    if (Number.isInteger(id) && id >= 1 && id <= 69) setDeliveryWilaya(id);
+  }, [formData.wilaya, setDeliveryWilaya]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -126,11 +134,13 @@ export function OrderForm() {
       const savedRecord = await saveOrder({
         customer: formData.fullName,
         phone: normalizedPhone,
-        email: formData.email.trim() || undefined,
+        email: formData.email.trim(),
         wilaya: wilayas.find((w) => w.id.toString() === formData.wilaya)?.[language === 'ar' ? 'nameAr' : language === 'fr' ? 'nameFr' : 'nameEn'] || '',
         municipality: getMunicipalities(Number(formData.wilaya)).find((m) => m.id === formData.municipality)?.[language === 'ar' ? 'nameAr' : language === 'fr' ? 'nameFr' : 'nameEn'] || '',
         address: formData.address,
         note: '',
+        wilayaId: Number(formData.wilaya),
+        municipalityId: formData.municipality,
         items: items.map((item) => ({
           name: item.name,
           quantity: item.quantity,
@@ -138,6 +148,9 @@ export function OrderForm() {
           total: item.price * item.quantity,
           productId: item.productId,
         })),
+        subtotal: total,
+        deliveryFee,
+        deliveryMethod,
         total: grandTotal,
         source: 'form',
         paymentMethod,
@@ -153,6 +166,8 @@ export function OrderForm() {
       setOrderSummary({
         items: items.map((i) => ({ name: i.name, quantity: i.quantity, price: i.price })),
         total: grandTotal,
+        deliveryFee,
+        deliveryMethod,
         wilaya: wilayaName,
         municipality: municipalityName,
         address: formData.address,
@@ -184,6 +199,7 @@ ${items.map((item) => `• ${item.name} × ${item.quantity}`).join('\n')}
 ━━━━━━━━━━━━━━━━━━━━━
 💰 ${t({ ar: 'المجموع:', fr: 'Total:', en: 'Total:' })} ${formatPrice(total)}
 ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Discount:' })} -${formatPrice(discountAmount)}` : ''}
+🚚 ${t({ ar: 'التوصيل:', fr: 'Livraison:', en: 'Delivery:' })} ${formatPrice(deliveryFee)} (${deliveryMethod === 'desk' ? t({ ar: 'مكتب', fr: 'Point relais', en: 'Stop desk' }) : t({ ar: 'منزل', fr: 'Domicile', en: 'Home' })})
 📍 ${t({ ar: 'الولاية:', fr: 'Wilaya:', en: 'Wilaya:' })} ${wilayas.find((w) => w.id.toString() === formData.wilaya)?.[language === 'ar' ? 'nameAr' : language === 'fr' ? 'nameFr' : 'nameEn']}
 🏙️ ${t({ ar: 'البلدية:', fr: 'Commune:', en: 'Municipality:' })} ${getMunicipalities(Number(formData.wilaya)).find((m) => m.id === formData.municipality)?.[language === 'ar' ? 'nameAr' : language === 'fr' ? 'nameFr' : 'nameEn']}
 📌 ${t({ ar: 'العنوان:', fr: 'Adresse:', en: 'Address:' })} ${formData.address}
@@ -212,7 +228,14 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
 
       setSubmitted(true);
       setLastLoyalty({ name: formData.fullName, phone: normalizedPhone, amount: grandTotal });
-      setFormData({ fullName: '', phone: '', email: '', address: '', wilaya: '1', municipality: '1' });
+      setFormData({
+        fullName: '',
+        phone: '',
+        email: '',
+        address: '',
+        wilaya: '18',
+        municipality: getMunicipalities(18)[0]?.id || '1',
+      });
       clear();
     } catch (err: any) {
       console.error('[OrderForm] submit failed:', err);
@@ -390,8 +413,22 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
                         <span className="font-semibold">-{formatPrice(orderSummary.discount)}</span>
                       </div>
                     )}
+                    <div className="flex justify-between items-center text-sm">
+                      <span>
+                        {t({ ar: 'التوصيل', fr: 'Livraison', en: 'Delivery' })}
+                        {' · '}
+                        {orderSummary.deliveryMethod === 'desk'
+                          ? t({ ar: 'مكتب', fr: 'Point relais', en: 'Stop desk' })
+                          : t({ ar: 'منزل', fr: 'Domicile', en: 'Home' })}
+                      </span>
+                      <span className="font-semibold">
+                        {orderSummary.deliveryFee === 0
+                          ? t({ ar: 'مجاني', fr: 'Gratuit', en: 'Free' })
+                          : formatPrice(orderSummary.deliveryFee)}
+                      </span>
+                    </div>
                     <div className="flex justify-between items-center pt-2.5 border-t border-border text-base font-bold">
-                      <span>{t({ ar: 'المجموع', fr: 'Total', en: 'Total' })}</span>
+                      <span>{t({ ar: 'الإجمالي', fr: 'Total', en: 'Total' })}</span>
                       <span className="text-primary">{formatPrice(orderSummary.total)}</span>
                     </div>
                     <div className="pt-2.5 border-t border-border space-y-1.5 text-sm text-muted-foreground">
@@ -516,7 +553,7 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
                   {couponError && <p className="text-xs text-destructive">{couponError}</p>}
                 </div>
 
-                <DeliveryCalculator />
+                {items.length > 0 && <DeliveryCalculator />}
 
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">
