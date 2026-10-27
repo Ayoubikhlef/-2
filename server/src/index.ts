@@ -165,6 +165,26 @@ async function ensureAuditLogTable() {
   }
 }
 
+// Older production databases predate the delivery columns. Render's start
+// command may not run `prisma db push`, so add them idempotently at boot.
+async function ensureOrderDeliveryColumns() {
+  const statements = [
+    `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "subtotal" DOUBLE PRECISION`,
+    `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "wilayaId" INTEGER`,
+    `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "deliveryFee" DOUBLE PRECISION NOT NULL DEFAULT 0`,
+    `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "deliveryMethod" TEXT`,
+  ];
+
+  try {
+    for (const sql of statements) {
+      await prisma.$executeRawUnsafe(sql);
+    }
+    console.log('[AOS] Order delivery columns ready');
+  } catch (err) {
+    console.error('[AOS] Failed to ensure Order delivery columns:', err);
+  }
+}
+
 async function fixMojibakeSettings() {
   try {
     const settings = await prisma.setting.findMany();
@@ -194,15 +214,22 @@ async function fixMojibakeSettings() {
   }
 }
 
-initLive(server);
-initRAG();
-initDb();
-void ensureAuditLogTable();
-void ensureSeedAdmin();
-fixMojibakeSettings();
+async function startServer() {
+  initLive(server);
+  initRAG();
+  // Run schema repairs before accepting traffic so an old database cannot
+  // produce 500s on the first requests after a deploy.
+  await ensureAuditLogTable();
+  await ensureOrderDeliveryColumns();
+  await ensureSeedAdmin();
+  void fixMojibakeSettings();
+  initDb();
 
-server.listen(PORT, '0.0.0.0', () => {
-  const networkInterfaces: any[] = Object.values(require('os').networkInterfaces()).flat();
-  const ip: string = networkInterfaces.find((i: any) => i.family === 'IPv4' && !i.internal)?.address || 'localhost';
-  console.log(`[AOS Server] Running on http://localhost:${PORT}`);
-});
+  server.listen(PORT, '0.0.0.0', () => {
+    const networkInterfaces: any[] = Object.values(require('os').networkInterfaces()).flat();
+    const ip: string = networkInterfaces.find((i: any) => i.family === 'IPv4' && !i.internal)?.address || 'localhost';
+    console.log(`[AOS Server] Running on http://localhost:${PORT}`);
+  });
+}
+
+void startServer();
