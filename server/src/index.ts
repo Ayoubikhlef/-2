@@ -8,7 +8,6 @@ import cookieParser from 'cookie-parser';
 import hpp from 'hpp';
 import path from 'path';
 import http from 'http';
-import bcrypt from 'bcryptjs';
 import { authRouter } from './routes/auth';
 import { chatRouter } from './routes/chat';
 import { productRouter } from './routes/products';
@@ -23,6 +22,7 @@ import { paymentRouter } from './routes/payment';
 import { securityRouter } from './routes/security';
 import { errorHandler } from './middleware/errorHandler';
 import { securityMonitor, securityRateLimitHandler } from './services/security';
+import { ensureSeedAdmin } from './services/adminBootstrap';
 import { initLive } from './services/live';
 import { initRAG } from './services/rag';
 import { prisma } from './utils/prisma';
@@ -168,35 +168,10 @@ async function fixMojibakeSettings() {
   }
 }
 
-async function ensureAdmin() {
-  try {
-    const email = process.env.SEED_ADMIN_EMAIL || 'hydra';
-    const password = process.env.SEED_ADMIN_PASSWORD || 'hydra';
-    console.log(`[AOS] ensureAdmin: provisioning admin account for ${email}`);
-    const hash = await bcrypt.hash(password, 12);
-    const existing = await prisma.user.findUnique({ where: { email } });
-    if (existing) {
-      if (existing.passwordHash !== hash) {
-        await prisma.user.update({ where: { id: existing.id }, data: { passwordHash: hash } });
-        console.log('[AOS] Admin password updated');
-      } else {
-        console.log('[AOS] Admin already exists with correct password');
-      }
-    } else {
-      await prisma.user.create({
-        data: { email, passwordHash: hash, name: 'Admin AOS', role: 'SUPER_ADMIN', phone: '' },
-      });
-      console.log('[AOS] Admin user created');
-    }
-  } catch (e) {
-    console.error('[AOS] ensureAdmin error:', e);
-  }
-}
-
 initLive(server);
 initRAG();
 initDb();
-ensureAdmin();
+void ensureSeedAdmin();
 fixMojibakeSettings();
 
 server.listen(PORT, '0.0.0.0', () => {

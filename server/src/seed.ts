@@ -1,26 +1,10 @@
-import bcrypt from 'bcryptjs';
 import { prisma } from './utils/prisma';
+import { ensureSeedAdmin } from './services/adminBootstrap';
 
 async function seed() {
   console.log('[Seed] Starting...');
 
-  const seedPassword = process.env.SEED_ADMIN_PASSWORD || 'hydra';
-
-  const adminPassword = await bcrypt.hash(seedPassword, 12);
-
-  const admin = await prisma.user.upsert({
-    where: { email: process.env.SEED_ADMIN_EMAIL || 'hydra' },
-    update: { passwordHash: adminPassword },
-    create: {
-      email: process.env.SEED_ADMIN_EMAIL || 'hydra',
-      passwordHash: adminPassword,
-      name: 'Admin AOS',
-      role: 'SUPER_ADMIN',
-      phone: process.env.SEED_ADMIN_PHONE || '',
-    },
-  });
-
-  console.log(`[Seed] Admin created: ${admin.email.slice(0, 3)}***@***`);
+  await ensureSeedAdmin();
 
   await prisma.setting.upsert({
     where: { key: 'site_name' },

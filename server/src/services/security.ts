@@ -116,10 +116,19 @@ function clientIp(req: Request): string {
 }
 
 function isBlockableIp(ip: string): boolean {
-  if (!ip || ip === 'unknown') return false;
-  if (ip === '::1' || ip === 'localhost') return false;
-  if (/^(127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(ip)) return false;
-  if (/^(fc|fd|fe80)/i.test(ip)) return false;
+  if (!ip || ip === 'unknown' || ip === 'localhost' || ip === '::1') return false;
+  // Never block loopback, private, link-local, CGNAT, multicast, or reserved
+  // documentation ranges. Attackers can spoof X-Forwarded-For, and blocking a
+  // placeholder address would otherwise create confusing "blocked" entries.
+  if (
+    /^(0\.|10\.|127\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.|192\.0\.0\.|192\.0\.2\.|192\.168\.|192\.88\.99\.|198\.(18|19)\.|198\.51\.100\.|203\.0\.113\.|22[4-9]\.|2[3-5]\d\.)/.test(
+      ip
+    )
+  ) {
+    return false;
+  }
+  if (/^100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\./.test(ip)) return false;
+  if (/^(fc|fd|fe80|2001:db8)/i.test(ip)) return false;
   return true;
 }
 
