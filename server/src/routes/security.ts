@@ -81,8 +81,9 @@ securityRouter.post('/test-alert', async (_req: AuthRequest, res: Response) => {
       error:
         'No alert was delivered. Set SMTP_HOST/SMTP_USER/SMTP_PASS (+ SECURITY_ALERT_EMAIL), DISCORD_WEBHOOK_URL, or TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID on the API server.',
       channels: result.channels,
+      emailError: result.emailError,
     });
     return;
   }
-  res.json({ ok: true, channels: result.channels });
+  res.json({ ok: true, channels: result.channels, emailError: result.emailError });
 });

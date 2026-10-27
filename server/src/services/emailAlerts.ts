@@ -2,6 +2,8 @@ import nodemailer from 'nodemailer';
 
 const EMAIL_PATTERN = /^[^\s@<>()[\]\\,;:]+@[^\s@<>()[\]\\,;:]+\.[^\s@<>()[\]\\,;:]{2,}$/;
 
+let lastEmailError: string | null = null;
+
 function smtpUser(): string {
   return (process.env.SMTP_USER || '').trim();
 }
@@ -52,8 +54,29 @@ function escapeHtml(value: string): string {
     .replace(/'/g, '&#39;');
 }
 
+function sanitizeError(err: unknown): string {
+  let message: string;
+  if (err instanceof Error) {
+    const extra = err as Error & { code?: string; response?: string; responseCode?: number };
+    message = [extra.code, extra.responseCode, extra.message, extra.response]
+      .filter(Boolean)
+      .join(' | ');
+  } else {
+    message = String(err);
+  }
+  for (const secret of [smtpUser(), (process.env.SMTP_PASS || '').replace(/\s/g, '')]) {
+    if (secret) message = message.split(secret).join('***');
+  }
+  return message.replace(/[\r\n]+/g, ' ').slice(0, 300);
+}
+
+export function getLastEmailError(): string | null {
+  return lastEmailError;
+}
+
 export async function sendSecurityAlertEmail(subject: string, text: string): Promise<boolean> {
   if (!isEmailAlertConfigured()) {
+    lastEmailError = 'SMTP is not configured or no valid recipient is available';
     if (process.env.NODE_ENV !== 'production' || process.env.LOG_NO_EMAIL === '1') {
       console.log('[EmailAlerts] Skipped (SMTP or recipient not configured)');
     }
@@ -81,8 +104,10 @@ export async function sendSecurityAlertEmail(subject: string, text: string): Pro
       html,
     });
     console.log(`[EmailAlerts] Sent to ${recipient}. MessageId: ${info.messageId}`);
+    lastEmailError = null;
     return true;
   } catch (err) {
+    lastEmailError = sanitizeError(err);
     console.error('[EmailAlerts] Send error:', err);
     return false;
   }
