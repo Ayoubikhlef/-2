@@ -8,23 +8,27 @@ import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../utils/
 import { AppError, BadRequest, Conflict, Unauthorized } from '../utils/errors';
 import { requireAuth, AuthRequest } from '../middleware/auth';
 import nodemailer from 'nodemailer';
+import { logAction } from '../services/audit';
+import { reportSecurityEvent } from '../services/security';
 
 export const authRouter = Router();
 
 const normalizeEmail = (email: string) => email.trim().toLowerCase();
 
 // --- Email Configuration ---
-const createTransporter = () => nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587', 10),
-  secure: process.env.SMTP_SECURE === 'true',
-  auth: {
-    user: process.env.SMTP_USER || 'ayoub.office.services@gmail.com',
-    pass: process.env.SMTP_PASS || 'YOUR_NEW_APP_PASSWORD_HERE',
-  },
-});
+const createTransporter = () => {
+  return nodemailer.createTransport({
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.SMTP_PORT || '587', 10),
+    secure: process.env.SMTP_SECURE === 'true',
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+};
 
-const resetEmail = process.env.RESET_EMAIL || process.env.SMTP_USER || 'ayoub.office.services@gmail.com';
+const resetEmail = process.env.RESET_EMAIL || process.env.SMTP_USER;
 const transporter = createTransporter();
 
 // --- Validation Schemas ---
@@ -124,6 +128,8 @@ authRouter.post('/register', async (req, res: Response) => {
     user: { id: user.id, email: user.email, name: user.name, role: user.role },
     accessToken,
   });
+
+  await logAction(user.id, 'REGISTER', 'User', { email: user.email }, req.ip);
 });
 
 authRouter.post('/login', async (req, res: Response) => {
@@ -139,54 +145,26 @@ authRouter.post('/login', async (req, res: Response) => {
     const { email: rawEmail, password } = loginSchema.parse(req.body);
     const email = normalizeEmail(rawEmail);
 
-    // 2. Super-Robust Fallback for the seed admin account
-    if (email === 'hydra' && password === 'hydra') {
-      try {
-        const user = await prisma.user.findFirst({
-          where: {
-            OR: [
-              { email: 'hydra' },
-              { email: process.env.SEED_ADMIN_EMAIL || 'hydra' }
-            ]
-          }
-        });
-        if (user) {
-          const accessToken = signAccessToken({ userId: String(user.id), role: String(user.role) });
-          const refreshToken = signRefreshToken({ userId: String(user.id) });
-          try {
-            await prisma.user.update({ where: { id: user.id }, data: { refreshToken } });
-          } catch (dbUpdateErr) {
-            console.warn('[Auth] Admin session update failed, allowing login anyway:', dbUpdateErr);
-          }
-          res.cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            path: '/',
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-          });
-          return res.json({
-            user: { id: user.id, email: user.email, name: user.name, role: user.role },
-            accessToken,
-          });
-        }
-      } catch (fallbackErr) {
-        console.error('[Auth] Hydra fallback failed:', fallbackErr);
-      }
-    }
-
     // 3. Normal Login Flow
     const user = await prisma.user.findFirst({
       where: {
         email: email,
       },
     });
-    if (!user) throw new BadRequest('Invalid email or password');
 
-    const valid = user.passwordHash
+    const valid = user?.passwordHash
       ? await bcrypt.compare(password, user.passwordHash)
       : false;
-    if (!valid) throw new BadRequest('Invalid email or password');
+    if (!user || !valid) {
+      reportSecurityEvent({
+        type: 'failed_login',
+        severity: 'medium',
+        req,
+        details: `Failed login for ${email.slice(0, 3)}***`,
+        autoBlock: false,
+      });
+      throw new BadRequest('Invalid email or password');
+    }
 
     if (!user.isActive) throw new Unauthorized('Account is deactivated');
 
@@ -216,6 +194,8 @@ authRouter.post('/login', async (req, res: Response) => {
       user: { id: user.id, email: user.email, name: user.name, role: user.role },
       accessToken,
     });
+
+    await logAction(user.id, 'LOGIN', 'User', { email: user.email }, req.ip);
   } catch (err: any) {
     if (err instanceof AppError) throw err;
     if (err instanceof z.ZodError) {
@@ -396,6 +376,13 @@ authRouter.post('/admin-reset-password', async (req, res: Response) => {
     const envCode = process.env.ADMIN_GATE_CODE || '';
     const validCodes = [envCode].filter(Boolean);
     if (!validCodes.includes(code)) {
+      reportSecurityEvent({
+        type: 'admin_gate',
+        severity: 'high',
+        req,
+        details: 'Invalid admin gate code (admin reset)',
+        autoBlock: false,
+      });
       return res.status(401).json({ error: 'Invalid gate code' });
     }
     const user = await prisma.user.findFirst({
@@ -425,6 +412,13 @@ authRouter.post('/create-admin', async (req, res: Response) => {
     const envCode = process.env.ADMIN_GATE_CODE || '';
     const validCodes = [envCode].filter(Boolean);
     if (!validCodes.includes(code)) {
+      reportSecurityEvent({
+        type: 'admin_gate',
+        severity: 'high',
+        req,
+        details: 'Invalid admin gate code (create admin)',
+        autoBlock: false,
+      });
       return res.status(401).json({ error: 'Invalid gate code' });
     }
 
@@ -507,6 +501,7 @@ authRouter.post('/logout', requireAuth, async (req: AuthRequest, res: Response) 
   });
 
   res.clearCookie('refreshToken', { path: '/', sameSite: 'lax', secure: process.env.NODE_ENV === 'production', httpOnly: true });
+  await logAction(req.userId, 'LOGOUT', 'User', undefined, req.ip);
   res.json({ message: 'Logged out' });
 });
 

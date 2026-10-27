@@ -183,4 +183,14 @@ model NewsletterSubscriber {
   @@map("aos_newsletter")
 }
 
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  resource  String?
+  details   Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+}
+
 

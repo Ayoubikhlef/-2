@@ -5,7 +5,7 @@ import { getStoredProducts, initializeProducts, pullProductsFromServer } from '.
 import { products as defaultProducts, type Product } from '../data/products';
 import { getStoredServices, initializeServices } from '../utils/serviceStorage';
 import { defaultServices, type ServiceCategory } from '../data/services';
-import { RefreshCw, Trash2, ChevronDown, Phone, MapPin, Mail, DollarSign, Package, Eye, Lightbulb, Wrench, FileText, Globe, Settings, Star, MailOpen, Download } from 'lucide-react';
+import { RefreshCw, Trash2, ChevronDown, Phone, MapPin, Mail, DollarSign, Package, Eye, Lightbulb, Wrench, FileText, Globe, Settings, Star, MailOpen, Download, Shield } from 'lucide-react';
 import { generateInvoice } from './InvoicePDF';
 import { toast } from 'sonner';
 import { isMaintenanceMode, setMaintenanceMode, getMaintenanceMessage, setMaintenanceMessage } from '../utils/maintenanceStorage';
@@ -25,6 +25,7 @@ const ManageContentTab = lazy(() => import('./ManageContentTab').then(m => ({ de
 const SiteSettingsTab = lazy(() => import('./SiteSettingsTab').then(m => ({ default: m.SiteSettingsTab })));
 const ReviewsTab = lazy(() => import('./ReviewsTab').then(m => ({ default: m.ReviewsTab })));
 const NewsletterTab = lazy(() => import('./NewsletterTab').then(m => ({ default: m.NewsletterTab })));
+const SecurityTab = lazy(() => import('./SecurityTab').then(m => ({ default: m.SecurityTab })));
 
 const statusConfig: Record<OrderStatus, { label: Record<string, string>; color: string; icon: string }> = {
   new: {
@@ -144,7 +145,7 @@ export function Admin() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [isOn, setIsOn] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [tab, setTab] = useState<'dashboard' | 'orders' | 'products' | 'services' | 'manage-products' | 'manage-services' | 'customers' | 'coupons' | 'content' | 'settings' | 'reviews' | 'newsletter'>('orders');
+  const [tab, setTab] = useState<'dashboard' | 'orders' | 'products' | 'services' | 'manage-products' | 'manage-services' | 'customers' | 'coupons' | 'content' | 'settings' | 'reviews' | 'newsletter' | 'security'>('orders');
   const [manageProducts, setManageProducts] = useState<Product[]>([]);
   const [manageServices, setManageServices] = useState<ServiceCategory[]>([]);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>(getSyncStatus());
@@ -179,6 +180,7 @@ export function Admin() {
       import('./ManageServicesTab');
       import('./CouponsTab');
       import('./CustomersTab');
+      import('./SecurityTab');
     };
     if ('requestIdleCallback' in window) {
       (window as any).requestIdleCallback(preload, { timeout: 6000 });
@@ -699,6 +701,17 @@ export function Admin() {
             {t({ ar: 'النشرة', fr: 'Newsletter', en: 'Newsletter' })}
           </button>
           <button
+            onClick={() => setTab('security')}
+            className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all border flex items-center gap-2 ${
+              tab === 'security'
+                ? 'bg-primary text-slate-950 border-primary'
+                : 'bg-slate-900 text-white/70 border-white/10 hover:bg-slate-800'
+            }`}
+          >
+            <Shield className="w-4 h-4" />
+            {t({ ar: 'الأمان', fr: 'Sécurité', en: 'Security' })}
+          </button>
+          <button
             onClick={() => setTab('dashboard')}
             className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all border ${
               tab === 'dashboard'
@@ -835,6 +848,8 @@ export function Admin() {
           <ReviewsTab />
         ) : tab === 'newsletter' ? (
           <NewsletterTab />
+        ) : tab === 'security' ? (
+          <SecurityTab />
         ) : (
         /* Orders */
         filteredOrders.length === 0 ? (

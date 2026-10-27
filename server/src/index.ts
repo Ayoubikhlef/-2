@@ -20,7 +20,9 @@ import { dataRouter } from './routes/data';
 import { maintenanceRouter } from './routes/maintenance';
 import { emailRouter } from './routes/email';
 import { paymentRouter } from './routes/payment';
+import { securityRouter } from './routes/security';
 import { errorHandler } from './middleware/errorHandler';
+import { securityMonitor, securityRateLimitHandler } from './services/security';
 import { initLive } from './services/live';
 import { initRAG } from './services/rag';
 import { prisma } from './utils/prisma';
@@ -30,6 +32,10 @@ import { fixMojibakeData } from './utils/encoding';
 const app = express();
 const server = http.createServer(app);
 const PORT = Number(process.env.PORT) || 3001;
+
+// Vercel/Render terminate TLS in front of the API, so trust one proxy hop
+// to get the real client IP for rate limiting and security alerts.
+app.set('trust proxy', 1);
 
 app.use(helmet({
   strictTransportSecurity: { maxAge: 31536000, includeSubDomains: true, preload: true },
@@ -65,17 +71,19 @@ app.use(express.json({ limit: '1mb' }));
 app.use(cookieParser());
 app.use(hpp());
 
+app.use(securityMonitor);
+
 app.use((_req, res, next) => {
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   res.setHeader('Surrogate-Control', 'no-store');
   next();
 });
 
-const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100, message: { error: 'Too many attempts' }, validate: { xForwardedForHeader: false } });
-const adminGateLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, message: { error: 'Too many gate attempts' }, validate: { xForwardedForHeader: false } });
-const passwordResetLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: { error: 'Too many reset attempts' }, validate: { xForwardedForHeader: false } });
-const orderLimiter = rateLimit({ windowMs: 60 * 1000, max: 200, message: { error: 'Too many requests' }, validate: { xForwardedForHeader: false } });
-const generalLimiter = rateLimit({ windowMs: 60 * 1000, max: 600, message: { error: 'Too many requests' }, validate: { xForwardedForHeader: false } });
+const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100, handler: securityRateLimitHandler('auth'), validate: { xForwardedForHeader: false } });
+const adminGateLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, handler: securityRateLimitHandler('admin-gate'), validate: { xForwardedForHeader: false } });
+const passwordResetLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, handler: securityRateLimitHandler('password-reset'), validate: { xForwardedForHeader: false } });
+const orderLimiter = rateLimit({ windowMs: 60 * 1000, max: 200, handler: securityRateLimitHandler('orders'), validate: { xForwardedForHeader: false } });
+const generalLimiter = rateLimit({ windowMs: 60 * 1000, max: 600, handler: securityRateLimitHandler('general'), validate: { xForwardedForHeader: false } });
 app.use('/api/auth', authLimiter);
 app.use('/api/auth/admin-gate', adminGateLimiter);
 app.use('/api/auth/forgot-password', passwordResetLimiter);
@@ -102,6 +110,7 @@ app.use('/api/data', dataRouter);
 app.use('/api/maintenance', maintenanceRouter);
 app.use('/api/email', emailRouter);
 app.use('/api/payment', paymentRouter);
+app.use('/api/security', generalLimiter, securityRouter);
 
 app.get('/api/health', async (_req, res) => {
   try {
