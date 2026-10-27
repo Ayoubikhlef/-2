@@ -39,3 +39,10 @@ services:
         sync: false
       - key: DISCORD_WEBHOOK_URL
         sync: false
+      # Render Free blocks SMTP ports, so email alerts use the Resend HTTPS API.
+      - key: RESEND_API_KEY
+        sync: false
+      - key: SECURITY_ALERT_EMAIL
+        sync: false
+      - key: SECURITY_ALERT_FROM
+        sync: false

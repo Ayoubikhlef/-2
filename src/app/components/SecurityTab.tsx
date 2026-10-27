@@ -31,6 +31,8 @@ interface SecurityData {
     telegramConfigured: boolean;
     discordConfigured: boolean;
     emailConfigured: boolean;
+    emailProvider?: 'resend' | 'smtp' | null;
+    emailLastError?: string | null;
     autoBlockEnabled: boolean;
     incidentsInMemory: number;
     blockedIps: number;
@@ -250,7 +252,7 @@ export function SecurityTab() {
       {status && (
         <div className="flex flex-wrap items-center gap-4 px-1 text-[11px] text-white/40">
           <span>
-            Email:{' '}
+            Email{status.emailProvider ? ` (${status.emailProvider})` : ''}:{' '}
             <span className={status.emailConfigured ? 'text-emerald-400' : 'text-red-400'}>
               {status.emailConfigured ? '✓' : '✗'}
             </span>
@@ -267,6 +269,13 @@ export function SecurityTab() {
               {status.telegramConfigured ? '✓' : '✗'}
             </span>
           </span>
+        </div>
+      )}
+
+      {status?.emailLastError && (
+        <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-[11px] text-amber-200/80 break-all">
+          {t({ ar: 'آخر خطأ في بريد التنبيهات', fr: "Dernière erreur d'email d'alerte", en: 'Last alert email error' })}:{' '}
+          <span className="font-mono">{status.emailLastError}</span>
         </div>
       )}
 

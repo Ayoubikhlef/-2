@@ -1,8 +1,15 @@
 import nodemailer from 'nodemailer';
 
 const EMAIL_PATTERN = /^[^\s@<>()[\]\\,;:]+@[^\s@<>()[\]\\,;:]+\.[^\s@<>()[\]\\,;:]{2,}$/;
+const RESEND_API_URL = 'https://api.resend.com/emails';
+
+export type EmailAlertProvider = 'resend' | 'smtp';
 
 let lastEmailError: string | null = null;
+
+function resendApiKey(): string {
+  return (process.env.RESEND_API_KEY || '').trim();
+}
 
 function smtpUser(): string {
   return (process.env.SMTP_USER || '').trim();
@@ -40,9 +47,21 @@ export function getSecurityAlertRecipient(): string | null {
   return null;
 }
 
-export function isEmailAlertConfigured(): boolean {
+/**
+ * Render Free blocks outbound SMTP ports (25, 465, 587), so an HTTPS email
+ * API such as Resend is the recommended channel there. SMTP remains supported
+ * for local development and paid Render instances.
+ */
+export function getEmailAlertProvider(): EmailAlertProvider | null {
+  if (!getSecurityAlertRecipient()) return null;
+  if (resendApiKey()) return 'resend';
   const config = smtpConfig();
-  return Boolean(config.host && config.auth.pass && getSecurityAlertRecipient());
+  if (config.host && config.auth.pass) return 'smtp';
+  return null;
+}
+
+export function isEmailAlertConfigured(): boolean {
+  return getEmailAlertProvider() !== null;
 }
 
 function escapeHtml(value: string): string {
@@ -64,7 +83,11 @@ function sanitizeError(err: unknown): string {
   } else {
     message = String(err);
   }
-  for (const secret of [smtpUser(), (process.env.SMTP_PASS || '').replace(/\s/g, '')]) {
+  for (const secret of [
+    resendApiKey(),
+    smtpUser(),
+    (process.env.SMTP_PASS || '').replace(/\s/g, ''),
+  ]) {
     if (secret) message = message.split(secret).join('***');
   }
   return message.replace(/[\r\n]+/g, ' ').slice(0, 300);
@@ -74,36 +97,88 @@ export function getLastEmailError(): string | null {
   return lastEmailError;
 }
 
+function buildHtml(subject: string, text: string): string {
+  return `
+    <div style="background:#0f172a;padding:24px;border-radius:12px;font-family:Arial,Helvetica,sans-serif;color:#e2e8f0">
+      <h2 style="margin:0 0 16px;color:#f87171;font-size:18px">${escapeHtml(subject)}</h2>
+      <pre style="white-space:pre-wrap;word-break:break-word;margin:0;font-family:Consolas,monospace;font-size:13px;line-height:1.6;color:#cbd5e1">${escapeHtml(text)}</pre>
+    </div>`;
+}
+
+async function sendViaResend(
+  recipient: string,
+  subject: string,
+  text: string,
+  html: string
+): Promise<boolean> {
+  const from =
+    (process.env.SECURITY_ALERT_FROM || '').trim() ||
+    'AOS Security <onboarding@resend.dev>';
+
+  const response = await fetch(RESEND_API_URL, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${resendApiKey()}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from,
+      to: [recipient],
+      subject,
+      text,
+      html,
+    }),
+  });
+
+  if (!response.ok) {
+    const body = await response.text().catch(() => '');
+    throw new Error(`Resend API ${response.status}: ${body.slice(0, 200)}`);
+  }
+
+  const data = (await response.json().catch(() => ({}))) as { id?: string };
+  console.log(`[EmailAlerts] Sent via Resend to ${recipient}. Id: ${data.id || 'unknown'}`);
+  return true;
+}
+
+async function sendViaSmtp(
+  recipient: string,
+  subject: string,
+  text: string,
+  html: string
+): Promise<boolean> {
+  const transporter = nodemailer.createTransport(smtpConfig());
+  const info = await transporter.sendMail({
+    from: process.env.SECURITY_ALERT_FROM || `"AOS Security" <${smtpUser()}>`,
+    to: recipient,
+    subject,
+    text,
+    html,
+  });
+  console.log(`[EmailAlerts] Sent via SMTP to ${recipient}. MessageId: ${info.messageId}`);
+  return true;
+}
+
 export async function sendSecurityAlertEmail(subject: string, text: string): Promise<boolean> {
-  if (!isEmailAlertConfigured()) {
-    lastEmailError = 'SMTP is not configured or no valid recipient is available';
+  const recipient = getSecurityAlertRecipient();
+  const provider = getEmailAlertProvider();
+  if (!recipient || !provider) {
+    lastEmailError = 'Email alerts are not configured or no valid recipient is available';
     if (process.env.NODE_ENV !== 'production' || process.env.LOG_NO_EMAIL === '1') {
-      console.log('[EmailAlerts] Skipped (SMTP or recipient not configured)');
+      console.log('[EmailAlerts] Skipped (provider or recipient not configured)');
     }
     return false;
   }
 
-  const recipient = getSecurityAlertRecipient()!;
-  const config = smtpConfig();
   const safeSubject = subject.replace(/[\r\n]+/g, ' ').slice(0, 180);
   const safeText = text.slice(0, 10_000);
-
-  const html = `
-    <div style="background:#0f172a;padding:24px;border-radius:12px;font-family:Arial,Helvetica,sans-serif;color:#e2e8f0">
-      <h2 style="margin:0 0 16px;color:#f87171;font-size:18px">${escapeHtml(safeSubject)}</h2>
-      <pre style="white-space:pre-wrap;word-break:break-word;margin:0;font-family:Consolas,monospace;font-size:13px;line-height:1.6;color:#cbd5e1">${escapeHtml(safeText)}</pre>
-    </div>`;
+  const html = buildHtml(safeSubject, safeText);
 
   try {
-    const transporter = nodemailer.createTransport(config);
-    const info = await transporter.sendMail({
-      from: `"AOS Security" <${smtpUser()}>`,
-      to: recipient,
-      subject: safeSubject,
-      text: safeText,
-      html,
-    });
-    console.log(`[EmailAlerts] Sent to ${recipient}. MessageId: ${info.messageId}`);
+    if (provider === 'resend') {
+      await sendViaResend(recipient, safeSubject, safeText, html);
+    } else {
+      await sendViaSmtp(recipient, safeSubject, safeText, html);
+    }
     lastEmailError = null;
     return true;
   } catch (err) {

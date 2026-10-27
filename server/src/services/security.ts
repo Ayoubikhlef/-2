@@ -1,7 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import { prisma } from '../utils/prisma';
 import { sendTelegramMessage, sendDiscordWebhook } from './telegram';
-import { getLastEmailError, isEmailAlertConfigured, sendSecurityAlertEmail } from './emailAlerts';
+import {
+  getEmailAlertProvider,
+  getLastEmailError,
+  isEmailAlertConfigured,
+  sendSecurityAlertEmail,
+} from './emailAlerts';
 
 export type SecuritySeverity = 'low' | 'medium' | 'high' | 'critical';
 
@@ -373,6 +378,7 @@ export function getSecurityStatus() {
     telegramConfigured: Boolean(process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID),
     discordConfigured: Boolean(process.env.DISCORD_WEBHOOK_URL),
     emailConfigured: isEmailAlertConfigured(),
+    emailProvider: getEmailAlertProvider(),
     emailLastError: getLastEmailError(),
     autoBlockEnabled: process.env.SECURITY_AUTO_BLOCK !== 'false',
     incidentsInMemory: incidents.length,
