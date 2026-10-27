@@ -230,9 +230,9 @@ export function SecurityTab() {
       {data && !status?.alertsConfigured && (
         <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-200">
           {t({
-            ar: 'التنبيهات غير مفعّلة. أضف إعدادات SMTP (SMTP_HOST و SMTP_USER و SMTP_PASS) وبريد الاستلام SECURITY_ALERT_EMAIL في متغيرات بيئة السيرفر (Render)، أو استخدم Telegram/Discord.',
-            fr: 'Les alertes sont désactivées. Ajoutez les réglages SMTP (SMTP_HOST, SMTP_USER, SMTP_PASS) et SECURITY_ALERT_EMAIL aux variables du serveur (Render), ou utilisez Telegram/Discord.',
-            en: 'Alerts are disabled. Add SMTP settings (SMTP_HOST, SMTP_USER, SMTP_PASS) and SECURITY_ALERT_EMAIL to the API server environment variables (Render), or use Telegram/Discord.',
+            ar: 'التنبيهات غير مفعّلة. أضف RESEND_API_KEY وبريد الاستلام SECURITY_ALERT_EMAIL في متغيرات بيئة Render، أو استخدم Telegram/Discord.',
+            fr: 'Les alertes sont désactivées. Ajoutez RESEND_API_KEY et SECURITY_ALERT_EMAIL aux variables Render, ou utilisez Telegram/Discord.',
+            en: 'Alerts are disabled. Add RESEND_API_KEY and SECURITY_ALERT_EMAIL to the Render environment variables, or use Telegram/Discord.',
           })}
         </div>
       )}
