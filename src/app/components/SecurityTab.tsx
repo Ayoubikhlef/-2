@@ -276,6 +276,15 @@ export function SecurityTab() {
         <div className="rounded-xl border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-[11px] text-amber-200/80 break-all">
           {t({ ar: 'آخر خطأ في بريد التنبيهات', fr: "Dernière erreur d'email d'alerte", en: 'Last alert email error' })}:{' '}
           <span className="font-mono">{status.emailLastError}</span>
+          {status.emailProvider === 'smtp' && /ETIMEDOUT|timeout/i.test(status.emailLastError) && (
+            <p className="mt-1 text-amber-200/60">
+              {t({
+                ar: 'خطة Render المجانية تحجب منافذ SMTP (25/465/587). أضف مفتاح Resend أو قم بترقية خطة Render.',
+                fr: 'Le plan gratuit de Render bloque les ports SMTP (25/465/587). Ajoutez une clé Resend ou passez à un plan Render payant.',
+                en: 'Render Free blocks SMTP ports (25/465/587). Add a Resend API key or upgrade the Render instance.',
+              })}
+            </p>
+          )}
         </div>
       )}
 
