@@ -30,6 +30,7 @@ interface SecurityData {
     alertsConfigured: boolean;
     telegramConfigured: boolean;
     discordConfigured: boolean;
+    emailConfigured: boolean;
     autoBlockEnabled: boolean;
     incidentsInMemory: number;
     blockedIps: number;
@@ -101,8 +102,20 @@ export function SecurityTab() {
   const handleTestAlert = async () => {
     setTesting(true);
     try {
-      await api.security.testAlert();
-      toast.success(t({ ar: 'تم إرسال تنبيه تجريبي', fr: 'Alerte de test envoyée', en: 'Test alert sent' }));
+      const result = await api.security.testAlert();
+      const channels = Object.entries(result?.channels || {})
+        .filter(([, delivered]) => delivered)
+        .map(([channel]) => channel)
+        .join(', ');
+      toast.success(
+        channels
+          ? t({
+              ar: `تم إرسال التنبيه عبر: ${channels}`,
+              fr: `Alerte envoyée via : ${channels}`,
+              en: `Alert sent via: ${channels}`,
+            })
+          : t({ ar: 'تم إرسال تنبيه تجريبي', fr: 'Alerte de test envoyée', en: 'Test alert sent' })
+      );
     } catch (err: any) {
       toast.error(err?.message || t({ ar: 'تعذر إرسال التنبيه', fr: "Impossible d'envoyer l'alerte", en: 'Could not send the alert' }));
     } finally {
@@ -215,9 +228,9 @@ export function SecurityTab() {
       {data && !status?.alertsConfigured && (
         <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-200">
           {t({
-            ar: 'التنبيهات غير مفعّلة. أضف TELEGRAM_BOT_TOKEN و TELEGRAM_CHAT_ID في متغيرات بيئة السيرفر (Render) لتصلك التنبيهات.',
-            fr: 'Les alertes sont désactivées. Ajoutez TELEGRAM_BOT_TOKEN et TELEGRAM_CHAT_ID aux variables du serveur (Render).',
-            en: 'Alerts are disabled. Add TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID to the API server environment variables (Render).',
+            ar: 'التنبيهات غير مفعّلة. أضف إعدادات SMTP (SMTP_HOST و SMTP_USER و SMTP_PASS) وبريد الاستلام SECURITY_ALERT_EMAIL في متغيرات بيئة السيرفر (Render)، أو استخدم Telegram/Discord.',
+            fr: 'Les alertes sont désactivées. Ajoutez les réglages SMTP (SMTP_HOST, SMTP_USER, SMTP_PASS) et SECURITY_ALERT_EMAIL aux variables du serveur (Render), ou utilisez Telegram/Discord.',
+            en: 'Alerts are disabled. Add SMTP settings (SMTP_HOST, SMTP_USER, SMTP_PASS) and SECURITY_ALERT_EMAIL to the API server environment variables (Render), or use Telegram/Discord.',
           })}
         </div>
       )}
@@ -236,6 +249,12 @@ export function SecurityTab() {
 
       {status && (
         <div className="flex flex-wrap items-center gap-4 px-1 text-[11px] text-white/40">
+          <span>
+            Email:{' '}
+            <span className={status.emailConfigured ? 'text-emerald-400' : 'text-red-400'}>
+              {status.emailConfigured ? '✓' : '✗'}
+            </span>
+          </span>
           <span>
             Discord:{' '}
             <span className={status.discordConfigured ? 'text-emerald-400' : 'text-red-400'}>

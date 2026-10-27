@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { prisma } from '../utils/prisma';
 import { sendTelegramMessage, sendDiscordWebhook } from './telegram';
+import { isEmailAlertConfigured, sendSecurityAlertEmail } from './emailAlerts';
 
 export type SecuritySeverity = 'low' | 'medium' | 'high' | 'critical';
 
@@ -231,7 +232,9 @@ function persistIncident(incident: SecurityIncident): void {
 
 function alertsConfigured(): boolean {
   return Boolean(
-    (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID) || process.env.DISCORD_WEBHOOK_URL
+    (process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID) ||
+      process.env.DISCORD_WEBHOOK_URL ||
+      isEmailAlertConfigured()
   );
 }
 
@@ -248,7 +251,12 @@ async function dispatchAlert(incident: SecurityIncident, repeatCount: number): P
     `Time: ${incident.createdAt}${repeat}`;
 
   const plain = text.replace(/<[^>]+>/g, '');
-  const results = await Promise.allSettled([sendTelegramMessage(text), sendDiscordWebhook(plain)]);
+  const subject = `[AOS Security] ${incident.severity.toUpperCase()} ${incident.type} from ${incident.ip}`;
+  const results = await Promise.allSettled([
+    sendTelegramMessage(text),
+    sendDiscordWebhook(plain),
+    sendSecurityAlertEmail(subject, plain),
+  ]);
   return results.some((result) => result.status === 'fulfilled' && result.value === true);
 }
 
@@ -364,19 +372,38 @@ export function getSecurityStatus() {
     alertsConfigured: alertsConfigured(),
     telegramConfigured: Boolean(process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID),
     discordConfigured: Boolean(process.env.DISCORD_WEBHOOK_URL),
+    emailConfigured: isEmailAlertConfigured(),
     autoBlockEnabled: process.env.SECURITY_AUTO_BLOCK !== 'false',
     incidentsInMemory: incidents.length,
     blockedIps: getBlockedIps().length,
   };
 }
 
-export async function sendTestSecurityAlert(): Promise<boolean> {
+export interface TestAlertResult {
+  delivered: boolean;
+  channels: { telegram: boolean; discord: boolean; email: boolean };
+}
+
+export async function sendTestSecurityAlert(): Promise<TestAlertResult> {
   const text =
     `🛡️ <b>Security alert test</b>\n` +
     `If you can read this, AOS security alerts are working.\n` +
     `Time: ${new Date().toISOString()}`;
-  const results = await Promise.allSettled([sendTelegramMessage(text), sendDiscordWebhook(text.replace(/<[^>]+>/g, ''))]);
-  return results.some((result) => result.status === 'fulfilled' && result.value === true);
+  const plain = text.replace(/<[^>]+>/g, '');
+  const [telegram, discord, email] = await Promise.allSettled([
+    sendTelegramMessage(text),
+    sendDiscordWebhook(plain),
+    sendSecurityAlertEmail('[AOS Security] Test alert', plain),
+  ]);
+  const channels = {
+    telegram: telegram.status === 'fulfilled' && telegram.value === true,
+    discord: discord.status === 'fulfilled' && discord.value === true,
+    email: email.status === 'fulfilled' && email.value === true,
+  };
+  return {
+    delivered: channels.telegram || channels.discord || channels.email,
+    channels,
+  };
 }
 
 export function securityMonitor(req: Request, res: Response, next: NextFunction): void {

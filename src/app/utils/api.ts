@@ -165,7 +165,11 @@ export const api = {
   security: {
     events: (limit = 100) => request<any>(`/security/events?limit=${encodeURIComponent(String(limit))}`),
     status: () => request<any>('/security/status'),
-    testAlert: () => request<{ ok: boolean }>('/security/test-alert', { method: 'POST' }),
+    testAlert: () =>
+      request<{ ok: boolean; channels: { telegram: boolean; discord: boolean; email: boolean } }>(
+        '/security/test-alert',
+        { method: 'POST' }
+      ),
     block: (ip: string, minutes = 60, reason?: string) =>
       request<{ ok: boolean }>('/security/block', { method: 'POST', body: JSON.stringify({ ip, minutes, reason }) }),
     unblock: (ip: string) => request<{ ok: boolean }>(`/security/block/${encodeURIComponent(ip)}`, { method: 'DELETE' }),

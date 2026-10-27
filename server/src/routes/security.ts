@@ -75,13 +75,14 @@ securityRouter.delete('/block/:ip', (req: AuthRequest, res: Response) => {
 });
 
 securityRouter.post('/test-alert', async (_req: AuthRequest, res: Response) => {
-  const sent = await sendTestSecurityAlert();
-  if (!sent) {
+  const result = await sendTestSecurityAlert();
+  if (!result.delivered) {
     res.status(502).json({
       error:
-        'No alert was delivered. Set TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID or DISCORD_WEBHOOK_URL on the API server.',
+        'No alert was delivered. Set SMTP_HOST/SMTP_USER/SMTP_PASS (+ SECURITY_ALERT_EMAIL), DISCORD_WEBHOOK_URL, or TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID on the API server.',
+      channels: result.channels,
     });
     return;
   }
-  res.json({ ok: true });
+  res.json({ ok: true, channels: result.channels });
 });
