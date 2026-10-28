@@ -2,7 +2,7 @@ const SETTINGS_KEY = 'aos_site_settings';
 const DELIVERY_KEY = 'aos_delivery_config';
 
 import { syncToServer, loadFromServer } from './serverSync';
-import { brand } from '../config/brand';
+import { brand, readableForeground } from '../config/brand';
 import {
   DEFAULT_DELIVERY_RULES,
   buildDefaultFeeMap,
@@ -111,12 +111,12 @@ const defaultSettings: SiteSettings = {
   developerUrl: brand.developer.url,
   copyrightName: brand.name,
   copyrightYear: 2026,
-  heroGradientFrom: '#2563eb',
-  heroGradientVia: '#2563eb',
-  heroGradientTo: '#1e3a8a',
-  footerGradientFrom: '#2563eb',
-  footerGradientVia: '#2563eb',
-  footerGradientTo: '#1e3a8a',
+  heroGradientFrom: brand.colors.primary,
+  heroGradientVia: brand.colors.primary,
+  heroGradientTo: brand.colors.gradientTo,
+  footerGradientFrom: brand.colors.primary,
+  footerGradientVia: brand.colors.primary,
+  footerGradientTo: brand.colors.gradientTo,
   headerNavLinks: [
     { href: '#products', label: { ar: 'منتجات', fr: 'Produits', en: 'Products' } },
     { href: '#booking', label: { ar: 'احجز خدمة', fr: 'Réserver', en: 'Book a Service' } },
@@ -199,12 +199,6 @@ function getSettings(): SiteSettings {
       merged.copyrightName = brand.name;
       merged.developerName = brand.developer.name;
       merged.developerUrl = brand.developer.url;
-      merged.heroGradientFrom = brand.colors.primary;
-      merged.heroGradientVia = brand.colors.primary;
-      merged.heroGradientTo = brand.colors.gradientTo;
-      merged.footerGradientFrom = brand.colors.primary;
-      merged.footerGradientVia = brand.colors.primary;
-      merged.footerGradientTo = brand.colors.gradientTo;
     }
     return merged;
   } catch { return { ...defaultSettings }; }
@@ -212,6 +206,49 @@ function getSettings(): SiteSettings {
 function saveSettings(data: SiteSettings): void {
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(data));
   dispatchAndSync();
+}
+
+function normalizeHex(value: string): string {
+  const clean = (value || '').trim();
+  return /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(clean) ? clean : '';
+}
+
+/**
+ * يطبّق ألوان المتجر المحفوظة على متغيّرات CSS، فيتغيّر الموقع كله
+ * (الأزرار، الروابط، الأيقونات، التدرّجات) دون إعادة نشر.
+ * يُستدعى عند الإقلاع وبعد كل حفظ أو مزامنة.
+ */
+export function applyThemeColors(settings?: SiteSettings): void {
+  if (typeof document === 'undefined') return;
+
+  const current = settings ?? getSettings();
+  const primary = normalizeHex(current.heroGradientFrom) || brand.colors.primary;
+  const via = normalizeHex(current.heroGradientVia) || primary;
+  const gradientTo = normalizeHex(current.heroGradientTo) || brand.colors.gradientTo;
+  const footerFrom = normalizeHex(current.footerGradientFrom) || primary;
+  const footerVia = normalizeHex(current.footerGradientVia) || via;
+  const footerTo = normalizeHex(current.footerGradientTo) || gradientTo;
+  const root = document.documentElement;
+  const foreground = readableForeground(primary);
+
+  ['--primary', '--secondary', '--accent', '--ring', '--sidebar-primary', '--sidebar-ring', '--chart-1']
+    .forEach((name) => root.style.setProperty(name, primary));
+  ['--primary-foreground', '--secondary-foreground', '--accent-foreground', '--sidebar-primary-foreground']
+    .forEach((name) => root.style.setProperty(name, foreground));
+
+  root.style.setProperty('--brand-gradient-to', gradientTo);
+  root.style.setProperty('--hero-gradient-from', primary);
+  root.style.setProperty('--hero-gradient-via', via);
+  root.style.setProperty('--hero-gradient-to', gradientTo);
+  root.style.setProperty('--footer-gradient-from', footerFrom);
+  root.style.setProperty('--footer-gradient-via', footerVia);
+  root.style.setProperty('--footer-gradient-to', footerTo);
+
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', primary);
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('aos:data-changed', () => applyThemeColors());
 }
 
 export function getSiteSettings(): SiteSettingsAll {

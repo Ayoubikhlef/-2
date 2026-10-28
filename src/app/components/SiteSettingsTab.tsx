@@ -1,12 +1,30 @@
 import { useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { getSiteSettings, getDefaultDeliveryConfig, updateContact, updateDelivery, updateSiteSettings, type SiteSettingsAll, type NavLink } from '../utils/siteSettingsStorage';
+import { applyThemeColors, getSiteSettings, getDefaultDeliveryConfig, updateContact, updateDelivery, updateSiteSettings, type SiteSettingsAll, type NavLink } from '../utils/siteSettingsStorage';
+import { brand } from '../config/brand';
 import { wilayas } from '../data/products';
-import { Save, Plus, Trash2 } from 'lucide-react';
+import { Save, Plus, Trash2, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 
 const langs = ['ar', 'fr', 'en'] as const;
-type SubTab = 'contact' | 'delivery' | 'nav' | 'footerLinks' | 'settings';
+type SubTab = 'contact' | 'delivery' | 'theme' | 'nav' | 'footerLinks' | 'settings';
+
+const themePresets = [
+  { label: { ar: 'أزرق ملكي', fr: 'Bleu royal', en: 'Royal blue' }, primary: '#0b5ed7', to: '#1e3a8a' },
+  { label: { ar: 'أخضر زمردي', fr: 'Vert émeraude', en: 'Emerald' }, primary: '#059669', to: '#064e3b' },
+  { label: { ar: 'بنفسجي', fr: 'Violet', en: 'Violet' }, primary: '#7c3aed', to: '#4c1d95' },
+  { label: { ar: 'أحمر', fr: 'Rouge', en: 'Red' }, primary: '#dc2626', to: '#7f1d1d' },
+  { label: { ar: 'برتقالي', fr: 'Orange', en: 'Orange' }, primary: '#ea580c', to: '#7c2d12' },
+  { label: { ar: 'ذهبي', fr: 'Doré', en: 'Gold' }, primary: '#b45309', to: '#422006' },
+];
+
+/** عنوان اللون كما يفهمه منتقي الألوان (6 خانات HEX). */
+function colorInput(value: string): string {
+  const clean = (value || '').trim();
+  if (/^#[0-9a-f]{6}$/i.test(clean)) return clean;
+  if (/^#[0-9a-f]{3}$/i.test(clean)) return `#${clean[1]}${clean[1]}${clean[2]}${clean[2]}${clean[3]}${clean[3]}`;
+  return '#0b5ed7';
+}
 
 function LangInput({ label, value, onChange }: { label: string; value: { ar: string; fr: string; en: string }; onChange: (v: { ar: string; fr: string; en: string }) => void }) {
   return (
@@ -48,6 +66,53 @@ export function SiteSettingsTab() {
   const saveContact = () => { updateContact(data.contact); toast.success(t({ ar: 'تم حفظ معلومات الاتصال', fr: 'Coordonnées sauvegardées', en: 'Contact info saved' })); };
   const saveDelivery = () => { updateDelivery(data.delivery); toast.success(t({ ar: 'تم حفظ رسوم التوصيل', fr: 'Frais livraison sauvegardés', en: 'Delivery fees saved' })); };
   const saveSettings = () => { updateSiteSettings(data.settings); toast.success(t({ ar: 'تم حفظ الإعدادات', fr: 'Paramètres sauvegardés', en: 'Settings saved' })); };
+
+  const setPrimaryColor = (value: string) => setData(prev => ({
+    ...prev,
+    settings: {
+      ...prev.settings,
+      heroGradientFrom: value,
+      heroGradientVia: value,
+      footerGradientFrom: value,
+      footerGradientVia: value,
+    },
+  }));
+  const setGradientColor = (value: string) => setData(prev => ({
+    ...prev,
+    settings: {
+      ...prev.settings,
+      heroGradientTo: value,
+      footerGradientTo: value,
+    },
+  }));
+  const applyPreset = (primary: string, to: string) => setData(prev => ({
+    ...prev,
+    settings: {
+      ...prev.settings,
+      heroGradientFrom: primary,
+      heroGradientVia: primary,
+      heroGradientTo: to,
+      footerGradientFrom: primary,
+      footerGradientVia: primary,
+      footerGradientTo: to,
+    },
+  }));
+  const saveTheme = () => {
+    const saved = updateSiteSettings({
+      heroGradientFrom: data.settings.heroGradientFrom,
+      heroGradientVia: data.settings.heroGradientVia,
+      heroGradientTo: data.settings.heroGradientTo,
+      footerGradientFrom: data.settings.footerGradientFrom,
+      footerGradientVia: data.settings.footerGradientVia,
+      footerGradientTo: data.settings.footerGradientTo,
+    });
+    applyThemeColors(saved);
+    toast.success(t({ ar: 'تم تطبيق ألوان المتجر', fr: 'Couleurs appliquées', en: 'Store colors applied' }));
+  };
+  const resetTheme = () => {
+    applyPreset(brand.colors.primary, brand.colors.gradientTo);
+    toast.success(t({ ar: 'تمت استعادة ألوان العلامة الأصلية — اضغط حفظ للتثبيت', fr: 'Couleurs de marque restaurées — cliquez sur Enregistrer', en: 'Brand colors restored — click Save to keep' }));
+  };
 
   const resetDelivery = () => {
     const defaults = getDefaultDeliveryConfig();
@@ -94,13 +159,14 @@ export function SiteSettingsTab() {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap gap-2 mb-4">
-        {(['contact', 'delivery', 'nav', 'footerLinks', 'settings'] as SubTab[]).map(s => (
+        {(['contact', 'delivery', 'theme', 'nav', 'footerLinks', 'settings'] as SubTab[]).map(s => (
           <button key={s} onClick={() => setSub(s)}
             className={`px-4 py-2 rounded-full text-sm font-bold transition-all border ${
               sub === s ? 'bg-primary text-slate-950 border-primary' : 'bg-slate-900 text-white/70 border-white/10 hover:bg-slate-800'
             }`}>
             {s === 'contact' ? t({ ar: 'معلومات الاتصال', fr: 'Coordonnées', en: 'Contact Info' }) :
              s === 'delivery' ? t({ ar: 'رسوم التوصيل', fr: 'Frais livraison', en: 'Delivery Fees' }) :
+             s === 'theme' ? t({ ar: 'الألوان والمظهر', fr: 'Couleurs et thème', en: 'Colors & Theme' }) :
              s === 'nav' ? t({ ar: 'روابط القائمة', fr: 'Liens nav', en: 'Nav Links' }) :
              s === 'footerLinks' ? t({ ar: 'روابط التذييل', fr: 'Liens footer', en: 'Footer Links' }) :
              t({ ar: 'إعدادات الموقع', fr: 'Paramètres site', en: 'Site Settings' })}
@@ -274,6 +340,78 @@ export function SiteSettingsTab() {
             </button>
             <button onClick={saveDelivery} className="flex items-center gap-2 rounded-full bg-primary text-slate-950 px-6 py-3 font-bold text-sm hover:bg-primary/90 transition-all">
               <Save className="w-4 h-4" /> {t({ ar: 'حفظ رسوم التوصيل', fr: 'Sauvegarder frais', en: 'Save Delivery Fees' })}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {sub === 'theme' && (
+        <div className="space-y-6 max-w-2xl">
+          <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm text-white/70 leading-relaxed">
+            {t({
+              ar: 'اختر لونين من شعار متجرك. اللون الأساسي يلوّن الأزرار والروابط والعناوين، واللون الثاني يظهر في نهاية التدرّجات. يُفضّل لون أساسي داكن حتى يظهر النص الأبيض بوضوح.',
+              fr: 'Choisissez deux couleurs de votre logo. La couleur principale colore les boutons, liens et titres ; la seconde termine les dégradés. Préférez une couleur principale foncée pour garder le texte blanc lisible.',
+              en: 'Pick two colors from your logo. The primary color fills buttons, links and headings; the second one ends the gradients. A dark primary keeps white text readable.',
+            })}
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-slate-900 p-5">
+            <div
+              className="rounded-xl p-6 text-white shadow-lg"
+              style={{ background: `linear-gradient(135deg, ${data.settings.heroGradientFrom || brand.colors.primary}, ${data.settings.heroGradientVia || data.settings.heroGradientFrom || brand.colors.primary}, ${data.settings.heroGradientTo || brand.colors.gradientTo})` }}
+            >
+              <p className="text-xs font-bold uppercase tracking-widest text-white/60">{t({ ar: 'معاينة مباشرة', fr: 'Aperçu direct', en: 'Live preview' })}</p>
+              <h3 className="mt-1 text-2xl font-extrabold">{data.settings.siteName || brand.name}</h3>
+              <p className="mt-1 text-sm text-white/80">{t({ ar: 'هكذا سيظهر عنوان المتجر والأزرار.', fr: 'Voici le rendu du titre et des boutons.', en: 'This is how your store title and buttons will look.' })}</p>
+              <button type="button" className="mt-4 rounded-full px-5 py-2 text-sm font-bold" style={{ background: '#ffffff', color: data.settings.heroGradientFrom || brand.colors.primary }}>
+                {t({ ar: 'زر تجريبي', fr: 'Bouton de test', en: 'Sample button' })}
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-white/80">{t({ ar: 'اللون الأساسي', fr: 'Couleur principale', en: 'Primary color' })}</label>
+              <div className="flex items-center gap-2">
+                <input type="color" value={colorInput(data.settings.heroGradientFrom)} onChange={e => setPrimaryColor(e.target.value)}
+                  className="h-11 w-14 cursor-pointer rounded-lg border border-white/10 bg-slate-800 p-1" />
+                <input value={data.settings.heroGradientFrom} onChange={e => setPrimaryColor(e.target.value)}
+                  className="w-full rounded-lg bg-slate-800 border border-white/10 px-3 py-2.5 text-sm font-mono text-white outline-none focus:border-primary/50" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="block text-sm font-bold text-white/80">{t({ ar: 'لون نهاية التدرّج', fr: 'Couleur de fin du dégradé', en: 'Gradient end color' })}</label>
+              <div className="flex items-center gap-2">
+                <input type="color" value={colorInput(data.settings.heroGradientTo)} onChange={e => setGradientColor(e.target.value)}
+                  className="h-11 w-14 cursor-pointer rounded-lg border border-white/10 bg-slate-800 p-1" />
+                <input value={data.settings.heroGradientTo} onChange={e => setGradientColor(e.target.value)}
+                  className="w-full rounded-lg bg-slate-800 border border-white/10 px-3 py-2.5 text-sm font-mono text-white outline-none focus:border-primary/50" />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-bold text-white/80">{t({ ar: 'ألوان جاهزة', fr: 'Palettes prêtes', en: 'Ready-made palettes' })}</label>
+            <div className="flex flex-wrap gap-2">
+              {themePresets.map(preset => {
+                const active = data.settings.heroGradientFrom.toLowerCase() === preset.primary && data.settings.heroGradientTo.toLowerCase() === preset.to;
+                return (
+                  <button key={preset.primary} type="button" onClick={() => applyPreset(preset.primary, preset.to)}
+                    className={`flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-bold transition-all ${active ? 'border-primary bg-primary/15 text-white' : 'border-white/10 bg-slate-900 text-white/70 hover:bg-slate-800'}`}>
+                    <span className="h-5 w-5 rounded-full border border-white/20" style={{ background: `linear-gradient(135deg, ${preset.primary}, ${preset.to})` }} />
+                    {t(preset.label)}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <button onClick={saveTheme} className="flex items-center gap-2 rounded-full bg-primary text-slate-950 px-6 py-3 font-bold text-sm hover:bg-primary/90 transition-all">
+              <Save className="w-4 h-4" /> {t({ ar: 'حفظ وتطبيق الألوان', fr: 'Enregistrer et appliquer', en: 'Save & Apply Colors' })}
+            </button>
+            <button onClick={resetTheme} className="flex items-center gap-2 rounded-full border border-white/10 bg-slate-800 px-4 py-3 font-bold text-sm text-white/70 hover:bg-slate-700 transition-all">
+              <RotateCcw className="w-4 h-4" /> {t({ ar: 'ألوان العلامة الأصلية', fr: 'Couleurs de marque', en: 'Brand colors' })}
             </button>
           </div>
         </div>

@@ -51,7 +51,7 @@ export interface BrandConfig {
 export const brand = rawBrand as BrandConfig;
 
 /** يختار لون نص مقروء (أبيض أو داكن) حسب سطوع لون الخلفية. */
-function readableForeground(hex: string): string {
+export function readableForeground(hex: string): string {
   const clean = hex.replace('#', '');
   const full = clean.length === 3 ? clean.split('').map((char) => char + char).join('') : clean;
   const channel = (offset: number) => parseInt(full.slice(offset, offset + 2), 16) / 255;
