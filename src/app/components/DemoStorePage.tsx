@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getSiteSettings } from '../utils/siteSettingsStorage';
+import { brand } from '../config/brand';
 
 type LangString = { ar: string; fr: string; en: string };
 
@@ -566,7 +567,7 @@ export function DemoStorePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-2">
             <MapPin className="w-3.5 h-3.5" />
-            {t({ ar: 'متجر تجريبي من Ayoub Office Services — جيجل، الجزائر', fr: 'Boutique démo par Ayoub Office Services — Jijel, Algérie', en: 'Demo store by Ayoub Office Services — Jijel, Algeria' })}
+            {t({ ar: `متجر تجريبي من ${brand.name} — جيجل، الجزائر`, fr: `Boutique démo par ${brand.name} — Jijel, Algérie`, en: `Demo store by ${brand.name} — Jijel, Algeria` })}
           </span>
           <a href="#web" className="font-bold text-primary hover:underline">
             {t({ ar: 'العودة إلى صفحة الخدمة', fr: 'Retour à la page service', en: 'Back to services' })}

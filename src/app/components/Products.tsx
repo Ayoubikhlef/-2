@@ -14,6 +14,7 @@ import { getWishlist, toggleWishlist, isInWishlist } from '../utils/wishlistStor
 import { VisualSearch } from './VisualSearch';
 import { Reviews } from './Reviews';
 import { FlashSaleTimer } from './FlashSaleTimer';
+import { brand } from '../config/brand';
 import { ProductComparison } from './ProductComparison';
 import { ProductGallery } from './ProductGallery';
 import { SearchSuggestions } from './SearchSuggestions';
@@ -161,7 +162,7 @@ export function Products() {
   const shareProduct = (product: Product) => {
     const name = language === 'ar' ? product.nameAr : language === 'fr' ? product.nameFr : product.nameEn;
     const desc = language === 'ar' ? product.shortDescAr : language === 'fr' ? product.shortDescFr : product.shortDescEn;
-    const siteUrl = 'https://ayoubtechstore.com';
+    const siteUrl = `https://${brand.domain}`;
     const price = product.salePrice || product.price;
     const msg = `*${name}*\n${desc}\n💰 ${price.toLocaleString()} د.ج\n🔗 ${siteUrl}`;
 

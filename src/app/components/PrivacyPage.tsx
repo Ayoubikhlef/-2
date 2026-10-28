@@ -1,4 +1,5 @@
 import { useLanguage } from '../contexts/LanguageContext';
+import { brand } from '../config/brand';
 
 export function PrivacyPage() {
   const { t } = useLanguage();
@@ -10,7 +11,7 @@ export function PrivacyPage() {
           {t({ ar: 'سياسة الخصوصية', fr: 'Politique de confidentialité', en: 'Privacy Policy' })}
         </h1>
         <div className="bg-card rounded-3xl border border-border p-4 sm:p-6 lg:p-8 space-y-6 text-muted-foreground leading-relaxed">
-          <p>{t({ ar: 'نحن في أيوب أوفيس سيرفيسز نأخذ خصوصيتك على محمل الجد. توضح هذه السياسة كيفية جمع واستخدام وحماية معلوماتك الشخصية.', fr: 'Chez Ayoub Office Services, nous prenons votre vie privée au sérieux. Cette politique explique comment nous collectons et protégeons vos données.', en: 'At Ayoub Office Services, we take your privacy seriously. This policy explains how we collect and protect your data.' })}</p>
+          <p>{t({ ar: `نحن في ${brand.name} نأخذ خصوصيتك على محمل الجد. توضح هذه السياسة كيفية جمع واستخدام وحماية معلوماتك الشخصية.`, fr: `Chez ${brand.name}, nous prenons votre vie privée au sérieux. Cette politique explique comment nous collectons et protégeons vos données.`, en: `At ${brand.name}, we take your privacy seriously. This policy explains how we collect and protect your data.` })}</p>
           <div>
             <h2 className="text-xl font-bold text-foreground mb-3">{t({ ar: 'المعلومات التي نجمعها', fr: 'Informations collectées', en: 'Information We Collect' })}</h2>
             <p>{t({ ar: 'نقوم بجمع الاسم، رقم الهاتف، البريد الإلكتروني، والعنوان لغرض معالجة الطلبات والتوصيل فقط.', fr: 'Nous collectons nom, téléphone, email et adresse uniquement pour traiter les commandes.', en: 'We collect name, phone, email, and address solely for order processing and delivery.' })}</p>

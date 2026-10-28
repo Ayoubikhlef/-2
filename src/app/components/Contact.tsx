@@ -3,6 +3,7 @@ import { MapPin, Phone, Mail, Facebook, Navigation } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { motion } from 'motion/react';
 import { getSiteSettings } from '../utils/siteSettingsStorage';
+import { brand } from '../config/brand';
 
 export function Contact() {
   const { t } = useLanguage();
@@ -106,7 +107,7 @@ export function Contact() {
         {/* Google Maps */}
         <div className="max-w-6xl mx-auto rounded-2xl overflow-hidden shadow-lg border border-border">
           <iframe
-            src={settings.contact.mapsEmbedUrl || 'https://www.google.com/maps?q=Ayoub+Office+Services,+Grand+Boulevard,+El+Milia,+Jijel+18300&hl=ar&z=15&output=embed'}
+            src={settings.contact.mapsEmbedUrl || brand.contact.mapsEmbedUrl}
             width="100%"
             className="h-[250px] md:h-[380px]"
             style={{ border: 0 }}

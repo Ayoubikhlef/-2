@@ -13,6 +13,7 @@ import { setAccessToken, setStoredUser } from '../utils/api';
 import { syncAllFromServer, getSyncStatus, getLastSyncTime } from '../utils/globalSync';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../contexts/AuthContext';
+import { brand } from '../config/brand';
 import * as XLSX from 'xlsx';
 
 const ManageProductsTab = lazy(() => import('./ManageProductsTab').then(m => ({ default: m.ManageProductsTab })));
@@ -1066,7 +1067,7 @@ export function Admin() {
                               {t({ ar: 'اتصال', fr: 'Appeler', en: 'Call' })}
                             </a>
                             <a
-                              href={`https://wa.me/${order.phone.startsWith('+') ? order.phone : '213' + order.phone.slice(order.phone.startsWith('0') ? 1 : 0)}?text=${encodeURIComponent(t({ ar: 'مرحباً، بخصوص طلبك من Ayoub Office Services', fr: 'Bonjour, concerne votre commande chez Ayoub Office Services', en: 'Hello, regarding your order from Ayoub Office Services' }))}`}
+                              href={`https://wa.me/${order.phone.startsWith('+') ? order.phone : '213' + order.phone.slice(order.phone.startsWith('0') ? 1 : 0)}?text=${encodeURIComponent(t({ ar: `مرحباً، بخصوص طلبك من ${brand.name}`, fr: `Bonjour, concerne votre commande chez ${brand.name}`, en: `Hello, regarding your order from ${brand.name}` }))}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-2 rounded-full bg-emerald-500/20 text-emerald-400 px-5 py-2.5 text-sm font-semibold hover:bg-emerald-500/30 transition-all"

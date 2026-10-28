@@ -1,6 +1,7 @@
 const STORAGE_KEY = 'aos_site_content';
 
 import { syncToServer, loadFromServer } from './serverSync';
+import { brand } from '../config/brand';
 const SERVER_KEY = 'aos_site_content';
 
 export interface LangString {
@@ -76,9 +77,9 @@ const defaultContent: SiteContent = {
       en: 'Welcome to',
     },
     brandName: {
-      ar: 'أيوب أوفيس سيرفيسز',
-      fr: 'Ayoub Office Services',
-      en: 'Ayoub Office Services',
+      ar: brand.name,
+      fr: brand.name,
+      en: brand.name,
     },
     subtitle: {
       ar: 'نقدم لكم مجموعة واسعة من الخدمات ومستلزمات الإعلام الآلي',
@@ -89,9 +90,9 @@ const defaultContent: SiteContent = {
   },
   whyUs: {
     title: {
-      ar: 'لماذا تختار Ayoub Office Services؟',
-      fr: 'Pourquoi choisir Ayoub Office Services ?',
-      en: 'Why Choose Ayoub Office Services?',
+      ar: `لماذا تختار ${brand.name}؟`,
+      fr: `Pourquoi choisir ${brand.name} ?`,
+      en: `Why Choose ${brand.name}?`,
     },
     subtitle: {
       ar: 'نحن نقدم أكثر من مجرد خدمات - نقدم تجربة متميزة تجعل عملك أسهل وأسرع',
@@ -158,9 +159,9 @@ const defaultContent: SiteContent = {
       en: 'About Us',
     },
     content: {
-      ar: 'أيوب أوفيس سيرفيسز هو متجر خدمات مكتبية ومستلزمات الإعلام الآلي في بلدية الميلية، ولاية جيجل. نقدم مجموعة متكاملة من الخدمات المكتبية ومنتجات التكنولوجيا لتلبية احتياجات الأفراد والشركات.',
-      fr: 'Ayoub Office Services est un magasin de services de bureau et de fournitures informatiques à El Milia, wilaya de Jijel. Nous offrons une gamme complète de services de bureau et de produits technologiques.',
-      en: 'Ayoub Office Services is an office services and IT supplies store in El Milia, Jijel. We offer a complete range of office services and technology products.',
+      ar: brand.about.ar,
+      fr: brand.about.fr,
+      en: brand.about.en,
     },
   },
   services: {
@@ -215,6 +216,19 @@ const defaultContent: SiteContent = {
   },
 };
 
+const LEGACY_NAMES = ['Ayoub Office Services', 'أيوب أوفيس سيرفيسز', 'AYOUB OFFICE SERVICES'];
+
+/**
+ * يستبدل اسم العلامة القديم في أي محتوى محفوظ (محلي أو على السيرفر).
+ * ضروري عند نسخ المشروع لعميل جديد، حتى لا يظهر اسم المتجر السابق.
+ */
+function scrubLegacyBrand<T>(value: T): T {
+  if (!brand.lockIdentity) return value;
+  let json = JSON.stringify(value);
+  for (const legacy of LEGACY_NAMES) json = json.split(legacy).join(brand.name);
+  return JSON.parse(json) as T;
+}
+
 function getAll(): SiteContent {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -231,10 +245,34 @@ function getAll(): SiteContent {
       services: { ...defaultContent.services, ...parsed.services, cards: parsed.services?.cards ?? defaultContent.services.cards, digitizationItems: parsed.services?.digitizationItems ?? defaultContent.services.digitizationItems },
       footer: { ...defaultContent.footer, ...parsed.footer },
     };
-    return merged;
+    return scrubLegacyBrand(applyIdentityOverrides(merged));
   } catch {
     return defaultContent;
   }
+}
+
+/** يفرض اسم العلامة ونص «من نحن» عند تفعيل lockIdentity. */
+function applyIdentityOverrides(content: SiteContent): SiteContent {
+  if (!brand.lockIdentity) return content;
+  return {
+    ...content,
+    hero: {
+      ...content.hero,
+      brandName: { ar: brand.name, fr: brand.name, en: brand.name },
+    },
+    whyUs: {
+      ...content.whyUs,
+      title: {
+        ar: `لماذا تختار ${brand.name}؟`,
+        fr: `Pourquoi choisir ${brand.name} ?`,
+        en: `Why Choose ${brand.name}?`,
+      },
+    },
+    about: {
+      ...content.about,
+      content: { ar: brand.about.ar, fr: brand.about.fr, en: brand.about.en },
+    },
+  };
 }
 
 function saveAll(content: SiteContent): void {

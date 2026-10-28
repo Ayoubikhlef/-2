@@ -8,6 +8,7 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import { Cart } from './CartView';
 import { motion, AnimatePresence } from 'motion/react';
 import { getSiteSettings } from '../utils/siteSettingsStorage';
+import { brand } from '../config/brand';
 
 export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -53,7 +54,7 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
         <div className="flex justify-between items-center h-16 md:h-20">
           {/* Logo */}
           <a href="/" className="flex items-center gap-2 shrink-0" onClick={(e) => { e.preventDefault(); handleLogoClick(); }}>
-            <img src="/logo.png" alt="AYOUB OFFICE SERVICES" className="h-10 md:h-12 w-auto" width="48" height="48" />
+            <img src={brand.logo} alt={brand.name} className="h-10 md:h-12 w-auto" width="48" height="48" />
           </a>
 
           {/* Desktop Navigation */}

@@ -113,9 +113,9 @@ function smartSearch(message: string, lang: 'ar' | 'fr' | 'en'): { reply: string
   };
   if (greetings[lang].some(g => lower.includes(g))) {
     const replies = {
-      ar: 'مرحباً بك! 😊 أنا **مساعد أيوب الذكي**.\n\nكيف أقدر أساعدك اليوم؟\n- 🔍 **ابحث عن منتج**\n- 💳 **استفسر عن الدفع**\n- 🚚 **اسأل عن الشحن**',
-      fr: 'Bonjour! 😊 Je suis **l\'assistant Ayoub**.\n\nComment puis-je vous aider?\n- 🔍 **Chercher un produit**\n- 💳 **Paiement**\n- 🚚 **Livraison**',
-      en: 'Hi! 😊 I\'m the **Ayoub assistant**.\n\nHow can I help you today?\n- 🔍 **Search products**\n- 💳 **Payment info**\n- 🚚 **Shipping info**',
+      ar: 'مرحباً بك! 😊 أنا **المساعد الذكي للمتجر**.\n\nكيف أقدر أساعدك اليوم؟\n- 🔍 **ابحث عن منتج**\n- 💳 **استفسر عن الدفع**\n- 🚚 **اسأل عن الشحن**',
+      fr: 'Bonjour ! 😊 Je suis **l\'assistant intelligent de la boutique**.\n\nComment puis-je vous aider ?\n- 🔍 **Chercher un produit**\n- 💳 **Paiement**\n- 🚚 **Livraison**',
+      en: 'Hi! 😊 I\'m the **store smart assistant**.\n\nHow can I help you today?\n- 🔍 **Search products**\n- 💳 **Payment info**\n- 🚚 **Shipping info**',
     };
     return { reply: replies[lang], products: [] };
   }
@@ -214,9 +214,9 @@ export function AIAssistant() {
   useEffect(() => {
     if (open && messages.length === 0) {
       const g = {
-        ar: '👋 مرحباً بك في **مساعد أيوب الذكي**!\n\nأقدر أساعدك في:\n- 🔍 البحث عن منتجات\n- 💳 الدفع والشحن\n- 🛡️ الضمان وساعات العمل\n\nاكتب سؤالك أو اختر من الاقتراحات 👇',
-        fr: '👋 Bienvenue sur **l\'assistant Ayoub**!\n\nJe peux vous aider avec:\n- 🔍 Recherche de produits\n- 💳 Paiement et livraison\n- 🛡️ Garantie et horaires\n\nPosez votre question ou choisissez une suggestion 👇',
-        en: '👋 Welcome to **Ayoub Smart Assistant**!\n\nI can help you with:\n- 🔍 Product search\n- 💳 Payment & shipping\n- 🛡️ Warranty & hours\n\nAsk your question or pick a suggestion 👇',
+        ar: '👋 مرحباً بك في **المساعد الذكي للمتجر**!\n\nأقدر أساعدك في:\n- 🔍 البحث عن منتجات\n- 💳 الدفع والشحن\n- 🛡️ الضمان وساعات العمل\n\nاكتب سؤالك أو اختر من الاقتراحات 👇',
+        fr: '👋 Bienvenue sur **l\'assistant intelligent de la boutique** !\n\nJe peux vous aider avec :\n- 🔍 Recherche de produits\n- 💳 Paiement et livraison\n- 🛡️ Garantie et horaires\n\nPosez votre question ou choisissez une suggestion 👇',
+        en: '👋 Welcome to the **store smart assistant**!\n\nI can help you with:\n- 🔍 Product search\n- 💳 Payment & shipping\n- 🛡️ Warranty & hours\n\nAsk your question or pick a suggestion 👇',
       };
       setMessages([{ role: 'assistant', text: g[language] }]);
     }
@@ -338,7 +338,7 @@ export function AIAssistant() {
                 </div>
                 <div>
                   <p className="font-semibold text-sm leading-tight">AI Assistant</p>
-                  <p className="text-[10px] text-muted-foreground">{t({ ar: 'مساعد أيوب الذكي', fr: 'Assistant Ayoub', en: 'Ayoub Smart Assistant' })}</p>
+                  <p className="text-[10px] text-muted-foreground">{t({ ar: 'مساعد المتجر الذكي', fr: 'Assistant de la boutique', en: 'Store Assistant' })}</p>
                 </div>
               </div>
               <div className="flex items-center gap-1">

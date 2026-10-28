@@ -25,6 +25,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { ScrollToTop } from './components/ScrollToTop';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { NotFound } from './components/NotFound';
+import { brand } from './config/brand';
 import { SkeletonCard } from './components/SkeletonCard';
 import { OrderTracking } from './components/OrderTracking';
 import { startAutoSync } from './utils/globalSync';
@@ -205,8 +206,8 @@ export default function App() {
         '#demo':     { ar: 'متجر تجريبي', fr: 'Boutique démo', en: 'Demo store' },
         '#contact':  { ar: 'اتصل بنا', fr: 'Contact', en: 'Contact Us' },
       };
-      const name = titles[hash]?.[lang] || 'AYOUB OFFICE SERVICES';
-      document.title = `${name} | AYOUB OFFICE SERVICES`;
+      const name = titles[hash]?.[lang];
+      document.title = name ? `${name} | ${brand.name}` : brand.name;
     };
     updateTitle();
     window.addEventListener('hashchange', updateTitle);

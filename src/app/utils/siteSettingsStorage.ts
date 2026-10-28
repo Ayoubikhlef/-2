@@ -2,6 +2,7 @@ const SETTINGS_KEY = 'aos_site_settings';
 const DELIVERY_KEY = 'aos_delivery_config';
 
 import { syncToServer, loadFromServer } from './serverSync';
+import { brand } from '../config/brand';
 import {
   DEFAULT_DELIVERY_RULES,
   buildDefaultFeeMap,
@@ -79,28 +80,16 @@ export interface SiteSettingsAll {
 }
 
 const defaultContact: ContactInfo = {
-  phone: '0674113290',
-  phoneDisplay: '0674 11 32 90',
-  phoneInternational: '213674113290',
-  email: 'ayoub.office.services@gmail.com',
-  address: {
-    ar: 'الشارع الكبير، الميلية، جيجل',
-    fr: 'Grand Boulevard, El Milia, Jijel',
-    en: 'Grand Boulevard, El Milia, Jijel',
-  },
-  addressFull: {
-    ar: 'الشارع الكبير، الميلية، جيجل 18300',
-    fr: 'Grand Boulevard, El Milia, Jijel 18300',
-    en: 'Grand Boulevard, El Milia, Jijel 18300',
-  },
-  facebookUrl: 'https://www.facebook.com/share/1BTrNWjYPx/',
-  facebookName: 'Ayoub Office Services',
-  workingHours: {
-    ar: 'السبت - الخميس: 08:00 - 19:00',
-    fr: 'Samedi - Jeudi: 08:00 - 19:00',
-    en: 'Sat - Thu: 08:00 - 19:00',
-  },
-  mapsEmbedUrl: 'https://www.google.com/maps?q=Ayoub+Office+Services,+Grand+Boulevard,+El+Milia,+Jijel+18300&hl=ar&z=15&output=embed',
+  phone: brand.contact.phone,
+  phoneDisplay: brand.contact.phoneDisplay,
+  phoneInternational: brand.contact.phoneInternational,
+  email: brand.contact.email,
+  address: brand.contact.address,
+  addressFull: brand.contact.addressFull,
+  facebookUrl: brand.contact.facebookUrl,
+  facebookName: brand.contact.facebookName,
+  workingHours: brand.contact.workingHours,
+  mapsEmbedUrl: brand.contact.mapsEmbedUrl,
 };
 
 export function getDefaultDeliveryConfig(): DeliveryConfig {
@@ -116,11 +105,11 @@ export function getDefaultDeliveryConfig(): DeliveryConfig {
 }
 
 const defaultSettings: SiteSettings = {
-  siteName: 'Ayoub Office Services',
-  logoUrl: '/aos-logo3.png',
-  developerName: { ar: 'أيوب يخلف', fr: 'Ayoub Ikhlef', en: 'Ayoub Ikhlef' },
-  developerUrl: 'https://www.facebook.com/share/1BTrNWjYPx/',
-  copyrightName: 'Ayoub Office Services',
+  siteName: brand.name,
+  logoUrl: brand.logo,
+  developerName: brand.developer.name,
+  developerUrl: brand.developer.url,
+  copyrightName: brand.name,
   copyrightYear: 2026,
   heroGradientFrom: '#2563eb',
   heroGradientVia: '#2563eb',
@@ -152,12 +141,15 @@ const defaultSettings: SiteSettings = {
 function getContact(): ContactInfo {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY + '_contact');
-    const merged = raw ? { ...defaultContact, ...JSON.parse(raw) } : defaultContact;
+    const merged = raw ? { ...defaultContact, ...JSON.parse(raw) } : { ...defaultContact };
+    // When the brand is locked, the values in brand.json always win, so a
+    // cloned deployment can never show the previous client's phone/address.
+    if (brand.lockIdentity) Object.assign(merged, brand.contact);
     if (!merged.mapsEmbedUrl || merged.mapsEmbedUrl.includes('/maps/embed?pb=')) {
-      merged.mapsEmbedUrl = defaultContact.mapsEmbedUrl;
+      merged.mapsEmbedUrl = brand.contact.mapsEmbedUrl;
     }
     return merged;
-  } catch { return defaultContact; }
+  } catch { return { ...defaultContact }; }
 }
 function dispatchAndSync() {
   if (typeof window === 'undefined') return;
@@ -200,8 +192,22 @@ function saveDelivery(data: DeliveryConfig): void {
 function getSettings(): SiteSettings {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY);
-    return raw ? { ...defaultSettings, ...JSON.parse(raw) } : defaultSettings;
-  } catch { return defaultSettings; }
+    const merged = raw ? { ...defaultSettings, ...JSON.parse(raw) } : { ...defaultSettings };
+    if (brand.lockIdentity) {
+      merged.siteName = brand.name;
+      merged.logoUrl = brand.logo;
+      merged.copyrightName = brand.name;
+      merged.developerName = brand.developer.name;
+      merged.developerUrl = brand.developer.url;
+      merged.heroGradientFrom = brand.colors.primary;
+      merged.heroGradientVia = brand.colors.primary;
+      merged.heroGradientTo = brand.colors.gradientTo;
+      merged.footerGradientFrom = brand.colors.primary;
+      merged.footerGradientVia = brand.colors.primary;
+      merged.footerGradientTo = brand.colors.gradientTo;
+    }
+    return merged;
+  } catch { return { ...defaultSettings }; }
 }
 function saveSettings(data: SiteSettings): void {
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(data));

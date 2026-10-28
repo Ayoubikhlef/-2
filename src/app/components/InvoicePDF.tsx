@@ -1,14 +1,16 @@
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import type { OrderRecord } from '../utils/orderStorage';
+import { brand } from '../config/brand';
 
 export async function generateInvoice(order: OrderRecord, language: string) {
   try {
     const doc = new jsPDF('p', 'mm', 'a4');
     const pw = 210;
+    const brandName = brand.nameLatin || brand.name;
 
     // === Header bar ===
-    doc.setFillColor('#1e40af');
+    doc.setFillColor(brand.colors.primary);
     doc.rect(0, 0, pw, 55, 'F');
 
     // Orange line
@@ -20,12 +22,12 @@ export async function generateInvoice(order: OrderRecord, language: string) {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
     doc.setTextColor('#ffffff');
-    doc.text('Ayoub Office Services', 14, 14);
+    doc.text(brandName, 14, 14);
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
-    doc.text('El Milia, Jijel, Algeria', 14, 21);
-    doc.text('Tel: 0674 11 32 90', 14, 28);
+    doc.text(brand.contact.addressFull.en, 14, 21);
+    doc.text(`Tel: ${brand.contact.phoneDisplay}`, 14, 28);
 
     // === Invoice title ===
     doc.setFont('helvetica', 'bold');
@@ -42,7 +44,7 @@ export async function generateInvoice(order: OrderRecord, language: string) {
     // === Order info ===
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9);
-    doc.setTextColor('#1e40af');
+    doc.setTextColor(brand.colors.primary);
     doc.text(language === 'ar' ? 'معلومات الطلب' : 'ORDER INFO', 14, 74);
 
     const oid = order.id.slice(0, 8).toUpperCase();
@@ -64,8 +66,8 @@ export async function generateInvoice(order: OrderRecord, language: string) {
     const rowH = 8;
     let yPos = 106;
 
-    doc.setFillColor('#1e40af');
-    doc.setDrawColor('#1e40af');
+    doc.setFillColor(brand.colors.primary);
+    doc.setDrawColor(brand.colors.primary);
     doc.rect(startX, yPos, pw - 28, rowH, 'F');
     doc.setTextColor('#ffffff');
     doc.setFont('helvetica', 'bold');
@@ -137,7 +139,7 @@ export async function generateInvoice(order: OrderRecord, language: string) {
     doc.text(totalVal, pw - startX - 4, yPos + 7, { align: 'right' });
 
     // === Bottom bar ===
-    doc.setFillColor('#1e40af');
+    doc.setFillColor(brand.colors.primary);
     doc.rect(0, 282, pw, 15, 'F');
     doc.setFont('helvetica', 'italic');
     doc.setFontSize(8);

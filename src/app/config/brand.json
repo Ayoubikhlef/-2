@@ -1,0 +1,52 @@
+{
+  "name": "AYOUB OFFICE SERVICES",
+  "nameLatin": "AYOUB OFFICE SERVICES",
+  "shortName": "AOS",
+  "initials": "AOS",
+  "description": "Services informatiques, bureautiques et vente de matériel informatique à El Milia, Jijel, Algérie. Impression, numérisation, maintenance et accessoires.",
+  "domain": "aostech.vercel.app",
+  "logo": "/logo.png",
+  "colors": {
+    "primary": "#0b5ed7",
+    "gradientTo": "#1e3a8a"
+  },
+  "lockIdentity": true,
+  "contact": {
+    "phone": "0674113290",
+    "phoneDisplay": "0674 11 32 90",
+    "phoneInternational": "213674113290",
+    "email": "ayoub.office.services@gmail.com",
+    "address": {
+      "ar": "الشارع الكبير، الميلية، جيجل",
+      "fr": "Grand Boulevard, El Milia, Jijel",
+      "en": "Grand Boulevard, El Milia, Jijel"
+    },
+    "addressFull": {
+      "ar": "الشارع الكبير، الميلية، جيجل 18300",
+      "fr": "Grand Boulevard, El Milia, Jijel 18300",
+      "en": "Grand Boulevard, El Milia, Jijel 18300"
+    },
+    "facebookUrl": "https://www.facebook.com/share/1BTrNWjYPx/",
+    "facebookName": "Ayoub Office Services",
+    "workingHours": {
+      "ar": "السبت - الخميس: 08:00 - 19:00",
+      "fr": "Samedi - Jeudi: 08:00 - 19:00",
+      "en": "Sat - Thu: 08:00 - 19:00"
+    },
+    "mapsEmbedUrl": "https://www.google.com/maps?q=Ayoub+Office+Services,+Grand+Boulevard,+El+Milia,+Jijel+18300&hl=ar&z=15&output=embed"
+  },
+  "developer": {
+    "name": { "ar": "أيوب يخلف", "fr": "Ayoub Ikhlef", "en": "Ayoub Ikhlef" },
+    "url": "https://www.facebook.com/share/1BTrNWjYPx/"
+  },
+  "currency": {
+    "ar": "دج",
+    "fr": "DZD",
+    "en": "DZD"
+  },
+  "about": {
+    "ar": "أيوب أوفيس سيرفيسز متجر لخدمات المكتب ومستلزمات الإعلام الآلي في الميلية، ولاية جيجل. نقدم خدمات الطباعة والرقمنة والصيانة، إضافة إلى مجموعة من منتجات التقنية للأفراد والشركات.",
+    "fr": "Ayoub Office Services est un magasin de services de bureau et de fournitures informatiques à El Milia, wilaya de Jijel. Nous proposons des services d'impression, de numérisation et de maintenance, ainsi qu'une gamme de produits technologiques pour particuliers et entreprises.",
+    "en": "Ayoub Office Services is an office services and IT supplies store in El Milia, Jijel. We offer printing, digitization and maintenance services, plus a range of technology products for individuals and businesses."
+  }
+}
