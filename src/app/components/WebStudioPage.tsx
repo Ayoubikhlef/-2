@@ -577,10 +577,16 @@ export function WebStudioPage() {
                     en: 'This site uses exactly the same stack: React, database, dashboard, order tracking, PDF invoices and multilingual. Not a mockup — a live site.',
                   })}
                 </p>
-                <a href="#products" className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:gap-3 transition-all">
-                  {t({ ar: 'تصفح المتجر', fr: 'Voir la boutique', en: 'View the store' })}
-                  <ArrowRight className="w-4 h-4 rtl:rotate-180" />
-                </a>
+                <div className="flex flex-wrap items-center gap-4">
+                  <a href="#products" className="inline-flex items-center gap-2 text-sm font-bold text-primary hover:gap-3 transition-all">
+                    {t({ ar: 'تصفح المتجر', fr: 'Voir la boutique', en: 'View the store' })}
+                    <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+                  </a>
+                  <a href="#demo" className="inline-flex items-center gap-2 text-sm font-bold text-slate-700 dark:text-slate-300 hover:text-primary transition-all">
+                    {t({ ar: 'جرّب متجراً تجريبياً', fr: 'Tester une boutique démo', en: 'Try a demo store' })}
+                    <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+                  </a>
+                </div>
               </div>
               <div className="bg-gradient-to-br from-primary/10 via-sky-500/10 to-emerald-500/10 p-6 md:p-8 flex items-center">
                 <div className="grid grid-cols-2 gap-3 w-full">
