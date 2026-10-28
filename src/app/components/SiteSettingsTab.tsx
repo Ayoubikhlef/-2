@@ -23,7 +23,7 @@ function colorInput(value: string): string {
   const clean = (value || '').trim();
   if (/^#[0-9a-f]{6}$/i.test(clean)) return clean;
   if (/^#[0-9a-f]{3}$/i.test(clean)) return `#${clean[1]}${clean[1]}${clean[2]}${clean[2]}${clean[3]}${clean[3]}`;
-  return '#0b5ed7';
+  return brand.colors.primary;
 }
 
 function LangInput({ label, value, onChange }: { label: string; value: { ar: string; fr: string; en: string }; onChange: (v: { ar: string; fr: string; en: string }) => void }) {
@@ -394,7 +394,7 @@ export function SiteSettingsTab() {
             <label className="block text-sm font-bold text-white/80">{t({ ar: 'ألوان جاهزة', fr: 'Palettes prêtes', en: 'Ready-made palettes' })}</label>
             <div className="flex flex-wrap gap-2">
               {themePresets.map(preset => {
-                const active = data.settings.heroGradientFrom.toLowerCase() === preset.primary && data.settings.heroGradientTo.toLowerCase() === preset.to;
+                const active = (data.settings.heroGradientFrom || '').toLowerCase() === preset.primary && (data.settings.heroGradientTo || '').toLowerCase() === preset.to;
                 return (
                   <button key={preset.primary} type="button" onClick={() => applyPreset(preset.primary, preset.to)}
                     className={`flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-bold transition-all ${active ? 'border-primary bg-primary/15 text-white' : 'border-white/10 bg-slate-900 text-white/70 hover:bg-slate-800'}`}>
