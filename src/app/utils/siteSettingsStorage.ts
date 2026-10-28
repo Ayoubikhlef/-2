@@ -1,5 +1,8 @@
 const SETTINGS_KEY = 'aos_site_settings';
 const DELIVERY_KEY = 'aos_delivery_config';
+const THEME_VERSION_KEY = 'aos_theme_version';
+/** نسخة الألوان: ترفع عند تغيير الألوان الافتراضية لتحديث المتصفحات القديمة مرة واحدة. */
+const THEME_VERSION = '2';
 
 import { syncToServer, loadFromServer } from './serverSync';
 import { brand, readableForeground } from '../config/brand';
@@ -200,6 +203,20 @@ function getSettings(): SiteSettings {
       merged.developerName = brand.developer.name;
       merged.developerUrl = brand.developer.url;
     }
+    // مرة واحدة فقط: استبدال الألوان القديمة (#2563eb) بألوان brand.json
+    // حتى لا يبقى الزائر المتكرر على ألوان نسخة سابقة.
+    try {
+      if (localStorage.getItem(THEME_VERSION_KEY) !== THEME_VERSION) {
+        merged.heroGradientFrom = brand.colors.primary;
+        merged.heroGradientVia = brand.colors.primary;
+        merged.heroGradientTo = brand.colors.gradientTo;
+        merged.footerGradientFrom = brand.colors.primary;
+        merged.footerGradientVia = brand.colors.primary;
+        merged.footerGradientTo = brand.colors.gradientTo;
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(merged));
+        localStorage.setItem(THEME_VERSION_KEY, THEME_VERSION);
+      }
+    } catch {}
     return merged;
   } catch { return { ...defaultSettings }; }
 }
