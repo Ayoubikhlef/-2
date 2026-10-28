@@ -67,6 +67,12 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
                 {t(link.label)}
               </a>
             ))}
+            <a
+              href="#web"
+              className="hidden xl:inline-flex items-center px-3 py-2 text-sm font-bold text-primary hover:bg-primary/5 rounded-lg transition-all duration-200"
+            >
+              {t({ ar: 'إنشاء المواقع', fr: 'Création de sites', en: 'Web Design' })}
+            </a>
           </nav>
 
           {/* Desktop Actions */}
@@ -198,6 +204,13 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
                     {t(link.label)}
                   </a>
                 ))}
+                <a
+                  href="#web"
+                  className="block px-4 py-3 text-base font-bold text-primary hover:bg-primary/5 rounded-lg transition-colors mx-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {t({ ar: 'إنشاء المواقع', fr: 'Création de sites', en: 'Web Design' })}
+                </a>
                 <div className="pt-2 px-2">
                   <a
                     href="#checkout"

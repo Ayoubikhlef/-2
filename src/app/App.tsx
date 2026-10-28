@@ -35,6 +35,7 @@ const OrderForm = lazy(() => import('./components/OrderForm').then(m => ({ defau
 const AboutPage = lazy(() => import('./components/AboutPage').then(m => ({ default: m.AboutPage })));
 const TermsPage = lazy(() => import('./components/TermsPage').then(m => ({ default: m.TermsPage })));
 const PrivacyPage = lazy(() => import('./components/PrivacyPage').then(m => ({ default: m.PrivacyPage })));
+const WebStudioPage = lazy(() => import('./components/WebStudioPage').then(m => ({ default: m.WebStudioPage })));
 const AccountDashboard = lazy(() => import('./components/AccountDashboard').then(m => ({ default: m.AccountDashboard })));
 const LoginPage = lazy(() => import('./components/LoginPage').then(m => ({ default: m.LoginPage })));
 const WABubble = lazy(() => import('./components/WABubble').then(m => ({ default: m.WABubble })));
@@ -118,7 +119,7 @@ function AdminLoadingPage() {
 
 export default function App() {
   const [hash, setHash] = useState(() => (typeof window !== 'undefined' ? window.location.hash : ''));
-  const is404 = typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#hqpanel', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq'].includes(hash);
+  const is404 = typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#hqpanel', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq', '#web'].includes(hash);
   const [showLogin, setShowLogin] = useState(false);
   const [maintenance, setMaintenance] = useState(false);
   // Block the public UI until the maintenance flag is known, so the site
@@ -199,6 +200,7 @@ export default function App() {
         '#admin':    { ar: 'الصفحة غير موجودة', fr: 'Page introuvable', en: 'Page Not Found' },
         '#products': { ar: 'المنتجات', fr: 'Produits', en: 'Products' },
         '#services': { ar: 'الخدمات', fr: 'Services', en: 'Services' },
+        '#web':      { ar: 'إنشاء المواقع', fr: 'Création de sites web', en: 'Web Design' },
         '#contact':  { ar: 'اتصل بنا', fr: 'Contact', en: 'Contact Us' },
       };
       const name = titles[hash]?.[lang] || 'AYOUB OFFICE SERVICES';
@@ -290,7 +292,7 @@ export default function App() {
   }
 
   const currentHash = hash;
-  const isPage = ['#about', '#terms', '#privacy', '#checkout', '#loyalty', '#account'].includes(currentHash);
+  const isPage = ['#about', '#terms', '#privacy', '#checkout', '#loyalty', '#account', '#web'].includes(currentHash);
 
   return (
     <ThemeProvider>
@@ -332,6 +334,11 @@ export default function App() {
                     {hash === '#privacy' && (
                       <Suspense fallback={<AdminFallback />}>
                         <PrivacyPage />
+                      </Suspense>
+                    )}
+                    {hash === '#web' && (
+                      <Suspense fallback={<AdminFallback />}>
+                        <WebStudioPage />
                       </Suspense>
                     )}
                     {hash === '#checkout' && (
