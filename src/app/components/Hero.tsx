@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { motion } from 'motion/react';
-import { ArrowRight, Phone } from 'lucide-react';
+import { ArrowRight, Phone, Globe } from 'lucide-react';
 import { getSiteContent } from '../utils/siteContentStorage';
 import { getSiteSettings } from '../utils/siteSettingsStorage';
 
@@ -85,6 +85,13 @@ export function Hero() {
                 className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white border border-white/20 px-8 py-4 rounded-xl font-semibold hover:bg-white/20 transition-all text-base"
               >
                 {t({ ar: 'تصفح المنتجات', fr: 'Voir nos produits', en: 'View our products' })}
+              </a>
+              <a
+                href="/create-website"
+                className="inline-flex items-center gap-2 bg-amber-400 text-slate-900 px-8 py-4 rounded-xl font-bold hover:bg-amber-300 transition-all shadow-lg shadow-amber-500/20 hover:shadow-xl active:scale-95 text-base"
+              >
+                <Globe className="w-5 h-5" />
+                {t({ ar: 'أنشئ موقعك الآن', fr: 'Créez votre site', en: 'Create your website' })}
               </a>
               <a
                 href={`tel:${settings.contact.phone}`}

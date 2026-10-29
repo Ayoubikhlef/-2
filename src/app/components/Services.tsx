@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Printer, FileText, Calendar, Wifi, Server, FileCheck, Zap, Shield } from 'lucide-react';
+import { Printer, FileText, Calendar, Wifi, Server, FileCheck, Zap, Shield, Globe, ArrowRight } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getSiteContent } from '../utils/siteContentStorage';
 import { motion } from 'motion/react';
@@ -95,6 +95,39 @@ export function Services() {
             );
           })}
         </div>
+
+        <motion.a
+          href="/create-website"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="group relative mt-6 flex flex-col items-start gap-4 overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-blue-700 to-indigo-800 p-6 text-white shadow-lg shadow-primary/20 transition-all hover:shadow-xl sm:flex-row sm:items-center sm:justify-between md:p-8"
+        >
+          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" aria-hidden="true" />
+          <div className="absolute -bottom-12 -left-10 h-44 w-44 rounded-full bg-white/10 blur-2xl" aria-hidden="true" />
+          <div className="relative flex items-start gap-4">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/25">
+              <Globe className="h-6 w-6" />
+            </span>
+            <div>
+              <h3 className="text-lg font-black md:text-xl">
+                {t({ ar: 'موقعك الاحترافي جاهز خلال أيام', fr: 'Votre site professionnel prêt en quelques jours', en: 'Your professional website ready in days' })}
+              </h3>
+              <p className="mt-1 max-w-2xl text-sm leading-relaxed text-white/75">
+                {t({
+                  ar: 'متجر، شركة، معرض أعمال، مطعم، بطاقة رقمية أو صفحة هبوط — قوالب جاهزة، معاينة مجانية، ونطاق مجاني على pages.dev.',
+                  fr: 'Boutique, entreprise, portfolio, restaurant, carte numérique ou page de vente — modèles prêts, aperçu et domaine gratuits sur pages.dev.',
+                  en: 'Store, company, portfolio, restaurant, digital card or landing page — ready templates, free preview and a free pages.dev domain.',
+                })}
+              </p>
+            </div>
+          </div>
+          <span className="relative inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-black text-slate-900 transition group-hover:bg-white/90">
+            {t({ ar: 'أنشئ موقعك الآن', fr: 'Créez votre site', en: 'Create your website' })}
+            <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+          </span>
+        </motion.a>
       </div>
     </motion.section>
   );

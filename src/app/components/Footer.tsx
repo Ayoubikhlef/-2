@@ -17,6 +17,9 @@ export function Footer() {
   }, []);
 
   const { contact, settings: s } = settings;
+  const pathname = typeof window !== 'undefined' ? window.location.pathname.replace(/\/+$/, '') : '';
+  const onHomePage = pathname === '' || pathname === '/index.html';
+  const pageHref = (href: string) => (!onHomePage && href.startsWith('#') ? `/${href}` : href);
 
   return (
     <footer className="bg-card border-t border-border text-card-foreground">
@@ -49,14 +52,14 @@ export function Footer() {
             <ul className="space-y-2.5">
               {s.footerQuickLinks.map((link, idx) => (
                 <li key={idx}>
-                  <a href={link.href} className="text-muted-foreground hover:text-foreground text-sm transition-colors flex items-center gap-2">
+                  <a href={pageHref(link.href)} className="text-muted-foreground hover:text-foreground text-sm transition-colors flex items-center gap-2">
                     <span className="w-1 h-1 rounded-full bg-primary shrink-0" />
                     {t(link.label)}
                   </a>
                 </li>
               ))}
               <li>
-                <a href="#web" className="text-primary font-semibold hover:text-primary/80 text-sm transition-colors flex items-center gap-2">
+                <a href="/create-website" className="text-primary font-semibold hover:text-primary/80 text-sm transition-colors flex items-center gap-2">
                   <span className="w-1 h-1 rounded-full bg-primary shrink-0" />
                   {t({ ar: 'إنشاء المواقع', fr: 'Création de sites', en: 'Web design' })}
                 </a>
@@ -77,7 +80,7 @@ export function Footer() {
                 { ar: 'مستلزمات مكتبية', fr: 'Fournitures', en: 'Supplies' },
               ].map((item, idx) => (
                 <li key={idx}>
-                  <a href="#services" className="text-muted-foreground hover:text-foreground text-sm transition-colors flex items-center gap-2">
+                  <a href={pageHref('#services')} className="text-muted-foreground hover:text-foreground text-sm transition-colors flex items-center gap-2">
                     <span className="w-1 h-1 rounded-full bg-primary shrink-0" />
                     {t(item)}
                   </a>

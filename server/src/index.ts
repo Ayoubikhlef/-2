@@ -20,6 +20,7 @@ import { maintenanceRouter } from './routes/maintenance';
 import { emailRouter } from './routes/email';
 import { paymentRouter } from './routes/payment';
 import { securityRouter } from './routes/security';
+import { siteFactoryRouter } from './routes/siteFactory';
 import { errorHandler } from './middleware/errorHandler';
 import { securityMonitor, securityRateLimitHandler } from './services/security';
 import { ensureSeedAdmin } from './services/adminBootstrap';
@@ -28,6 +29,7 @@ import { initRAG } from './services/rag';
 import { prisma } from './utils/prisma';
 import { isOriginAllowed } from './utils/cors';
 import { fixMojibakeData } from './utils/encoding';
+import { ensureSiteFactoryDefaults } from './site-factory/service';
 
 const app = express();
 const server = http.createServer(app);
@@ -55,7 +57,7 @@ app.use(helmet({
     },
   },
 }));
-app.use(cors({
+const apiCors = cors({
   origin: (origin, cb) => {
     // Same-origin / non-browser clients omit Origin — allow them.
     if (!origin) return cb(null, true);
@@ -65,9 +67,36 @@ app.use(cors({
   credentials: true,
   methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
-}));
+});
+
+// Generated client websites live on *.pages.dev (and later their own domains),
+// so their public endpoints and previews need a wildcard CORS policy. Never
+// enable credentials here: these routes are unauthenticated by design.
+const factoryCors = cors({
+  origin: '*',
+  credentials: false,
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Accept', 'X-Requested-With'],
+  maxAge: 600,
+});
+app.use(['/api/site-factory/public', '/api/site-factory/preview'], factoryCors);
+app.use((req, res, next) => {
+  const path = req.path || '';
+  if (path.startsWith('/api/site-factory/public') || path.startsWith('/api/site-factory/preview')) {
+    return next();
+  }
+  return apiCors(req, res, next);
+});
 app.use(compression({ level: 6 }));
-app.use(express.json({ limit: '1mb' }));
+
+// Website requests include compressed logos, covers, product images and
+// receipts as data URLs, so only the factory endpoints get the larger limit.
+const standardJson = express.json({ limit: '1mb' });
+const factoryJson = express.json({ limit: '12mb' });
+app.use((req, res, next) => {
+  if ((req.path || '').startsWith('/api/site-factory')) return factoryJson(req, res, next);
+  return standardJson(req, res, next);
+});
 app.use(cookieParser());
 app.use(hpp());
 
@@ -111,6 +140,7 @@ app.use('/api/maintenance', maintenanceRouter);
 app.use('/api/email', emailRouter);
 app.use('/api/payment', paymentRouter);
 app.use('/api/security', generalLimiter, securityRouter);
+app.use('/api/site-factory', siteFactoryRouter);
 
 app.get('/api/health', async (_req, res) => {
   try {
@@ -222,6 +252,12 @@ async function startServer() {
   await ensureAuditLogTable();
   await ensureOrderDeliveryColumns();
   await ensureSeedAdmin();
+  try {
+    await ensureSiteFactoryDefaults();
+    console.log('[AOS] Website factory defaults ready');
+  } catch (err) {
+    console.error('[AOS] Website factory defaults failed (run prisma db push):', err);
+  }
   void fixMojibakeSettings();
   initDb();
 

@@ -34,10 +34,25 @@ function getUrls(path: string): string[] {
   return urls.map(base => `${base}${path}`);
 }
 
+/**
+ * Absolute URL for a path that already starts with `/api` (for example the
+ * preview URL returned by the website factory). Keeps localhost development
+ * pointing at the API port instead of the Vite dev server.
+ */
+export function resolveApiUrl(path: string): string {
+  if (/^https?:\/\//i.test(path)) return path;
+  const base = PRIMARY_URL === '/api'
+    ? `${typeof window !== 'undefined' ? window.location.origin : ''}/api`
+    : PRIMARY_URL;
+  const origin = base.replace(/\/api\/?$/i, '');
+  return `${origin}${path.startsWith('/') ? path : `/${path}`}`;
+}
+
 async function request<T>(
   path: string,
   options: RequestInit = {},
-  retryAuth = true
+  retryAuth = true,
+  timeoutMs = 20000
 ): Promise<T> {
   const token = getAccessToken();
   const headers: Record<string, string> = {
@@ -52,7 +67,7 @@ async function request<T>(
   for (let i = 0; i < urls.length; i++) {
     const url = urls[i];
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 20000);
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
     try {
       if (isDev) console.log(`[API] ${options.method || 'GET'} ${url} (attempt ${i + 1}/${urls.length})`);
       const res = await fetch(url, { ...options, headers, credentials: 'include', signal: controller.signal });
@@ -212,5 +227,103 @@ export const api = {
       request<{ success: boolean; paymentId: string; amount: number; method: string; instructions: string }>('/payment/init', { method: 'POST', body: JSON.stringify(data) }),
     confirm: (data: { paymentId: string }) =>
       request<{ success: boolean; status: string }>('/payment/confirm', { method: 'POST', body: JSON.stringify(data) }),
+  },
+
+  siteFactory: {
+    config: () =>
+      request<{
+        templates: any[];
+        packages: any[];
+        settings: any;
+        cloudflareConfigured: boolean;
+      }>('/site-factory/public/config', {}, true, 60000),
+    checkSubdomain: (name: string) =>
+      request<{
+        available: boolean;
+        normalized: string;
+        reason?: string;
+        message?: string;
+        suggestions: string[];
+      }>(`/site-factory/public/subdomain/${encodeURIComponent(name)}`, {}, true, 30000),
+    createRequest: (data: any) =>
+      request<{
+        request: any;
+        siteId: string;
+        previewUrl: string;
+        ref: string;
+        subdomain: string;
+        status: string;
+        price: number;
+      }>('/site-factory/public/requests', { method: 'POST', body: JSON.stringify(data) }, true, 90000),
+    track: (ref: string, contact: string) =>
+      request<any>(
+        `/site-factory/public/requests/${encodeURIComponent(ref)}?contact=${encodeURIComponent(contact)}`,
+        {},
+        true,
+        60000,
+      ),
+    uploadReceipt: (ref: string, data: { contact: string; receipt: string; name?: string }) =>
+      request<{ ok: boolean; status: string }>(
+        `/site-factory/public/requests/${encodeURIComponent(ref)}/receipt`,
+        { method: 'POST', body: JSON.stringify(data) },
+        true,
+        90000,
+      ),
+
+    admin: {
+      stats: () => request<any>('/site-factory/admin/stats'),
+      requests: (params: { status?: string; q?: string; page?: number; pageSize?: number } = {}) => {
+        const query = new URLSearchParams();
+        if (params.status && params.status !== 'all') query.set('status', params.status);
+        if (params.q) query.set('q', params.q);
+        if (params.page) query.set('page', String(params.page));
+        if (params.pageSize) query.set('pageSize', String(params.pageSize));
+        const suffix = query.toString() ? `?${query.toString()}` : '';
+        return request<any>(`/site-factory/admin/requests${suffix}`);
+      },
+      request: (id: string) => request<any>(`/site-factory/admin/requests/${encodeURIComponent(id)}`),
+      setStatus: (id: string, status: string, note?: string) =>
+        request<any>(`/site-factory/admin/requests/${encodeURIComponent(id)}/status`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status, note }),
+        }),
+      sites: () => request<{ sites: any[] }>('/site-factory/admin/sites'),
+      publish: (id: string) =>
+        request<any>(`/site-factory/admin/sites/${encodeURIComponent(id)}/publish`, { method: 'POST' }, true, 120000),
+      markPublished: (id: string, url?: string) =>
+        request<any>(`/site-factory/admin/sites/${encodeURIComponent(id)}/mark-published`, {
+          method: 'POST',
+          body: JSON.stringify({ url }),
+        }),
+      siteStatus: (id: string, status: 'published' | 'suspended' | 'preview') =>
+        request<any>(`/site-factory/admin/sites/${encodeURIComponent(id)}/status`, {
+          method: 'PATCH',
+          body: JSON.stringify({ status }),
+        }),
+      regenerate: (id: string) =>
+        request<any>(`/site-factory/admin/sites/${encodeURIComponent(id)}/regenerate`, { method: 'POST' }, true, 60000),
+      zipUrl: (id: string) => getUrls(`/site-factory/admin/sites/${encodeURIComponent(id)}/zip`)[0],
+      templates: () => request<{ templates: any[] }>('/site-factory/admin/templates'),
+      updateTemplate: (id: string, data: any) =>
+        request<any>(`/site-factory/admin/templates/${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          body: JSON.stringify(data),
+        }),
+      packages: () => request<{ packages: any[] }>('/site-factory/admin/packages'),
+      createPackage: (data: any) =>
+        request<any>('/site-factory/admin/packages', { method: 'POST', body: JSON.stringify(data) }),
+      updatePackage: (id: string, data: any) =>
+        request<any>(`/site-factory/admin/packages/${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          body: JSON.stringify(data),
+        }),
+      settings: () =>
+        request<{ settings: any; cloudflareConfigured: boolean }>('/site-factory/admin/settings'),
+      saveSettings: (data: any) =>
+        request<{ ok: boolean; settings: any }>('/site-factory/admin/settings', {
+          method: 'PUT',
+          body: JSON.stringify(data),
+        }),
+    },
   },
 };

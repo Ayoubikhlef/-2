@@ -37,6 +37,7 @@ const AboutPage = lazy(() => import('./components/AboutPage').then(m => ({ defau
 const TermsPage = lazy(() => import('./components/TermsPage').then(m => ({ default: m.TermsPage })));
 const PrivacyPage = lazy(() => import('./components/PrivacyPage').then(m => ({ default: m.PrivacyPage })));
 const WebStudioPage = lazy(() => import('./components/WebStudioPage').then(m => ({ default: m.WebStudioPage })));
+const SiteFactoryPage = lazy(() => import('./components/SiteFactoryPage').then(m => ({ default: m.SiteFactoryPage })));
 const DemoStorePage = lazy(() => import('./components/DemoStorePage').then(m => ({ default: m.DemoStorePage })));
 const AccountDashboard = lazy(() => import('./components/AccountDashboard').then(m => ({ default: m.AccountDashboard })));
 const LoginPage = lazy(() => import('./components/LoginPage').then(m => ({ default: m.LoginPage })));
@@ -121,7 +122,9 @@ function AdminLoadingPage() {
 
 export default function App() {
   const [hash, setHash] = useState(() => (typeof window !== 'undefined' ? window.location.hash : ''));
-  const is404 = typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#hqpanel', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq', '#web', '#demo'].includes(hash);
+  const isFactoryPage =
+    typeof window !== 'undefined' && window.location.pathname.replace(/\/+$/, '') === '/create-website';
+  const is404 = !isFactoryPage && typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#hqpanel', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq', '#web', '#demo'].includes(hash);
   const [showLogin, setShowLogin] = useState(false);
   const [maintenance, setMaintenance] = useState(false);
   // Block the public UI until the maintenance flag is known, so the site
@@ -190,7 +193,13 @@ export default function App() {
   useEffect(() => {
     const updateTitle = () => {
       const hash = window.location.hash;
+      const pathname = window.location.pathname.replace(/\/+$/, '');
       const lang = (localStorage.getItem('language') || 'en') as 'ar' | 'fr' | 'en';
+      if (pathname === '/create-website') {
+        const factoryTitle = { ar: 'أنشئ موقعك', fr: 'Créez votre site', en: 'Create Your Website' }[lang];
+        document.title = `${factoryTitle} | ${brand.name}`;
+        return;
+      }
       const titles: Record<string, Record<string, string>> = {
         '#about':    { ar: 'من نحن', fr: 'À propos', en: 'About Us' },
         '#terms':    { ar: 'الشروط والأحكام', fr: 'Conditions', en: 'Terms & Conditions' },
@@ -295,7 +304,9 @@ export default function App() {
   }
 
   const currentHash = hash;
-  const isPage = ['#about', '#terms', '#privacy', '#checkout', '#loyalty', '#account', '#web', '#demo'].includes(currentHash);
+  const isPage =
+    isFactoryPage ||
+    ['#about', '#terms', '#privacy', '#checkout', '#loyalty', '#account', '#web', '#demo'].includes(currentHash);
 
   return (
     <ThemeProvider>
@@ -318,12 +329,17 @@ export default function App() {
               <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-lg focus:outline-none">
                 {typeof window !== 'undefined' && (navigator.language.startsWith('ar') ? 'تخطى إلى المحتوى' : navigator.language.startsWith('fr') ? 'Aller au contenu' : 'Skip to content')}
               </a>
-              {!isPage && <AnnouncementBar />}
+              {!isPage && !isFactoryPage && <AnnouncementBar />}
               <ScrollProgress />
               {currentHash !== '#demo' && <Header onLoginClick={() => setShowLogin(true)} />}
               <main id="main-content">
                 {isPage ? (
                   <>
+                    {isFactoryPage && (
+                      <Suspense fallback={<AdminFallback />}>
+                        <SiteFactoryPage />
+                      </Suspense>
+                    )}
                     {hash === '#about' && (
                       <Suspense fallback={<AdminFallback />}>
                         <AboutPage />
@@ -387,7 +403,7 @@ export default function App() {
                 )}
               </main>
               <ScrollToTop />
-              {currentHash !== '#demo' && (
+              {currentHash !== '#demo' && !isFactoryPage && (
                 <>
                   <Suspense fallback={null}><WABubble /></Suspense>
                   <Suspense fallback={null}><AIAssistant /></Suspense>

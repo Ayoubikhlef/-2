@@ -47,13 +47,18 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
   };
 
   const navLinks = settings.settings.headerNavLinks;
+  const pathname = typeof window !== 'undefined' ? window.location.pathname.replace(/\/+$/, '') : '';
+  const onHomePage = pathname === '' || pathname === '/index.html';
+  // Hash links only work on the home page; from /create-website they must point
+  // back to the home page before jumping to the section.
+  const pageHref = (href: string) => (!onHomePage && href.startsWith('#') ? `/${href}` : href);
 
   return (
     <header className={`sticky top-0 z-[var(--z-header)] transition-all duration-300 ${scrolled ? 'bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl shadow-lg shadow-black/5 border-b border-border/50' : 'bg-white dark:bg-slate-900 border-b border-border/30'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 md:h-20">
           {/* Logo */}
-          <a href="/" className="flex items-center gap-2 shrink-0" onClick={(e) => { e.preventDefault(); handleLogoClick(); }}>
+          <a href="/" className="flex items-center gap-2 shrink-0" onClick={(e) => { if (!onHomePage) return; e.preventDefault(); handleLogoClick(); }}>
             <img src={brand.logo} alt={brand.name} className="h-10 md:h-12 w-auto" width="48" height="48" />
           </a>
 
@@ -62,14 +67,14 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
             {navLinks.map((link, idx) => (
               <a
                 key={idx}
-                href={link.href}
+                href={pageHref(link.href)}
                 className="px-4 py-2 text-sm font-semibold text-foreground/70 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200"
               >
                 {t(link.label)}
               </a>
             ))}
             <a
-              href="#web"
+              href="/create-website"
               className="hidden xl:inline-flex items-center px-3 py-2 text-sm font-bold text-primary hover:bg-primary/5 rounded-lg transition-all duration-200"
             >
               {t({ ar: 'إنشاء المواقع', fr: 'Création de sites', en: 'Web Design' })}
@@ -84,7 +89,7 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
             </div>
 
             {user && (
-              <a href="#account" className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-foreground/70 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors">
+              <a href={pageHref('#account')} className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-foreground/70 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors">
                 <User className="w-4 h-4" />
                 {t({ ar: 'حسابي', fr: 'Mon Compte', en: 'My Account' })}
               </a>
@@ -115,7 +120,7 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
             </button>
 
             <a
-              href="#checkout"
+              href={pageHref('#checkout')}
               className="inline-flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-primary/90 transition-all shadow-sm shadow-primary/20 hover:shadow-md hover:shadow-primary/30"
             >
               {t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}
@@ -177,7 +182,7 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
                     <User className="w-5 h-5 text-primary" />
                     <span className="font-semibold truncate">{user.name}</span>
                     {isAdmin && (
-                      <a href="#hqpanel" className="text-sm text-primary font-bold ms-auto">
+                      <a href={pageHref('#hqpanel')} className="text-sm text-primary font-bold ms-auto">
                         {t({ ar: 'أدمين', fr: 'Admin', en: 'Admin' })}
                       </a>
                     )}
@@ -198,7 +203,7 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
                 {navLinks.map((link, idx) => (
                   <a
                     key={idx}
-                    href={link.href}
+                    href={pageHref(link.href)}
                     className="block px-4 py-3 text-base font-semibold text-foreground/80 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors mx-2"
                     onClick={() => setMobileMenuOpen(false)}
                   >
@@ -206,7 +211,7 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
                   </a>
                 ))}
                 <a
-                  href="#web"
+                  href="/create-website"
                   className="block px-4 py-3 text-base font-bold text-primary hover:bg-primary/5 rounded-lg transition-colors mx-2"
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -214,7 +219,7 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
                 </a>
                 <div className="pt-2 px-2">
                   <a
-                    href="#checkout"
+                    href={pageHref('#checkout')}
                     className="block w-full text-center bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary/90 transition-all"
                     onClick={() => setMobileMenuOpen(false)}
                   >
@@ -258,7 +263,7 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
                   </div>
                   <Cart />
                   <a
-                    href="#checkout"
+                    href={pageHref('#checkout')}
                     onClick={() => setCartOpen(false)}
                     className="block mt-6 w-full bg-primary text-white text-center py-3 rounded-lg font-bold hover:bg-primary/90 transition-all shadow-sm shadow-primary/20"
                   >

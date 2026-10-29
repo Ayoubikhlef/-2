@@ -197,4 +197,196 @@ model AuditLog {
   createdAt DateTime @default(now())
 }
 
+// ---------------------------------------------------------------------------
+// Website factory
+// ---------------------------------------------------------------------------
+
+model SiteTemplate {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  nameAr    String
+  nameFr    String
+  nameEn    String
+  descAr    String
+  descFr    String
+  descEn    String
+  category  String   @default("company")
+  accent    String   @default("#0b5ed7")
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SitePackage {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  nameAr       String
+  nameFr       String
+  nameEn       String
+  descAr       String
+  descFr       String
+  descEn       String
+  price        Float
+  oldPrice     Float?
+  features     Json?
+  deliveryDays Int      @default(3)
+  revisions    Int      @default(2)
+  isPopular    Boolean  @default(false)
+  isActive     Boolean  @default(true)
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model SiteRequest {
+  id             String   @id @default(cuid())
+  ref            String   @unique
+  templateSlug   String
+  packageSlug    String
+  status         String   @default("new")
+  siteName       String
+  businessName   String?
+  category       String?
+  tagline        String?
+  description    String?
+  phone          String
+  email          String?
+  whatsapp       String?
+  address        String?
+  city           String?
+  language       String   @default("ar")
+  primaryColor   String   @default("#0b5ed7")
+  secondaryColor String   @default("#1e3a8a")
+  logoUrl        String?  @db.Text
+  coverUrl       String?  @db.Text
+  socials        Json?
+  hours          Json?
+  content        Json?
+  subdomain      String   @unique
+  customDomain   String?
+  price          Float    @default(0)
+  paymentMethod  String?
+  paymentRef     String?
+  receiptUrl     String?  @db.Text
+  receiptName    String?
+  adminNote      String?
+  previewUrl     String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  site   Site?
+  events SiteRequestEvent[]
+
+  @@index([status, createdAt])
+  @@index([subdomain])
+}
+
+model SiteRequestEvent {
+  id        String   @id @default(cuid())
+  requestId String
+  type      String
+  message   String
+  createdAt DateTime @default(now())
+
+  request SiteRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@index([requestId, createdAt])
+}
+
+model Site {
+  id             String    @id @default(cuid())
+  requestId      String?   @unique
+  subdomain      String    @unique
+  customDomain   String?
+  name           String
+  templateSlug   String
+  status         String    @default("preview")
+  config         Json?
+  files          Json?
+  url            String?
+  deployedUrl    String?
+  publishedAt    DateTime?
+  lastDeployAt   DateTime?
+  deployProvider String?
+  deployError    String?   @db.Text
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  request  SiteRequest?  @relation(fields: [requestId], references: [id])
+  products SiteProduct[]
+  orders   SiteOrder[]
+  leads    SiteLead[]
+  builds   SiteBuild[]
+
+  @@index([status, createdAt])
+}
+
+model SiteProduct {
+  id          String   @id @default(cuid())
+  siteId      String
+  name        String
+  description String?
+  price       Float    @default(0)
+  imageUrl    String?  @db.Text
+  category    String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([siteId, sortOrder])
+}
+
+model SiteOrder {
+  id           String   @id @default(cuid())
+  siteId       String
+  ref          String   @unique
+  customerName String
+  phone        String
+  wilaya       String
+  city         String?
+  address      String
+  note         String?
+  items        Json
+  total        Float
+  status       String   @default("new")
+  createdAt    DateTime @default(now())
+
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([siteId, createdAt])
+  @@index([status])
+}
+
+model SiteLead {
+  id        String   @id @default(cuid())
+  siteId    String
+  name      String
+  phone     String?
+  email     String?
+  message   String
+  createdAt DateTime @default(now())
+
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([siteId, createdAt])
+}
+
+model SiteBuild {
+  id        String   @id @default(cuid())
+  siteId    String
+  status    String
+  provider  String
+  url       String?
+  error     String?  @db.Text
+  createdAt DateTime @default(now())
+
+  site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([siteId, createdAt])
+}
+
 

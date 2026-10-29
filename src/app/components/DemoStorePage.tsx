@@ -204,7 +204,7 @@ export function DemoStorePage() {
             <Info className="w-4 h-4 text-amber-400" />
             {t({ ar: 'نسخة تجريبية — منتجات وبيانات وهمية', fr: 'Version démo — produits et données fictifs', en: 'Demo version — fictional products and data' })}
           </span>
-          <a href="#web" className="inline-flex items-center gap-1.5 font-bold text-amber-400 hover:text-amber-300">
+          <a href="/create-website" className="inline-flex items-center gap-1.5 font-bold text-amber-400 hover:text-amber-300">
             {t({ ar: 'أريد متجراً كهذا', fr: 'Je veux une boutique comme celle-ci', en: 'I want a store like this' })}
             <ArrowRight className="w-3.5 h-3.5 rtl:rotate-180" />
           </a>
@@ -553,7 +553,7 @@ export function DemoStorePage() {
                 <button onClick={resetOrder} className="bg-primary text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-primary/90">
                   {t({ ar: 'تجربة جديدة', fr: 'Nouvel essai', en: 'Try again' })}
                 </button>
-                <a href="#web" className="mt-3 text-xs font-bold text-primary hover:underline">
+                <a href="/create-website" className="mt-3 text-xs font-bold text-primary hover:underline">
                   {t({ ar: 'بغيت متجراً بحال هذا؟', fr: 'Je veux une boutique comme celle-ci', en: 'I want a store like this' })}
                 </a>
               </div>
@@ -569,7 +569,7 @@ export function DemoStorePage() {
             <MapPin className="w-3.5 h-3.5" />
             {t({ ar: `متجر تجريبي من ${brand.name} — جيجل، الجزائر`, fr: `Boutique démo par ${brand.name} — Jijel, Algérie`, en: `Demo store by ${brand.name} — Jijel, Algeria` })}
           </span>
-          <a href="#web" className="font-bold text-primary hover:underline">
+          <a href="/create-website" className="font-bold text-primary hover:underline">
             {t({ ar: 'العودة إلى صفحة الخدمة', fr: 'Retour à la page service', en: 'Back to services' })}
           </a>
         </div>
