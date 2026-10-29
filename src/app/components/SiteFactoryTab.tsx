@@ -1535,7 +1535,7 @@ export function SiteFactoryTab() {
                           <Ban className="h-3.5 w-3.5" />
                           {t({ ar: 'تعليق الموقع', fr: 'Suspendre', en: 'Suspend site' })}
                         </button>
-                      ) : (
+                      ) : detail.site.status === 'suspended' && detail.site.deployedUrl ? (
                         <button
                           type="button"
                           onClick={() => toggleSite('published')}
@@ -1545,7 +1545,7 @@ export function SiteFactoryTab() {
                           <Play className="h-3.5 w-3.5" />
                           {t({ ar: 'تفعيل الموقع', fr: 'Activer', en: 'Activate site' })}
                         </button>
-                      )}
+                      ) : null}
                     </div>
 
                     <div className="mt-3 flex flex-col gap-2 rounded-xl border border-white/10 bg-slate-950/50 p-3 sm:flex-row sm:items-end">

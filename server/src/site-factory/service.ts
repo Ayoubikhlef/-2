@@ -210,6 +210,49 @@ function objectOrNull(value: any): Record<string, any> | null {
   return value;
 }
 
+function cleanCustomDomain(value: string | null | undefined): string | null {
+  const domain = String(value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/^https?:\/\//i, '')
+    .replace(/\/+$/, '');
+  if (!domain) return null;
+  // A hostname is stored here, not a URL. Keeping this strict prevents an
+  // invalid custom-domain request from producing a broken canonical URL.
+  if (!/^(?=.{1,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/.test(domain)) {
+    throw new BadRequest('النطاق المخصص غير صالح. أدخل اسماً مثل example.com فقط.');
+  }
+  return domain;
+}
+
+function activeCustomDomain(site: { customDomain: string | null; deployedUrl: string | null }): string | null {
+  let customDomain: string | null;
+  try {
+    customDomain = cleanCustomDomain(site.customDomain);
+  } catch {
+    return null;
+  }
+  if (!customDomain || !site.deployedUrl) return null;
+  try {
+    return new URL(site.deployedUrl).hostname.toLowerCase() === customDomain ? customDomain : null;
+  } catch {
+    return null;
+  }
+}
+
+function publicUrl(value: string): string {
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    throw new BadRequest('رابط النشر غير صالح. أدخل رابطاً يبدأ بـ https://');
+  }
+  if (!['https:', 'http:'].includes(url.protocol) || !url.hostname || url.username || url.password) {
+    throw new BadRequest('رابط النشر غير صالح. أدخل رابطاً عاماً يبدأ بـ https://');
+  }
+  return url.toString();
+}
+
 function servicesFrom(value: any): RenderService[] {
   const list = Array.isArray(value) ? value : [];
   return list
@@ -278,7 +321,10 @@ export async function buildConfig(siteId: string, preview: boolean): Promise<Ren
     services,
     products: productsFrom(site.products),
     subdomain: site.subdomain,
-    customDomain: site.customDomain,
+    // A requested custom domain is not live until its DNS/Pages mapping has
+    // actually been confirmed. Until then the generated site must use the
+    // working pages.dev URL for its canonical links and runtime data.
+    customDomain: activeCustomDomain(site),
     preview,
     apiBase: apiBaseUrl(),
   };
@@ -365,7 +411,7 @@ export async function createSiteRequest(input: CreateSiteInput) {
           hours: input.hours?.trim().slice(0, 120) || null,
           content: { services } as any,
           subdomain,
-          customDomain: input.customDomain?.trim().toLowerCase().slice(0, 120) || null,
+          customDomain: cleanCustomDomain(input.customDomain),
           price: Number(pack.price) || 0,
           paymentMethod: input.paymentMethod?.slice(0, 40) || null,
         },
@@ -573,14 +619,14 @@ export async function publishSite(siteId: string) {
 export async function markSitePublished(siteId: string, url?: string | null) {
   const site = await prisma.site.findUnique({ where: { id: siteId }, include: { request: true } });
   if (!site) throw new NotFound('الموقع غير موجود.');
-  const publicUrl = (url || '').trim() || site.url || `https://${site.subdomain}.pages.dev`;
+  const confirmedUrl = publicUrl((url || '').trim() || site.url || `https://${site.subdomain}.pages.dev`);
   const now = new Date();
   await prisma.site.update({
     where: { id: siteId },
     data: {
       status: 'published',
-      url: publicUrl,
-      deployedUrl: publicUrl,
+      url: confirmedUrl,
+      deployedUrl: confirmedUrl,
       deployProvider: 'manual',
       deployError: null,
       publishedAt: now,
@@ -589,15 +635,26 @@ export async function markSitePublished(siteId: string, url?: string | null) {
   });
   if (site.requestId) {
     await prisma.siteRequest.update({ where: { id: site.requestId }, data: { status: 'published' } });
-    await addEvent(site.requestId, 'published', `تم تأكيد النشر يدوياً على ${publicUrl}`);
+    await addEvent(site.requestId, 'published', `تم تأكيد النشر يدوياً على ${confirmedUrl}`);
   }
-  return { ok: true, url: publicUrl };
+  return { ok: true, url: confirmedUrl };
 }
 
 export async function setSiteStatus(siteId: string, status: 'published' | 'suspended' | 'preview') {
   const site = await prisma.site.findUnique({ where: { id: siteId }, include: { request: true } });
   if (!site) throw new NotFound('الموقع غير موجود.');
-  await prisma.site.update({ where: { id: siteId }, data: { status } });
+  const data: any = { status };
+  if (status === 'published') {
+    // Never mark a preview/ZIP as live. Publishing or manual confirmation is
+    // the only point at which we know there is a public deployment.
+    const liveUrl = site.deployedUrl || (site.status === 'suspended' ? site.url : null);
+    if (!liveUrl) {
+      throw new BadRequest('انشر الموقع أولاً أو أكّد رابط الرفع اليدوي قبل تفعيله.');
+    }
+    data.url = publicUrl(liveUrl);
+    data.deployedUrl = data.url;
+  }
+  await prisma.site.update({ where: { id: siteId }, data });
   if (site.requestId) {
     const message =
       status === 'suspended'
@@ -612,6 +669,9 @@ export async function setSiteStatus(siteId: string, status: 'published' | 'suspe
 
 export async function setRequestStatus(requestId: string, status: RequestStatus, note?: string | null) {
   if (!REQUEST_STATUSES.includes(status)) throw new BadRequest('حالة غير معروفة.');
+  if (status === 'published') {
+    throw new BadRequest('استخدم زر النشر أو أكّد رابط الرفع اليدوي أولاً.');
+  }
   const request = await prisma.siteRequest.findUnique({
     where: { id: requestId },
     include: { site: true },
@@ -634,15 +694,6 @@ export async function setRequestStatus(requestId: string, status: RequestStatus,
     await prisma.site.update({ where: { id: request.site.id }, data: { status: 'rejected' } });
   } else if (status === 'confirmed' && request.site) {
     await prisma.site.update({ where: { id: request.site.id }, data: { status: 'preview' } });
-  } else if (status === 'published' && request.site) {
-    await prisma.site.update({
-      where: { id: request.site.id },
-      data: {
-        status: 'published',
-        url: request.site.url || `https://${request.site.subdomain}.pages.dev`,
-        publishedAt: request.site.publishedAt || new Date(),
-      },
-    });
   }
 
   await addEvent(
