@@ -1,11 +1,11 @@
 import jwt from 'jsonwebtoken';
 
 function requireEnv(name: string): string {
-  const val = process.env[name];
-  if (val) return val;
-
-  console.warn(`[JWT] Warning: Missing environment variable ${name}. Using a temporary fallback. PLEASE SET THIS IN PRODUCTION!`);
-  return 'temporary-fallback-secret-1234567890';
+  const val = process.env[name]?.trim();
+  if (!val || val.length < 32) {
+    throw new Error(`[JWT] ${name} must be configured with at least 32 characters before the API can start`);
+  }
+  return val;
 }
 
 const SECRET = requireEnv('JWT_SECRET');

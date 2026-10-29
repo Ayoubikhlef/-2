@@ -49,7 +49,7 @@ const forgotSchema = z.object({
 });
 
 const resetSchema = z.object({
-  email: z.string().email(),
+  token: z.string().regex(/^[a-f0-9]{64}$/i),
   password: z.string().min(8),
 });
 
@@ -82,7 +82,11 @@ async function generateResetToken(): Promise<{ token: string; tokenHash: string;
 }
 
 async function sendResetEmail(email: string, token: string, userName: string) {
-  const resetUrl = `${process.env.VITE_API_URL || 'https://aostech.vercel.app'}/reset-password?token=${token}`;
+  const configuredApiUrl = (process.env.API_PUBLIC_URL || process.env.VITE_API_URL || 'https://aostech.vercel.app/api').replace(/\/+$/, '');
+  const resetEndpoint = configuredApiUrl.endsWith('/api')
+    ? `${configuredApiUrl}/auth/reset-password`
+    : `${configuredApiUrl}/api/auth/reset-password`;
+  const resetUrl = `${resetEndpoint}?token=${encodeURIComponent(token)}`;
 
   await transporter.sendMail({
     from: `"Ayoub Office Services" <${resetEmail}>`,
@@ -274,39 +278,25 @@ authRouter.post('/forgot-password', async (req, res: Response) => {
 
 authRouter.post('/reset-password', async (req, res: Response) => {
   try {
-    const { email: rawEmail, password } = resetSchema.parse(req.body);
-    const email = normalizeEmail(rawEmail);
-
-    const user = await prisma.user.findFirst({
-      where: {
-        email: email,
-      },
-    });
-    if (!user) return res.status(200).json({ ok: true });
-
-    if (!user.resetToken || !user.resetTokenExpires) {
-      return res.status(200).json({ ok: true });
-    }
-
-    const tokenExpires = user.resetTokenExpires instanceof Date
-      ? user.resetTokenExpires
-      : new Date(user.resetTokenExpires);
-
-    if (tokenExpires < new Date()) {
-      await prisma.user.update({ where: { email }, data: { resetToken: null, resetTokenExpires: null } });
-      return res.status(200).json({ ok: true });
-    }
-
+    const { token, password } = resetSchema.parse(req.body);
+    const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+    const now = new Date();
     const passwordHash = await bcrypt.hash(password, 12);
-
-    await prisma.user.update({
-      where: { email },
+    // A conditional update makes the token single-use even if two reset
+    // requests arrive at the same time. Only the raw token from the email
+    // link can produce this stored hash.
+    const result = await prisma.user.updateMany({
+      where: { resetToken: tokenHash, resetTokenExpires: { gt: now } },
       data: {
         passwordHash,
         resetToken: null,
         resetTokenExpires: null,
+        refreshToken: null,
       },
     });
+    if (result.count !== 1) {
+      return res.status(400).json({ error: 'Reset link is invalid or expired' });
+    }
 
     res.status(200).json({ ok: true });
   } catch (err) {
@@ -321,9 +311,10 @@ authRouter.post('/reset-password', async (req, res: Response) => {
 authRouter.get('/reset-password', async (req, res) => {
   try {
     const { token } = req.query as { token?: string };
-    if (!token) return res.status(400).send('Invalid reset token');
-
-    const sanitizedToken = String(token).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    // Tokens are generated as 32 random bytes encoded in hex. Enforcing that
+    // format also keeps the value safe when the reset page embeds it in JS.
+    if (!token || !/^[a-f0-9]{64}$/i.test(token)) return res.status(400).send('Invalid reset token');
+    const sanitizedToken = token;
 
     res.send(`
       <!DOCTYPE html>

@@ -109,7 +109,11 @@ export function LoginPage({ onClose }: { onClose: () => void; standalone?: boole
       
       setLoading(true);
       try {
-        await api.post('/auth/reset-password', { email: forgotEmail, password });
+        if (!token) {
+          setError(t({ ar: 'رابط إعادة التعيين غير صالح أو منتهي الصلاحية', fr: 'Lien de réinitialisation invalide ou expiré', en: 'Reset link is invalid or expired' }));
+          return;
+        }
+        await api.post('/auth/reset-password', { token, password });
         toast.success(t({ ar: 'تم تغيير كلمة المرور، سجّل الدخول الآن', fr: 'Mot de passe changé, connectez-vous', en: 'Password changed, log in now' }));
         setMode('login');
         setResetForm({ password: '', confirmPassword: '' });
@@ -463,7 +467,7 @@ export function LoginPage({ onClose }: { onClose: () => void; standalone?: boole
           </form>
         )}
 
-        {mode === 'reset' || mode === 'forgot-sent' && !token && (
+        {(mode === 'reset' || mode === 'forgot-sent') && !token && (
           <div style={{ textAlign: 'center', marginTop: '50px' }}>
             <h2>{t({ ar: 'رابط غير صالح', fr: 'Lien invalide', en: 'Invalid link' })}</h2>
             <p>{t({ ar: 'الرابط غير صالح أو منتهي الصلاحية', fr: 'Le lien est invalide ou expiré', en: 'The link is invalid or expired' })}</p>
