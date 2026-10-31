@@ -339,7 +339,6 @@ export function dataUrlAsset(
     'image/jpg': 'jpg',
     'image/webp': 'webp',
     'image/gif': 'gif',
-    'image/svg+xml': 'svg',
     'application/pdf': 'pdf',
   };
   const ext = allowed[type];
@@ -347,10 +346,34 @@ export function dataUrlAsset(
   try {
     const buffer = Buffer.from(match[2].replace(/\s/g, ''), 'base64');
     if (!buffer.length || buffer.length > 2.5 * 1024 * 1024) return null;
+    // Never trust the MIME label alone: a data URL that claims image/png but
+    // contains HTML/SVG would otherwise be stored and later served from our
+    // own API origin, turning preview files into a stored-XSS vector.
+    if (!matchesImageSignature(buffer, ext)) return null;
     return { buffer, ext, type };
   } catch {
     return null;
   }
+}
+
+function matchesImageSignature(buffer: Buffer, ext: string): boolean {
+  if (ext === 'png') {
+    return buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
+  }
+  if (ext === 'jpg') {
+    return buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff;
+  }
+  if (ext === 'webp') {
+    return buffer.subarray(0, 4).toString('ascii') === 'RIFF' && buffer.subarray(8, 12).toString('ascii') === 'WEBP';
+  }
+  if (ext === 'gif') {
+    const header = buffer.subarray(0, 6).toString('ascii');
+    return header === 'GIF87a' || header === 'GIF89a';
+  }
+  if (ext === 'pdf') {
+    return buffer.subarray(0, 5).toString('ascii') === '%PDF-';
+  }
+  return false;
 }
 
 export const MIME: Record<string, string> = {

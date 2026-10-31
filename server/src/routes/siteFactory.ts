@@ -249,11 +249,21 @@ async function servePreview(req: Request, res: Response, requestedPath: string) 
   if (!file) throw new AppError(404, 'الملف غير موجود.');
 
   const body = file.encoding === 'base64' ? Buffer.from(String(file.content || ''), 'base64') : String(file.content || '');
-  res.setHeader('Content-Type', file.type || 'application/octet-stream');
+  const type = String(file.type || 'application/octet-stream');
+  const isHtml = type.startsWith('text/html');
+  res.setHeader('Content-Type', type);
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
   res.setHeader('X-Robots-Tag', 'noindex, nofollow');
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Content-Security-Policy', PREVIEW_CSP);
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  // HTML previews need inline scripts. Everything else (images, CSS, JS,
+  // JSON, PDF) must never become an executable document on the API origin.
+  res.setHeader(
+    'Content-Security-Policy',
+    isHtml
+      ? PREVIEW_CSP
+      : "sandbox; default-src 'none'; img-src data:; style-src 'unsafe-inline'",
+  );
   res.setHeader('X-Frame-Options', 'DENY');
   res.send(body);
 }

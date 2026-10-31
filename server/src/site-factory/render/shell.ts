@@ -350,13 +350,28 @@ export function initials(name: string): string {
 export function socialLinks(config: RenderConfig): string {
   const links: string[] = [];
   const socials = config.socials || {};
-  if (socials.facebook) links.push(`<a href="${attr(socials.facebook)}" target="_blank" rel="noopener" aria-label="Facebook">${icon('facebook')}</a>`);
-  if (socials.instagram) links.push(`<a href="${attr(socials.instagram)}" target="_blank" rel="noopener" aria-label="Instagram">${icon('instagram')}</a>`);
-  if (socials.tiktok) links.push(`<a href="${attr(socials.tiktok)}" target="_blank" rel="noopener" aria-label="TikTok">${icon('tiktok')}</a>`);
+  const facebook = safeExternalUrl(socials.facebook);
+  const instagram = safeExternalUrl(socials.instagram);
+  const tiktok = safeExternalUrl(socials.tiktok);
+  if (facebook) links.push(`<a href="${attr(facebook)}" target="_blank" rel="noopener" aria-label="Facebook">${icon('facebook')}</a>`);
+  if (instagram) links.push(`<a href="${attr(instagram)}" target="_blank" rel="noopener" aria-label="Instagram">${icon('instagram')}</a>`);
+  if (tiktok) links.push(`<a href="${attr(tiktok)}" target="_blank" rel="noopener" aria-label="TikTok">${icon('tiktok')}</a>`);
   if (!links.length && config.phone) {
     links.push(`<a href="tel:${attr(config.phone)}" aria-label="Phone">${icon('phone')}</a>`);
   }
   return links.join('');
+}
+
+/** Only http(s) links are safe to place in an href. */
+function safeExternalUrl(value: string | null | undefined): string | null {
+  const raw = String(value || '').trim();
+  if (!raw) return null;
+  try {
+    const url = new URL(raw);
+    return url.protocol === 'https:' || url.protocol === 'http:' ? url.toString() : null;
+  } catch {
+    return null;
+  }
 }
 
 export function waHref(config: RenderConfig, message: string): string {

@@ -619,6 +619,15 @@ export async function publishSite(siteId: string) {
 export async function markSitePublished(siteId: string, url?: string | null) {
   const site = await prisma.site.findUnique({ where: { id: siteId }, include: { request: true } });
   if (!site) throw new NotFound('الموقع غير موجود.');
+  // Manual confirmation replaces a Cloudflare deploy, so it needs the same
+  // payment guard: an unpaid or rejected request must never go live just
+  // because an admin pasted a URL.
+  const request = site.request;
+  if (!request) throw new BadRequest('لا يوجد طلب مرتبط بهذا الموقع.');
+  if (request.status === 'rejected') throw new BadRequest('لا يمكن نشر طلب مرفوض.');
+  if (request.status !== 'confirmed' && request.status !== 'published') {
+    throw new BadRequest('يجب تأكيد الدفع أولاً قبل تأكيد النشر.');
+  }
   const confirmedUrl = publicUrl((url || '').trim() || site.url || `https://${site.subdomain}.pages.dev`);
   const now = new Date();
   await prisma.site.update({
