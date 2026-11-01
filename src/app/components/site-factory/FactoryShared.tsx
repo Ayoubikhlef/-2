@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   Copy,
   CreditCard,
+  Eye,
   ImagePlus,
   Loader2,
   MessageCircle,
@@ -17,7 +18,7 @@ import {
   X,
 } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { api } from '../../utils/api';
+import { api, resolveApiUrl } from '../../utils/api';
 import {
   IMAGE_LIMITS,
   STATUS_META,
@@ -303,18 +304,20 @@ export function TemplateCard({
 }) {
   const { t, language } = useLanguage();
   const Icon = TEMPLATE_ICONS[template.slug] || BadgeCheck;
+  const demoUrl = resolveApiUrl(`/api/site-factory/public/template-preview/${template.slug}/`);
   return (
-    <button
-      type="button"
-      onClick={onSelect}
-      aria-pressed={active}
-      className={`group relative rounded-2xl border-2 bg-card p-2.5 text-start transition-all ${
-        active
-          ? 'border-primary shadow-lg shadow-primary/10'
-          : 'border-border hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md'
-      }`}
-    >
-      <TemplatePreview slug={template.slug} accent={template.accent} />
+    <div className="relative">
+      <button
+        type="button"
+        onClick={onSelect}
+        aria-pressed={active}
+        className={`group relative w-full rounded-2xl border-2 bg-card p-2.5 text-start transition-all ${
+          active
+            ? 'border-primary shadow-lg shadow-primary/10'
+            : 'border-border hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md'
+        }`}
+      >
+        <TemplatePreview slug={template.slug} accent={template.accent} />
       <div className="px-1 pb-0.5 pt-2.5">
         <div className="flex items-center gap-2">
           <span
@@ -340,7 +343,18 @@ export function TemplateCard({
           <span className="rounded-full bg-muted px-2 py-0.5">AR / FR / EN</span>
         </div>
       </div>
-    </button>
+      </button>
+      <a
+        href={demoUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        title={t({ ar: 'معاينة حية للقالب', fr: 'Aperçu en direct du modèle', en: 'Live template preview' })}
+        className="absolute end-3 top-3 z-10 inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-slate-900 shadow-sm ring-1 ring-slate-900/10 backdrop-blur transition hover:bg-white hover:shadow"
+      >
+        <Eye className="h-3 w-3" />
+        {t({ ar: 'معاينة', fr: 'Aperçu', en: 'Preview' })}
+      </a>
+    </div>
   );
 }
 

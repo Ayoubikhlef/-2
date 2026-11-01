@@ -7,6 +7,7 @@ import { requireAuth, requireRole } from '../middleware/auth';
 import * as factory from '../site-factory/service';
 import { isCloudflareConfigured } from '../site-factory/cloudflare';
 import { normalizeSubdomain } from '../site-factory/subdomain';
+import { isDemoTemplate, renderTemplateDemo } from '../site-factory/demo';
 
 export const siteFactoryRouter = Router();
 
@@ -280,6 +281,58 @@ siteFactoryRouter.get('/preview/:siteId/', publicLimiter, async (req, res) => {
 siteFactoryRouter.get('/preview/:siteId/*', publicLimiter, async (req, res) => {
   const wildcard = (req.params as any)[0] || '';
   await servePreview(req, res, wildcard);
+});
+
+/* -------------------------------------------------------------------------
+ * Template demo previews (fully rendered, no database)
+ * ---------------------------------------------------------------------- */
+
+function serveTemplateDemo(req: Request, res: Response, requestedPath: string) {
+  const slug = String(req.params.slug || '');
+  if (!isDemoTemplate(slug)) throw new AppError(404, 'القالب غير موجود.');
+
+  const site = renderTemplateDemo(slug, 'ar');
+  const files = site.files;
+
+  let path = decodeURIComponent(requestedPath || '').replace(/^\/+/, '');
+  if (!path || path.endsWith('/')) path += 'index.html';
+  if (path.includes('..') || path.includes('\\')) throw new AppError(400, 'مسار غير صالح.');
+
+  let file = files[path];
+  if (!file && !path.includes('.')) file = files[`${path}.html`];
+  if (!file) throw new AppError(404, 'الملف غير موجود.');
+
+  const body = file.encoding === 'base64' ? Buffer.from(String(file.content || ''), 'base64') : String(file.content || '');
+  const type = String(file.type || 'application/octet-stream');
+  const isHtml = type.startsWith('text/html');
+  res.setHeader('Content-Type', type);
+  res.setHeader('Cache-Control', 'public, max-age=300');
+  res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader(
+    'Content-Security-Policy',
+    isHtml
+      ? PREVIEW_CSP
+      : "sandbox; default-src 'none'; img-src data:; style-src 'unsafe-inline'",
+  );
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.send(body);
+}
+
+siteFactoryRouter.get('/public/template-preview/:slug', publicLimiter, (req, res) => {
+  const slug = String(req.params.slug || '');
+  if (!isDemoTemplate(slug)) throw new AppError(404, 'القالب غير موجود.');
+  const query = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
+  res.redirect(301, `${req.baseUrl}/public/template-preview/${encodeURIComponent(slug)}/${query}`);
+});
+
+siteFactoryRouter.get('/public/template-preview/:slug/', publicLimiter, (req, res) => {
+  serveTemplateDemo(req, res, 'index.html');
+});
+
+siteFactoryRouter.get('/public/template-preview/:slug/*', publicLimiter, (req, res) => {
+  serveTemplateDemo(req, res, (req.params as any)[0] || '');
 });
 
 /* -------------------------------------------------------------------------
