@@ -306,53 +306,66 @@ export function TemplateCard({
   const Icon = TEMPLATE_ICONS[template.slug] || BadgeCheck;
   const demoUrl = `/templates/${template.slug}/`;
   return (
-    <div className="relative">
-      <button
-        type="button"
-        onClick={onSelect}
-        aria-pressed={active}
-        className={`group relative w-full rounded-2xl border-2 bg-card p-2.5 text-start transition-all ${
-          active
-            ? 'border-primary shadow-lg shadow-primary/10'
-            : 'border-border hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md'
-        }`}
-      >
+    <div
+      className={`group relative flex flex-col rounded-2xl border-2 bg-card p-2.5 transition-all ${
+        active
+          ? 'border-primary shadow-lg shadow-primary/10'
+          : 'border-border hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md'
+      }`}
+    >
+      <button type="button" onClick={onSelect} aria-pressed={active} className="w-full text-start">
         <TemplatePreview slug={template.slug} accent={template.accent} />
-      <div className="px-1 pb-0.5 pt-2.5">
-        <div className="flex items-center gap-2">
-          <span
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
-            style={{ backgroundColor: `${template.accent}1f`, color: template.accent }}
-          >
-            <Icon className="h-4 w-4" />
-          </span>
-          <h3 className="min-w-0 flex-1 truncate text-sm font-bold">{templateName(template, language)}</h3>
-          {active && (
-            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-white">
-              <Check className="h-3 w-3" />
+        <div className="px-1 pb-0.5 pt-2.5">
+          <div className="flex items-center gap-2">
+            <span
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
+              style={{ backgroundColor: `${template.accent}1f`, color: template.accent }}
+            >
+              <Icon className="h-4 w-4" />
             </span>
-          )}
+            <h3 className="min-w-0 flex-1 truncate text-sm font-bold">{templateName(template, language)}</h3>
+            {active && (
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-white">
+                <Check className="h-3 w-3" />
+              </span>
+            )}
+          </div>
+          <p className="mt-1.5 line-clamp-2 min-h-[2.5rem] text-xs leading-relaxed text-muted-foreground">
+            {templateDescription(template, language)}
+          </p>
+          <div className="mt-2 flex items-center gap-2 text-[10px] font-semibold text-muted-foreground">
+            <span className="rounded-full bg-muted px-2 py-0.5">
+              {t({ ar: 'متجاوب', fr: 'Responsive', en: 'Responsive' })}
+            </span>
+            <span className="rounded-full bg-muted px-2 py-0.5">AR / FR / EN</span>
+          </div>
         </div>
-        <p className="mt-1.5 line-clamp-2 min-h-[2.5rem] text-xs leading-relaxed text-muted-foreground">
-          {templateDescription(template, language)}
-        </p>
-        <div className="mt-2 flex items-center gap-2 text-[10px] font-semibold text-muted-foreground">
-          <span className="rounded-full bg-muted px-2 py-0.5">
-            {t({ ar: 'متجاوب', fr: 'Responsive', en: 'Responsive' })}
-          </span>
-          <span className="rounded-full bg-muted px-2 py-0.5">AR / FR / EN</span>
-        </div>
-      </div>
       </button>
+
       <a
         href={demoUrl}
         target="_blank"
         rel="noopener noreferrer"
         title={t({ ar: 'معاينة حية للقالب', fr: 'Aperçu en direct du modèle', en: 'Live template preview' })}
-        className="absolute end-3 top-3 z-10 inline-flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-bold text-slate-900 shadow-sm ring-1 ring-slate-900/10 backdrop-blur transition hover:bg-white hover:shadow"
+        className="absolute end-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-full bg-slate-950/85 px-2.5 py-1 text-[11px] font-bold text-white shadow-lg ring-1 ring-white/30 backdrop-blur transition hover:scale-105 hover:bg-slate-950"
       >
+        <span className="relative flex h-1.5 w-1.5">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+        </span>
         <Eye className="h-3 w-3" />
-        {t({ ar: 'معاينة', fr: 'Aperçu', en: 'Preview' })}
+        {t({ ar: 'معاينة حية', fr: 'Aperçu live', en: 'Live preview' })}
+      </a>
+
+      <a
+        href={demoUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-black text-white shadow-sm transition hover:brightness-110"
+        style={{ backgroundColor: template.accent }}
+      >
+        <Eye className="h-4 w-4" />
+        {t({ ar: 'معاينة القالب كاملاً', fr: 'Voir le modèle en entier', en: 'Preview the full template' })}
       </a>
     </div>
   );

@@ -6,6 +6,7 @@ import {
   Check,
   CheckCircle2,
   CreditCard,
+  Eye,
   Globe,
   Languages,
   LayoutTemplate,
@@ -552,9 +553,24 @@ export function FactoryWizard({
                   </h2>
                   <p className="mt-1 text-sm text-muted-foreground">
                     {t({
-                      ar: 'ستة قوالب احترافية، كلها متجاوبة مع الهاتف وتدعم العربية والفرنسية والإنجليزية.',
-                      fr: 'Six modèles professionnels, responsives et disponibles en AR / FR / EN.',
-                      en: 'Six professional templates, mobile-ready and available in AR / FR / EN.',
+                      ar: `${config.templates.length} قالباً احترافياً، كلها متجاوبة مع الهاتف وتدعم العربية والفرنسية والإنجليزية. اضغط «معاينة حية» لترى المحتوى الحقيقي قبل الطلب.`,
+                      fr: `${config.templates.length} modèles professionnels, responsives et en AR / FR / EN. Cliquez sur « Aperçu live » pour voir le contenu réel avant de commander.`,
+                      en: `${config.templates.length} professional templates, mobile-ready and available in AR / FR / EN. Click “Live preview” to see the real content before ordering.`,
+                    })}
+                  </p>
+                </div>
+                <div className="mb-4 flex items-start gap-3 rounded-2xl border border-primary/25 bg-primary/5 p-3.5">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-sm shadow-primary/30">
+                    <Eye className="h-4 w-4" />
+                  </span>
+                  <p className="text-xs leading-relaxed text-foreground/80">
+                    <strong className="font-black text-foreground">
+                      {t({ ar: 'شاهد القالب قبل أن تختار:', fr: 'Voyez le modèle avant de choisir :', en: 'See the template before choosing:' })}
+                    </strong>{' '}
+                    {t({
+                      ar: 'اضغط «معاينة حية» على أي بطاقة لفتح الموقع الحقيقي بمحتواه الكامل في نافذة جديدة — مجاناً وبدون تسجيل.',
+                      fr: 'cliquez sur « Aperçu live » sur une carte pour ouvrir le vrai site, avec tout son contenu, dans un nouvel onglet — gratuit et sans inscription.',
+                      en: 'click “Live preview” on any card to open the real site with its full content in a new tab — free, no sign-up.',
                     })}
                   </p>
                 </div>
@@ -1466,6 +1482,17 @@ export function FactoryWizard({
                     <dd className="text-end font-semibold">{packageLabel || '—'}</dd>
                   </div>
                 </dl>
+                {selectedTemplate && (
+                  <a
+                    href={`/templates/${selectedTemplate.slug}/`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 flex items-center justify-center gap-1.5 rounded-xl border border-primary/30 bg-primary/5 px-3 py-2 text-[11px] font-bold text-primary transition hover:bg-primary/10"
+                  >
+                    <Eye className="h-3.5 w-3.5" />
+                    {t({ ar: 'معاينة القالب المحدد', fr: 'Aperçu du modèle choisi', en: 'Preview selected template' })}
+                  </a>
+                )}
                 <div className="mt-3 border-t border-border pt-3">
                   <p className="text-[11px] text-muted-foreground">{t({ ar: 'الإجمالي', fr: 'Total', en: 'Total' })}</p>
                   <p className="text-xl font-black text-primary">{money(price, language)}</p>

@@ -218,6 +218,15 @@ export function SiteFactoryPage() {
                   <Search className="h-4 w-4" />
                   {t({ ar: 'تتبع طلبك', fr: 'Suivre ma demande', en: 'Track your request' })}
                 </button>
+                <a
+                  href="/templates/store/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl border border-sky-300/40 bg-sky-500/15 px-5 py-3.5 text-sm font-bold text-sky-100 backdrop-blur transition hover:bg-sky-500/25"
+                >
+                  <Eye className="h-4 w-4" />
+                  {t({ ar: 'شاهد قالباً حياً', fr: 'Voir un modèle en direct', en: 'See a live template' })}
+                </a>
                 {whatsapp && (
                   <a
                     href={whatsapp}
@@ -233,7 +242,7 @@ export function SiteFactoryPage() {
 
               <div className="mt-7 grid grid-cols-2 gap-2.5 text-xs text-white/75 sm:grid-cols-4">
                 {[
-                  { icon: Eye, label: t({ ar: 'معاينة مجانية', fr: 'Aperçu gratuit', en: 'Free preview' }) },
+                  { icon: Eye, label: t({ ar: 'معاينة حية مجانية', fr: 'Aperçu live gratuit', en: 'Free live preview' }) },
                   { icon: Globe, label: t({ ar: 'نطاق مجاني', fr: 'Domaine gratuit', en: 'Free domain' }) },
                   { icon: ShieldCheck, label: t({ ar: 'دفع آمن', fr: 'Paiement sûr', en: 'Safe payment' }) },
                   { icon: Languages, label: t({ ar: '3 لغات', fr: '3 langues', en: '3 languages' }) },
@@ -252,6 +261,15 @@ export function SiteFactoryPage() {
                 <div className="rounded-xl bg-white p-2">
                   <TemplatePreview slug="store" accent={heroAccent} large />
                 </div>
+                <a
+                  href="/templates/store/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group/mock absolute inset-x-4 bottom-4 flex items-center justify-center gap-1.5 rounded-xl bg-slate-950/85 px-3 py-2.5 text-xs font-black text-white shadow-lg ring-1 ring-white/25 backdrop-blur transition hover:bg-slate-950"
+                >
+                  <Eye className="h-4 w-4 text-emerald-300" />
+                  {t({ ar: 'معاينة حية — جرّب القالب الآن', fr: 'Aperçu live — essayez ce modèle', en: 'Live preview — try this template' })}
+                </a>
               </div>
               <div className="absolute -right-3 -top-3 flex items-center gap-1.5 rounded-xl border border-white/20 bg-slate-900/90 px-3 py-2 text-[11px] font-bold shadow-xl backdrop-blur">
                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
