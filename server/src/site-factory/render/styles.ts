@@ -344,6 +344,25 @@ ul{margin:0;padding:0;list-style:none}
 
 /* landing */
 .tpl-landing{--bg:#fffdf9;--soft:#fff4ea;--surface:#fff}
+/* Extended template themes */
+.tpl-medical{--bg:#f6fbff;--soft:#e8f4fd;--surface:#fff;--line:#d8eaf7}
+.tpl-pharmacy{--bg:#f6fdf8;--soft:#e6f8ec;--surface:#fff;--line:#d5f0de}
+.tpl-lawyer{--bg:#f7f8fa;--soft:#eceef2;--surface:#fff;--line:#dfe3ea}
+.tpl-realestate{--bg:#f6fbfa;--soft:#e4f4f1;--surface:#fff;--line:#d2eae5}
+.tpl-education{--bg:#f6f9ff;--soft:#e8efff;--surface:#fff;--line:#d8e3f8}
+.tpl-fitness{--bg:#0f0f13;--surface:#18181f;--ink:#f8fafc;--muted:#a1a1b5;--line:#2a2a35;--soft:#1d1d26}
+.tpl-beauty{--bg:#fff9fc;--soft:#fdeaf3;--surface:#fff;--line:#f7dbe8}
+.tpl-photography{--bg:#0c0a12;--surface:#15121d;--ink:#f8fafc;--muted:#a1a1b5;--line:#2a2537;--soft:#1d1828}
+.tpl-wedding{--bg:#fff9fe;--soft:#fbeaff;--surface:#fff;--line:#f3d9fb}
+.tpl-travel{--bg:#f5fcff;--soft:#e2f6fd;--surface:#fff;--line:#cfedf7}
+.tpl-construction{--bg:#fffbf5;--soft:#fdf1e0;--surface:#fff;--line:#f2e2c9}
+.tpl-agriculture{--bg:#f8fdf3;--soft:#ecf7df;--surface:#fff;--line:#dcefc7}
+.tpl-electronics{--bg:#f6f9ff;--soft:#e6efff;--surface:#fff;--line:#d6e3fb}
+.tpl-fashion{--bg:#fff8fa;--soft:#fde8ee;--surface:#fff;--line:#f7d7e0}
+.tpl-bakery{--bg:#fffaf4;--soft:#fdf0e0;--surface:#fff;--line:#f0e0c9}
+.tpl-carrental{--bg:#f7f8fa;--soft:#e9ebef;--surface:#fff;--line:#dde0e6}
+.tpl-nonprofit{--bg:#f6fdf9;--soft:#e4f8ee;--surface:#fff;--line:#d2efdf}
+.tpl-events{--bg:#fbf8ff;--soft:#f2eaff;--surface:#fff;--line:#e6d8fb}
 .landing-hero{padding:76px 0 54px;text-align:center;position:relative;overflow:hidden}
 .landing-hero::before{content:"";position:absolute;width:760px;height:760px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--p) 14%,transparent),transparent 65%);top:-420px;left:50%;transform:translateX(-50%);pointer-events:none}
 .landing-hero .h1{max-width:900px;margin-inline:auto}

@@ -113,6 +113,49 @@ function navItems(config: RenderConfig, s: UiStrings): { href: string; label: st
         { href: '#contact', label: s.contact },
       ];
     default:
+      if (['pharmacy', 'electronics', 'fashion', 'carrental', 'agriculture'].includes(config.templateSlug)) {
+        return [
+          { href: '#top', label: s.home },
+          { href: '#products', label: s.products },
+          { href: '#about', label: s.about },
+          { href: '#contact', label: s.contact },
+        ];
+      }
+      if (['bakery'].includes(config.templateSlug)) {
+        return [
+          { href: '#top', label: s.home },
+          { href: '#menu', label: s.menu },
+          { href: '#about', label: s.about },
+          { href: '#gallery', label: s.gallery },
+          { href: '#reserve', label: s.reservation },
+        ];
+      }
+      if (['beauty', 'photography', 'wedding'].includes(config.templateSlug)) {
+        return [
+          { href: '#top', label: s.home },
+          { href: '#work', label: s.work },
+          { href: '#about', label: s.about },
+          { href: '#contact', label: s.contact },
+        ];
+      }
+      if (['medical', 'lawyer', 'realestate', 'education', 'construction'].includes(config.templateSlug)) {
+        return [
+          { href: '#top', label: s.home },
+          { href: '#services', label: s.services },
+          { href: '#about', label: s.about },
+          { href: '#process', label: s.process },
+          { href: '#contact', label: s.contact },
+        ];
+      }
+      if (['fitness', 'travel', 'nonprofit', 'events'].includes(config.templateSlug)) {
+        return [
+          { href: '#top', label: s.home },
+          { href: '#benefits', label: s.benefits },
+          { href: '#offer', label: s.offer },
+          { href: '#faq', label: s.faq },
+          { href: '#contact', label: s.contact },
+        ];
+      }
       return [];
   }
 }

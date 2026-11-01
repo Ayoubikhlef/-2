@@ -878,7 +878,7 @@ export function FactoryWizard({
                   <Section
                     icon={Sparkles}
                     title={
-                      draft.templateSlug === 'portfolio'
+                      ['portfolio', 'beauty', 'photography', 'wedding'].includes(draft.templateSlug)
                         ? t({ ar: 'المشاريع والأعمال', fr: 'Projets & réalisations', en: 'Projects & work' })
                         : draft.templateSlug === 'landing'
                           ? t({ ar: 'مزايا العرض', fr: 'Avantages de l’offre', en: 'Offer benefits' })
@@ -914,7 +914,7 @@ export function FactoryWizard({
                               }}
                               maxLength={120}
                               placeholder={
-                                draft.templateSlug === 'portfolio'
+                                ['portfolio', 'beauty', 'photography', 'wedding'].includes(draft.templateSlug)
                                   ? t({ ar: 'اسم المشروع', fr: 'Nom du projet', en: 'Project name' })
                                   : draft.templateSlug === 'landing'
                                     ? t({ ar: 'اسم الميزة', fr: 'Nom de l’avantage', en: 'Benefit name' })

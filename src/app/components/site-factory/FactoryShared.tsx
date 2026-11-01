@@ -96,10 +96,50 @@ const TEMPLATE_ICONS: Record<string, typeof CreditCard> = {
   card: Smartphone,
   restaurant: Receipt,
   landing: MessageCircle,
+  medical: BadgeCheck,
+  pharmacy: Wallet,
+  lawyer: BadgeCheck,
+  realestate: BadgeCheck,
+  education: BadgeCheck,
+  fitness: MessageCircle,
+  beauty: ImagePlus,
+  photography: ImagePlus,
+  wedding: ImagePlus,
+  travel: MessageCircle,
+  construction: BadgeCheck,
+  agriculture: Wallet,
+  electronics: Wallet,
+  fashion: Wallet,
+  bakery: Receipt,
+  carrental: Wallet,
+  nonprofit: MessageCircle,
+  events: MessageCircle,
+};
+
+// Maps the extended templates to one of the six designed preview layouts.
+const PREVIEW_ALIAS: Record<string, string> = {
+  pharmacy: 'store',
+  agriculture: 'store',
+  electronics: 'store',
+  fashion: 'store',
+  carrental: 'store',
+  bakery: 'restaurant',
+  beauty: 'portfolio',
+  photography: 'portfolio',
+  wedding: 'portfolio',
+  medical: 'company',
+  lawyer: 'company',
+  realestate: 'company',
+  education: 'company',
+  construction: 'company',
+  fitness: 'landing',
+  travel: 'landing',
+  nonprofit: 'landing',
+  events: 'landing',
 };
 
 export function TemplatePreview({
-  slug,
+  slug: rawSlug,
   accent,
   large = false,
 }: {
@@ -107,6 +147,7 @@ export function TemplatePreview({
   accent: string;
   large?: boolean;
 }) {
+  const slug = PREVIEW_ALIAS[rawSlug] || rawSlug;
   const tint = `${accent}1f`;
   const stronger = `${accent}33`;
   return (

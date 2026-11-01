@@ -340,11 +340,19 @@ export function isEmail(value: string): boolean {
 }
 
 export function usesServices(slug: string): boolean {
-  return ['company', 'portfolio', 'landing'].includes(slug);
+  return [
+    'company', 'portfolio', 'landing',
+    'medical', 'lawyer', 'realestate', 'education', 'construction',
+    'beauty', 'photography', 'wedding',
+    'fitness', 'travel', 'nonprofit', 'events',
+  ].includes(slug);
 }
 
 export function usesProducts(slug: string): boolean {
-  return ['store', 'restaurant'].includes(slug);
+  return [
+    'store', 'restaurant',
+    'pharmacy', 'agriculture', 'electronics', 'fashion', 'carrental', 'bakery',
+  ].includes(slug);
 }
 
 export function fieldClass(error?: string, extra = ''): string {

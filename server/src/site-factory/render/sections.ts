@@ -609,6 +609,41 @@ export function pageFor(template: string, config: RenderConfig, lang: Lang): str
     case 'portfolio': return portfolioPage(config, s, lang);
     case 'card': return cardPage(config, s);
     case 'restaurant': return restaurantPage(config, s, lang);
+
+    // Store-style templates
+    case 'pharmacy':
+    case 'agriculture':
+    case 'electronics':
+    case 'fashion':
+    case 'carrental':
+      return storePage(config, s, lang);
+
+    // Restaurant-style templates
+    case 'bakery':
+      return restaurantPage(config, s, lang);
+
+    // Portfolio-style templates
+    case 'beauty':
+    case 'photography':
+    case 'wedding':
+      return portfolioPage(config, s, lang);
+
+    // Company-style templates
+    case 'medical':
+    case 'lawyer':
+    case 'realestate':
+    case 'education':
+    case 'construction':
+      return companyPage(config, s, lang);
+
+    // Landing-style templates
+    case 'fitness':
+    case 'travel':
+    case 'nonprofit':
+    case 'events':
+    case 'landing':
+      return landingPage(config, s, lang);
+
     default: return landingPage(config, s, lang);
   }
 }
@@ -634,8 +669,27 @@ export function jsonLdFor(template: string, config: RenderConfig, siteUrl: strin
   };
   switch (template) {
     case 'store': return { ...base, '@type': 'Store', image: config.coverUrl || undefined, priceRange: 'DZD' };
+    case 'pharmacy': return { ...base, '@type': 'Pharmacy', image: config.coverUrl || undefined, priceRange: 'DZD' };
+    case 'electronics':
+    case 'fashion':
+    case 'carrental':
+    case 'agriculture':
+      return { ...base, '@type': 'Store', image: config.coverUrl || undefined, priceRange: 'DZD' };
     case 'restaurant': return { ...base, '@type': 'Restaurant', servesCuisine: 'Algerian', image: config.coverUrl || undefined };
+    case 'bakery': return { ...base, '@type': 'Bakery', image: config.coverUrl || undefined };
+    case 'medical': return { ...base, '@type': 'MedicalClinic', image: config.coverUrl || undefined };
+    case 'lawyer': return { ...base, '@type': 'LegalService', image: config.coverUrl || undefined };
+    case 'realestate': return { ...base, '@type': 'RealEstateAgent', image: config.coverUrl || undefined };
+    case 'education': return { ...base, '@type': 'EducationalOrganization', image: config.coverUrl || undefined };
+    case 'fitness': return { ...base, '@type': 'ExerciseGym', image: config.coverUrl || undefined };
+    case 'beauty': return { ...base, '@type': 'BeautySalon', image: config.coverUrl || undefined };
+    case 'travel': return { ...base, '@type': 'TravelAgency', image: config.coverUrl || undefined };
+    case 'construction': return { ...base, '@type': 'GeneralContractor', image: config.coverUrl || undefined };
+    case 'nonprofit': return { ...base, '@type': 'NGO', image: config.coverUrl || undefined };
+    case 'events': return { ...base, '@type': 'EventVenue', image: config.coverUrl || undefined };
     case 'portfolio': return { ...base, '@type': 'Person', jobTitle: config.tagline };
+    case 'photography': return { ...base, '@type': 'Person', jobTitle: config.tagline };
+    case 'wedding': return { ...base, '@type': 'LocalBusiness', image: config.coverUrl || undefined };
     case 'card': return { ...base, '@type': 'Person', jobTitle: config.tagline };
     case 'company': return { ...base, '@type': 'Organization', logo: config.logoUrl || undefined };
     default: return { ...base, '@type': 'Organization' };
