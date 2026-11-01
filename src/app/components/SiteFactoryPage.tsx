@@ -153,9 +153,9 @@ export function SiteFactoryPage() {
     {
       q: t({ ar: 'هل يمكنني معاينة الموقع قبل الدفع؟', fr: 'Puis-je voir le site avant de payer ?', en: 'Can I preview before paying?' }),
       a: t({
-        ar: 'نعم، بعد إرسال الطلب تُولَّد معاينة مجانية بعلامة مائية. بعد تأكيد الدفع نزيل العلامة وننشر الموقع.',
-        fr: 'Oui, un aperçu gratuit filigrané est généré après la demande. Après paiement, nous retirons le filigrane et publions.',
-        en: 'Yes, a free watermarked preview is generated after your request. After payment we remove the watermark and publish.',
+        ar: 'نعم. يمكنك فتح أي قالب ومعاينة موقعه الحقيقي بمحتواه الكامل قبل الطلب عبر زر «معاينة حية». وبعد إرسال الطلب تُولَّد معاينة خاصة ببياناتك بعلامة مائية، ثم نزيل العلامة وننشر بعد تأكيد الدفع.',
+        fr: 'Oui. Ouvrez n’importe quel modèle et consultez le vrai site avec tout son contenu avant de commander via « Aperçu live ». Après votre demande, un aperçu personnalisé filigrané est généré ; nous retirons le filigrane et publions après paiement.',
+        en: 'Yes. Open any template and browse the real site with its full content before ordering via “Live preview”. After your request, a personalised watermarked preview is generated; we remove the watermark and publish after payment.',
       }),
     },
     {

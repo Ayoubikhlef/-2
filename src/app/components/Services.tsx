@@ -116,9 +116,9 @@ export function Services() {
               </h3>
               <p className="mt-1 max-w-2xl text-sm leading-relaxed text-white/75">
                 {t({
-                  ar: 'متجر، شركة، معرض أعمال، مطعم، بطاقة رقمية أو صفحة هبوط — قوالب جاهزة، معاينة مجانية، ونطاق مجاني على pages.dev.',
-                  fr: 'Boutique, entreprise, portfolio, restaurant, carte numérique ou page de vente — modèles prêts, aperçu et domaine gratuits sur pages.dev.',
-                  en: 'Store, company, portfolio, restaurant, digital card or landing page — ready templates, free preview and a free pages.dev domain.',
+                  ar: '24 قالباً جاهزاً — متجر، شركة، عيادة، مطعم، صيدلية وغيرها — معاينة حية قبل الطلب، ونطاق مجاني على pages.dev.',
+                  fr: '24 modèles prêts — boutique, entreprise, clinique, restaurant, pharmacie et plus — aperçu live avant commande et domaine gratuit sur pages.dev.',
+                  en: '24 ready templates — store, company, clinic, restaurant, pharmacy and more — live preview before ordering and a free pages.dev domain.',
                 })}
               </p>
             </div>
