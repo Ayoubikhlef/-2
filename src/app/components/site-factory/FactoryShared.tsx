@@ -18,7 +18,7 @@ import {
   X,
 } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { api, resolveApiUrl } from '../../utils/api';
+import { api } from '../../utils/api';
 import {
   IMAGE_LIMITS,
   STATUS_META,
@@ -304,7 +304,7 @@ export function TemplateCard({
 }) {
   const { t, language } = useLanguage();
   const Icon = TEMPLATE_ICONS[template.slug] || BadgeCheck;
-  const demoUrl = resolveApiUrl(`/api/site-factory/public/template-preview/${template.slug}/`);
+  const demoUrl = `/templates/${template.slug}/`;
   return (
     <div className="relative">
       <button

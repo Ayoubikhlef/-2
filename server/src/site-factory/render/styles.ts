@@ -90,7 +90,7 @@ ul{margin:0;padding:0;list-style:none}
 .hero-stats .lbl{font-size:.78rem;color:var(--muted);margin-top:5px}
 .hero-media{position:relative;border-radius:30px;overflow:hidden;aspect-ratio:5/6;background:linear-gradient(150deg,var(--p),var(--p2));box-shadow:var(--shadow)}
 .hero-media img{width:100%;height:100%;object-fit:cover}
-.hero-media.no-img::after{content:"AOS";position:absolute;inset:0;display:grid;place-items:center;font-size:5rem;font-weight:900;color:rgba(255,255,255,.18);letter-spacing:.1em}
+.hero-media.no-img::after{content:attr(data-mark);position:absolute;inset:0;display:grid;place-items:center;font-size:5rem;font-weight:900;color:rgba(255,255,255,.18);letter-spacing:.1em}
 .float-card{position:absolute;bottom:20px;inset-inline-start:20px;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);border-radius:16px;padding:12px 16px;display:flex;align-items:center;gap:11px;box-shadow:0 20px 40px -20px rgba(0,0,0,.4);color:#0f172a}
 .float-card strong{display:block;font-size:.85rem;line-height:1.2}
 .float-card span{font-size:.72rem;color:#64748b}

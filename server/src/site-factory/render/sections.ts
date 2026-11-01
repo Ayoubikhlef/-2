@@ -200,7 +200,7 @@ export function storePage(config: RenderConfig, s: UiStrings, lang: Lang): strin
           <div><div class="num">24h</div><div class="lbl">${esc(s.delivery)}</div></div>
         </div>
       </div>
-      <div class="hero-media${heroImage ? '' : ' no-img'}" data-reveal>${heroImage}
+      <div class="hero-media${heroImage ? '' : ' no-img'}" data-mark="${attr(initials(config.siteName))}" data-reveal>${heroImage}
         <div class="float-card"><span class="float-icon">${icon('truck')}</span><div><strong>${esc(s.delivery)}</strong><span>${esc(s.secure)}</span></div></div>
       </div>
     </div>
@@ -280,7 +280,7 @@ export function companyPage(config: RenderConfig, s: UiStrings, lang: Lang): str
           <div><div class="num">98%</div><div class="lbl">${esc(s.satisfaction)}</div></div>
         </div>
       </div>
-      <div class="hero-media${heroMedia ? '' : ' no-img'}" data-reveal>${heroMedia}
+      <div class="hero-media${heroMedia ? '' : ' no-img'}" data-mark="${attr(initials(config.siteName))}" data-reveal>${heroMedia}
         <div class="float-card"><span class="float-icon">${icon('award')}</span><div><strong>${esc(s.quality)}</strong><span>${esc(config.city || s.clients)}</span></div></div>
       </div>
     </div>
