@@ -230,6 +230,18 @@ const PREVIEW_CSP = [
   'frame-ancestors \'none\'',
 ].join('; ');
 
+/** Decode a wildcard path and reject malformed or traversal attempts. */
+function decodeRequestPath(value: string): string {
+  let decoded = '';
+  try {
+    decoded = decodeURIComponent(value || '');
+  } catch {
+    throw new AppError(400, 'مسار غير صالح.');
+  }
+  if (decoded.includes('\0')) throw new AppError(400, 'مسار غير صالح.');
+  return decoded.replace(/^\/+/, '');
+}
+
 async function servePreview(req: Request, res: Response, requestedPath: string) {
   const site = await prisma.site.findUnique({
     where: { id: String(req.params.siteId) },
@@ -241,7 +253,7 @@ async function servePreview(req: Request, res: Response, requestedPath: string) 
     throw new AppError(404, 'المعاينة غير جاهزة بعد. أعد المحاولة بعد لحظات.');
   }
 
-  let path = decodeURIComponent(requestedPath || '').replace(/^\/+/, '');
+  let path = decodeRequestPath(requestedPath);
   if (!path || path.endsWith('/')) path += 'index.html';
   if (path.includes('..') || path.includes('\\')) throw new AppError(400, 'مسار غير صالح.');
   let file = files[path];
@@ -294,7 +306,7 @@ function serveTemplateDemo(req: Request, res: Response, requestedPath: string) {
   const site = renderTemplateDemo(slug, 'ar');
   const files = site.files;
 
-  let path = decodeURIComponent(requestedPath || '').replace(/^\/+/, '');
+  let path = decodeRequestPath(requestedPath);
   if (!path || path.endsWith('/')) path += 'index.html';
   if (path.includes('..') || path.includes('\\')) throw new AppError(400, 'مسار غير صالح.');
 
@@ -320,19 +332,14 @@ function serveTemplateDemo(req: Request, res: Response, requestedPath: string) {
   res.send(body);
 }
 
-siteFactoryRouter.get('/public/template-preview/:slug', publicLimiter, (req, res) => {
-  const slug = String(req.params.slug || '');
-  if (!isDemoTemplate(slug)) throw new AppError(404, 'القالب غير موجود.');
-  const query = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
-  res.redirect(301, `${req.baseUrl}/public/template-preview/${encodeURIComponent(slug)}/${query}`);
-});
-
-siteFactoryRouter.get('/public/template-preview/:slug/', publicLimiter, (req, res) => {
-  serveTemplateDemo(req, res, 'index.html');
-});
-
 siteFactoryRouter.get('/public/template-preview/:slug/*', publicLimiter, (req, res) => {
   serveTemplateDemo(req, res, (req.params as any)[0] || '');
+});
+
+// Express matches both `/slug` and `/slug/` here (non-strict routing), so this
+// single handler serves the default page without a redirect loop.
+siteFactoryRouter.get('/public/template-preview/:slug', publicLimiter, (req, res) => {
+  serveTemplateDemo(req, res, 'index.html');
 });
 
 /* -------------------------------------------------------------------------

@@ -160,7 +160,7 @@ function navItems(config: RenderConfig, s: UiStrings): { href: string; label: st
   }
 }
 
-function languageSwitch(config: RenderConfig, lang: string, alternates: Record<string, string>): string {
+export function languageSwitch(config: RenderConfig, lang: string, alternates: Record<string, string>): string {
   const langs: Array<'ar' | 'fr' | 'en'> = ['ar', 'fr', 'en'];
   return `<div class="lang-switch" aria-label="Language">${langs.map((code) => {
     const label = code === 'ar' ? 'AR' : code === 'fr' ? 'FR' : 'EN';
@@ -194,6 +194,11 @@ export function renderShell(options: ShellOptions): string {
   const logoMark = logo.replace('brand-logo', 'vcard-logo');
   const nav = navItems(config, s);
   const hasHeader = config.templateSlug !== 'card';
+  // Restaurant-style pages end with the reservation section, not a `#contact`
+  // block, so the mobile CTA must target an anchor that really exists.
+  const mobileCtaHref = config.templateSlug === 'restaurant' || config.templateSlug === 'bakery'
+    ? '#reserve'
+    : '#contact';
   const alternateTags = (['ar', 'fr', 'en'] as const)
     .filter((code) => alternates[code])
     .map((code) => `<link rel="alternate" hreflang="${code}" href="${attr(absolute(siteUrl, alternates[code]))}">`)
@@ -225,7 +230,7 @@ export function renderShell(options: ShellOptions): string {
         <a class="brand" href="index.html">${logo}<span>${esc(config.siteName)}</span></a>
         ${nav.map((l) => `<a class="m-link" href="${attr(l.href)}">${esc(l.label)}</a>`).join('')}
         ${config.templateSlug === 'store' ? `<button class="btn btn-ghost" type="button" data-open-cart>${icon('cart')}${esc(s.cart)}</button>` : ''}
-        <a class="btn btn-primary" href="#contact">${icon('send')}${esc(s.contact)}</a>
+        <a class="btn btn-primary" href="${mobileCtaHref}">${icon('send')}${esc(s.contact)}</a>
       </div>
     </div>
   </header>` : '';
@@ -350,6 +355,9 @@ ${waFloat}
 export function baseHeader(config: RenderConfig, lang: 'ar' | 'fr' | 'en', alternates: Record<string, string>): string {
   const s = ui(lang);
   const nav = navItems(config, s);
+  const mobileCtaHref = config.templateSlug === 'restaurant' || config.templateSlug === 'bakery'
+    ? '#reserve'
+    : '#contact';
   const logo = config.logoAssetPath
     ? `<img class="brand-logo" src="${attr(config.logoAssetPath)}" alt="${attr(config.siteName)}" width="44" height="44">`
     : `<span class="brand-mark" aria-hidden="true">${esc(initials(config.siteName))}</span>`;
@@ -373,7 +381,7 @@ export function baseHeader(config: RenderConfig, lang: 'ar' | 'fr' | 'en', alter
         <a class="brand" href="index.html">${logo}<span>${esc(config.siteName)}</span></a>
         ${nav.map((l) => `<a class="m-link" href="${attr(l.href)}">${esc(l.label)}</a>`).join('')}
         ${config.templateSlug === 'store' ? `<button class="btn btn-ghost" type="button" data-open-cart>${icon('cart')}${esc(s.cart)}</button>` : ''}
-        <a class="btn btn-primary" href="#contact">${icon('send')}${esc(s.contact)}</a>
+        <a class="btn btn-primary" href="${mobileCtaHref}">${icon('send')}${esc(s.contact)}</a>
       </div>
     </div>
   </header>`;

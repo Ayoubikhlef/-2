@@ -3,6 +3,7 @@ import { esc, attr, money, ui } from './types';
 import {
   icon,
   initials,
+  languageSwitch,
   logoMark,
   mapsHref,
   socialLinks,
@@ -405,7 +406,12 @@ export function portfolioPage(config: RenderConfig, s: UiStrings, lang: Lang): s
 /* -------------------------------------------------------------------------
  * DIGITAL CARD
  * ---------------------------------------------------------------------- */
-export function cardPage(config: RenderConfig, s: UiStrings): string {
+export function cardPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
+  // The card template has no header, so it needs its own language switcher.
+  const alternates: Record<string, string> = {};
+  for (const code of ['ar', 'fr', 'en'] as const) {
+    alternates[code] = code === config.language ? 'index.html' : `${code}.html`;
+  }
   return `<main class="vcard-page" id="top">
     <div>
       <article class="vcard" data-reveal>
@@ -433,6 +439,7 @@ export function cardPage(config: RenderConfig, s: UiStrings): string {
           </div>
         </div>
       </article>
+      <div class="vcard-lang">${languageSwitch(config, lang, alternates)}</div>
       <div class="powered">${esc(config.siteName)} · ${esc(config.city || '')}</div>
     </div>
   </main>`;
@@ -607,7 +614,7 @@ export function pageFor(template: string, config: RenderConfig, lang: Lang): str
     case 'store': return storePage(config, s, lang);
     case 'company': return companyPage(config, s, lang);
     case 'portfolio': return portfolioPage(config, s, lang);
-    case 'card': return cardPage(config, s);
+    case 'card': return cardPage(config, s, lang);
     case 'restaurant': return restaurantPage(config, s, lang);
 
     // Store-style templates

@@ -312,6 +312,7 @@ ul{margin:0;padding:0;list-style:none}
 .vcard-socials{display:flex;justify-content:center;gap:9px;margin-top:20px}
 .vcard-socials a{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;color:var(--muted)}
 .vcard-socials a:hover{background:var(--p);color:#fff;border-color:var(--p)}
+.vcard-lang{position:relative;z-index:1;display:flex;justify-content:center;margin-top:18px}
 .powered{position:relative;z-index:1;text-align:center;color:#6b6880;font-size:.68rem;margin-top:18px}
 
 /* restaurant */
