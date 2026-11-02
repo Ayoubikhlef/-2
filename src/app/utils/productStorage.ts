@@ -1,4 +1,5 @@
 import { type Product } from '../data/products';
+import { normalizeImageUrl } from './imageUrl';
 import { syncToServer } from './serverSync';
 import { api } from './api';
 
@@ -30,6 +31,19 @@ function dispatchChange() {
   window.dispatchEvent(new CustomEvent('aos:data-changed'));
 }
 
+/**
+ * Normalize image fields coming from localStorage or the API: trim quotes,
+ * upgrade http:// to https://, unwrap Google Images links and drop empty
+ * entries so the card never renders an <img src="">.
+ */
+function normalizeProduct(p: any): Product {
+  const images = Array.isArray(p?.images)
+    ? p.images.map((value: unknown) => normalizeImageUrl(typeof value === 'string' ? value : '')).filter(Boolean)
+    : [];
+  const image = normalizeImageUrl(p?.image) || images[0] || '';
+  return { ...p, stock: p?.stock ?? 0, image, images };
+}
+
 export function getStoredProducts(defaults: Product[]): Product[] {
   checkAndClearCorruptedData();
   try {
@@ -37,7 +51,7 @@ export function getStoredProducts(defaults: Product[]): Product[] {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed.map((p: any) => ({ ...p, stock: p.stock ?? 0 }));
+        return parsed.map(normalizeProduct);
       }
     }
   } catch {}
@@ -130,7 +144,7 @@ export async function loadProductsFromServer(defaults: Product[]): Promise<Produ
         localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(result.products));
         localStorage.setItem(INIT_KEY, 'true');
       }
-      return result.products as Product[];
+      return result.products.map(normalizeProduct) as Product[];
     }
   } catch {
     // server unavailable, use local

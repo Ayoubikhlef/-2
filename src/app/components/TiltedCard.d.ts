@@ -14,6 +14,7 @@ declare interface TiltedCardProps {
   showTooltip?: boolean;
   overlayContent?: ReactNode;
   displayOverlayContent?: boolean;
+  priority?: boolean;
   [x: string]: any;
 }
 

@@ -69,10 +69,35 @@ export function Products() {
   const perPage = 12;
 
   useEffect(() => {
+    let cancelled = false;
     const refresh = () => setProducts(loadProducts());
     window.addEventListener('aos:data-changed', refresh);
-    loadProductsFromServer(defaultProducts).then(setProducts).catch(() => {});
-    return () => window.removeEventListener('aos:data-changed', refresh);
+
+    // Do not paint the grid until the first data source has settled, so the
+    // server copy cannot replace the cards mid-load (which restarted images).
+    // A late server answer still refreshes the catalog afterwards.
+    let fallback: number | undefined;
+    const finish = (list: Product[]) => {
+      if (cancelled) return;
+      if (fallback) {
+        window.clearTimeout(fallback);
+        fallback = undefined;
+      }
+      setProducts(list);
+      setLoading(false);
+    };
+    // Never trap the page in a skeleton if the API is cold or unreachable.
+    fallback = window.setTimeout(() => finish(loadProducts()), 8000);
+
+    loadProductsFromServer(defaultProducts)
+      .then((list) => finish(list && list.length ? list : loadProducts()))
+      .catch(() => finish(loadProducts()));
+
+    return () => {
+      cancelled = true;
+      if (fallback) window.clearTimeout(fallback);
+      window.removeEventListener('aos:data-changed', refresh);
+    };
   }, []);
 
   useEffect(() => {
@@ -81,8 +106,6 @@ export function Products() {
   }, [searchQuery]);
 
   useEffect(() => setPage(1), [debouncedSearch, activeCategory]);
-
-  useEffect(() => setLoading(false), []);
 
   const filteredProducts = useMemo(() => {
     let result = products.filter(p => !p.hidden);
@@ -432,7 +455,7 @@ export function Products() {
         ) : (
         <>
         <div className="grid grid-cols-1 min-[360px]:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
-          {paginatedProducts.map((product) => (
+          {paginatedProducts.map((product, index) => (
             <div
               key={product.id}
               onClick={() => openProductDetails(product)}
@@ -440,6 +463,7 @@ export function Products() {
             >
               <TiltedCard
                 imageSrc={product.image}
+                priority={index < 6}
                 altText={language === 'ar' ? product.nameAr : product.nameEn}
                 captionText={`${product.price.toLocaleString()} د.ج`}
                 containerHeight="200px"

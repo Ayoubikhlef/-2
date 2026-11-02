@@ -46,6 +46,7 @@ declare module './TiltedCard' {
     showTooltip?: boolean;
     overlayContent?: ReactNode;
     displayOverlayContent?: boolean;
+    priority?: boolean;
     [x: string]: any;
   }
   const TiltedCard: ComponentType<TiltedCardProps>;

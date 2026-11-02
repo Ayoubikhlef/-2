@@ -8,6 +8,8 @@ const springValues = {
   mass: 2
 };
 
+const PLACEHOLDER = '/products/placeholder.svg';
+
 export default function TiltedCard({
   imageSrc,
   altText = 'Tilted card image',
@@ -21,16 +23,64 @@ export default function TiltedCard({
   showMobileWarning = true,
   showTooltip = true,
   overlayContent = null,
-  displayOverlayContent = false
+  displayOverlayContent = false,
+  priority = false
 }) {
   const ref = useRef(null);
-  const [imgFailed, setImgFailed] = useState(false);
+  const retryTimer = useRef(null);
 
-  // A failed URL must not stick forever: if the product's image changes (the
-  // admin fixed a bad link), give it another chance.
+  // Native `loading="lazy"` never fires inside this 3D-transformed subtree, so
+  // the card decides when to start the request itself (see effect below).
+  const [inView, setInView] = useState(priority);
+  const [loaded, setLoaded] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+
+  // A failed URL or a new product must not keep stale state.
   useEffect(() => {
-    setImgFailed(false);
-  }, [imageSrc]);
+    setLoaded(false);
+    setFailed(false);
+    setAttempt(0);
+    setInView(priority);
+    if (retryTimer.current) {
+      clearTimeout(retryTimer.current);
+      retryTimer.current = null;
+    }
+    return () => {
+      if (retryTimer.current) clearTimeout(retryTimer.current);
+    };
+  }, [imageSrc, priority]);
+
+  // Start loading when the card approaches the viewport. Once triggered we use
+  // eager loading, which is reliable inside the transformed card. We use a
+  // position check driven by scroll/resize (instead of native lazy loading or
+  // IntersectionObserver) because both are unreliable inside 3D transforms.
+  useEffect(() => {
+    if (priority || inView) return;
+    const node = ref.current;
+    if (!node) return;
+    let done = false;
+    const check = () => {
+      if (done || !node.isConnected) return;
+      const rect = node.getBoundingClientRect();
+      const vh = window.innerHeight || document.documentElement.clientHeight;
+      if (rect.top < vh + 300 && rect.bottom > -300) {
+        done = true;
+        setInView(true);
+        window.removeEventListener('scroll', check);
+        window.removeEventListener('resize', check);
+      }
+    };
+    // Cover the case where the card is already near the viewport on mount.
+    const timer = window.setTimeout(check, 120);
+    window.addEventListener('scroll', check, { passive: true });
+    window.addEventListener('resize', check, { passive: true });
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener('scroll', check);
+      window.removeEventListener('resize', check);
+    };
+  }, [priority, inView, imageSrc]);
 
   const x = useMotionValue();
   const y = useMotionValue();
@@ -80,6 +130,24 @@ export default function TiltedCard({
     rotateFigcaption.set(0);
   }
 
+  // One automatic retry with a short backoff, then the local placeholder.
+  function handleError() {
+    if (attempt >= 1) {
+      setFailed(true);
+      return;
+    }
+    if (retryTimer.current) return;
+    retryTimer.current = window.setTimeout(() => {
+      retryTimer.current = null;
+      setAttempt(1);
+    }, 700);
+  }
+
+  const retrySuffix = attempt > 0 && !/^data:/i.test(imageSrc || '')
+    ? `${String(imageSrc).includes('?') ? '&' : '?'}retry=${attempt}`
+    : '';
+  const resolvedSrc = imageSrc ? `${imageSrc}${retrySuffix}` : PLACEHOLDER;
+
   return (
     <figure
       ref={ref}
@@ -106,26 +174,40 @@ export default function TiltedCard({
           scale
         }}
       >
-        {!imgFailed ? (
-          <motion.img
-            src={imageSrc}
-            alt={altText}
-            loading="lazy"
-            className="tilted-card-img"
-            onError={() => setImgFailed(true)}
-            style={{
-              width: imageWidth,
-              height: imageHeight
-            }}
-          />
+        {!failed ? (
+          <>
+            {(!inView || !loaded) && <div className="tilted-card-skeleton" aria-hidden="true" />}
+            {inView && (
+              <motion.img
+                key={attempt}
+                src={resolvedSrc}
+                alt={altText}
+                width={800}
+                height={800}
+                loading="eager"
+                decoding="async"
+                draggable={false}
+                fetchPriority={priority ? 'high' : 'auto'}
+                className="tilted-card-img"
+                onLoad={() => setLoaded(true)}
+                onError={handleError}
+                style={{
+                  width: imageWidth,
+                  height: imageHeight
+                }}
+              />
+            )}
+          </>
         ) : (
           <div
             className="tilted-card-img flex items-center justify-center"
             style={{ width: imageWidth, height: imageHeight }}
           >
             <img
-              src="/aos-logo3.png"
+              src={PLACEHOLDER}
               alt={altText}
+              width={800}
+              height={800}
               className="h-full w-full object-contain p-5"
               style={{ borderRadius: 15 }}
             />
