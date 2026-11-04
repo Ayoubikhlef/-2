@@ -7,6 +7,7 @@ import {
   logoMark,
   mapsHref,
   socialLinks,
+  themeToggle,
   waHref,
 } from './shell';
 
@@ -40,9 +41,9 @@ function productPlaceholder(name: string): string {
 
 function productCard(p: RenderProduct, s: UiStrings): string {
   const image = p.imageUrl
-    ? `<img src="${attr(p.imageUrl)}" alt="${attr(p.name)}" loading="lazy" width="400" height="400">`
+    ? `<img src="${attr(p.imageUrl)}" alt="${attr(p.name)}" loading="lazy" decoding="async" width="400" height="400">`
     : productPlaceholder(p.name);
-  return `<article class="product-card" data-product-card data-category="${attr(p.category || '')}" data-name="${attr(p.name)}" data-desc="${attr(p.description || '')}">
+  return `<article class="product-card" data-reveal data-product-card data-category="${attr(p.category || '')}" data-name="${attr(p.name)}" data-desc="${attr(p.description || '')}">
     <div class="product-thumb">${image}</div>
     <div class="product-body">
       ${p.category ? `<span class="cat">${esc(p.category)}</span>` : ''}
@@ -146,6 +147,43 @@ function ctaBand(config: RenderConfig, s: UiStrings, title: string, text: string
   </div></div></section>`;
 }
 
+/** First gallery photo, falling back to the cover, for about blocks. */
+function aboutPhoto(config: RenderConfig): string | null {
+  return config.gallery && config.gallery.length ? config.gallery[0] : config.coverUrl || null;
+}
+
+/**
+ * Image-led packages/projects grid used by company, landing and portfolio
+ * style templates that do not have a shopping cart of their own.
+ */
+function showcaseSection(
+  config: RenderConfig,
+  s: UiStrings,
+  lang: Lang,
+  limit = 6,
+  title?: string,
+  lead?: string,
+): string {
+  const items = config.products.filter((p) => p.name).slice(0, limit);
+  if (!items.length) return '';
+  return `<section class="section" id="showcase">
+    <div class="container">
+      ${sectionHead(s.packages, title || s.packages, lead)}
+      <div class="showcase-grid">${items.map((p) => `<article class="showcase-card" data-reveal>
+        <div class="showcase-media">${p.imageUrl
+          ? `<img src="${attr(p.imageUrl)}" alt="${attr(p.name)}" loading="lazy" decoding="async" width="600" height="450">`
+          : productPlaceholder(p.name)}</div>
+        <div class="showcase-body">
+          ${p.category ? `<span class="cat">${esc(p.category)}</span>` : ''}
+          <h3>${esc(p.name)}</h3>
+          ${p.description ? `<p>${esc(p.description)}</p>` : ''}
+          ${p.price > 0 ? `<span class="price">${money(p.price, lang)}</span>` : ''}
+        </div>
+      </article>`).join('')}</div>
+    </div>
+  </section>`;
+}
+
 /* -------------------------------------------------------------------------
  * STORE
  * ---------------------------------------------------------------------- */
@@ -153,8 +191,9 @@ export function storePage(config: RenderConfig, s: UiStrings, lang: Lang): strin
   const products = config.products;
   const categories = Array.from(new Set(products.map((p) => p.category).filter(Boolean))) as string[];
   const heroImage = config.coverUrl
-    ? `<img src="${attr(config.coverUrl)}" alt="${attr(config.siteName)}" width="900" height="1100" fetchpriority="high">`
+    ? `<img src="${attr(config.coverUrl)}" alt="${attr(config.siteName)}" width="900" height="1100" fetchpriority="high" decoding="async">`
     : '';
+  const about = aboutPhoto(config);
   const cartDrawer = `<div class="drawer" id="cart-drawer" aria-label="${attr(s.cart)}">
     <div class="drawer-head"><h3>${esc(s.cart)}</h3><button class="modal-close" type="button" data-close-cart aria-label="${attr(s.close)}">${icon('x')}</button></div>
     <div class="drawer-body" id="cart-body"></div>
@@ -231,8 +270,8 @@ export function storePage(config: RenderConfig, s: UiStrings, lang: Lang): strin
 
   <section class="section bg-soft" id="about">
     <div class="container about-grid">
-      <div class="about-media${config.coverUrl ? '' : ' no-img'}" data-reveal>
-        ${config.coverUrl ? `<img src="${attr(config.coverUrl)}" alt="${attr(config.siteName)}" loading="lazy" width="800" height="700">` : ''}
+      <div class="about-media${about ? '' : ' no-img'}" data-reveal>
+        ${about ? `<img src="${attr(about)}" alt="${attr(config.siteName)}" loading="lazy" decoding="async" width="800" height="700">` : ''}
         <div class="about-badge">${icon('award')}${esc(s.quality)}</div>
       </div>
       <div data-reveal>
@@ -256,6 +295,414 @@ export function storePage(config: RenderConfig, s: UiStrings, lang: Lang): strin
 }
 
 /* -------------------------------------------------------------------------
+ * CAR RENTAL
+ * ---------------------------------------------------------------------- */
+
+interface RentalCopy {
+  heroBadge: string;
+  explore: string;
+  bookNow: string;
+  fleetTitle: string;
+  fleetLead: string;
+  search: string;
+  noResults: string;
+  perDay: string;
+  seats: string;
+  bags: string;
+  ac: string;
+  auto: string;
+  manual: string;
+  petrol: string;
+  diesel: string;
+  hybrid: string;
+  electric: string;
+  popular: string;
+  newCar: string;
+  deal: string;
+  howTitle: string;
+  howLead: string;
+  step1: string; step2: string; step3: string; step4: string;
+  step1d: string; step2d: string; step3d: string; step4d: string;
+  whyTitle: string;
+  whyLead: string;
+  feat1: string; feat1d: string; feat2: string; feat2d: string;
+  feat3: string; feat3d: string; feat4: string; feat4d: string;
+  bookingTitle: string;
+  bookingLead: string;
+  carLabel: string;
+  duration: string;
+  estimate: string;
+  daysLabel: string;
+  pickupDate: string;
+  returnDate: string;
+  pickupPlace: string;
+  agency: string;
+  airport: string;
+  home: string;
+  confirm: string;
+  note: string;
+  terms: string;
+  faq: Array<[string, string]>;
+  stats: Array<[string, string]>;
+  quotes: Array<{ text: string; name: string; role: string }>;
+}
+
+const RENTAL: Record<Lang, RentalCopy> = {
+  ar: {
+    heroBadge: 'تأمين شامل وكيلومترات غير محدودة',
+    explore: 'استكشف الأسطول',
+    bookNow: 'احجز الآن',
+    fleetTitle: 'سيارة لكل رحلة',
+    fleetLead: 'من الاقتصادية إلى الفاخرة — سيارات حديثة بصيانة دورية وأسعار يومية واضحة.',
+    search: 'ابحث عن سيارة...',
+    noResults: 'لا توجد سيارات مطابقة لبحثك.',
+    perDay: '/ اليوم',
+    seats: 'مقاعد', bags: 'حقائب', ac: 'مكيف',
+    auto: 'أوتوماتيك', manual: 'يدوي',
+    petrol: 'بنزين', diesel: 'ديزل', hybrid: 'هجين', electric: 'كهربائي',
+    popular: 'الأكثر طلباً', newCar: 'جديدة', deal: 'عرض خاص',
+    howTitle: 'كيف تحجز سيارتك؟',
+    howLead: 'أربع خطوات بسيطة تفصلك عن الانطلاق.',
+    step1: 'اختر السيارة', step2: 'حدّد التواريخ', step3: 'أكّد الحجز', step4: 'استلم وانطلق',
+    step1d: 'تصفح الأسطول وقارن المواصفات والأسعار.',
+    step2d: 'اختر تاريخ ووقت الاستلام والإرجاع.',
+    step3d: 'اترك رقمك وسنتصل بك لتأكيد التوفر.',
+    step4d: 'تسليم في الوكالة أو المطار مع تأمين شامل.',
+    whyTitle: 'لماذا تختارنا؟',
+    whyLead: 'خدمة كراء واضحة بدون مفاجآت أو رسوم خفية.',
+    feat1: 'تأمين شامل', feat1d: 'كل سيارة مؤمنة بالكامل مع مساعدة على الطريق.',
+    feat2: 'كيلومترات غير محدودة', feat2d: 'سافر بدون حساب إضافي على المسافة.',
+    feat3: 'تسليم مرن', feat3d: 'في الوكالة، المطار أو عند عنوانك.',
+    feat4: 'دعم 24/7', feat4d: 'فريق متاح طوال أيام الأسبوع لمساعدتك.',
+    bookingTitle: 'حجز السيارة',
+    bookingLead: 'اختر سيارتك والتواريخ وسنتصل بك لتأكيد الحجز والتوفر.',
+    carLabel: 'السيارة', duration: 'المدة', estimate: 'التقدير', daysLabel: 'أيام',
+    pickupDate: 'تاريخ الاستلام', returnDate: 'تاريخ الإرجاع',
+    pickupPlace: 'مكان الاستلام', agency: 'الوكالة', airport: 'المطار', home: 'عنوان الزبون',
+    confirm: 'تأكيد الحجز',
+    note: 'الدفع عند الاستلام — تأمين مسترد يُعاد عند الإرجاع.',
+    terms: 'شروط الكراء',
+    faq: [
+      ['ما هي شروط السن والرخصة؟', 'السن الأدنى 21 سنة مع رخصة سياقة سارية منذ سنة على الأقل.'],
+      ['هل يوجد تأمين أو ضمان؟', 'كل سيارة مؤمنة بالكامل، ويُطلب تأمين مسترد قدره 20 000 دج يُعاد عند الإرجاع.'],
+      ['ما هي سياسة الوقود والمسافة؟', 'تُستلم السيارة بخزان ممتلئ وتُعاد كذلك. المسافة غير محدودة داخل الوطن.'],
+      ['هل يمكن إلغاء الحجز؟', 'نعم، الإلغاء مجاني حتى 24 ساعة قبل موعد الاستلام.'],
+    ],
+    stats: [['+8', 'سيارات حديثة'], ['+120', 'عميل سعيد'], ['24/7', 'دعم واستقبال'], ['98%', 'رضا العملاء']],
+    quotes: [
+      { text: 'استأجرت سيارة عائلية لأسبوع، السيارة نظيفة والتسليم كان في المطار في الوقت المحدد.', name: 'سمير ح.', role: 'زبون' },
+      { text: 'أسعار واضحة بدون رسوم خفية، وفريق محترم ساعدني في اختيار السيارة المناسبة.', name: 'ليندة ب.', role: 'زبونة' },
+      { text: 'حجزت مرسيدس لمناسبة عمل، خدمة راقية وسيارة بحالة ممتازة.', name: 'ياسين ع.', role: 'رجل أعمال' },
+    ],
+  },
+  fr: {
+    heroBadge: 'Assurance tous risques et kilométrage illimité',
+    explore: 'Voir la flotte',
+    bookNow: 'Réserver',
+    fleetTitle: 'Une voiture pour chaque trajet',
+    fleetLead: 'De l’économique au premium — des véhicules récents, entretenus, à des tarifs journaliers clairs.',
+    search: 'Rechercher une voiture...',
+    noResults: 'Aucun véhicule ne correspond à votre recherche.',
+    perDay: '/ jour',
+    seats: 'places', bags: 'bagages', ac: 'Clim',
+    auto: 'Automatique', manual: 'Manuelle',
+    petrol: 'Essence', diesel: 'Diesel', hybrid: 'Hybride', electric: 'Électrique',
+    popular: 'Populaire', newCar: 'Nouveau', deal: 'Offre',
+    howTitle: 'Comment réserver ?',
+    howLead: 'Quatre étapes simples avant de prendre la route.',
+    step1: 'Choisissez la voiture', step2: 'Dates et heures', step3: 'Confirmez', step4: 'Récupérez et partez',
+    step1d: 'Parcourez la flotte et comparez les équipements et les prix.',
+    step2d: 'Choisissez la date et l’heure de départ et de retour.',
+    step3d: 'Laissez votre numéro, nous vous appelons pour confirmer.',
+    step4d: 'Livraison à l’agence ou à l’aéroport, assurance incluse.',
+    whyTitle: 'Pourquoi nous choisir ?',
+    whyLead: 'Une location claire, sans frais cachés.',
+    feat1: 'Assurance tous risques', feat1d: 'Chaque véhicule est assuré, avec assistance routière.',
+    feat2: 'Kilométrage illimité', feat2d: 'Roulez sans supplément sur la distance.',
+    feat3: 'Livraison flexible', feat3d: 'À l’agence, à l’aéroport ou à votre adresse.',
+    feat4: 'Assistance 24/7', feat4d: 'Une équipe disponible tous les jours pour vous aider.',
+    bookingTitle: 'Réserver un véhicule',
+    bookingLead: 'Choisissez votre voiture et vos dates, nous vous appelons pour confirmer la disponibilité.',
+    carLabel: 'Véhicule', duration: 'Durée', estimate: 'Estimation', daysLabel: 'jours',
+    pickupDate: 'Date de départ', returnDate: 'Date de retour',
+    pickupPlace: 'Lieu de prise en charge', agency: 'Agence', airport: 'Aéroport', home: 'À domicile',
+    confirm: 'Confirmer la réservation',
+    note: 'Paiement à la prise en charge — caution remboursable au retour.',
+    terms: 'Conditions de location',
+    faq: [
+      ['Quelles sont les conditions d’âge et de permis ?', 'Âge minimum 21 ans avec un permis valide depuis au moins un an.'],
+      ['Y a-t-il une assurance ou une caution ?', 'Tous les véhicules sont assurés. Une caution remboursable de 20 000 DA est demandée.'],
+      ['Quelle est la politique carburant et kilométrage ?', 'Le véhicule est fourni et rendu avec le plein. Kilométrage illimité en Algérie.'],
+      ['Puis-je annuler ma réservation ?', 'Oui, l’annulation est gratuite jusqu’à 24 heures avant la prise en charge.'],
+    ],
+    stats: [['+8', 'véhicules récents'], ['+120', 'clients satisfaits'], ['24/7', 'accueil & support'], ['98%', 'satisfaction']],
+    quotes: [
+      { text: 'J’ai loué une voiture familiale une semaine : propre et livrée à l’aéroport pile à l’heure.', name: 'Samir H.', role: 'Client' },
+      { text: 'Des prix clairs sans frais cachés, et une équipe qui m’a bien conseillée.', name: 'Lynda B.', role: 'Cliente' },
+      { text: 'J’ai réservé une Mercedes pour un déplacement pro : service impeccable.', name: 'Yacine A.', role: 'Chef d’entreprise' },
+    ],
+  },
+  en: {
+    heroBadge: 'Full insurance and unlimited mileage',
+    explore: 'Explore the fleet',
+    bookNow: 'Book now',
+    fleetTitle: 'A car for every trip',
+    fleetLead: 'From budget to premium — recent, well-maintained cars at clear daily rates.',
+    search: 'Search a car...',
+    noResults: 'No cars match your search.',
+    perDay: '/ day',
+    seats: 'seats', bags: 'bags', ac: 'A/C',
+    auto: 'Automatic', manual: 'Manual',
+    petrol: 'Petrol', diesel: 'Diesel', hybrid: 'Hybrid', electric: 'Electric',
+    popular: 'Most popular', newCar: 'New', deal: 'Special offer',
+    howTitle: 'How to book your car',
+    howLead: 'Four simple steps before you hit the road.',
+    step1: 'Choose your car', step2: 'Pick your dates', step3: 'Confirm', step4: 'Collect and drive',
+    step1d: 'Browse the fleet and compare specs and prices.',
+    step2d: 'Choose pickup and return dates and times.',
+    step3d: 'Leave your number and we call you to confirm availability.',
+    step4d: 'Pickup at the agency or airport, insurance included.',
+    whyTitle: 'Why choose us?',
+    whyLead: 'Clear rental terms with no hidden fees.',
+    feat1: 'Full insurance', feat1d: 'Every car is fully insured with roadside assistance.',
+    feat2: 'Unlimited mileage', feat2d: 'Drive without extra distance charges.',
+    feat3: 'Flexible delivery', feat3d: 'At the agency, the airport or your address.',
+    feat4: '24/7 support', feat4d: 'A team available every day to help you.',
+    bookingTitle: 'Book a car',
+    bookingLead: 'Choose your car and dates, and we will call you to confirm availability.',
+    carLabel: 'Car', duration: 'Duration', estimate: 'Estimate', daysLabel: 'days',
+    pickupDate: 'Pickup date', returnDate: 'Return date',
+    pickupPlace: 'Pickup location', agency: 'Agency', airport: 'Airport', home: 'Your address',
+    confirm: 'Confirm booking',
+    note: 'Payment on pickup — refundable deposit returned on drop-off.',
+    terms: 'Rental terms',
+    faq: [
+      ['What are the age and licence requirements?', 'Minimum age 21 with a valid driving licence held for at least one year.'],
+      ['Is insurance or a deposit required?', 'All cars are fully insured. A refundable 20,000 DA deposit is required.'],
+      ['What is the fuel and mileage policy?', 'Cars are provided and returned with a full tank. Unlimited mileage in Algeria.'],
+      ['Can I cancel my booking?', 'Yes, cancellation is free up to 24 hours before pickup.'],
+    ],
+    stats: [['+8', 'recent cars'], ['+120', 'happy clients'], ['24/7', 'support'], ['98%', 'satisfaction']],
+    quotes: [
+      { text: 'I rented a family car for a week. Clean, and delivered to the airport right on time.', name: 'Samir H.', role: 'Customer' },
+      { text: 'Clear prices with no hidden fees, and a team that helped me pick the right car.', name: 'Lynda B.', role: 'Customer' },
+      { text: 'Booked a Mercedes for a business trip — impeccable service and a pristine car.', name: 'Yacine A.', role: 'Business owner' },
+    ],
+  },
+};
+
+function rentalCard(p: RenderProduct, copy: RentalCopy, lang: Lang): string {
+  const r = p.rental;
+  const badgeLabel = r?.badge === 'popular' ? copy.popular : r?.badge === 'new' ? copy.newCar : r?.badge === 'deal' ? copy.deal : '';
+  const specs: string[] = [];
+  if (r) {
+    specs.push(`<span class="spec">${icon('users')}<span>${r.seats} ${esc(copy.seats)}</span></span>`);
+    specs.push(`<span class="spec">${icon('gearbox')}<span>${esc(r.transmission === 'auto' ? copy.auto : copy.manual)}</span></span>`);
+    const fuel = { petrol: copy.petrol, diesel: copy.diesel, hybrid: copy.hybrid, electric: copy.electric }[r.fuel];
+    specs.push(`<span class="spec">${icon('fuel')}<span>${esc(fuel)}</span></span>`);
+    if (r.luggage) specs.push(`<span class="spec">${icon('suitcase')}<span>${r.luggage} ${esc(copy.bags)}</span></span>`);
+    if (r.ac) specs.push(`<span class="spec">${icon('snow')}<span>${esc(copy.ac)}</span></span>`);
+    if (r.year) specs.push(`<span class="spec">${icon('calendar')}<span>${r.year}</span></span>`);
+  }
+  const image = p.imageUrl
+    ? `<img src="${attr(p.imageUrl)}" alt="${attr(p.name)}" loading="lazy" decoding="async" width="900" height="620">`
+    : productPlaceholder(p.name);
+  return `<article class="fleet-card" data-reveal data-product-card data-category="${attr(p.category || '')}" data-name="${attr(p.name)}" data-desc="${attr(p.description || '')}">
+    <div class="fleet-media">${image}${badgeLabel ? `<span class="fleet-badge ${r?.badge}">${esc(badgeLabel)}</span>` : ''}</div>
+    <div class="fleet-body">
+      ${p.category ? `<span class="cat">${esc(p.category)}</span>` : ''}
+      <h3>${esc(p.name)}</h3>
+      ${p.description ? `<p class="fleet-desc">${esc(p.description)}</p>` : ''}
+      ${specs.length ? `<div class="fleet-specs">${specs.join('')}</div>` : ''}
+      <div class="fleet-foot">
+        <div class="fleet-price">${money(p.price, lang)}<small>${esc(copy.perDay)}</small></div>
+        <button class="btn btn-primary fleet-book" type="button" data-book-car="${attr(p.id)}">${icon('key')}${esc(copy.bookNow)}</button>
+      </div>
+    </div>
+  </article>`;
+}
+
+export function carRentalPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
+  const copy = RENTAL[lang];
+  const cars = config.products.filter((p) => p.name);
+  const categories = Array.from(new Set(cars.map((p) => p.category).filter(Boolean))) as string[];
+  const heroImage = config.coverUrl
+    ? `<img src="${attr(config.coverUrl)}" alt="${attr(config.siteName)}" width="900" height="1100" fetchpriority="high" decoding="async">`
+    : '';
+  const about = aboutPhoto(config);
+  const first = cars[0];
+  const options = cars.map((p, i) => `<option value="${attr(p.id)}" data-name="${attr(p.name)}" data-price="${p.price}" data-min-days="${p.rental?.minDays || 1}"${i === 0 ? ' selected' : ''}>${esc(p.name)} — ${money(p.price, lang)} ${esc(copy.perDay)}</option>`).join('');
+
+  return `<section class="hero rental-hero" id="top">
+    <div class="container hero-grid">
+      <div class="hero-copy" data-reveal>
+        <span class="badge">${icon('shield')}${esc(copy.heroBadge)}</span>
+        <h1 class="h1 mt-3">${esc(config.siteName)}</h1>
+        <p class="lead">${esc(config.description)}</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#fleet">${icon('car')}${esc(copy.explore)}</a>
+          <a class="btn btn-light" href="#booking">${icon('calendar')}${esc(s.booking)}</a>
+        </div>
+        <div class="hero-stats">
+          ${copy.stats.slice(0, 3).map(([num, label]) => `<div><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="hero-media${heroImage ? '' : ' no-img'}" data-mark="${attr(initials(config.siteName))}" data-reveal>${heroImage}
+        <div class="float-card"><span class="float-icon">${icon('shield')}</span><div><strong>${esc(copy.feat1)}</strong><span>${esc(copy.feat2)}</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="trust-strip"><div class="container">
+    <span class="trust-item">${icon('shield')}${esc(copy.feat1)}</span>
+    <span class="trust-item">${icon('road')}${esc(copy.feat2)}</span>
+    <span class="trust-item">${icon('map')}${esc(copy.feat3)}</span>
+    <span class="trust-item">${icon('clock')}${esc(copy.feat4)}</span>
+  </div></div>
+
+  <section class="section" id="fleet">
+    <div class="container">
+      ${sectionHead(s.fleet, copy.fleetTitle, copy.fleetLead)}
+      <div class="shop-toolbar">
+        <button class="chip active" type="button" data-filter="all">${esc(s.all)}</button>
+        ${categories.map((cat) => `<button class="chip" type="button" data-filter="${attr(cat)}">${esc(cat)}</button>`).join('')}
+        <div class="search-box">${icon('search')}<input id="product-search" type="search" placeholder="${attr(copy.search)}" aria-label="${attr(copy.search)}"></div>
+      </div>
+      <div class="fleet-grid">
+        ${cars.map((p) => rentalCard(p, copy, lang)).join('')}
+        <div class="product-empty${cars.length ? ' hide' : ''}" id="product-empty">${esc(copy.noResults)}</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="how">
+    <div class="container">
+      ${sectionHead(s.process, copy.howTitle, copy.howLead)}
+      <div class="rental-steps">
+        ${[
+          ['car', copy.step1, copy.step1d],
+          ['calendar', copy.step2, copy.step2d],
+          ['phone', copy.step3, copy.step3d],
+          ['key', copy.step4, copy.step4d],
+        ].map(([ic, title, desc], i) => `<div class="rental-step" data-reveal>
+          <span class="n">0${i + 1}</span>
+          <span class="s-ic">${icon(ic as 'car' | 'calendar' | 'phone' | 'key')}</span>
+          <h3>${esc(title)}</h3>
+          <p>${esc(desc)}</p>
+        </div>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="about">
+    <div class="container about-grid">
+      <div class="about-media${about ? '' : ' no-img'}" data-reveal>
+        ${about ? `<img src="${attr(about)}" alt="${attr(config.siteName)}" loading="lazy" decoding="async" width="800" height="700">` : ''}
+        <div class="about-badge">${icon('award')}${esc(copy.feat1)}</div>
+      </div>
+      <div data-reveal>
+        <span class="eyebrow">${esc(s.about)}</span>
+        <h2 class="h2 mt-2">${esc(copy.whyTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.whyLead)}</p>
+        <ul class="checklist">
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat1)} — ${esc(copy.feat1d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat2)} — ${esc(copy.feat2d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat3)} — ${esc(copy.feat3d)}</span></li>
+        </ul>
+        <a class="btn btn-primary mt-4" href="#booking">${icon('calendar')}${esc(s.booking)}</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-soft">
+    <div class="container">
+      ${sectionHead(s.benefits, copy.whyTitle)}
+      <div class="feature-grid">
+        ${[
+          ['shield', copy.feat1, copy.feat1d],
+          ['road', copy.feat2, copy.feat2d],
+          ['map', copy.feat3, copy.feat3d],
+          ['clock', copy.feat4, copy.feat4d],
+        ].map(([ic, title, desc]) => `<div class="feature" data-reveal>
+          <span class="f-ic">${icon(ic as 'shield' | 'road' | 'map' | 'clock')}</span>
+          <div><h3>${esc(title)}</h3><p>${esc(desc)}</p></div>
+        </div>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="stats-band">
+    <div class="container stats-grid">
+      ${copy.stats.map(([num, label]) => `<div class="stat"><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">${sectionHead(s.testimonials, s.testimonials, undefined, true)}
+      <div class="grid g3">${copy.quotes.map((q) => `<div class="quote" data-reveal>
+        <div class="stars" aria-label="5/5">★★★★★</div>
+        <p>“${esc(q.text)}”</p>
+        <div class="who"><span class="avatar">${esc(initialsFor(q.name))}</span><div><strong>${esc(q.name)}</strong><span>${esc(q.role)}</span></div></div>
+      </div>`).join('')}</div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="booking">
+    <div class="container booking-wrap">
+      <div class="booking-copy" data-reveal>
+        <span class="eyebrow">${esc(s.booking)}</span>
+        <h2 class="h2 mt-2">${esc(copy.bookingTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.bookingLead)}</p>
+        <ul class="checklist">
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat1)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat2)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.note)}</span></li>
+        </ul>
+        ${contactDetails(config, s)}
+      </div>
+      <form class="booking-card" data-lead-form data-lead-kind="rental" data-rental data-days-label="${attr(copy.daysLabel)}" novalidate>
+        <h3>${esc(copy.bookingTitle)}</h3>
+        <p class="booking-sub">${esc(copy.bookingLead)}</p>
+        <div class="form-grid">
+          <div class="field"><label for="rental-name">${esc(s.name)}</label><input id="rental-name" name="name" required maxlength="80" autocomplete="name"><span class="err">${esc(s.required)}</span></div>
+          <div class="field"><label for="rental-phone">${esc(s.phone)}</label><input id="rental-phone" name="phone" type="tel" required maxlength="20" autocomplete="tel" dir="ltr"><span class="err">${esc(s.invalidPhone)}</span></div>
+          <div class="field full"><label for="rental-car">${esc(copy.carLabel)}</label><select id="rental-car" name="car" required>${options}</select></div>
+          <div class="field"><label for="rental-pickup-date">${esc(copy.pickupDate)}</label><input id="rental-pickup-date" name="pickupDate" type="date" required><span class="err">${esc(s.required)}</span></div>
+          <div class="field"><label for="rental-pickup-time">${esc(s.time)}</label><input id="rental-pickup-time" name="pickupTime" type="time" required value="09:00"></div>
+          <div class="field"><label for="rental-return-date">${esc(copy.returnDate)}</label><input id="rental-return-date" name="returnDate" type="date" required><span class="err">${esc(s.required)}</span></div>
+          <div class="field"><label for="rental-return-time">${esc(s.time)}</label><input id="rental-return-time" name="returnTime" type="time" required value="10:00"></div>
+          <div class="field"><label for="rental-place">${esc(copy.pickupPlace)}</label><select id="rental-place" name="pickupPlace"><option>${esc(copy.agency)}</option><option>${esc(copy.airport)}</option><option>${esc(copy.home)}</option></select></div>
+          <div class="field"><label for="rental-note">${esc(s.note)}</label><input id="rental-note" name="message" maxlength="300"></div>
+          <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
+        </div>
+        <div class="rental-summary" aria-live="polite">
+          <div><span>${esc(copy.carLabel)}</span><strong id="rental-car-name">${esc(first?.name || '')}</strong></div>
+          <div><span>${esc(copy.duration)}</span><strong id="rental-days">—</strong></div>
+          <div class="grand"><span>${esc(copy.estimate)}</span><strong id="rental-total">—</strong></div>
+        </div>
+        <button class="btn btn-primary btn-block mt-3" type="submit">${icon('check')}${esc(copy.confirm)}</button>
+        <div class="form-status" role="status"></div>
+        <p class="form-note center mt-2">${esc(copy.note)}</p>
+      </form>
+    </div>
+  </section>
+
+  <section class="section" id="faq">
+    <div class="container">
+      ${sectionHead(s.faq, copy.terms, undefined, true)}
+      <div class="faq-list">
+        ${copy.faq.map(([q, a]) => `<details class="faq" data-reveal>
+          <summary>${esc(q)}<span class="faq-ic">${icon('plus')}</span></summary>
+          <p>${esc(a)}</p>
+        </details>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  ${contactSection(config, s)}`;
+}
+
+/* -------------------------------------------------------------------------
  * COMPANY
  * ---------------------------------------------------------------------- */
 export function companyPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
@@ -263,8 +710,9 @@ export function companyPage(config: RenderConfig, s: UiStrings, lang: Lang): str
     { title: s.services, description: config.tagline },
   ];
   const heroMedia = config.coverUrl
-    ? `<img src="${attr(config.coverUrl)}" alt="${attr(config.siteName)}" width="900" height="1100" fetchpriority="high">`
+    ? `<img src="${attr(config.coverUrl)}" alt="${attr(config.siteName)}" width="900" height="1100" fetchpriority="high" decoding="async">`
     : '';
+  const about = aboutPhoto(config);
   return `<section class="hero company-hero" id="top">
     <div class="container hero-grid">
       <div class="hero-copy" data-reveal>
@@ -308,8 +756,8 @@ export function companyPage(config: RenderConfig, s: UiStrings, lang: Lang): str
 
   <section class="section bg-soft" id="about">
     <div class="container about-grid">
-      <div class="about-media${config.coverUrl ? '' : ' no-img'}" data-reveal>
-        ${config.coverUrl ? `<img src="${attr(config.coverUrl)}" alt="${attr(config.siteName)}" loading="lazy" width="800" height="700">` : ''}
+      <div class="about-media${about ? '' : ' no-img'}" data-reveal>
+        ${about ? `<img src="${attr(about)}" alt="${attr(config.siteName)}" loading="lazy" decoding="async" width="800" height="700">` : ''}
         <div class="about-badge">${icon('check')}+8 ${esc(s.years)}</div>
       </div>
       <div data-reveal>
@@ -324,6 +772,8 @@ export function companyPage(config: RenderConfig, s: UiStrings, lang: Lang): str
       </div>
     </div>
   </section>
+
+  ${showcaseSection(config, s, lang, 6, s.packages, config.tagline)}
 
   <section class="section" id="process">
     <div class="container">
@@ -344,7 +794,20 @@ export function companyPage(config: RenderConfig, s: UiStrings, lang: Lang): str
  * PORTFOLIO
  * ---------------------------------------------------------------------- */
 export function portfolioPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
-  const projects = config.services.length ? config.services : [{ title: s.ourWork, description: config.tagline }];
+  const projects = config.products.length
+    ? config.products.map((p) => ({
+        title: p.name,
+        description: p.description || '',
+        imageUrl: p.imageUrl,
+        price: p.price,
+      }))
+    : (config.services.length ? config.services : [{ title: s.ourWork, description: config.tagline }])
+        .map((service, i) => ({
+          title: service.title,
+          description: service.description,
+          imageUrl: (config.gallery || [])[i % Math.max(1, (config.gallery || []).length)] || null,
+          price: 0,
+        }));
   const portrait = config.coverUrl
     ? `<div class="ph"><img src="${attr(config.coverUrl)}" alt="${attr(config.siteName)}" loading="lazy" width="700" height="780"></div>`
     : `<div class="ph">${esc(initials(config.siteName))}</div>`;
@@ -372,9 +835,10 @@ export function portfolioPage(config: RenderConfig, s: UiStrings, lang: Lang): s
     <div class="container">
       ${sectionHead(s.work, s.selectedWork, s.skills)}
       <div class="work-grid">${projects.slice(0, 8).map((project, i) => `<a class="work-card" href="#contact" data-reveal>
+        ${project.imageUrl ? `<img src="${attr(project.imageUrl)}" alt="${attr(project.title)}" loading="lazy" decoding="async" width="700" height="520">` : ''}
         <span class="num">${String(i + 1).padStart(2, '0')}</span>
         <span class="go">${icon('arrow')}</span>
-        <div><h3>${esc(project.title)}</h3><p>${esc(project.description)}</p></div>
+        <div><h3>${esc(project.title)}</h3><p>${esc(project.description)}</p>${project.price > 0 ? `<span class="work-price">${money(project.price, lang)}</span>` : ''}</div>
       </a>`).join('')}</div>
     </div>
   </section>
@@ -412,15 +876,20 @@ export function cardPage(config: RenderConfig, s: UiStrings, lang: Lang): string
   for (const code of ['ar', 'fr', 'en'] as const) {
     alternates[code] = code === config.language ? 'index.html' : `${code}.html`;
   }
+  const cover = config.coverUrl
+    ? `<img src="${attr(config.coverUrl)}" alt="" aria-hidden="true" width="900" height="600" decoding="async">`
+    : '';
+  const gallery = (config.gallery || []).slice(0, 3);
   return `<main class="vcard-page" id="top">
     <div>
       <article class="vcard" data-reveal>
-        <div class="vcard-cover"></div>
+        <div class="vcard-cover">${cover}</div>
         <div class="vcard-logo">${logoMark(config)}</div>
         <div class="vcard-body">
           <h1>${esc(config.siteName)}</h1>
           <div class="role">${esc(config.tagline || config.category)}</div>
           <p class="bio">${esc(config.description)}</p>
+          ${gallery.length ? `<div class="vcard-gallery">${gallery.map((url, i) => `<img src="${attr(url)}" alt="${attr(config.siteName)} ${i + 1}" loading="lazy" decoding="async" width="220" height="160">`).join('')}</div>` : ''}
           <div class="quick-actions">
             ${config.phone ? `<a class="btn btn-primary" href="tel:${attr(config.phone)}">${icon('phone')}${esc(s.callNow)}</a>` : ''}
             ${config.whatsapp ? `<a class="btn btn-wa" href="${attr(waHref(config, `مرحباً ${config.siteName} 👋`))}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.whatsapp)}</a>` : ''}
@@ -439,7 +908,7 @@ export function cardPage(config: RenderConfig, s: UiStrings, lang: Lang): string
           </div>
         </div>
       </article>
-      <div class="vcard-lang">${languageSwitch(config, lang, alternates)}</div>
+      <div class="vcard-lang">${languageSwitch(config, lang, alternates)}${themeToggle(s)}</div>
       <div class="powered">${esc(config.siteName)} · ${esc(config.city || '')}</div>
     </div>
   </main>`;
@@ -451,7 +920,8 @@ export function cardPage(config: RenderConfig, s: UiStrings, lang: Lang): string
 export function restaurantPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
   const products = config.products;
   const categories = Array.from(new Set(products.map((p) => p.category).filter(Boolean))) as string[];
-  const cover = config.coverUrl ? `<img src="${attr(config.coverUrl)}" alt="" aria-hidden="true" width="1600" height="900">` : '';
+  const cover = config.coverUrl ? `<img src="${attr(config.coverUrl)}" alt="" aria-hidden="true" width="1600" height="900" fetchpriority="high" decoding="async">` : '';
+  const about = aboutPhoto(config);
   return `<section class="rest-hero" id="top">
     <div class="bg">${cover}</div>
     <div class="container">
@@ -495,7 +965,7 @@ export function restaurantPage(config: RenderConfig, s: UiStrings, lang: Lang): 
 
   <section class="section bg-soft" id="about">
     <div class="container about-grid">
-      <div class="about-media${config.coverUrl ? '' : ' no-img'}" data-reveal>${config.coverUrl ? `<img src="${attr(config.coverUrl)}" alt="${attr(config.siteName)}" loading="lazy" width="800" height="700">` : ''}<div class="about-badge">${icon('star')}4.9/5</div></div>
+      <div class="about-media${about ? '' : ' no-img'}" data-reveal>${about ? `<img src="${attr(about)}" alt="${attr(config.siteName)}" loading="lazy" decoding="async" width="800" height="700">` : ''}<div class="about-badge">${icon('star')}4.9/5</div></div>
       <div data-reveal>
         <span class="eyebrow">${esc(s.about)}</span>
         <h2 class="h2 mt-2">${esc(config.siteName)}</h2>
@@ -577,6 +1047,8 @@ export function landingPage(config: RenderConfig, s: UiStrings, lang: Lang): str
     </div>
   </section>
 
+  ${showcaseSection(config, s, lang, 6, s.packages, config.tagline)}
+
   <section class="section bg-soft" id="offer">
     <div class="container">
       ${sectionHead(s.offer, s.getStarted, s.messageSuccess, true)}
@@ -623,7 +1095,7 @@ export function pageFor(template: string, config: RenderConfig, lang: Lang): str
     case 'electronics':
     case 'fashion':
     case 'carrental':
-      return storePage(config, s, lang);
+      return carRentalPage(config, s, lang);
 
     // Restaurant-style templates
     case 'bakery':
@@ -679,9 +1151,33 @@ export function jsonLdFor(template: string, config: RenderConfig, siteUrl: strin
     case 'pharmacy': return { ...base, '@type': 'Pharmacy', image: config.coverUrl || undefined, priceRange: 'DZD' };
     case 'electronics':
     case 'fashion':
-    case 'carrental':
     case 'agriculture':
       return { ...base, '@type': 'Store', image: config.coverUrl || undefined, priceRange: 'DZD' };
+    case 'carrental':
+      return {
+        ...base,
+        '@type': 'AutoRental',
+        image: config.coverUrl || undefined,
+        priceRange: 'DZD',
+        openingHours: config.hours || undefined,
+        hasOfferCatalog: {
+          '@type': 'OfferCatalog',
+          name: 'Fleet',
+          itemListElement: config.products.slice(0, 12).map((p, index) => ({
+            '@type': 'Offer',
+            position: index + 1,
+            price: p.price,
+            priceCurrency: 'DZD',
+            availability: 'https://schema.org/InStock',
+            itemOffered: {
+              '@type': 'Car',
+              name: p.name,
+              description: p.description || undefined,
+              image: p.imageUrl || undefined,
+            },
+          })),
+        },
+      };
     case 'restaurant': return { ...base, '@type': 'Restaurant', servesCuisine: 'Algerian', image: config.coverUrl || undefined };
     case 'bakery': return { ...base, '@type': 'Bakery', image: config.coverUrl || undefined };
     case 'medical': return { ...base, '@type': 'MedicalClinic', image: config.coverUrl || undefined };

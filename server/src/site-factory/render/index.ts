@@ -33,6 +33,9 @@ export function renderSite(input: RenderConfig): RenderedSite {
     primaryColor: safeColor(input.primaryColor, '#0b5ed7'),
     secondaryColor: safeColor(input.secondaryColor, '#1e3a8a'),
     products: (input.products || []).map((p) => ({ ...p })),
+    gallery: (input.gallery || [])
+      .filter((url) => typeof url === 'string' && /^https?:\/\//i.test(url))
+      .slice(0, 12),
     services: (input.services || []).filter((s) => s && s.title).map((s) => ({ ...s })),
     socials: {
       facebook: input.socials?.facebook || '',

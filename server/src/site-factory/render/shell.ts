@@ -5,7 +5,8 @@ type IconName =
   | 'cart' | 'menu' | 'x' | 'globe' | 'shield' | 'truck' | 'spark' | 'instagram'
   | 'facebook' | 'tiktok' | 'chevron' | 'plus' | 'search' | 'send' | 'user'
   | 'calendar' | 'users' | 'briefcase' | 'layers' | 'zap' | 'heart' | 'share'
-  | 'download' | 'external' | 'home' | 'award' | 'target';
+  | 'download' | 'external' | 'home' | 'award' | 'target' | 'sun' | 'moon' | 'contrast'
+  | 'car' | 'fuel' | 'gearbox' | 'snow' | 'suitcase' | 'key' | 'road';
 
 const ICONS: Record<IconName, string> = {
   phone: '<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/>',
@@ -43,6 +44,16 @@ const ICONS: Record<IconName, string> = {
   home: '<path d="m3 10 9-7 9 7v11H3V10Z"/><path d="M9 21v-7h6v7"/>',
   award: '<circle cx="12" cy="9" r="6"/><path d="m8.5 14-1.5 8 5-3 5 3-1.5-8"/>',
   target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1" fill="currentColor"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  moon: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>',
+  contrast: '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18Z" fill="currentColor" stroke="none"/>',
+  car: '<path d="M3 15h18M5 15v3M19 15v3M4 15l1.8-5.2A2 2 0 0 1 7.7 8h8.6a2 2 0 0 1 1.9 1.8L20 15"/><circle cx="7.5" cy="16.5" r="1.5"/><circle cx="16.5" cy="16.5" r="1.5"/>',
+  fuel: '<path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10"/><path d="M14 8h3l3 3v6a2 2 0 0 1-4 0v-3h-2"/>',
+  gearbox: '<path d="M6 4v16M12 4v16M18 4v16M6 9h12M6 15h12"/>',
+  snow: '<path d="M12 2v20M4 7l16 10M20 7 4 17"/>',
+  suitcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/>',
+  key: '<circle cx="8" cy="15" r="4"/><path d="m11 12 9-9M17 3l4 4M14 6l4 4"/>',
+  road: '<path d="M4 21 8 3M20 21 16 3M12 5v3M12 11v3M12 17v3"/>',
 };
 
 export function icon(name: IconName, className = 'icon'): string {
@@ -81,6 +92,14 @@ function navItems(config: RenderConfig, s: UiStrings): { href: string; label: st
         { href: '#about', label: s.about },
         { href: '#contact', label: s.contact },
       ];
+    case 'carrental':
+      return [
+        { href: '#top', label: s.home },
+        { href: '#fleet', label: s.fleet },
+        { href: '#how', label: s.process },
+        { href: '#booking', label: s.booking },
+        { href: '#contact', label: s.contact },
+      ];
     case 'restaurant':
       return [
         { href: '#top', label: s.home },
@@ -93,6 +112,7 @@ function navItems(config: RenderConfig, s: UiStrings): { href: string; label: st
       return [
         { href: '#top', label: s.home },
         { href: '#services', label: s.services },
+        { href: '#showcase', label: s.packages },
         { href: '#about', label: s.about },
         { href: '#process', label: s.process },
         { href: '#contact', label: s.contact },
@@ -108,12 +128,13 @@ function navItems(config: RenderConfig, s: UiStrings): { href: string; label: st
       return [
         { href: '#top', label: s.home },
         { href: '#benefits', label: s.benefits },
+        { href: '#showcase', label: s.packages },
         { href: '#offer', label: s.offer },
         { href: '#faq', label: s.faq },
         { href: '#contact', label: s.contact },
       ];
     default:
-      if (['pharmacy', 'electronics', 'fashion', 'carrental', 'agriculture'].includes(config.templateSlug)) {
+      if (['pharmacy', 'electronics', 'fashion', 'agriculture'].includes(config.templateSlug)) {
         return [
           { href: '#top', label: s.home },
           { href: '#products', label: s.products },
@@ -142,6 +163,7 @@ function navItems(config: RenderConfig, s: UiStrings): { href: string; label: st
         return [
           { href: '#top', label: s.home },
           { href: '#services', label: s.services },
+          { href: '#showcase', label: s.packages },
           { href: '#about', label: s.about },
           { href: '#process', label: s.process },
           { href: '#contact', label: s.contact },
@@ -151,6 +173,7 @@ function navItems(config: RenderConfig, s: UiStrings): { href: string; label: st
         return [
           { href: '#top', label: s.home },
           { href: '#benefits', label: s.benefits },
+          { href: '#showcase', label: s.packages },
           { href: '#offer', label: s.offer },
           { href: '#faq', label: s.faq },
           { href: '#contact', label: s.contact },
@@ -169,6 +192,19 @@ export function languageSwitch(config: RenderConfig, lang: string, alternates: R
       ? `<span class="active" aria-current="true">${label}</span>`
       : `<a href="${attr(href)}" hreflang="${code}" lang="${code}">${label}</a>`;
   }).join('')}</div>`;
+}
+
+/**
+ * Cycles auto -> light -> dark. The three icons are all rendered and CSS shows
+ * the one matching `data-theme-mode` on <html>, so the control also works
+ * before the client bundle runs.
+ */
+export function themeToggle(s: UiStrings): string {
+  return `<button class="theme-toggle" type="button" data-theme-toggle data-theme-label="${attr(s.theme)}" data-theme-auto="${attr(s.themeAuto)}" data-theme-light="${attr(s.themeLight)}" data-theme-dark="${attr(s.themeDark)}" aria-label="${attr(s.theme)}: ${attr(s.themeAuto)}" title="${attr(s.theme)}: ${attr(s.themeAuto)}">
+    <span class="tt-icon tt-auto" aria-hidden="true">${icon('contrast')}</span>
+    <span class="tt-icon tt-light" aria-hidden="true">${icon('sun')}</span>
+    <span class="tt-icon tt-dark" aria-hidden="true">${icon('moon')}</span>
+  </button>`;
 }
 
 function whatsappCta(config: RenderConfig, s: UiStrings): string {
@@ -198,7 +234,10 @@ export function renderShell(options: ShellOptions): string {
   // block, so the mobile CTA must target an anchor that really exists.
   const mobileCtaHref = config.templateSlug === 'restaurant' || config.templateSlug === 'bakery'
     ? '#reserve'
-    : '#contact';
+    : config.templateSlug === 'carrental'
+      ? '#booking'
+      : '#contact';
+  const mobileCtaLabel = config.templateSlug === 'carrental' ? s.booking : s.contact;
   const alternateTags = (['ar', 'fr', 'en'] as const)
     .filter((code) => alternates[code])
     .map((code) => `<link rel="alternate" hreflang="${code}" href="${attr(absolute(siteUrl, alternates[code]))}">`)
@@ -210,7 +249,7 @@ export function renderShell(options: ShellOptions): string {
     : '';
   const headerHtml = hasHeader ? `<header class="site-header">
     <div class="container header-inner">
-      <a class="brand" href="index.html" aria-label="${attr(config.siteName)}">
+      <a class="brand" href="index.html">
         ${logo}
         <span><span class="brand-name">${esc(config.siteName)}</span><small>${esc(config.category || config.tagline)}</small></span>
       </a>
@@ -218,6 +257,7 @@ export function renderShell(options: ShellOptions): string {
         ${nav.map((l) => `<a href="${attr(l.href)}">${esc(l.label)}</a>`).join('')}
       </nav>
       <div class="header-actions">
+        ${themeToggle(s)}
         ${languageSwitch(config, lang, alternates)}
         ${config.templateSlug === 'store' ? `<button class="cart-btn" type="button" data-open-cart aria-label="${attr(s.cart)}">${icon('cart')}<span class="cart-count" data-cart-count style="display:none">0</span></button>` : ''}
         ${whatsappCta(config, s)}
@@ -230,7 +270,7 @@ export function renderShell(options: ShellOptions): string {
         <a class="brand" href="index.html">${logo}<span>${esc(config.siteName)}</span></a>
         ${nav.map((l) => `<a class="m-link" href="${attr(l.href)}">${esc(l.label)}</a>`).join('')}
         ${config.templateSlug === 'store' ? `<button class="btn btn-ghost" type="button" data-open-cart>${icon('cart')}${esc(s.cart)}</button>` : ''}
-        <a class="btn btn-primary" href="${mobileCtaHref}">${icon('send')}${esc(s.contact)}</a>
+        <a class="btn btn-primary" href="${mobileCtaHref}">${icon('send')}${esc(mobileCtaLabel)}</a>
       </div>
     </div>
   </header>` : '';
@@ -272,6 +312,8 @@ export function renderShell(options: ShellOptions): string {
     ? `<a class="wa-float" href="${attr(waHref(config, `مرحباً ${config.siteName} 👋`))}" target="_blank" rel="noopener" aria-label="${attr(s.whatsapp)}">${icon('whatsapp')}</a>`
     : '';
 
+  const mainContent = config.templateSlug === 'card' ? body : `<main id="main">${body}</main>`;
+
   const data = {
     siteId: config.siteId,
     siteName: config.siteName,
@@ -309,6 +351,7 @@ export function renderShell(options: ShellOptions): string {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>(function(){try{var m=localStorage.getItem('aos_theme')||'auto';var d=m==='dark'||(m!=='light'&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);var r=document.documentElement;r.setAttribute('data-theme',d?'dark':'light');r.setAttribute('data-theme-mode',m==='light'||m==='dark'?m:'auto');}catch(e){}})();</script>
 <title>${esc(title)}</title>
 <meta name="description" content="${attr(description)}">
 <meta name="robots" content="${config.preview ? 'noindex,nofollow' : 'index,follow,max-image-preview:large'}">
@@ -329,10 +372,11 @@ ${ogImage ? `<meta name="twitter:image" content="${attr(ogImage)}">` : ''}
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://images.unsplash.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/site.css">
 <style>
-:root{--p:${attr(primary)};--p2:${attr(secondary)};--p-ink:${foreground};--bg:#f8fafc;--soft:#f1f5f9;--surface:#fff;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;--shadow:0 28px 70px -28px rgba(15,23,42,.32);--shadow-sm:0 8px 30px -18px rgba(15,23,42,.22);--radius:20px;--font:${font}}
+:root{--p:${attr(primary)};--p2:${attr(secondary)};--p-ink:${foreground};--p-base:${attr(primary)};--p2-base:${attr(secondary)};--p-text:${attr(primary)};--tint:color-mix(in srgb,${attr(primary)} 10%,#fff);--tint-2:color-mix(in srgb,${attr(primary)} 16%,#fff);--tint-ink:color-mix(in srgb,${attr(primary)} 55%,#fff);--solid:#0f172a;--solid-ink:#fff;--glass:rgba(255,255,255,.94);--glass-ink:#0f172a;--bg:#f8fafc;--soft:#f1f5f9;--surface:#fff;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;--shadow:0 28px 70px -28px rgba(15,23,42,.32);--shadow-sm:0 8px 30px -18px rgba(15,23,42,.22);--radius:20px;--font:${font}}
 </style>
 <script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, '\\u003c')}</script>
 ${extraHead || ''}
@@ -340,7 +384,7 @@ ${extraHead || ''}
 <body class="tpl-${attr(config.templateSlug)}${config.preview ? ' has-preview' : ''}">
 ${previewBanner}
 ${headerHtml}
-${body}
+${mainContent}
 ${footerHtml}
 ${waFloat}
 <button class="to-top" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="${attr(s.backTop)}">${icon('arrow', 'icon')}</button>
@@ -357,18 +401,22 @@ export function baseHeader(config: RenderConfig, lang: 'ar' | 'fr' | 'en', alter
   const nav = navItems(config, s);
   const mobileCtaHref = config.templateSlug === 'restaurant' || config.templateSlug === 'bakery'
     ? '#reserve'
-    : '#contact';
+    : config.templateSlug === 'carrental'
+      ? '#booking'
+      : '#contact';
+  const mobileCtaLabel = config.templateSlug === 'carrental' ? s.booking : s.contact;
   const logo = config.logoAssetPath
     ? `<img class="brand-logo" src="${attr(config.logoAssetPath)}" alt="${attr(config.siteName)}" width="44" height="44">`
     : `<span class="brand-mark" aria-hidden="true">${esc(initials(config.siteName))}</span>`;
   return `<header class="site-header">
     <div class="container header-inner">
-      <a class="brand" href="index.html" aria-label="${attr(config.siteName)}">
+      <a class="brand" href="index.html">
         ${logo}
         <span><span class="brand-name">${esc(config.siteName)}</span><small>${esc(config.category || config.tagline)}</small></span>
       </a>
       <nav class="nav" aria-label="Main navigation">${nav.map((l) => `<a href="${attr(l.href)}">${esc(l.label)}</a>`).join('')}</nav>
       <div class="header-actions">
+        ${themeToggle(s)}
         ${languageSwitch(config, lang, alternates)}
         ${config.templateSlug === 'store' ? `<button class="cart-btn" type="button" data-open-cart aria-label="${attr(s.cart)}">${icon('cart')}<span class="cart-count" data-cart-count style="display:none">0</span></button>` : ''}
         ${whatsappCta(config, s)}
@@ -381,7 +429,7 @@ export function baseHeader(config: RenderConfig, lang: 'ar' | 'fr' | 'en', alter
         <a class="brand" href="index.html">${logo}<span>${esc(config.siteName)}</span></a>
         ${nav.map((l) => `<a class="m-link" href="${attr(l.href)}">${esc(l.label)}</a>`).join('')}
         ${config.templateSlug === 'store' ? `<button class="btn btn-ghost" type="button" data-open-cart>${icon('cart')}${esc(s.cart)}</button>` : ''}
-        <a class="btn btn-primary" href="${mobileCtaHref}">${icon('send')}${esc(s.contact)}</a>
+        <a class="btn btn-primary" href="${mobileCtaHref}">${icon('send')}${esc(mobileCtaLabel)}</a>
       </div>
     </div>
   </header>`;

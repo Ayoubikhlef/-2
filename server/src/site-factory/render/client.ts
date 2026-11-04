@@ -51,6 +51,69 @@ export const SITE_JS = String.raw`
     var v = String(value || '').replace(/[^\d+]/g, '');
     return v.length >= 8 && v.length <= 16;
   }
+  function rentalDate(value) {
+    var parts = String(value || '').split('-');
+    return parts.length === 3 ? new Date(+parts[0], +parts[1] - 1, +parts[2]) : null;
+  }
+  function rentalDays(form) {
+    var pickup = rentalDate(form.pickupDate && form.pickupDate.value);
+    var dropoff = rentalDate(form.returnDate && form.returnDate.value);
+    if (!pickup || !dropoff) return 0;
+    return Math.max(1, Math.ceil((dropoff - pickup) / 86400000));
+  }
+  function isoDate(date) {
+    var pad = function (n) { return n < 10 ? '0' + n : '' + n; };
+    return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate());
+  }
+  function rentalDuration(days) {
+    if (lang === 'ar') {
+      if (days === 1) return 'يوم واحد';
+      if (days === 2) return 'يومان';
+      return days + ' ' + (days <= 10 ? 'أيام' : 'يوماً');
+    }
+    if (lang === 'fr') return days + ' ' + (days > 1 ? 'jours' : 'jour');
+    return days + ' ' + (days > 1 ? 'days' : 'day');
+  }
+
+  // theme: auto -> light -> dark (stored per browser)
+  var root = document.documentElement;
+  var themeKey = 'aos_theme';
+  var themeModes = ['auto', 'light', 'dark'];
+  function storedTheme() {
+    try {
+      var value = localStorage.getItem(themeKey);
+      return value === 'light' || value === 'dark' ? value : 'auto';
+    } catch (e) { return 'auto'; }
+  }
+  function themeIsDark(mode) {
+    return mode === 'dark' || (mode === 'auto' && !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches));
+  }
+  function applyTheme(mode) {
+    var dark = themeIsDark(mode);
+    root.setAttribute('data-theme', dark ? 'dark' : 'light');
+    root.setAttribute('data-theme-mode', mode);
+    $$('[data-theme-toggle]').forEach(function (btn) {
+      var label = btn.getAttribute('data-theme-label') || 'Theme';
+      var modeLabel = btn.getAttribute('data-theme-' + mode) || mode;
+      btn.setAttribute('data-mode', mode);
+      btn.setAttribute('aria-label', label + ': ' + modeLabel);
+      btn.setAttribute('title', label + ': ' + modeLabel);
+    });
+  }
+  $$('[data-theme-toggle]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var mode = themeModes[(themeModes.indexOf(storedTheme()) + 1) % themeModes.length];
+      try { localStorage.setItem(themeKey, mode); } catch (e) {}
+      applyTheme(mode);
+    });
+  });
+  if (window.matchMedia) {
+    var themeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    var onThemeChange = function () { if (storedTheme() === 'auto') applyTheme('auto'); };
+    if (themeQuery.addEventListener) themeQuery.addEventListener('change', onThemeChange);
+    else if (themeQuery.addListener) themeQuery.addListener(onThemeChange);
+  }
+  applyTheme(storedTheme());
 
   // header
   var header = $('.site-header');
@@ -347,6 +410,19 @@ export const SITE_JS = String.raw`
       if (form.getAttribute('data-lead-kind') === 'reservation') {
         message = 'Reservation: ' + (form.date ? form.date.value : '') + ' ' + (form.time ? form.time.value : '') + ' — ' + (form.guests ? form.guests.value : '') + ' guests. ' + message;
       }
+      if (form.getAttribute('data-lead-kind') === 'rental') {
+        var carSelect = form.car;
+        var carName = carSelect && carSelect.options[carSelect.selectedIndex]
+          ? (carSelect.options[carSelect.selectedIndex].getAttribute('data-name') || carSelect.options[carSelect.selectedIndex].text)
+          : '';
+        var rentalTotal = $('#rental-total');
+        message = 'Rental: ' + carName +
+          ' | ' + (form.pickupDate ? form.pickupDate.value : '') + ' ' + (form.pickupTime ? form.pickupTime.value : '') +
+          ' → ' + (form.returnDate ? form.returnDate.value : '') + ' ' + (form.returnTime ? form.returnTime.value : '') +
+          ' | ' + (form.pickupPlace ? form.pickupPlace.value : '') +
+          ' | ' + rentalDuration(rentalDays(form)) +
+          ' | ' + (rentalTotal ? rentalTotal.textContent : '') + '. ' + message;
+      }
       post('/public/sites/' + encodeURIComponent(SITE.siteId) + '/leads', {
         name: form.name ? form.name.value : '',
         phone: form.phone ? form.phone.value : '',
@@ -368,6 +444,78 @@ export const SITE_JS = String.raw`
   $$('input[type="date"]').forEach(function (input) {
     if (!input.min) input.min = new Date().toISOString().slice(0, 10);
   });
+
+  // car rental: duration, live estimate and quick booking
+  var rentalForm = $('[data-rental]');
+  if (rentalForm) {
+    var carSelect = rentalForm.car;
+    var pickupInput = rentalForm.pickupDate;
+    var returnInput = rentalForm.returnDate;
+
+    var syncBounds = function () {
+      var today = isoDate(new Date());
+      if (pickupInput) {
+        pickupInput.min = today;
+        if (pickupInput.value && pickupInput.value < today) pickupInput.value = today;
+      }
+      if (returnInput) {
+        var opt = carSelect && carSelect.options[carSelect.selectedIndex];
+        var minDays = opt ? Number(opt.getAttribute('data-min-days')) || 1 : 1;
+        var base = pickupInput && pickupInput.value ? pickupInput.value : today;
+        var earliest = rentalDate(base);
+        if (earliest) { earliest.setDate(earliest.getDate() + Math.max(1, minDays)); }
+        var min = earliest ? isoDate(earliest) : today;
+        returnInput.min = min;
+        if (!returnInput.value || returnInput.value < min) returnInput.value = min;
+      }
+    };
+
+    var updateRental = function () {
+      var days = rentalDays(rentalForm);
+      var opt = carSelect && carSelect.options[carSelect.selectedIndex];
+      var price = opt ? Number(opt.getAttribute('data-price')) || 0 : 0;
+      var carName = opt ? (opt.getAttribute('data-name') || opt.text.split(' — ')[0]) : '';
+      var daysEl = $('#rental-days');
+      var totalEl = $('#rental-total');
+      var nameEl = $('#rental-car-name');
+      if (nameEl) nameEl.textContent = carName;
+      if (daysEl) daysEl.textContent = days ? rentalDuration(days) : '—';
+      if (totalEl) totalEl.textContent = days ? money(price * days) : '—';
+    };
+
+    var applyDefaults = function () {
+      var start = new Date();
+      start.setDate(start.getDate() + 1);
+      var end = new Date(start.getTime());
+      end.setDate(end.getDate() + 2);
+      if (pickupInput && !pickupInput.value) pickupInput.value = isoDate(start);
+      if (returnInput && !returnInput.value) returnInput.value = isoDate(end);
+      syncBounds();
+      updateRental();
+    };
+
+    if (pickupInput) pickupInput.addEventListener('change', function () { syncBounds(); updateRental(); });
+    if (returnInput) returnInput.addEventListener('change', function () { syncBounds(); updateRental(); });
+    if (carSelect) carSelect.addEventListener('change', function () { syncBounds(); updateRental(); });
+    rentalForm.addEventListener('reset', function () { setTimeout(applyDefaults, 0); });
+
+    $$('[data-book-car]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        var id = button.getAttribute('data-book-car');
+        if (carSelect) {
+          for (var i = 0; i < carSelect.options.length; i++) {
+            if (carSelect.options[i].value === id) { carSelect.selectedIndex = i; break; }
+          }
+        }
+        syncBounds();
+        updateRental();
+        var booking = $('#booking');
+        if (booking && booking.scrollIntoView) booking.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    applyDefaults();
+  }
 
   // vCard
   var vcardBtn = $('#save-contact');
