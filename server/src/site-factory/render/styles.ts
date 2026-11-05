@@ -471,10 +471,11 @@ body.has-preview .site-header{top:36px}
 .booking-sub{font-size:.8rem;color:var(--muted);line-height:1.7;margin:6px 0 18px}
 .rental-summary{display:grid;gap:8px;margin-top:18px;padding:16px 18px;border-radius:14px;background:var(--soft);border:1px solid var(--line);font-size:.82rem}
 .rental-summary>div{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.rental-summary span{color:var(--muted)}
+.rental-summary span{color:var(--muted);white-space:nowrap}
 .rental-summary strong{font-weight:800;color:var(--ink);text-align:end}
 .rental-summary .grand{padding-top:9px;border-top:1px dashed var(--line);font-size:1rem}
 .rental-summary .grand strong{color:var(--p-text);font-size:1.15rem}
+.appt-summary .grand strong{font-size:.98rem}
 .faq-list{display:grid;gap:10px;max-width:840px;margin-inline:auto}
 .faq{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:0 20px;transition:border-color .2s}
 .faq[open]{border-color:color-mix(in srgb,var(--p) 45%,var(--line))}
@@ -485,6 +486,75 @@ body.has-preview .site-header{top:36px}
 .faq .faq-ic .icon{width:15px;height:15px}
 .faq[open] .faq-ic{transform:rotate(45deg);background:var(--tint)}
 .faq p{padding:0 0 18px;color:var(--muted);font-size:.84rem;line-height:1.8}
+
+/* medical */
+.medical-hero{background:linear-gradient(165deg,var(--soft) 0%,var(--bg) 48%,color-mix(in srgb,var(--p) 12%,var(--bg)) 100%)}
+.medical-hero::after{content:"";position:absolute;width:420px;height:420px;border-radius:50%;border:48px solid color-mix(in srgb,var(--p) 7%,transparent);bottom:-260px;inset-inline-start:-160px;pointer-events:none}
+.medical-hero .hero-media{aspect-ratio:4/4.7;border-radius:34px}
+.medical-hero .hero-media::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(5,20,40,.38));pointer-events:none}
+.medical-hero .float-card{background:var(--glass);color:var(--glass-ink)}
+.ecg-card{display:flex;align-items:center;gap:12px;max-width:440px;margin-top:26px;padding:11px 15px;border-radius:14px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow-sm)}
+.ecg-label{display:inline-flex;align-items:center;gap:7px;flex:0 1 auto;min-width:0;font-size:.7rem;font-weight:800;color:var(--p-text);line-height:1.35}
+.ecg-label .icon{width:16px;height:16px;animation:aos-beat 1.6s ease-in-out infinite}
+.ecg-line{flex:1 1 90px;min-width:60px;height:32px}
+.ecg-line path{fill:none;stroke:var(--p);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.ecg-line .ecg-base{opacity:.2;stroke-dasharray:none;stroke-dashoffset:0}
+.ecg-line .ecg-pulse{stroke-dasharray:100;stroke-dashoffset:100;animation:aos-ecg 3.2s linear infinite}
+@keyframes aos-ecg{0%{stroke-dashoffset:100}55%{stroke-dashoffset:0}100%{stroke-dashoffset:-100}}
+@keyframes aos-beat{0%,100%{transform:scale(1)}18%{transform:scale(1.22)}32%{transform:scale(1)}46%{transform:scale(1.14)}60%{transform:scale(1)}}
+.specialty-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.specialty-card{position:relative;padding:28px 24px;border-radius:20px;background:var(--surface);border:1px solid var(--line);overflow:hidden;transition:transform .25s,box-shadow .25s,border-color .25s}
+.specialty-card::after{content:"";position:absolute;width:130px;height:130px;border-radius:50%;background:var(--tint);top:-64px;inset-inline-end:-56px;pointer-events:none;transition:transform .35s}
+.specialty-card:hover{transform:translateY(-5px);box-shadow:var(--shadow);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.specialty-card:hover::after{transform:scale(1.18)}
+.specialty-icon{position:relative;z-index:1;width:54px;height:54px;border-radius:16px;display:grid;place-items:center;background:var(--tint-2);color:var(--p-text);margin-bottom:18px}
+.specialty-icon .icon{width:25px;height:25px}
+.specialty-num{position:absolute;top:20px;inset-inline-end:22px;font-size:.72rem;font-weight:900;letter-spacing:.12em;color:color-mix(in srgb,var(--p) 45%,var(--muted))}
+.specialty-card h3{font-size:1.05rem;margin-bottom:6px}
+.specialty-card p{font-size:.82rem;color:var(--muted);line-height:1.7}
+.med-service-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.med-service{border-radius:20px;overflow:hidden;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s,border-color .25s}
+.med-service:hover{transform:translateY(-5px);box-shadow:0 32px 65px -34px color-mix(in srgb,var(--p) 45%,transparent);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.med-service-media{position:relative;aspect-ratio:16/10;overflow:hidden;background:linear-gradient(145deg,var(--tint),var(--tint-2))}
+.med-service-media img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.med-service:hover .med-service-media img{transform:scale(1.06)}
+.med-tag{position:absolute;top:12px;inset-inline-start:12px;padding:5px 11px;border-radius:999px;background:var(--glass);color:var(--glass-ink);font-size:.65rem;font-weight:900;letter-spacing:.02em;backdrop-filter:blur(8px)}
+.med-service-body{padding:18px 19px 20px;display:flex;flex-direction:column;gap:7px;flex:1}
+.med-service-body h3{font-size:1.02rem;line-height:1.35}
+.med-service-body p{font-size:.79rem;color:var(--muted);line-height:1.65}
+.med-service-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:auto;padding-top:14px;border-top:1px solid var(--line)}
+.med-price{font-weight:900;font-size:1.1rem;color:var(--ink);line-height:1.15;white-space:nowrap}
+.med-price small{display:block;font-size:.62rem;font-weight:700;color:var(--muted);margin-bottom:2px}
+.med-service-foot .btn{font-size:.72rem;padding:9px 13px;min-height:38px}
+.doctor-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.doctor-card{border-radius:22px;overflow:hidden;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s,border-color .25s}
+.doctor-card:hover{transform:translateY(-5px);box-shadow:var(--shadow);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.doctor-media{position:relative;aspect-ratio:4/4.5;overflow:hidden;background:linear-gradient(150deg,var(--tint-2),var(--p2));display:grid;place-items:center}
+.doctor-media img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.doctor-card:hover .doctor-media img{transform:scale(1.05)}
+.doctor-initials{font-size:2.6rem;font-weight:900;color:rgba(255,255,255,.55);letter-spacing:.08em}
+.doctor-tag{position:absolute;top:12px;inset-inline-start:12px;padding:5px 10px;border-radius:999px;background:var(--glass);color:var(--glass-ink);font-size:.62rem;font-weight:900;backdrop-filter:blur(8px)}
+.doctor-body{padding:16px 17px 18px;display:flex;flex-direction:column;gap:5px;flex:1}
+.doctor-body h3{font-size:.98rem;line-height:1.35}
+.doctor-role{font-size:.76rem;color:var(--p-text);font-weight:800;line-height:1.45}
+.doctor-exp{display:inline-flex;align-items:center;gap:5px;font-size:.68rem;color:var(--muted);margin:2px 0 10px}
+.doctor-exp .icon{width:14px;height:14px;color:var(--p-text)}
+.doctor-body .btn{margin-top:auto;font-size:.7rem;padding:9px 10px;min-height:38px}
+.insurance-band{background:var(--surface);border-block:1px solid var(--line)}
+.insurance-inner{display:flex;align-items:center;justify-content:space-between;gap:28px;flex-wrap:wrap}
+.insurance-logos{display:flex;flex-wrap:wrap;gap:9px}
+.insurance-chip{display:inline-flex;align-items:center;gap:7px;padding:10px 15px;border-radius:12px;border:1px solid var(--line);background:var(--bg);font-size:.78rem;font-weight:900;letter-spacing:.02em;color:var(--ink);transition:border-color .2s,transform .2s}
+.insurance-chip:hover{border-color:color-mix(in srgb,var(--p) 45%,var(--line));transform:translateY(-2px)}
+.insurance-chip .icon{width:16px;height:16px;color:var(--p-text)}
+.med-hours{margin-top:22px;padding:6px 16px;border-radius:14px;background:var(--surface);border:1px solid var(--line)}
+.med-hours .hours-row{align-items:center;font-size:.8rem}
+.med-hours .hours-row span{display:inline-flex;align-items:center;gap:8px;color:var(--muted)}
+.med-hours .hours-row .icon{width:16px;height:16px;color:var(--p-text)}
+.med-hours .hours-row strong{font-size:.78rem;text-align:end}
+.med-contact-actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.med-contact-actions .btn{flex:1 1 140px;font-size:.82rem;min-height:44px}
+.appointment-card{position:relative}
+.appointment-card::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;border-radius:24px 24px 0 0;background:linear-gradient(90deg,var(--p),var(--p2),var(--p));background-size:200% 100%;animation:aos-gradient 6s linear infinite}
 
 /* theme toggle */
 .theme-toggle{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;flex:0 0 auto;position:relative;transition:transform .2s,border-color .2s,background .2s}
@@ -606,6 +676,7 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .work-grid{grid-template-columns:1fr}
   .menu-grid{grid-template-columns:1fr}
   .fleet-grid,.rental-steps{grid-template-columns:repeat(2,1fr)}
+  .specialty-grid,.med-service-grid,.doctor-grid{grid-template-columns:repeat(2,1fr)}
   .booking-wrap{grid-template-columns:1fr;gap:26px}
 }
 @media (max-width:720px){
@@ -639,6 +710,8 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .feature-grid{grid-template-columns:1fr}
   .booking-card{padding:22px}
   .fleet-grid{gap:14px}
+  .insurance-inner{align-items:flex-start;gap:18px}
+  .doctor-grid,.specialty-grid,.med-service-grid{gap:14px}
 }
 @media (max-width:460px){
   .g2,.g3,.g4,.product-grid,.form-grid,.stats-grid{grid-template-columns:1fr}
@@ -652,6 +725,9 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .fleet-grid,.rental-steps{grid-template-columns:1fr}
   .fleet-foot{flex-wrap:wrap}
   .fleet-book{width:100%}
+  .specialty-grid,.med-service-grid,.doctor-grid{grid-template-columns:1fr}
+  .doctor-media{aspect-ratio:4/3.6}
+  .med-service-foot{flex-wrap:nowrap}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}

@@ -1,4 +1,4 @@
-import type { RenderConfig, RenderProduct, RenderService, UiStrings } from './types';
+import type { RenderConfig, RenderProduct, RenderService, RenderTeamMember, UiStrings } from './types';
 import { esc, attr, money, ui } from './types';
 import {
   icon,
@@ -703,6 +703,516 @@ export function carRentalPage(config: RenderConfig, s: UiStrings, lang: Lang): s
 }
 
 /* -------------------------------------------------------------------------
+ * MEDICAL
+ * ---------------------------------------------------------------------- */
+interface MedicalSpecialty {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+interface MedicalCopy {
+  heroBadge: string;
+  bookCta: string;
+  specialtiesCta: string;
+  ecgLabel: string;
+  openToday: string;
+  specialtiesTitle: string;
+  specialtiesLead: string;
+  specialties: MedicalSpecialty[];
+  servicesTitle: string;
+  servicesLead: string;
+  from: string;
+  bookService: string;
+  teamTitle: string;
+  teamLead: string;
+  experience: string;
+  bookDoctor: string;
+  aboutTitle: string;
+  aboutLead: string;
+  feat1: string; feat1d: string;
+  feat2: string; feat2d: string;
+  feat3: string; feat3d: string;
+  feat4: string; feat4d: string;
+  insuranceTitle: string;
+  insuranceLead: string;
+  insuranceEyebrow: string;
+  insurers: string[];
+  processTitle: string;
+  processLead: string;
+  step1: string; step1d: string;
+  step2: string; step2d: string;
+  step3: string; step3d: string;
+  step4: string; step4d: string;
+  stats: Array<[string, string]>;
+  quotes: Array<{ text: string; name: string; role: string }>;
+  appointmentTitle: string;
+  appointmentLead: string;
+  formTitle: string;
+  formSub: string;
+  serviceLabel: string;
+  doctorLabel: string;
+  anyDoctor: string;
+  selectService: string;
+  summaryService: string;
+  summaryDoctor: string;
+  summaryWhen: string;
+  confirm: string;
+  note: string;
+  faqTitle: string;
+  faq: Array<[string, string]>;
+}
+
+const MEDICAL: Record<Lang, MedicalCopy> = {
+  ar: {
+    heroBadge: 'أطباء معتمدون ورعاية إنسانية',
+    bookCta: 'احجز موعدك',
+    specialtiesCta: 'تخصصاتنا',
+    ecgLabel: 'نبض مطمئن، رعاية مستمرة',
+    openToday: 'مواعيد اليوم',
+    specialtiesTitle: 'تخصصات تحت سقف واحد',
+    specialtiesLead: 'فريق طبي متكامل يرافقك من الفحص الأول إلى المتابعة.',
+    specialties: [
+      { icon: 'stethoscope', title: 'طب عام', description: 'فحص شامل، تشخيص دقيق ومتابعة للحالات المزمنة.' },
+      { icon: 'baby', title: 'طب الأطفال', description: 'متابعة النمو والتلقيح والنصائح الوقائية لكل طفل.' },
+      { icon: 'users', title: 'نساء وتوليد', description: 'متابعة الحمل والولادة وصحة المرأة في كل مرحلة.' },
+      { icon: 'heart', title: 'أمراض القلب', description: 'تخطيط القلب وضغط الدم والمتابعة الوقائية.' },
+      { icon: 'layers', title: 'تحاليل مخبرية', description: 'تحاليل شاملة بنتائج سريعة ودقة عالية.' },
+      { icon: 'target', title: 'تصوير طبي', description: 'تصوير بالصدى والأشعة مع تقرير فوري.' },
+    ],
+    servicesTitle: 'خدمات وأسعار واضحة',
+    servicesLead: 'اعرف الخدمة والتكلفة قبل الزيارة، دون مفاجآت.',
+    from: 'من',
+    bookService: 'احجز هذه الخدمة',
+    teamTitle: 'أطباء تعرفهم',
+    teamLead: 'اختر طبيبك واحجز معه مباشرة.',
+    experience: 'سنوات الخبرة',
+    bookDoctor: 'احجز مع الطبيب',
+    aboutTitle: 'رعاية تبدأ بالإنصات',
+    aboutLead: 'نؤمن أن أفضل علاج يبدأ بفهم المريض، لذلك نمنح كل زيارة وقتها الكافي ونشرح كل خطوة بوضوح.',
+    feat1: 'فريق متعدد التخصصات', feat1d: 'أطباء وأخصائيون في تخصصات مترابطة تحت سقف واحد.',
+    feat2: 'مواعيد قصيرة الانتظار', feat2d: 'نظام حجز منظم يقلل الانتظار ويحترم وقتك.',
+    feat3: 'تجهيزات حديثة', feat3d: 'أجهزة تشخيص وتحاليل معتمدة داخل العيادة.',
+    feat4: 'متابعة بعد الزيارة', feat4d: 'نتابع نتيجتك ونوجهك إلى الخطوة التالية.',
+    insuranceTitle: 'تأمين مقبول',
+    insuranceLead: 'نتعامل مع صناديق التأمين الرئيسية ونساعدك في ملف التعويض.',
+    insuranceEyebrow: 'التأمين الطبي',
+    insurers: ['CNAS', 'CASNOS', 'AXA', 'SAA', 'CAAT', 'Allianz'],
+    processTitle: 'كيف تحجز موعدك؟',
+    processLead: 'أربع خطوات بسيطة من الحجز إلى المتابعة.',
+    step1: 'اختر الخدمة', step1d: 'حدد الخدمة أو التخصص الذي تحتاجه.',
+    step2: 'حدد الطبيب والوقت', step2d: 'اختر الطبيب والتاريخ والساعة المناسبة.',
+    step3: 'أكّد الحجز هاتفياً', step3d: 'نتصل بك لتأكيد الموعد وتوضيح التحضيرات.',
+    step4: 'زيارة ومتابعة', step4d: 'استقبال، فحص، ثم متابعة النتائج مع طبيبك.',
+    stats: [['+12', 'سنة خبرة'], ['+18k', 'مريض'], ['98%', 'رضا المرضى'], ['24/7', 'استقبال']],
+    quotes: [
+      { text: 'استقبال محترم وطبيبة أنصتت لكل التفاصيل، خرجت وأنا مطمئنة تماماً.', name: 'نسرين ب.', role: 'مريضة' },
+      { text: 'حجزت موعداً لابني في نفس اليوم، والفحص كان دقيقاً والمتابعة ممتازة.', name: 'مراد ع.', role: 'أب' },
+      { text: 'عيادة نظيفة وتنظيم رائع، والتحاليل وصلت في وقتها دون أي تأخير.', name: 'ليلى ح.', role: 'مريضة' },
+    ],
+    appointmentTitle: 'احجز موعدك الآن',
+    appointmentLead: 'اختر الخدمة والطبيب والوقت المناسب، وسنتصل بك لتأكيد الموعد.',
+    formTitle: 'طلب موعد',
+    formSub: 'أكمل البيانات وسنتصل بك لتأكيد الموعد.',
+    serviceLabel: 'الخدمة',
+    doctorLabel: 'الطبيب',
+    anyDoctor: 'أي طبيب متاح',
+    selectService: 'اختر الخدمة',
+    summaryService: 'الخدمة',
+    summaryDoctor: 'الطبيب',
+    summaryWhen: 'الموعد',
+    confirm: 'تأكيد طلب الموعد',
+    note: 'الموعد يُؤكد هاتفياً. الإلغاء مجاني قبل 24 ساعة.',
+    faqTitle: 'أسئلة قبل الزيارة',
+    faq: [
+      ['هل أحتاج إلى موعد مسبق؟', 'يُنصح بالحجز لتقليل الانتظار، وتُستقبل الحالات المستعجلة حسب الأولوية.'],
+      ['هل تقبلون التأمين؟', 'نعم، نتعامل مع CNAS وCASNOS وشركات التأمين، ونساعدك في ملف التعويض.'],
+      ['كم تستغرق الاستشارة؟', 'تتراوح عادة بين 20 و30 دقيقة حسب الحالة، مع وقت كافٍ للأسئلة.'],
+      ['هل تحتاج التحاليل إلى صيام؟', 'بعض التحاليل تتطلب صياماً، وسنوضح لك ذلك عند تأكيد الموعد.'],
+      ['هل يمكنني إلغاء الموعد؟', 'نعم، الإلغاء مجاني حتى 24 ساعة قبل الموعد.'],
+    ],
+  },
+  fr: {
+    heroBadge: 'Médecins agréés et soins humains',
+    bookCta: 'Prendre rendez-vous',
+    specialtiesCta: 'Nos spécialités',
+    ecgLabel: 'Un rythme rassurant, un suivi continu',
+    openToday: 'Horaires du jour',
+    specialtiesTitle: 'Toutes les spécialités sous un même toit',
+    specialtiesLead: 'Une équipe médicale complète vous accompagne du premier examen au suivi.',
+    specialties: [
+      { icon: 'stethoscope', title: 'Médecine générale', description: 'Bilan complet, diagnostic précis et suivi des maladies chroniques.' },
+      { icon: 'baby', title: 'Pédiatrie', description: 'Croissance, vaccination et conseils préventifs pour chaque enfant.' },
+      { icon: 'users', title: 'Gynécologie', description: 'Grossesse, accouchement et santé de la femme à chaque étape.' },
+      { icon: 'heart', title: 'Cardiologie', description: 'ECG, tension artérielle et suivi préventif du cœur.' },
+      { icon: 'layers', title: 'Analyses médicales', description: 'Bilans complets, résultats rapides et fiables.' },
+      { icon: 'target', title: 'Imagerie médicale', description: 'Échographie et radiologie avec compte rendu immédiat.' },
+    ],
+    servicesTitle: 'Des services et des prix clairs',
+    servicesLead: 'Connaissez la prestation et son tarif avant la visite, sans surprise.',
+    from: 'À partir de',
+    bookService: 'Réserver ce service',
+    teamTitle: 'Des médecins que vous connaissez',
+    teamLead: 'Choisissez votre médecin et réservez directement avec lui.',
+    experience: 'Années d’expérience',
+    bookDoctor: 'Réserver avec ce médecin',
+    aboutTitle: 'Un soin qui commence par l’écoute',
+    aboutLead: 'Nous croyons qu’un bon traitement commence par la compréhension du patient : chaque visite a le temps nécessaire et chaque étape est expliquée clairement.',
+    feat1: 'Équipe pluridisciplinaire', feat1d: 'Des médecins et spécialistes complémentaires sous un même toit.',
+    feat2: 'Des délais d’attente réduits', feat2d: 'Un système de rendez-vous organisé qui respecte votre temps.',
+    feat3: 'Équipements récents', feat3d: 'Appareils de diagnostic et d’analyses agréés au cabinet.',
+    feat4: 'Suivi après la visite', feat4d: 'Nous suivons vos résultats et vous orientons vers la prochaine étape.',
+    insuranceTitle: 'Assurances acceptées',
+    insuranceLead: 'Nous travaillons avec les principales caisses et vous aidons dans votre dossier de remboursement.',
+    insuranceEyebrow: 'Assurance médicale',
+    insurers: ['CNAS', 'CASNOS', 'AXA', 'SAA', 'CAAT', 'Allianz'],
+    processTitle: 'Comment prendre rendez-vous ?',
+    processLead: 'Quatre étapes simples, du rendez-vous au suivi.',
+    step1: 'Choisissez le service', step1d: 'Sélectionnez la prestation ou la spécialité dont vous avez besoin.',
+    step2: 'Choisissez le médecin et l’heure', step2d: 'Choisissez le médecin, la date et l’heure qui vous conviennent.',
+    step3: 'Confirmez par téléphone', step3d: 'Nous vous appelons pour confirmer et préciser les préparations.',
+    step4: 'Visite et suivi', step4d: 'Accueil, examen, puis suivi des résultats avec votre médecin.',
+    stats: [['+12', 'ans d’expérience'], ['+18k', 'patients'], ['98%', 'satisfaction'], ['24/7', 'accueil']],
+    quotes: [
+      { text: 'Un accueil respectueux et une médecin qui a écouté chaque détail. Je suis repartie rassurée.', name: 'Nesrine B.', role: 'Patiente' },
+      { text: 'J’ai obtenu un rendez-vous le jour même pour mon fils : examen précis et excellent suivi.', name: 'Mourad A.', role: 'Père de famille' },
+      { text: 'Cabinet propre et très bien organisé, analyses reçues à l’heure sans aucun retard.', name: 'Leïla H.', role: 'Patiente' },
+    ],
+    appointmentTitle: 'Prenez rendez-vous maintenant',
+    appointmentLead: 'Choisissez le service, le médecin et l’horaire, nous vous appelons pour confirmer.',
+    formTitle: 'Demande de rendez-vous',
+    formSub: 'Complétez le formulaire, nous vous appelons pour confirmer.',
+    serviceLabel: 'Service',
+    doctorLabel: 'Médecin',
+    anyDoctor: 'Premier médecin disponible',
+    selectService: 'Choisir un service',
+    summaryService: 'Service',
+    summaryDoctor: 'Médecin',
+    summaryWhen: 'Rendez-vous',
+    confirm: 'Confirmer la demande',
+    note: 'Le rendez-vous est confirmé par téléphone. Annulation gratuite jusqu’à 24 h avant.',
+    faqTitle: 'Questions avant la visite',
+    faq: [
+      ['Faut-il prendre rendez-vous ?', 'La réservation est recommandée pour réduire l’attente ; les urgences sont reçues selon leur priorité.'],
+      ['Acceptez-vous les assurances ?', 'Oui, nous travaillons avec la CNAS, la CASNOS et les assureurs, et vous aidons pour le remboursement.'],
+      ['Combien de temps dure la consultation ?', 'En général entre 20 et 30 minutes selon le cas, avec le temps nécessaire pour vos questions.'],
+      ['Les analyses nécessitent-elles d’être à jeun ?', 'Certaines analyses oui ; nous vous le préciserons lors de la confirmation du rendez-vous.'],
+      ['Puis-je annuler mon rendez-vous ?', 'Oui, l’annulation est gratuite jusqu’à 24 heures avant le rendez-vous.'],
+    ],
+  },
+  en: {
+    heroBadge: 'Certified doctors, human care',
+    bookCta: 'Book your appointment',
+    specialtiesCta: 'Our specialties',
+    ecgLabel: 'A steady heartbeat, continuous care',
+    openToday: 'Today’s hours',
+    specialtiesTitle: 'Every specialty under one roof',
+    specialtiesLead: 'A complete medical team with you from the first check-up to follow-up.',
+    specialties: [
+      { icon: 'stethoscope', title: 'General medicine', description: 'Full check-ups, accurate diagnosis and chronic condition follow-up.' },
+      { icon: 'baby', title: 'Pediatrics', description: 'Growth, vaccination and preventive advice for every child.' },
+      { icon: 'users', title: 'Gynecology', description: 'Pregnancy, delivery and women’s health at every stage.' },
+      { icon: 'heart', title: 'Cardiology', description: 'ECG, blood pressure and preventive heart care.' },
+      { icon: 'layers', title: 'Lab tests', description: 'Complete panels with fast, reliable results.' },
+      { icon: 'target', title: 'Medical imaging', description: 'Ultrasound and X-ray with an immediate report.' },
+    ],
+    servicesTitle: 'Clear services and prices',
+    servicesLead: 'Know the service and its cost before your visit, with no surprises.',
+    from: 'From',
+    bookService: 'Book this service',
+    teamTitle: 'Doctors you know',
+    teamLead: 'Choose your doctor and book directly with them.',
+    experience: 'Years of experience',
+    bookDoctor: 'Book with this doctor',
+    aboutTitle: 'Care that starts with listening',
+    aboutLead: 'We believe the best treatment starts with understanding the patient, so every visit gets the time it needs and every step is explained clearly.',
+    feat1: 'Multidisciplinary team', feat1d: 'Doctors and specialists in connected fields under one roof.',
+    feat2: 'Short waiting times', feat2d: 'An organised booking system that respects your time.',
+    feat3: 'Modern equipment', feat3d: 'Certified diagnostic and lab equipment inside the clinic.',
+    feat4: 'Follow-up after your visit', feat4d: 'We follow your results and guide you to the next step.',
+    insuranceTitle: 'Insurance accepted',
+    insuranceLead: 'We work with the main insurers and help you with your reimbursement claim.',
+    insuranceEyebrow: 'Medical insurance',
+    insurers: ['CNAS', 'CASNOS', 'AXA', 'SAA', 'CAAT', 'Allianz'],
+    processTitle: 'How to book your appointment',
+    processLead: 'Four simple steps from booking to follow-up.',
+    step1: 'Choose the service', step1d: 'Select the service or specialty you need.',
+    step2: 'Pick a doctor and time', step2d: 'Choose the doctor, date and time that suit you.',
+    step3: 'Confirm by phone', step3d: 'We call you to confirm and explain any preparation.',
+    step4: 'Visit and follow-up', step4d: 'Reception, examination, then results follow-up with your doctor.',
+    stats: [['+12', 'years of experience'], ['+18k', 'patients'], ['98%', 'patient satisfaction'], ['24/7', 'reception']],
+    quotes: [
+      { text: 'A respectful welcome and a doctor who listened to every detail. I left completely reassured.', name: 'Nesrine B.', role: 'Patient' },
+      { text: 'I got a same-day appointment for my son: a precise examination and excellent follow-up.', name: 'Mourad A.', role: 'Parent' },
+      { text: 'Clean clinic and great organisation, with lab results delivered on time without delay.', name: 'Leïla H.', role: 'Patient' },
+    ],
+    appointmentTitle: 'Book your appointment now',
+    appointmentLead: 'Choose the service, doctor and time, and we will call you to confirm.',
+    formTitle: 'Appointment request',
+    formSub: 'Fill in the form and we will call you to confirm.',
+    serviceLabel: 'Service',
+    doctorLabel: 'Doctor',
+    anyDoctor: 'First available doctor',
+    selectService: 'Choose a service',
+    summaryService: 'Service',
+    summaryDoctor: 'Doctor',
+    summaryWhen: 'Appointment',
+    confirm: 'Confirm appointment request',
+    note: 'The appointment is confirmed by phone. Free cancellation up to 24 hours before.',
+    faqTitle: 'Questions before your visit',
+    faq: [
+      ['Do I need an appointment?', 'Booking is recommended to reduce waiting; urgent cases are seen according to priority.'],
+      ['Do you accept insurance?', 'Yes, we work with CNAS, CASNOS and insurers, and help you with your reimbursement claim.'],
+      ['How long does a consultation take?', 'Usually 20 to 30 minutes depending on the case, with enough time for your questions.'],
+      ['Do lab tests require fasting?', 'Some tests do; we will tell you when confirming your appointment.'],
+      ['Can I cancel my appointment?', 'Yes, cancellation is free up to 24 hours before the appointment.'],
+    ],
+  },
+};
+
+function medicalServiceCard(p: RenderProduct, copy: MedicalCopy, lang: Lang): string {
+  const image = p.imageUrl
+    ? `<img src="${attr(p.imageUrl)}" alt="${attr(p.name)}" loading="lazy" decoding="async" width="700" height="440">`
+    : productPlaceholder(p.name);
+  return `<article class="med-service" data-reveal>
+    <div class="med-service-media">${image}${p.category ? `<span class="med-tag">${esc(p.category)}</span>` : ''}</div>
+    <div class="med-service-body">
+      <h3>${esc(p.name)}</h3>
+      ${p.description ? `<p>${esc(p.description)}</p>` : ''}
+      <div class="med-service-foot">
+        <div class="med-price"><small>${esc(copy.from)}</small>${money(p.price, lang)}</div>
+        <button class="btn btn-primary btn-sm" type="button" data-book-service="${attr(p.name)}">${icon('calendar')}${esc(copy.bookService)}</button>
+      </div>
+    </div>
+  </article>`;
+}
+
+function doctorCard(member: RenderTeamMember, copy: MedicalCopy): string {
+  const photo = member.photoUrl
+    ? `<img src="${attr(member.photoUrl)}" alt="${attr(member.name)}" loading="lazy" decoding="async" width="700" height="800">`
+    : `<span class="doctor-initials">${esc(initialsFor(member.name))}</span>`;
+  return `<article class="doctor-card" data-reveal>
+    <div class="doctor-media">${photo}${member.specialty ? `<span class="doctor-tag">${esc(member.specialty)}</span>` : ''}</div>
+    <div class="doctor-body">
+      <h3>${esc(member.name)}</h3>
+      <p class="doctor-role">${esc(member.role)}</p>
+      ${member.experience ? `<span class="doctor-exp">${icon('award')}${esc(member.experience)} ${esc(copy.experience)}</span>` : ''}
+      <button class="btn btn-light btn-sm btn-block" type="button" data-book-doctor="${attr(member.name)}">${icon('calendar')}${esc(copy.bookDoctor)}</button>
+    </div>
+  </article>`;
+}
+
+export function medicalPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
+  const copy = MEDICAL[lang];
+  const services = config.products.filter((p) => p.name);
+  const team = config.team || [];
+  const specialists = team.length ? team : [];
+  const heroImage = config.coverUrl
+    ? `<img src="${attr(config.coverUrl)}" alt="${attr(config.siteName)}" width="900" height="1100" fetchpriority="high" decoding="async">`
+    : '';
+  const about = aboutPhoto(config);
+  const serviceOptions = services.map((p, i) => `<option value="${attr(p.name)}"${i === 0 ? ' selected' : ''}>${esc(p.name)} — ${money(p.price, lang)}</option>`).join('');
+  const doctorOptions = [
+    `<option value="">${esc(copy.anyDoctor)}</option>`,
+    ...team.map((m) => `<option value="${attr(m.name)}">${esc(m.name)} — ${esc(m.role)}</option>`),
+  ].join('');
+  const times = ['08:00', '09:00', '10:00', '11:00', '12:00', '14:00', '15:00', '16:00', '17:00'];
+  const firstService = services[0]?.name || '';
+  const firstDoctor = team[0]?.name || copy.anyDoctor;
+
+  return `<section class="hero medical-hero" id="top">
+    <div class="container hero-grid">
+      <div class="hero-copy" data-reveal>
+        <span class="badge">${icon('stethoscope')}${esc(copy.heroBadge)}</span>
+        <h1 class="h1 mt-3">${esc(config.siteName)}</h1>
+        <p class="lead">${esc(config.description)}</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#appointment">${icon('calendar')}${esc(copy.bookCta)}</a>
+          <a class="btn btn-light" href="#specialties">${icon('stethoscope')}${esc(copy.specialtiesCta)}</a>
+        </div>
+        <div class="ecg-card" aria-hidden="true">
+          <span class="ecg-label">${icon('heart')}<span>${esc(copy.ecgLabel)}</span></span>
+          <svg class="ecg-line" viewBox="0 0 260 64" preserveAspectRatio="none">
+            <path class="ecg-base" d="M2 32h38l7-14 9 28 9-22 7 8h33l6-6 8 12 8-6h30l7-16 9 32 8-16h46"/>
+            <path class="ecg-pulse" d="M2 32h38l7-14 9 28 9-22 7 8h33l6-6 8 12 8-6h30l7-16 9 32 8-16h46" pathLength="100"/>
+          </svg>
+        </div>
+        <div class="hero-stats">
+          ${copy.stats.slice(0, 3).map(([num, label]) => `<div><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="hero-media${heroImage ? '' : ' no-img'}" data-mark="${attr(initials(config.siteName))}" data-reveal>${heroImage}
+        <div class="float-card"><span class="float-icon">${icon('clock')}</span><div><strong>${esc(copy.openToday)}</strong><span>${esc(config.hours || '08:00 — 18:00')}</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="trust-strip"><div class="container">
+    <span class="trust-item">${icon('stethoscope')}${esc(copy.feat1)}</span>
+    <span class="trust-item">${icon('clock')}${esc(copy.feat2)}</span>
+    <span class="trust-item">${icon('shield')}${esc(copy.insurers[0])} · ${esc(copy.insurers[1])}</span>
+    <span class="trust-item">${icon('heart')}${esc(copy.feat4)}</span>
+  </div></div>
+
+  <section class="section" id="specialties">
+    <div class="container">
+      ${sectionHead(copy.specialtiesCta, copy.specialtiesTitle, copy.specialtiesLead, true)}
+      <div class="specialty-grid">
+        ${copy.specialties.map((item, i) => `<article class="specialty-card" data-reveal>
+          <span class="specialty-icon">${icon(item.icon as any)}</span>
+          <span class="specialty-num">0${i + 1}</span>
+          <h3>${esc(item.title)}</h3>
+          <p>${esc(item.description)}</p>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="services">
+    <div class="container">
+      ${sectionHead(s.ourServices, copy.servicesTitle, copy.servicesLead)}
+      <div class="med-service-grid">
+        ${services.map((p) => medicalServiceCard(p, copy, lang)).join('')}
+      </div>
+    </div>
+  </section>
+
+  ${specialists.length ? `<section class="section" id="team">
+    <div class="container">
+      ${sectionHead(s.team, copy.teamTitle, copy.teamLead, true)}
+      <div class="doctor-grid">${specialists.map((m) => doctorCard(m, copy)).join('')}</div>
+    </div>
+  </section>` : ''}
+
+  <section class="section bg-soft" id="about">
+    <div class="container about-grid">
+      <div class="about-media${about ? '' : ' no-img'}" data-reveal>
+        ${about ? `<img src="${attr(about)}" alt="${attr(config.siteName)}" loading="lazy" decoding="async" width="800" height="700">` : ''}
+        <div class="about-badge">${icon('award')}${esc(copy.stats[0][0])} ${esc(copy.stats[0][1])}</div>
+      </div>
+      <div data-reveal>
+        <span class="eyebrow">${esc(s.about)}</span>
+        <h2 class="h2 mt-2">${esc(copy.aboutTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.aboutLead)}</p>
+        <ul class="checklist">
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat1)} — ${esc(copy.feat1d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat2)} — ${esc(copy.feat2d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat3)} — ${esc(copy.feat3d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat4)} — ${esc(copy.feat4d)}</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-sm insurance-band">
+    <div class="container insurance-inner">
+      <div data-reveal>
+        <span class="eyebrow">${esc(copy.insuranceEyebrow)}</span>
+        <h2 class="h3 mt-2">${esc(copy.insuranceTitle)}</h2>
+        <p class="muted" style="font-size:.86rem;margin-top:6px">${esc(copy.insuranceLead)}</p>
+      </div>
+      <div class="insurance-logos" data-reveal>
+        ${copy.insurers.map((name) => `<span class="insurance-chip">${icon('shield')}${esc(name)}</span>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="process">
+    <div class="container">
+      ${sectionHead(s.process, copy.processTitle, copy.processLead)}
+      <div class="rental-steps med-steps">
+        ${[
+          ['calendar', copy.step1, copy.step1d],
+          ['user', copy.step2, copy.step2d],
+          ['phone', copy.step3, copy.step3d],
+          ['heart', copy.step4, copy.step4d],
+        ].map(([ic, title, desc], i) => `<div class="rental-step" data-reveal>
+          <span class="n">0${i + 1}</span>
+          <span class="s-ic">${icon(ic as 'calendar' | 'user' | 'phone' | 'heart')}</span>
+          <h3>${esc(title)}</h3>
+          <p>${esc(desc)}</p>
+        </div>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="stats-band">
+    <div class="container stats-grid">
+      ${copy.stats.map(([num, label]) => `<div class="stat"><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">${sectionHead(s.testimonials, s.testimonials, undefined, true)}
+      <div class="grid g3">${copy.quotes.map((q) => `<div class="quote" data-reveal>
+        <div class="stars" aria-label="5/5">★★★★★</div>
+        <p>“${esc(q.text)}”</p>
+        <div class="who"><span class="avatar">${esc(initialsFor(q.name))}</span><div><strong>${esc(q.name)}</strong><span>${esc(q.role)}</span></div></div>
+      </div>`).join('')}</div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="appointment">
+    <div class="container booking-wrap">
+      <div class="booking-copy" data-reveal>
+        <span class="eyebrow">${esc(s.appointment)}</span>
+        <h2 class="h2 mt-2">${esc(copy.appointmentTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.appointmentLead)}</p>
+        <ul class="checklist">
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat2)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat4)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.note)}</span></li>
+        </ul>
+        <div class="med-hours">
+          <div class="hours-row"><span>${icon('clock')}${esc(s.hours)}</span><strong>${esc(config.hours || '08:00 — 18:00')}</strong></div>
+          <div class="hours-row"><span>${icon('map')}${esc(s.location)}</span><strong>${esc(config.address || config.city || '')}</strong></div>
+        </div>
+        <div class="med-contact-actions">
+          <a class="btn btn-light" href="tel:${attr(config.phone)}">${icon('phone')}${esc(s.callNow)}</a>
+          <a class="btn btn-wa" href="${attr(waHref(config, `${s.appointment} — ${config.siteName}`))}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.whatsapp)}</a>
+        </div>
+      </div>
+      <form class="booking-card appointment-card" data-lead-form data-lead-kind="appointment" data-appointment novalidate>
+        <h3>${esc(copy.formTitle)}</h3>
+        <p class="booking-sub">${esc(copy.formSub)}</p>
+        <div class="form-grid">
+          <div class="field"><label for="appt-name">${esc(s.name)}</label><input id="appt-name" name="name" required maxlength="80" autocomplete="name"><span class="err">${esc(s.required)}</span></div>
+          <div class="field"><label for="appt-phone">${esc(s.phone)}</label><input id="appt-phone" name="phone" type="tel" required maxlength="20" autocomplete="tel" dir="ltr"><span class="err">${esc(s.invalidPhone)}</span></div>
+          <div class="field"><label for="appt-service">${esc(copy.serviceLabel)}</label><select id="appt-service" name="service" required>${serviceOptions}</select></div>
+          <div class="field"><label for="appt-doctor">${esc(copy.doctorLabel)}</label><select id="appt-doctor" name="doctor">${doctorOptions}</select></div>
+          <div class="field"><label for="appt-date">${esc(s.date)}</label><input id="appt-date" name="date" type="date" required><span class="err">${esc(s.required)}</span></div>
+          <div class="field"><label for="appt-time">${esc(s.time)}</label><select id="appt-time" name="time" required>${times.map((t) => `<option value="${t}">${t}</option>`).join('')}</select></div>
+          <div class="field full"><label for="appt-note">${esc(s.note)}</label><input id="appt-note" name="message" maxlength="300"></div>
+          <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
+        </div>
+        <div class="rental-summary appt-summary" aria-live="polite">
+          <div><span>${esc(copy.summaryService)}</span><strong id="appt-service-name">${esc(firstService)}</strong></div>
+          <div><span>${esc(copy.summaryDoctor)}</span><strong id="appt-doctor-name">${esc(firstDoctor)}</strong></div>
+          <div class="grand"><span>${esc(copy.summaryWhen)}</span><strong id="appt-when">—</strong></div>
+        </div>
+        <button class="btn btn-primary btn-block mt-3" type="submit">${icon('check')}${esc(copy.confirm)}</button>
+        <div class="form-status" role="status"></div>
+        <p class="form-note center mt-2">${esc(copy.note)}</p>
+      </form>
+    </div>
+  </section>
+
+  <section class="section" id="faq">
+    <div class="container">
+      ${sectionHead(s.faq, copy.faqTitle, undefined, true)}
+      <div class="faq-list">
+        ${copy.faq.map(([q, a]) => `<details class="faq" data-reveal>
+          <summary>${esc(q)}<span class="faq-ic">${icon('plus')}</span></summary>
+          <p>${esc(a)}</p>
+        </details>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  ${contactSection(config, s)}`;
+}
+
+/* -------------------------------------------------------------------------
  * COMPANY
  * ---------------------------------------------------------------------- */
 export function companyPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
@@ -1094,6 +1604,7 @@ export function pageFor(template: string, config: RenderConfig, lang: Lang): str
     case 'agriculture':
     case 'electronics':
     case 'fashion':
+      return storePage(config, s, lang);
     case 'carrental':
       return carRentalPage(config, s, lang);
 
@@ -1109,6 +1620,7 @@ export function pageFor(template: string, config: RenderConfig, lang: Lang): str
 
     // Company-style templates
     case 'medical':
+      return medicalPage(config, s, lang);
     case 'lawyer':
     case 'realestate':
     case 'education':
@@ -1180,7 +1692,37 @@ export function jsonLdFor(template: string, config: RenderConfig, siteUrl: strin
       };
     case 'restaurant': return { ...base, '@type': 'Restaurant', servesCuisine: 'Algerian', image: config.coverUrl || undefined };
     case 'bakery': return { ...base, '@type': 'Bakery', image: config.coverUrl || undefined };
-    case 'medical': return { ...base, '@type': 'MedicalClinic', image: config.coverUrl || undefined };
+    case 'medical':
+      return {
+        ...base,
+        '@type': 'MedicalClinic',
+        image: config.coverUrl || undefined,
+        priceRange: 'DZD',
+        openingHours: config.hours || undefined,
+        medicalSpecialty: ['PrimaryCare', 'Pediatric', 'Gynecologic', 'Cardiovascular'],
+        availableService: config.products.slice(0, 12).map((p) => ({
+          '@type': 'MedicalProcedure',
+          name: p.name,
+          description: p.description || undefined,
+        })),
+        hasOfferCatalog: {
+          '@type': 'OfferCatalog',
+          name: 'Services',
+          itemListElement: config.products.slice(0, 12).map((p, index) => ({
+            '@type': 'Offer',
+            position: index + 1,
+            price: p.price,
+            priceCurrency: 'DZD',
+            itemOffered: { '@type': 'MedicalProcedure', name: p.name },
+          })),
+        },
+        employee: (config.team || []).map((member) => ({
+          '@type': 'Physician',
+          name: member.name,
+          jobTitle: member.role,
+          image: member.photoUrl || undefined,
+        })),
+      };
     case 'lawyer': return { ...base, '@type': 'LegalService', image: config.coverUrl || undefined };
     case 'realestate': return { ...base, '@type': 'RealEstateAgent', image: config.coverUrl || undefined };
     case 'education': return { ...base, '@type': 'EducationalOrganization', image: config.coverUrl || undefined };

@@ -6,7 +6,8 @@ type IconName =
   | 'facebook' | 'tiktok' | 'chevron' | 'plus' | 'search' | 'send' | 'user'
   | 'calendar' | 'users' | 'briefcase' | 'layers' | 'zap' | 'heart' | 'share'
   | 'download' | 'external' | 'home' | 'award' | 'target' | 'sun' | 'moon' | 'contrast'
-  | 'car' | 'fuel' | 'gearbox' | 'snow' | 'suitcase' | 'key' | 'road';
+  | 'car' | 'fuel' | 'gearbox' | 'snow' | 'suitcase' | 'key' | 'road'
+  | 'stethoscope' | 'baby';
 
 const ICONS: Record<IconName, string> = {
   phone: '<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/>',
@@ -54,6 +55,8 @@ const ICONS: Record<IconName, string> = {
   suitcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/>',
   key: '<circle cx="8" cy="15" r="4"/><path d="m11 12 9-9M17 3l4 4M14 6l4 4"/>',
   road: '<path d="M4 21 8 3M20 21 16 3M12 5v3M12 11v3M12 17v3"/>',
+  stethoscope: '<path d="M6 3v5a4 4 0 0 0 8 0V3"/><path d="M4 3h4M12 3h4"/><path d="M10 15v2a5 5 0 0 0 10 0v-1"/><circle cx="20" cy="13" r="2"/>',
+  baby: '<path d="M9 12h.01M15 12h.01M10 16c.6.4 1.3.6 2 .6s1.4-.2 2-.6"/><path d="M19 6.3A9 9 0 0 1 20.8 10a2 2 0 0 1 0 3.6A9 9 0 0 1 3.2 13.6a2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5S14.6 8 13.5 8c-.8 0-1.5-.4-1.5-1"/>',
 };
 
 export function icon(name: IconName, className = 'icon'): string {
@@ -99,6 +102,14 @@ function navItems(config: RenderConfig, s: UiStrings): { href: string; label: st
         { href: '#how', label: s.process },
         { href: '#booking', label: s.booking },
         { href: '#contact', label: s.contact },
+      ];
+    case 'medical':
+      return [
+        { href: '#top', label: s.home },
+        { href: '#specialties', label: s.specialties },
+        ...(config.team && config.team.length ? [{ href: '#team', label: s.team }] : []),
+        { href: '#services', label: s.services },
+        { href: '#appointment', label: s.appointment },
       ];
     case 'restaurant':
       return [
@@ -236,8 +247,14 @@ export function renderShell(options: ShellOptions): string {
     ? '#reserve'
     : config.templateSlug === 'carrental'
       ? '#booking'
-      : '#contact';
-  const mobileCtaLabel = config.templateSlug === 'carrental' ? s.booking : s.contact;
+      : config.templateSlug === 'medical'
+        ? '#appointment'
+        : '#contact';
+  const mobileCtaLabel = config.templateSlug === 'carrental'
+    ? s.booking
+    : config.templateSlug === 'medical'
+      ? s.appointment
+      : s.contact;
   const alternateTags = (['ar', 'fr', 'en'] as const)
     .filter((code) => alternates[code])
     .map((code) => `<link rel="alternate" hreflang="${code}" href="${attr(absolute(siteUrl, alternates[code]))}">`)
@@ -403,8 +420,14 @@ export function baseHeader(config: RenderConfig, lang: 'ar' | 'fr' | 'en', alter
     ? '#reserve'
     : config.templateSlug === 'carrental'
       ? '#booking'
-      : '#contact';
-  const mobileCtaLabel = config.templateSlug === 'carrental' ? s.booking : s.contact;
+      : config.templateSlug === 'medical'
+        ? '#appointment'
+        : '#contact';
+  const mobileCtaLabel = config.templateSlug === 'carrental'
+    ? s.booking
+    : config.templateSlug === 'medical'
+      ? s.appointment
+      : s.contact;
   const logo = config.logoAssetPath
     ? `<img class="brand-logo" src="${attr(config.logoAssetPath)}" alt="${attr(config.siteName)}" width="44" height="44">`
     : `<span class="brand-mark" aria-hidden="true">${esc(initials(config.siteName))}</span>`;

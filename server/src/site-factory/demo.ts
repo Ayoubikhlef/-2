@@ -14,7 +14,7 @@
 import type { Lang } from './defaults';
 import { photo, photos, type PhotoGroup } from './images';
 import { renderSite } from './render';
-import type { RenderConfig, RenderedSite, RenderProduct, RenderService, RentalSpecs } from './render/types';
+import type { RenderConfig, RenderedSite, RenderProduct, RenderService, RenderTeamMember, RentalSpecs } from './render/types';
 
 interface DemoSeed {
   name: string;
@@ -26,6 +26,7 @@ interface DemoSeed {
   gallery: string[];
   services: RenderService[];
   products?: RenderProduct[];
+  team?: RenderTeamMember[];
 }
 
 const OWNER = {
@@ -249,6 +250,12 @@ export const DEMO: Record<string, DemoSeed> = {
       ['تحاليل مخبرية', 'تحاليل سريعة بنتائج دقيقة خلال 24 ساعة.'],
       ['حجز المواعيد', 'احجز موعدك عبر الهاتف أو واتساب دون انتظار.'],
     ]),
+    team: [
+      { name: 'د. أمينة بوزيد', role: 'أخصائية طب عام', specialty: 'طب عام', experience: '12 سنة', photoUrl: photo('doctor', 0, 700, 800) },
+      { name: 'د. كريم حداد', role: 'أخصائي طب الأطفال', specialty: 'طب الأطفال', experience: '9 سنوات', photoUrl: photo('doctor', 1, 700, 800) },
+      { name: 'د. سارة مزيان', role: 'أخصائية أمراض النساء والتوليد', specialty: 'نساء وتوليد', experience: '15 سنة', photoUrl: photo('doctor', 2, 700, 800) },
+      { name: 'د. يوسف بن علي', role: 'أخصائي أمراض القلب', specialty: 'أمراض القلب', experience: '11 سنة', photoUrl: photo('doctor', 3, 700, 800) },
+    ],
     products: products('medical', [
       ['استشارة طب عام', 2000, 'استشارات', 'فحص شامل مع توجيهات علاجية مكتوبة.'],
       ['متابعة طب الأطفال', 2500, 'أطفال', 'فحص النمو والتلقيح ونصائح وقائية.'],
@@ -747,7 +754,7 @@ const ACCENTS: Record<string, [string, string]> = {
   card: ['#db2777', '#9d174d'],
   restaurant: ['#b45309', '#78350f'],
   landing: ['#ea580c', '#9a3412'],
-  medical: ['#0ea5e9', '#0369a1'],
+  medical: ['#0369a1', '#075985'],
   pharmacy: ['#16a34a', '#14532d'],
   lawyer: ['#334155', '#0f172a'],
   realestate: ['#0f766e', '#134e4a'],
@@ -800,6 +807,7 @@ export function buildDemoConfig(slug: string, lang: Lang): RenderConfig {
     hours: seed.hours,
     services: seed.services,
     products: seed.products || [],
+    team: seed.team,
     subdomain: `demo-${slug}`,
     customDomain: null,
     preview: true,

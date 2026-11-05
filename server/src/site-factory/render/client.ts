@@ -423,6 +423,17 @@ export const SITE_JS = String.raw`
           ' | ' + rentalDuration(rentalDays(form)) +
           ' | ' + (rentalTotal ? rentalTotal.textContent : '') + '. ' + message;
       }
+      if (form.getAttribute('data-lead-kind') === 'appointment') {
+        var apptServiceSelect = form.querySelector('[name="service"]');
+        var apptDoctorSelect = form.querySelector('[name="doctor"]');
+        var apptServiceName = apptServiceSelect ? apptServiceSelect.value : '';
+        var apptDoctorName = apptDoctorSelect && apptDoctorSelect.options[apptDoctorSelect.selectedIndex]
+          ? (apptDoctorSelect.value || apptDoctorSelect.options[apptDoctorSelect.selectedIndex].text)
+          : '';
+        message = 'Appointment: ' + apptServiceName + ' | ' + apptDoctorName +
+          ' | ' + (form.date ? form.date.value : '') + ' ' + (form.time ? form.time.value : '') +
+          '. ' + message;
+      }
       post('/public/sites/' + encodeURIComponent(SITE.siteId) + '/leads', {
         name: form.name ? form.name.value : '',
         phone: form.phone ? form.phone.value : '',
@@ -515,6 +526,78 @@ export const SITE_JS = String.raw`
     });
 
     applyDefaults();
+  }
+
+  // medical appointment: live summary + quick booking
+  var appointmentForm = $('[data-appointment]');
+  if (appointmentForm) {
+    var apptService = appointmentForm.querySelector('[name="service"]');
+    var apptDoctor = appointmentForm.querySelector('[name="doctor"]');
+    var apptDate = appointmentForm.querySelector('[name="date"]');
+    var apptTime = appointmentForm.querySelector('[name="time"]');
+
+    var prettyDay = function (value) {
+      if (!value) return '';
+      var parsed = new Date(value + 'T00:00:00');
+      if (isNaN(parsed.getTime())) return value;
+      var locale = SITE.lang === 'ar' ? 'ar-DZ' : SITE.lang === 'fr' ? 'fr-DZ' : 'en-GB';
+      try {
+        return parsed.toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric' });
+      } catch (e) { return value; }
+    };
+
+    var updateAppointment = function () {
+      var serviceEl = $('#appt-service-name');
+      var doctorEl = $('#appt-doctor-name');
+      var whenEl = $('#appt-when');
+      if (serviceEl) serviceEl.textContent = apptService ? apptService.value : '';
+      if (doctorEl) {
+        doctorEl.textContent = apptDoctor
+          ? (apptDoctor.value || (apptDoctor.options[apptDoctor.selectedIndex] || {}).text || '')
+          : '';
+      }
+      if (whenEl) {
+        var day = apptDate && apptDate.value ? prettyDay(apptDate.value) : '';
+        var clock = apptTime ? apptTime.value : '';
+        whenEl.textContent = day ? (day + (clock ? ' · ' + clock : '')) : '—';
+      }
+    };
+
+    var applyAppointmentDefaults = function () {
+      var tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      if (apptDate) apptDate.min = isoDate(new Date());
+      if (apptDate && !apptDate.value) apptDate.value = isoDate(tomorrow);
+      if (apptTime && !apptTime.value) apptTime.value = '09:00';
+      updateAppointment();
+    };
+
+    [apptService, apptDoctor, apptDate, apptTime].forEach(function (field) {
+      if (field) field.addEventListener('change', updateAppointment);
+    });
+
+    $$('[data-book-service]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        var service = button.getAttribute('data-book-service');
+        if (apptService && service) apptService.value = service;
+        updateAppointment();
+        var section = $('#appointment');
+        if (section && section.scrollIntoView) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    $$('[data-book-doctor]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        var doctor = button.getAttribute('data-book-doctor');
+        if (apptDoctor && doctor) apptDoctor.value = doctor;
+        updateAppointment();
+        var section = $('#appointment');
+        if (section && section.scrollIntoView) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    appointmentForm.addEventListener('reset', function () { setTimeout(applyAppointmentDefaults, 0); });
+    applyAppointmentDefaults();
   }
 
   // vCard
