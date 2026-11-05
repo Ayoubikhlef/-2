@@ -143,6 +143,7 @@ export interface UiStrings {
   fleet: string;
   booking: string;
   team: string;
+  pharmacists: string;
   appointment: string;
   specialties: string;
   search: string;
@@ -217,7 +218,7 @@ const AR: UiStrings = {
   support: 'دعم ومتابعة', secure: 'دفع عند الاستلام', featured: 'منتجات مميزة', all: 'الكل',
   packages: 'الحزم والخدمات', theme: 'المظهر',
   themeAuto: 'تلقائي', themeLight: 'فاتح', themeDark: 'داكن',
-  fleet: 'الأسطول', booking: 'حجز سيارة', team: 'الأطباء', appointment: 'حجز موعد', specialties: 'التخصصات',
+  fleet: 'الأسطول', booking: 'حجز سيارة', team: 'الأطباء', pharmacists: 'الصيادلة', appointment: 'حجز موعد', specialties: 'التخصصات',
   search: 'ابحث عن منتج...', ourServices: 'خدماتنا', ourWork: 'أعمالنا', selectedWork: 'مختارات من أعمالنا',
   skills: 'المهارات', available: 'متاح للعمل', saveContact: 'حفظ جهة الاتصال', share: 'مشاركة',
   callNow: 'اتصل الآن', bookTable: 'احجز طاولة', guests: 'عدد الأشخاص', date: 'التاريخ', time: 'الوقت',
@@ -252,7 +253,7 @@ const FR: UiStrings = {
   support: 'Support & suivi', secure: 'Paiement à la livraison', featured: 'Produits vedettes', all: 'Tout',
   packages: 'Forfaits & services', theme: 'Thème',
   themeAuto: 'Automatique', themeLight: 'Clair', themeDark: 'Sombre',
-  fleet: 'Notre flotte', booking: 'Réserver', team: 'Médecins', appointment: 'Prendre rendez-vous', specialties: 'Spécialités',
+  fleet: 'Notre flotte', booking: 'Réserver', team: 'Médecins', pharmacists: 'Pharmaciens', appointment: 'Prendre rendez-vous', specialties: 'Spécialités',
   search: 'Rechercher un produit...', ourServices: 'Nos services', ourWork: 'Nos réalisations', selectedWork: 'Une sélection de nos travaux',
   skills: 'Compétences', available: 'Disponible', saveContact: 'Enregistrer le contact', share: 'Partager',
   callNow: 'Appeler', bookTable: 'Réserver une table', guests: 'Personnes', date: 'Date', time: 'Heure',
@@ -287,7 +288,7 @@ const EN: UiStrings = {
   support: 'Support & follow-up', secure: 'Cash on delivery', featured: 'Featured products', all: 'All',
   packages: 'Packages & services', theme: 'Theme',
   themeAuto: 'Automatic', themeLight: 'Light', themeDark: 'Dark',
-  fleet: 'Our fleet', booking: 'Book a car', team: 'Doctors', appointment: 'Book appointment', specialties: 'Specialties',
+  fleet: 'Our fleet', booking: 'Book a car', team: 'Doctors', pharmacists: 'Pharmacists', appointment: 'Book appointment', specialties: 'Specialties',
   search: 'Search products...', ourServices: 'Our services', ourWork: 'Our work', selectedWork: 'Selected work',
   skills: 'Skills', available: 'Available for work', saveContact: 'Save contact', share: 'Share',
   callNow: 'Call now', bookTable: 'Book a table', guests: 'Guests', date: 'Date', time: 'Time',

@@ -1213,6 +1213,503 @@ export function medicalPage(config: RenderConfig, s: UiStrings, lang: Lang): str
 }
 
 /* -------------------------------------------------------------------------
+ * PHARMACY
+ * ---------------------------------------------------------------------- */
+interface PharmacyCategory {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+interface PharmacyCopy {
+  heroBadge: string;
+  orderCta: string;
+  browseCta: string;
+  openDaily: string;
+  deliveryFast: string;
+  deliveryNote: string;
+  genuine: string;
+  cash: string;
+  heroMessage: string;
+  categoriesEyebrow: string;
+  categoriesTitle: string;
+  categoriesLead: string;
+  categories: PharmacyCategory[];
+  productsEyebrow: string;
+  productsTitle: string;
+  productsLead: string;
+  orderPrefix: string;
+  orderProduct: string;
+  servicesEyebrow: string;
+  servicesTitle: string;
+  servicesLead: string;
+  fallbackServices: Array<{ title: string; description: string }>;
+  rxEyebrow: string;
+  rxTitle: string;
+  rxLead: string;
+  rxStep1: string; rxStep1d: string;
+  rxStep2: string; rxStep2d: string;
+  rxStep3: string; rxStep3d: string;
+  rxCta: string;
+  rxNote: string;
+  rxMessage: string;
+  teamEyebrow: string;
+  teamTitle: string;
+  teamLead: string;
+  teamExperience: string;
+  aboutTitle: string;
+  aboutLead: string;
+  feat1: string; feat1d: string;
+  feat2: string; feat2d: string;
+  feat3: string; feat3d: string;
+  feat4: string; feat4d: string;
+  stats: Array<[string, string]>;
+  quotes: Array<{ text: string; name: string; role: string }>;
+  faqTitle: string;
+  faq: Array<[string, string]>;
+}
+
+const PHARMACY: Record<Lang, PharmacyCopy> = {
+  ar: {
+    heroBadge: 'صيدلية معتمدة · استشارة مجانية',
+    orderCta: 'اطلب عبر واتساب',
+    browseCta: 'تصفح المنتجات',
+    openDaily: 'مفتوحة يومياً',
+    deliveryFast: 'توصيل سريع',
+    deliveryNote: 'خلال 60 دقيقة داخل المدينة',
+    genuine: 'منتجات أصلية 100%',
+    cash: 'دفع عند الاستلام',
+    heroMessage: 'أريد الاستفسار عن منتج أو طلب دواء',
+    categoriesEyebrow: 'أقسام الصيدلية',
+    categoriesTitle: 'كل ما تحتاجه تحت سقف واحد',
+    categoriesLead: 'من الفيتامينات إلى العناية بالبشرة والأم والطفل، اعثر على قسمك بسرعة.',
+    categories: [
+      { icon: 'pill', title: 'فيتامينات ومكملات', description: 'دعم المناعة والعظام والطاقة بمنتجات أصلية.' },
+      { icon: 'droplet', title: 'عناية بالبشرة', description: 'كريمات وغسولات طبية لكل أنواع البشرة.' },
+      { icon: 'baby', title: 'أمومة وطفولة', description: 'حليب وحفاضات ومستلزمات العناية اليومية.' },
+      { icon: 'thermometer', title: 'أجهزة طبية', description: 'ميزان حرارة وضغط وسكر بأسعار مناسبة.' },
+      { icon: 'shield', title: 'حماية وتعقيم', description: 'كمامات ومعقمات ومستلزمات النظافة.' },
+      { icon: 'clipboard', title: 'وصفات طبية', description: 'أرسل وصفتك ونجهزها لك قبل الوصول.' },
+    ],
+    productsEyebrow: 'الأكثر طلباً',
+    productsTitle: 'منتجات مختارة بعناية',
+    productsLead: 'أسعار واضحة ومنتجات أصلية، والطلب مباشرة عبر واتساب.',
+    orderPrefix: 'أريد طلب',
+    orderProduct: 'اطلب',
+    servicesEyebrow: 'خدمات الصيدلية',
+    servicesTitle: 'رعاية تتجاوز بيع الدواء',
+    servicesLead: 'فريق مؤهل يقدم لك النصيحة والقياس والمتابعة داخل الصيدلية.',
+    fallbackServices: [
+      { title: 'استشارة دوائية', description: 'توضيح الجرعات والتداخلات الدوائية قبل الاستخدام.' },
+      { title: 'قياس الضغط والسكر', description: 'خدمة سريعة داخل الصيدلية دون موعد مسبق.' },
+      { title: 'تركيب الوصفات', description: 'نجهز وصفتك ونتحقق من التوفر قبل وصولك.' },
+      { title: 'توصيل للمنزل', description: 'طلبك يصلك إلى باب منزلك خلال 60 دقيقة.' },
+    ],
+    rxEyebrow: 'وصفة طبية',
+    rxTitle: 'أرسل وصفتك قبل أن تصل',
+    rxLead: 'صوّر الوصفة وأرسلها عبر واتساب، نتحقق من التوفر ونجهز طلبك لتستلمه دون انتظار.',
+    rxStep1: 'صوّر الوصفة', rxStep1d: 'تأكد من وضوح اسم الدواء والجرعة.',
+    rxStep2: 'أرسلها عبر واتساب', rxStep2d: 'أرفق الصورة ورقم هاتفك.',
+    rxStep3: 'استلم طلبك', rxStep3d: 'نؤكد التوفر والسعر ثم نجهز الوصفة.',
+    rxCta: 'أرسل الوصفة الآن',
+    rxNote: 'الوصفات الطبية تُصرف بعد التحقق من صيدلي معتمد.',
+    rxMessage: 'لدي وصفة طبية وأريد إرسالها لكم',
+    teamEyebrow: 'فريق الصيدلية',
+    teamTitle: 'صيادلة تثق بهم',
+    teamLead: 'فريق يعرف منتجاته ويشرح لك طريقة الاستخدام والجرعة.',
+    teamExperience: 'سنوات الخبرة',
+    aboutTitle: 'صيدلية قريبة منك',
+    aboutLead: 'نؤمن أن الصيدلي شريك في صحتك، لذلك نمنح كل زائر وقتاً كافياً للشرح والمتابعة.',
+    feat1: 'منتجات أصلية', feat1d: 'مصادر موثوقة وتخزين مطابق للمعايير.',
+    feat2: 'أسعار واضحة', feat2d: 'السعر معروض قبل الطلب دون مفاجآت.',
+    feat3: 'استشارة مجانية', feat3d: 'نصائح دوائية من صيدلي معتمد.',
+    feat4: 'توصيل سريع', feat4d: 'خلال 60 دقيقة داخل المدينة.',
+    stats: [['+12', 'سنة خبرة'], ['+18k', 'عميل'], ['60د', 'توصيل'], ['4.9/5', 'تقييم العملاء']],
+    quotes: [
+      { text: 'أرسلت وصفة أمي عبر واتساب وجهزوها قبل وصولنا، وفروا علينا وقتاً طويلاً.', name: 'أمينة ش.', role: 'زبونة' },
+      { text: 'فريق يشرح الجرعة والتداخل الدوائي بصبر، وأسعار واضحة دون مفاجآت.', name: 'ياسين ب.', role: 'زبون' },
+      { text: 'طلبت فيتامينات وتوصلت في أقل من ساعة، منتجات أصلية وتغليف ممتاز.', name: 'لينة م.', role: 'زبونة' },
+    ],
+    faqTitle: 'أسئلة شائعة',
+    faq: [
+      ['هل أحتاج وصفة طبية لشراء الدواء؟', 'الأدوية الوصفية تتطلب وصفة سارية، أما المكملات ومنتجات العناية فلا تحتاج.'],
+      ['كيف أطلب منتجاً؟', 'أرسل اسم المنتج عبر واتساب أو زر الصيدلية، ونجهز طلبك فوراً.'],
+      ['هل التوصيل متاح؟', 'نعم داخل المدينة خلال 60 دقيقة، وتُحدد الرسوم حسب المسافة.'],
+      ['ما هي أوقات العمل؟', 'نفتح يومياً من 08:00 إلى 21:00، بما في ذلك عطلة نهاية الأسبوع.'],
+      ['هل الدفع عند الاستلام؟', 'نعم، الدفع نقداً عند الاستلام أو داخل الصيدلية.'],
+    ],
+  },
+  fr: {
+    heroBadge: 'Pharmacie agréée · Conseil gratuit',
+    orderCta: 'Commander sur WhatsApp',
+    browseCta: 'Voir les produits',
+    openDaily: 'Ouverte tous les jours',
+    deliveryFast: 'Livraison rapide',
+    deliveryNote: 'en 60 min en ville',
+    genuine: 'Produits 100% authentiques',
+    cash: 'Paiement à la livraison',
+    heroMessage: 'Je souhaite un conseil ou commander un produit',
+    categoriesEyebrow: 'Rayons de la pharmacie',
+    categoriesTitle: 'Tout ce qu’il vous faut au même endroit',
+    categoriesLead: 'Des vitamines aux soins de la peau, en passant par la mère et l’enfant, trouvez votre rayon rapidement.',
+    categories: [
+      { icon: 'pill', title: 'Vitamines & compléments', description: 'Soutien de l’immunité, des os et de l’énergie avec des produits authentiques.' },
+      { icon: 'droplet', title: 'Soins de la peau', description: 'Crèmes et nettoyants médicaux pour tous types de peau.' },
+      { icon: 'baby', title: 'Mère & enfant', description: 'Lait, couches et soins du quotidien.' },
+      { icon: 'thermometer', title: 'Appareils médicaux', description: 'Thermomètres, tensiomètres et lecteurs de glycémie.' },
+      { icon: 'shield', title: 'Protection & hygiène', description: 'Masques, gels et produits d’hygiène.' },
+      { icon: 'clipboard', title: 'Ordonnances', description: 'Envoyez votre ordonnance, nous la préparons avant votre arrivée.' },
+    ],
+    productsEyebrow: 'Les plus demandés',
+    productsTitle: 'Des produits choisis avec soin',
+    productsLead: 'Des prix clairs et des produits authentiques, commandés directement sur WhatsApp.',
+    orderPrefix: 'Je souhaite commander',
+    orderProduct: 'Commander',
+    servicesEyebrow: 'Services de la pharmacie',
+    servicesTitle: 'Des soins au-delà de la délivrance',
+    servicesLead: 'Une équipe qualifiée pour le conseil, la mesure et le suivi au sein de la pharmacie.',
+    fallbackServices: [
+      { title: 'Conseil pharmaceutique', description: 'Explications sur les doses et les interactions avant utilisation.' },
+      { title: 'Tension & glycémie', description: 'Mesure rapide à la pharmacie, sans rendez-vous.' },
+      { title: 'Préparation d’ordonnance', description: 'Nous préparons votre ordonnance et vérifions la disponibilité avant votre arrivée.' },
+      { title: 'Livraison à domicile', description: 'Votre commande chez vous en 60 minutes.' },
+    ],
+    rxEyebrow: 'Ordonnance',
+    rxTitle: 'Envoyez votre ordonnance avant de venir',
+    rxLead: 'Photographiez votre ordonnance et envoyez-la sur WhatsApp : nous vérifions la disponibilité et préparons votre commande.',
+    rxStep1: 'Photographiez l’ordonnance', rxStep1d: 'Vérifiez que le nom et le dosage sont lisibles.',
+    rxStep2: 'Envoyez-la sur WhatsApp', rxStep2d: 'Joignez la photo et votre numéro de téléphone.',
+    rxStep3: 'Récupérez votre commande', rxStep3d: 'Nous confirmons la disponibilité et le prix, puis préparons l’ordonnance.',
+    rxCta: 'Envoyer l’ordonnance',
+    rxNote: 'Les ordonnances sont délivrées après vérification par un pharmacien agréé.',
+    rxMessage: 'J’ai une ordonnance à vous envoyer',
+    teamEyebrow: 'Équipe de la pharmacie',
+    teamTitle: 'Des pharmaciens de confiance',
+    teamLead: 'Une équipe qui connaît ses produits et vous explique le bon usage et la posologie.',
+    teamExperience: 'ans d’expérience',
+    aboutTitle: 'Votre pharmacie de proximité',
+    aboutLead: 'Nous croyons que le pharmacien est un partenaire de votre santé : chaque visite mérite le temps nécessaire pour expliquer et suivre.',
+    feat1: 'Produits authentiques', feat1d: 'Sources fiables et stockage conforme aux normes.',
+    feat2: 'Prix clairs', feat2d: 'Le prix est affiché avant la commande, sans surprise.',
+    feat3: 'Conseil gratuit', feat3d: 'Des conseils pharmaceutiques par un professionnel agréé.',
+    feat4: 'Livraison rapide', feat4d: 'En 60 minutes en ville.',
+    stats: [['+12', 'ans d’expérience'], ['+18k', 'clients'], ['60 min', 'livraison'], ['4.9/5', 'satisfaction']],
+    quotes: [
+      { text: 'J’ai envoyé l’ordonnance de ma mère sur WhatsApp : elle était prête avant notre arrivée, un vrai gain de temps.', name: 'Amina C.', role: 'Cliente' },
+      { text: 'L’équipe explique patiemment les doses et les interactions, avec des prix clairs et sans surprise.', name: 'Yacine B.', role: 'Client' },
+      { text: 'J’ai commandé des vitamines et reçu ma commande en moins d’une heure, produits authentiques et bien emballés.', name: 'Lina M.', role: 'Cliente' },
+    ],
+    faqTitle: 'Questions fréquentes',
+    faq: [
+      ['Faut-il une ordonnance pour acheter un médicament ?', 'Les médicaments sur ordonnance exigent une ordonnance valide ; les compléments et soins n’en ont pas besoin.'],
+      ['Comment commander un produit ?', 'Envoyez le nom du produit sur WhatsApp ou passez à la pharmacie, nous préparons votre commande.'],
+      ['La livraison est-elle disponible ?', 'Oui, en ville en 60 minutes, avec des frais selon la distance.'],
+      ['Quels sont les horaires ?', 'Nous ouvrons tous les jours de 08:00 à 21:00, week-end compris.'],
+      ['Le paiement se fait à la livraison ?', 'Oui, en espèces à la livraison ou directement à la pharmacie.'],
+    ],
+  },
+  en: {
+    heroBadge: 'Licensed pharmacy · Free advice',
+    orderCta: 'Order on WhatsApp',
+    browseCta: 'Browse products',
+    openDaily: 'Open every day',
+    deliveryFast: 'Fast delivery',
+    deliveryNote: 'within 60 minutes in town',
+    genuine: '100% genuine products',
+    cash: 'Cash on delivery',
+    heroMessage: 'I would like advice or to order a product',
+    categoriesEyebrow: 'Pharmacy departments',
+    categoriesTitle: 'Everything you need under one roof',
+    categoriesLead: 'From vitamins to skin care and mother-and-baby essentials, find your department quickly.',
+    categories: [
+      { icon: 'pill', title: 'Vitamins & supplements', description: 'Support immunity, bones and energy with genuine products.' },
+      { icon: 'droplet', title: 'Skin care', description: 'Medical creams and cleansers for every skin type.' },
+      { icon: 'baby', title: 'Mother & baby', description: 'Milk, diapers and everyday care essentials.' },
+      { icon: 'thermometer', title: 'Medical devices', description: 'Thermometers, blood pressure and glucose monitors.' },
+      { icon: 'shield', title: 'Protection & hygiene', description: 'Masks, sanitisers and hygiene products.' },
+      { icon: 'clipboard', title: 'Prescriptions', description: 'Send your prescription and we prepare it before you arrive.' },
+    ],
+    productsEyebrow: 'Most requested',
+    productsTitle: 'Products chosen with care',
+    productsLead: 'Clear prices and genuine products, ordered directly on WhatsApp.',
+    orderPrefix: 'I would like to order',
+    orderProduct: 'Order',
+    servicesEyebrow: 'Pharmacy services',
+    servicesTitle: 'Care beyond the medicine',
+    servicesLead: 'A qualified team for advice, measurements and follow-up inside the pharmacy.',
+    fallbackServices: [
+      { title: 'Medication advice', description: 'Clear guidance on doses and drug interactions before use.' },
+      { title: 'Blood pressure & sugar', description: 'A quick in-pharmacy check with no appointment.' },
+      { title: 'Prescription preparation', description: 'We prepare your prescription and check availability before you arrive.' },
+      { title: 'Home delivery', description: 'Your order at your door within 60 minutes.' },
+    ],
+    rxEyebrow: 'Prescription',
+    rxTitle: 'Send your prescription before you arrive',
+    rxLead: 'Photograph your prescription and send it on WhatsApp: we check availability and prepare your order.',
+    rxStep1: 'Photograph the prescription', rxStep1d: 'Make sure the medicine name and dose are readable.',
+    rxStep2: 'Send it on WhatsApp', rxStep2d: 'Attach the photo and your phone number.',
+    rxStep3: 'Collect your order', rxStep3d: 'We confirm availability and price, then prepare the prescription.',
+    rxCta: 'Send the prescription',
+    rxNote: 'Prescriptions are dispensed after verification by a licensed pharmacist.',
+    rxMessage: 'I have a prescription to send you',
+    teamEyebrow: 'Pharmacy team',
+    teamTitle: 'Pharmacists you can trust',
+    teamLead: 'A team that knows its products and explains how to use them and the right dose.',
+    teamExperience: 'years of experience',
+    aboutTitle: 'Your neighbourhood pharmacy',
+    aboutLead: 'We believe the pharmacist is a partner in your health, so every visit gets the time it needs for clear advice and follow-up.',
+    feat1: 'Genuine products', feat1d: 'Trusted sources and storage that meets the standards.',
+    feat2: 'Clear prices', feat2d: 'The price is shown before you order, with no surprises.',
+    feat3: 'Free advice', feat3d: 'Medication guidance from a licensed pharmacist.',
+    feat4: 'Fast delivery', feat4d: 'Within 60 minutes in town.',
+    stats: [['+12', 'years of experience'], ['+18k', 'customers'], ['60 min', 'delivery'], ['4.9/5', 'customer rating']],
+    quotes: [
+      { text: 'I sent my mother’s prescription on WhatsApp and it was ready before we arrived, saving us a long wait.', name: 'Amina C.', role: 'Customer' },
+      { text: 'The team patiently explains doses and interactions, with clear prices and no surprises.', name: 'Yacine B.', role: 'Customer' },
+      { text: 'I ordered vitamins and received them in under an hour, genuine products and great packaging.', name: 'Lina M.', role: 'Customer' },
+    ],
+    faqTitle: 'Frequently asked questions',
+    faq: [
+      ['Do I need a prescription to buy medicine?', 'Prescription medicines require a valid prescription; supplements and care products do not.'],
+      ['How do I order a product?', 'Send the product name on WhatsApp or visit the pharmacy, and we prepare your order.'],
+      ['Is delivery available?', 'Yes, in town within 60 minutes, with a fee based on distance.'],
+      ['What are your opening hours?', 'We are open every day from 08:00 to 21:00, including weekends.'],
+      ['Can I pay on delivery?', 'Yes, cash on delivery or directly at the pharmacy.'],
+    ],
+  },
+};
+
+function pharmacyProductCard(config: RenderConfig, p: RenderProduct, copy: PharmacyCopy, lang: Lang): string {
+  const image = p.imageUrl
+    ? `<img src="${attr(p.imageUrl)}" alt="${attr(p.name)}" loading="lazy" decoding="async" width="700" height="700">`
+    : productPlaceholder(p.name);
+  const message = `${copy.orderPrefix}: ${p.name} — ${money(p.price, lang)}`;
+  return `<article class="product-card pharm-product" data-reveal data-product-card data-category="${attr(p.category || '')}" data-name="${attr(p.name)}" data-desc="${attr(p.description || '')}">
+    <div class="product-thumb">${image}</div>
+    <div class="product-body">
+      ${p.category ? `<span class="cat">${esc(p.category)}</span>` : ''}
+      <h3>${esc(p.name)}</h3>
+      ${p.description ? `<p>${esc(p.description)}</p>` : ''}
+      <div class="price-row">
+        <span class="price">${money(p.price, lang)}</span>
+        <a class="pharm-order" href="${attr(waHref(config, message))}" target="_blank" rel="noopener" aria-label="${attr(`${copy.orderProduct} — ${p.name}`)}">${icon('whatsapp')}<span>${esc(copy.orderProduct)}</span></a>
+      </div>
+    </div>
+  </article>`;
+}
+
+function pharmacistCard(member: RenderTeamMember, copy: PharmacyCopy): string {
+  const photo = member.photoUrl
+    ? `<img src="${attr(member.photoUrl)}" alt="${attr(member.name)}" loading="lazy" decoding="async" width="700" height="700">`
+    : `<span class="pharm-initials">${esc(initialsFor(member.name))}</span>`;
+  return `<article class="pharm-team-card" data-reveal>
+    <div class="pharm-avatar">${photo}</div>
+    <h3>${esc(member.name)}</h3>
+    <p class="pharm-role">${esc(member.role)}</p>
+    ${member.specialty ? `<span class="pharm-specialty">${esc(member.specialty)}</span>` : ''}
+    ${member.experience ? `<span class="pharm-exp">${icon('award')}${esc(member.experience)} ${esc(copy.teamExperience)}</span>` : ''}
+  </article>`;
+}
+
+export function pharmacyPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
+  const copy = PHARMACY[lang];
+  const products = config.products.filter((p) => p.name);
+  const categories = Array.from(new Set(products.map((p) => p.category).filter(Boolean))) as string[];
+  const team = config.team || [];
+  const services = config.services.length ? config.services : copy.fallbackServices;
+  const serviceIcons = ['stethoscope', 'heart', 'clipboard', 'droplet', 'truck', 'baby'];
+  const heroImage = config.coverUrl
+    ? `<img src="${attr(config.coverUrl)}" alt="${attr(config.siteName)}" width="900" height="1100" fetchpriority="high" decoding="async">`
+    : '';
+  const about = aboutPhoto(config);
+  const secondPhoto = config.gallery && config.gallery[1] ? config.gallery[1] : null;
+  const heroWa = waHref(config, `${copy.heroMessage} — ${config.siteName}`);
+  const rxWa = waHref(config, `${copy.rxMessage} — ${config.siteName}`);
+
+  return `<section class="hero pharmacy-hero" id="top">
+    <div class="container hero-grid">
+      <div class="hero-copy" data-reveal>
+        <span class="badge">${icon('cross')}${esc(copy.heroBadge)}</span>
+        <h1 class="h1 mt-3">${esc(config.siteName)}</h1>
+        <p class="lead">${esc(config.description)}</p>
+        <div class="hero-actions">
+          <a class="btn btn-wa" href="${attr(heroWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(copy.orderCta)}</a>
+          <a class="btn btn-light" href="#products">${icon('pill')}${esc(copy.browseCta)}</a>
+        </div>
+        <div class="pharm-badges">
+          <span>${icon('truck')}${esc(copy.deliveryFast)}</span>
+          <span>${icon('shield')}${esc(copy.genuine)}</span>
+          <span>${icon('clock')}${esc(copy.openDaily)} · ${esc(config.hours || '08:00 — 21:00')}</span>
+        </div>
+        <div class="hero-stats">
+          ${copy.stats.slice(0, 3).map(([num, label]) => `<div><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="hero-media pharm-hero-media${heroImage ? '' : ' no-img'}" data-mark="${attr(initials(config.siteName))}" data-reveal>${heroImage}
+        <span class="pharm-pulse" aria-hidden="true">${icon('cross')}</span>
+        <div class="float-card"><span class="float-icon">${icon('truck')}</span><div><strong>${esc(copy.deliveryFast)}</strong><span>${esc(copy.deliveryNote)}</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="trust-strip"><div class="container">
+    <span class="trust-item">${icon('truck')}${esc(copy.deliveryFast)}</span>
+    <span class="trust-item">${icon('shield')}${esc(copy.genuine)}</span>
+    <span class="trust-item">${icon('stethoscope')}${esc(copy.feat3)}</span>
+    <span class="trust-item">${icon('check')}${esc(copy.cash)}</span>
+  </div></div>
+
+  <section class="section" id="categories">
+    <div class="container">
+      ${sectionHead(copy.categoriesEyebrow, copy.categoriesTitle, copy.categoriesLead, true)}
+      <div class="pharm-cat-grid">
+        ${copy.categories.map((item) => `<article class="pharm-cat" data-reveal>
+          <span class="pharm-cat-icon">${icon(item.icon as any)}</span>
+          <div><h3>${esc(item.title)}</h3><p>${esc(item.description)}</p></div>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="products">
+    <div class="container">
+      ${sectionHead(copy.productsEyebrow, copy.productsTitle, copy.productsLead)}
+      <div class="shop-toolbar">
+        <button class="chip active" type="button" data-filter="all">${esc(s.all)}</button>
+        ${categories.map((cat) => `<button class="chip" type="button" data-filter="${attr(cat)}">${esc(cat)}</button>`).join('')}
+        <div class="search-box">${icon('search')}<input id="product-search" type="search" placeholder="${attr(s.search)}" aria-label="${attr(s.search)}"></div>
+      </div>
+      <div class="product-grid pharm-product-grid">
+        ${products.length ? products.map((p) => pharmacyProductCard(config, p, copy, lang)).join('') : `<div class="product-empty">${esc(s.emptyCart)}</div>`}
+        <div class="product-empty hide" id="product-empty">${esc(s.emptyCart)}</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="services">
+    <div class="container">
+      ${sectionHead(copy.servicesEyebrow, copy.servicesTitle, copy.servicesLead)}
+      <div class="pharm-service-grid">
+        ${services.map((service, i) => `<article class="pharm-service" data-reveal>
+          <span class="pharm-service-icon">${icon(serviceIcons[i % serviceIcons.length] as any)}</span>
+          <h3>${esc(service.title)}</h3>
+          <p>${esc(service.description)}</p>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="pharm-rx" id="prescription">
+    <div class="container pharm-rx-inner">
+      <div data-reveal>
+        <span class="eyebrow">${esc(copy.rxEyebrow)}</span>
+        <h2 class="h2 mt-2">${esc(copy.rxTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.rxLead)}</p>
+        <div class="pharm-rx-steps">
+          ${[
+            [copy.rxStep1, copy.rxStep1d],
+            [copy.rxStep2, copy.rxStep2d],
+            [copy.rxStep3, copy.rxStep3d],
+          ].map(([title, desc], i) => `<div class="pharm-rx-step">
+            <span class="n">0${i + 1}</span>
+            <div><strong>${esc(title)}</strong><p>${esc(desc)}</p></div>
+          </div>`).join('')}
+        </div>
+        <a class="btn btn-wa" href="${attr(rxWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(copy.rxCta)}</a>
+        <p class="pharm-rx-note">${esc(copy.rxNote)}</p>
+      </div>
+      <div class="pharm-rx-card" aria-hidden="true">
+        <div class="rx-head"><span class="rx-cross">${icon('cross')}</span><div><strong>${esc(config.siteName)}</strong><span>Rx</span></div></div>
+        <div class="rx-line w80"></div>
+        <div class="rx-line w60"></div>
+        <div class="rx-line w90"></div>
+        <div class="rx-grid"><span></span><span></span><span></span><span></span></div>
+        <div class="rx-stamp">${icon('check')}<span>${esc(copy.rxEyebrow)}</span></div>
+      </div>
+    </div>
+  </section>
+
+  ${team.length ? `<section class="section bg-soft" id="team">
+    <div class="container">
+      ${sectionHead(copy.teamEyebrow, copy.teamTitle, copy.teamLead, true)}
+      <div class="pharm-team-grid">${team.map((m) => pharmacistCard(m, copy)).join('')}</div>
+    </div>
+  </section>` : ''}
+
+  <section class="section" id="about">
+    <div class="container about-grid pharm-about-grid">
+      <div class="pharm-about-media" data-reveal>
+        ${about ? `<img class="main" src="${attr(about)}" alt="${attr(config.siteName)}" loading="lazy" decoding="async" width="800" height="760">` : ''}
+        ${secondPhoto ? `<img class="small" src="${attr(secondPhoto)}" alt="${attr(config.siteName)}" loading="lazy" decoding="async" width="420" height="420">` : ''}
+        <div class="about-badge">${icon('award')}${esc(copy.stats[0][0])} ${esc(copy.stats[0][1])}</div>
+      </div>
+      <div data-reveal>
+        <span class="eyebrow">${esc(s.about)}</span>
+        <h2 class="h2 mt-2">${esc(copy.aboutTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.aboutLead)}</p>
+        <ul class="checklist">
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat1)} — ${esc(copy.feat1d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat2)} — ${esc(copy.feat2d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat3)} — ${esc(copy.feat3d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat4)} — ${esc(copy.feat4d)}</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-sm bg-soft">
+    <div class="container pharm-info-grid">
+      <div class="pharm-info" data-reveal>
+        <span class="pharm-info-icon">${icon('clock')}</span>
+        <div><strong>${esc(s.hours)}</strong><span>${esc(config.hours || '08:00 — 21:00')}</span></div>
+      </div>
+      <div class="pharm-info" data-reveal>
+        <span class="pharm-info-icon">${icon('truck')}</span>
+        <div><strong>${esc(copy.deliveryFast)}</strong><span>${esc(copy.deliveryNote)}</span></div>
+      </div>
+      <a class="pharm-info" href="${attr(mapsHref(config))}" target="_blank" rel="noopener" data-reveal>
+        <span class="pharm-info-icon">${icon('map')}</span>
+        <div><strong>${esc(s.location)}</strong><span>${esc(config.address || config.city || '')}</span></div>
+      </a>
+      <a class="pharm-info" href="tel:${attr(config.phone)}" data-reveal>
+        <span class="pharm-info-icon">${icon('phone')}</span>
+        <div><strong>${esc(s.callNow)}</strong><span dir="ltr">${esc(config.phone)}</span></div>
+      </a>
+    </div>
+  </section>
+
+  <section class="stats-band">
+    <div class="container stats-grid">
+      ${copy.stats.map(([num, label]) => `<div class="stat"><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">${sectionHead(s.testimonials, s.testimonials, undefined, true)}
+      <div class="grid g3">${copy.quotes.map((q) => `<div class="quote" data-reveal>
+        <div class="stars" aria-label="5/5">★★★★★</div>
+        <p>“${esc(q.text)}”</p>
+        <div class="who"><span class="avatar">${esc(initialsFor(q.name))}</span><div><strong>${esc(q.name)}</strong><span>${esc(q.role)}</span></div></div>
+      </div>`).join('')}</div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="faq">
+    <div class="container">
+      ${sectionHead(s.faq, copy.faqTitle, undefined, true)}
+      <div class="faq-list">
+        ${copy.faq.map(([q, a]) => `<details class="faq" data-reveal>
+          <summary>${esc(q)}<span class="faq-ic">${icon('plus')}</span></summary>
+          <p>${esc(a)}</p>
+        </details>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  ${contactSection(config, s)}`;
+}
+
+/* -------------------------------------------------------------------------
  * COMPANY
  * ---------------------------------------------------------------------- */
 export function companyPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
@@ -1599,8 +2096,11 @@ export function pageFor(template: string, config: RenderConfig, lang: Lang): str
     case 'card': return cardPage(config, s, lang);
     case 'restaurant': return restaurantPage(config, s, lang);
 
-    // Store-style templates
+    // Pharmacy has its own layout with WhatsApp ordering.
     case 'pharmacy':
+      return pharmacyPage(config, s, lang);
+
+    // Store-style templates
     case 'agriculture':
     case 'electronics':
     case 'fashion':
@@ -1660,7 +2160,38 @@ export function jsonLdFor(template: string, config: RenderConfig, siteUrl: strin
   };
   switch (template) {
     case 'store': return { ...base, '@type': 'Store', image: config.coverUrl || undefined, priceRange: 'DZD' };
-    case 'pharmacy': return { ...base, '@type': 'Pharmacy', image: config.coverUrl || undefined, priceRange: 'DZD' };
+    case 'pharmacy':
+      return {
+        ...base,
+        '@type': 'Pharmacy',
+        image: config.coverUrl || undefined,
+        priceRange: 'DZD',
+        openingHours: config.hours || undefined,
+        hasOfferCatalog: {
+          '@type': 'OfferCatalog',
+          name: 'Products',
+          itemListElement: config.products.slice(0, 12).map((p, index) => ({
+            '@type': 'Offer',
+            position: index + 1,
+            price: p.price,
+            priceCurrency: 'DZD',
+            availability: 'https://schema.org/InStock',
+            itemOffered: {
+              '@type': 'Product',
+              name: p.name,
+              description: p.description || undefined,
+              image: p.imageUrl || undefined,
+              category: p.category || undefined,
+            },
+          })),
+        },
+        employee: (config.team || []).map((member) => ({
+          '@type': 'Person',
+          name: member.name,
+          jobTitle: member.role,
+          image: member.photoUrl || undefined,
+        })),
+      };
     case 'electronics':
     case 'fashion':
     case 'agriculture':

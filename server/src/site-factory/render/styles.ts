@@ -556,7 +556,92 @@ body.has-preview .site-header{top:36px}
 .appointment-card{position:relative}
 .appointment-card::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;border-radius:24px 24px 0 0;background:linear-gradient(90deg,var(--p),var(--p2),var(--p));background-size:200% 100%;animation:aos-gradient 6s linear infinite}
 
-/* theme toggle */
+/* pharmacy */
+.tpl-pharmacy .pharmacy-hero{background:linear-gradient(165deg,var(--soft) 0%,var(--bg) 48%,color-mix(in srgb,var(--p) 12%,var(--bg)) 100%)}
+.tpl-pharmacy .pharmacy-hero::after{content:"";position:absolute;width:420px;height:420px;border-radius:50%;border:48px solid color-mix(in srgb,var(--p) 7%,transparent);bottom:-260px;inset-inline-start:-160px;pointer-events:none}
+.tpl-pharmacy .pharmacy-hero .hero-media{aspect-ratio:4/4.7;border-radius:34px}
+.tpl-pharmacy .pharmacy-hero .hero-media::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(5,20,40,.38));pointer-events:none}
+.tpl-pharmacy .pharmacy-hero .float-card{background:var(--glass);color:var(--glass-ink)}
+.tpl-pharmacy .pharmacy-hero .hero-stats{gap:20px}
+.tpl-pharmacy .pharmacy-hero .hero-stats .num{font-size:1.55rem;font-weight:900;line-height:1;letter-spacing:-.03em}
+.tpl-pharmacy .pharmacy-hero .hero-stats .lbl{font-size:.78rem;color:var(--muted);margin-top:5px}
+.tpl-pharmacy .trust-strip{border-block:1px solid var(--line);background:var(--surface)}
+.tpl-pharmacy .trust-strip .container{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:18px 0;flex-wrap:wrap}
+.tpl-pharmacy .trust-strip .trust-item{font-size:.85rem;transition:color .2s,transform .2s}
+.tpl-pharmacy .trust-strip .trust-item:hover{color:var(--ink);transform:translateY(-1px)}
+.tpl-pharmacy .trust-strip .trust-item .icon{transition:transform .25s}
+.tpl-pharmacy .trust-strip .trust-item:hover .icon{transform:rotate(-8deg) scale(1.08)}
+.tpl-pharmacy .pharm-cat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
+.tpl-pharmacy .pharm-cat{padding:20px;border-radius:16px;background:var(--surface);border:1px solid var(--line);text-align:center;transition:transform .25s,border-color .25s}
+.tpl-pharmacy .pharm-cat:hover{transform:translateY(-4px);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-pharmacy .pharm-cat-icon{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;background:var(--tint-2);color:var(--p-text);margin:0 auto 12px}
+.tpl-pharmacy .pharm-product-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.tpl-pharmacy .pharm-product-grid .product-empty{grid-column:1/-1;padding:60px 20px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:18px}
+.tpl-pharmacy .shop-toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:26px}
+.tpl-pharmacy .chip{padding:8px 15px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-size:.8rem;font-weight:800;color:var(--muted);transition:.2s}
+.tpl-pharmacy .chip.active,.tpl-pharmacy .chip:hover{background:var(--solid);border-color:var(--solid);color:var(--solid-ink)}
+.tpl-pharmacy .product-card{border-radius:18px;overflow:hidden;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;transition:transform .22s,box-shadow .22s}
+.tpl-pharmacy .product-card:hover{transform:translateY(-4px);box-shadow:var(--shadow)}
+.tpl-pharmacy .product-thumb{position:relative;aspect-ratio:1/1;background:linear-gradient(145deg,var(--tint),var(--tint-2));overflow:hidden}
+.tpl-pharmacy .product-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .4s}
+.tpl-pharmacy .product-card:hover .product-thumb img{transform:scale(1.05)}
+.tpl-pharmacy .price-row{display:flex;align-items:center;justify-content:space-between;padding:12px;border-top:1px solid var(--line)}
+.tpl-pharmacy .price{font-weight:900;font-size:1.1rem;color:var(--p-text);line-height:1.15;white-space:nowrap}
+.tpl-pharmacy .pharm-service-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.tpl-pharmacy .pharm-service{border-radius:20px;overflow:hidden;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-pharmacy .pharm-service:hover{transform:translateY(-5px);box-shadow:0 32px 65px -34px color-mix(in srgb,var(--p) 45%,transparent);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-pharmacy .pharm-service-icon{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;background:var(--tint-2);color:var(--p-text);margin:0 auto 12px}
+.tpl-pharmacy .pharm-service h3{font-size:.98rem;margin-bottom:4px;text-align:center}
+.tpl-pharmacy .pharm-service p{font-size:.78rem;color:var(--muted);line-height:1.65;text-align:center}
+.tpl-pharmacy .pharm-rx .pharm-rx-inner{max-width:800px;margin-inline:auto}
+.tpl-pharmacy .pharm-rx .pharm-rx-step{padding:20px;border-radius:16px;background:var(--surface);border:1px solid var(--line);margin-bottom:16px}
+.tpl-pharmacy .pharm-rx .n{position:absolute;top:14px;inset-inline-end:16px;font-size:.7rem;font-weight:900;color:var(--line)}
+.tpl-pharmacy .pharm-rx .rx-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.tpl-pharmacy .pharm-rx .rx-cross{width:24px;height:24px}
+.tpl-pharmacy .pharm-rx .rx-line{width:20px;height:2px;background:var(--line);margin:4px 0}
+.tpl-pharmacy .pharm-rx .rx-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}
+.tpl-pharmacy .pharm-rx .rx-stamp{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:.8rem}
+.tpl-pharmacy .pharm-team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:24px}
+.tpl-pharmacy .pharm-team-card{border-radius:20px;overflow:hidden;background:var(--surface);border:1px solid var(--line);padding:20px;text-align:center;transition:transform .25s}
+.tpl-pharmacy .pharm-team-card:hover{transform:translateY(-4px)}
+.tpl-pharmacy .pharm-avatar{ border-radius:50%;overflow:hidden;aspect-ratio:1/1;margin:0 auto 12px}
+.tpl-pharmacy .pharm-avatar img{width:100%;height:100%;object-fit:cover}
+.tpl-pharmacy .pharm-role{font-size:.85rem;margin-top:8px;color:var(--muted)}
+.tpl-pharmacy .pharm-specialty{font-size:.7rem;color:var(--muted);margin-top:4px}
+.tpl-pharmacy .pharm-exp{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:.7rem;color:var(--muted)}
+.tpl-pharmacy .pharm-about-grid{display:grid;grid-template-columns:.95fr 1.05fr;gap:52px;align-items:center}
+.tpl-pharmacy .pharm-about-media{position:relative;border-radius:26px;overflow:hidden;aspect-ratio:4/3.4;background:linear-gradient(150deg,var(--tint-2),var(--p2))}
+.tpl-pharmacy .pharm-about-media img{width:100%;height:100%;object-fit:cover}
+.tpl-pharmacy .pharm-about-media .about-badge{position:absolute;bottom:20px;inset-inline-start:20px;z-index:2;padding:12px 16px;border-radius:14px;background:var(--glass);color:var(--glass-ink);font-weight:800;font-size:.85rem;display:flex;align-items:center;gap:8px}
+.tpl-pharmacy .pharm-about-media .about-badge .icon{width:20px;height:20px}
+.tpl-pharmacy .pharm-info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px}
+.tpl-pharmacy .pharm-info{display:flex;align-items:flex-start;gap:12px;padding:16px;border-radius:14px;background:var(--surface);border:1px solid var(--line}}
+.tpl-pharmacy .pharm-info .pharm-info-icon{width:24px;height:24px;flex-shrink:0}
+.tpl-pharmacy .pharm-info .pharm-info-icon .icon{width:24px;height:24px}
+.tpl-pharmacy .pharm-info strong{font-weight:800;color:var(--ink)}
+.tpl-pharmacy .pharm-info span{color:var(--muted);font-size:.85rem}
+.tpl-pharmacy .pharm-info a{color:var(--p);text-decoration:underline}
+.tpl-pharmacy .stats-band{padding:44px 0;background:linear-gradient(120deg,var(--p2),var(--p));color:#fff;position:relative;overflow:hidden}
+.tpl-pharmacy .stats-band .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;position:relative;z-index:1}
+.tpl-pharmacy .grid.g3{grid-template-columns:1fr 1fr 1fr}
+.tpl-pharmacy .section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:42px}
+.tpl-pharmacy .section-head .lead{margin-top:10px}
+.tpl-pharmacy .faq-list{display:grid;gap:10px;max-width:840px;margin-inline:auto}
+.tpl-pharmacy .faq{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:0 20px;transition:border-color .2s}
+.tpl-pharmacy .faq[open]{border-color:color-mix(in srgb,var(--p) 45%,var(--line))}
+.tpl-pharmacy .faq summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 0;font-weight:800;font-size:.92rem}
+.tpl-pharmacy .faq summary::-webkit-details-marker{display:none}
+.tpl-pharmacy .faq summary::marker{content:""}
+.tpl-pharmacy .faq .faq-ic{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;flex:0 0 auto;color:var(--p-text);transition:transform .25s,background .25s}
+.tpl-pharmacy .faq .faq-ic .icon{width:15px;height:15px}
+.tpl-pharmacy .faq[open] .faq-ic{transform:rotate(45deg);background:var(--tint)}
+.tpl-pharmacy .faq p{padding:0 0 18px;color:var(--muted);font-size:.84rem;line-height:1.8}
+.tpl-pharmacy .hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.tpl-pharmacy .badge{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:999px;background:var(--tint);color:var(--p-text);font-size:.78rem;font-weight:800}
+.tpl-pharmacy .pharm-badges{display:flex;gap:12px;margin-top:16px;padding-top:12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.tpl-pharmacy .pharm-badges .trust-item{font-size:.85rem;color:var(--muted)}
+.tpl-pharmacy .hero-stats{display:flex;gap:30px;margin-top:38px;padding-top:26px;border-top:1px solid var(--line);flex-wrap:wrap}
+.tpl-pharmacy .product-empty.hide{display:none!important}
 .theme-toggle{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;flex:0 0 auto;position:relative;transition:transform .2s,border-color .2s,background .2s}
 .theme-toggle:hover{transform:translateY(-2px);border-color:var(--p)}
 .theme-toggle .icon{width:18px;height:18px}

@@ -7,7 +7,7 @@ type IconName =
   | 'calendar' | 'users' | 'briefcase' | 'layers' | 'zap' | 'heart' | 'share'
   | 'download' | 'external' | 'home' | 'award' | 'target' | 'sun' | 'moon' | 'contrast'
   | 'car' | 'fuel' | 'gearbox' | 'snow' | 'suitcase' | 'key' | 'road'
-  | 'stethoscope' | 'baby';
+  | 'stethoscope' | 'baby' | 'cross' | 'pill' | 'droplet' | 'thermometer' | 'clipboard';
 
 const ICONS: Record<IconName, string> = {
   phone: '<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2Z"/>',
@@ -57,6 +57,11 @@ const ICONS: Record<IconName, string> = {
   road: '<path d="M4 21 8 3M20 21 16 3M12 5v3M12 11v3M12 17v3"/>',
   stethoscope: '<path d="M6 3v5a4 4 0 0 0 8 0V3"/><path d="M4 3h4M12 3h4"/><path d="M10 15v2a5 5 0 0 0 10 0v-1"/><circle cx="20" cy="13" r="2"/>',
   baby: '<path d="M9 12h.01M15 12h.01M10 16c.6.4 1.3.6 2 .6s1.4-.2 2-.6"/><path d="M19 6.3A9 9 0 0 1 20.8 10a2 2 0 0 1 0 3.6A9 9 0 0 1 3.2 13.6a2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5S14.6 8 13.5 8c-.8 0-1.5-.4-1.5-1"/>',
+  cross: '<path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6V3Z"/>',
+  pill: '<path d="m10.5 20.5-7-7a4.95 4.95 0 0 1 7-7l7 7a4.95 4.95 0 0 1-7 7Z"/><path d="m8.5 8.5 7 7"/>',
+  droplet: '<path d="M12 2s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z"/>',
+  thermometer: '<path d="M14 14.76V5a2 2 0 0 0-4 0v9.76a4 4 0 1 0 4 0Z"/>',
+  clipboard: '<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6M9 16h4"/>',
 };
 
 export function icon(name: IconName, className = 'icon'): string {
@@ -111,6 +116,14 @@ function navItems(config: RenderConfig, s: UiStrings): { href: string; label: st
         { href: '#services', label: s.services },
         { href: '#appointment', label: s.appointment },
       ];
+    case 'pharmacy':
+      return [
+        { href: '#top', label: s.home },
+        { href: '#products', label: s.products },
+        { href: '#services', label: s.services },
+        ...(config.team && config.team.length ? [{ href: '#team', label: s.pharmacists }] : []),
+        { href: '#contact', label: s.contact },
+      ];
     case 'restaurant':
       return [
         { href: '#top', label: s.home },
@@ -145,7 +158,7 @@ function navItems(config: RenderConfig, s: UiStrings): { href: string; label: st
         { href: '#contact', label: s.contact },
       ];
     default:
-      if (['pharmacy', 'electronics', 'fashion', 'agriculture'].includes(config.templateSlug)) {
+      if (['electronics', 'fashion', 'agriculture'].includes(config.templateSlug)) {
         return [
           { href: '#top', label: s.home },
           { href: '#products', label: s.products },
@@ -249,12 +262,16 @@ export function renderShell(options: ShellOptions): string {
       ? '#booking'
       : config.templateSlug === 'medical'
         ? '#appointment'
-        : '#contact';
+        : config.templateSlug === 'pharmacy'
+          ? '#products'
+          : '#contact';
   const mobileCtaLabel = config.templateSlug === 'carrental'
     ? s.booking
     : config.templateSlug === 'medical'
       ? s.appointment
-      : s.contact;
+      : config.templateSlug === 'pharmacy'
+        ? s.orderNow
+        : s.contact;
   const alternateTags = (['ar', 'fr', 'en'] as const)
     .filter((code) => alternates[code])
     .map((code) => `<link rel="alternate" hreflang="${code}" href="${attr(absolute(siteUrl, alternates[code]))}">`)
@@ -422,12 +439,16 @@ export function baseHeader(config: RenderConfig, lang: 'ar' | 'fr' | 'en', alter
       ? '#booking'
       : config.templateSlug === 'medical'
         ? '#appointment'
-        : '#contact';
+        : config.templateSlug === 'pharmacy'
+          ? '#products'
+          : '#contact';
   const mobileCtaLabel = config.templateSlug === 'carrental'
     ? s.booking
     : config.templateSlug === 'medical'
       ? s.appointment
-      : s.contact;
+      : config.templateSlug === 'pharmacy'
+        ? s.orderNow
+        : s.contact;
   const logo = config.logoAssetPath
     ? `<img class="brand-logo" src="${attr(config.logoAssetPath)}" alt="${attr(config.siteName)}" width="44" height="44">`
     : `<span class="brand-mark" aria-hidden="true">${esc(initials(config.siteName))}</span>`;
