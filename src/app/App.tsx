@@ -180,13 +180,23 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    // Direct visits to /create-website: start the page chunk and catalog
+    // request immediately instead of waiting for the splash to finish.
+    if (isFactoryPage) {
+      import('./components/SiteFactoryPage');
+      import('./utils/siteFactoryConfig')
+        .then((module) => module.prefetchFactoryConfig())
+        .catch(() => {});
+    }
     const preload = () => {
       import('./components/Admin');
       import('./components/OrderForm');
       // Wake the factory catalog API early so /create-website opens instantly.
-      import('./utils/siteFactoryConfig')
-        .then((module) => module.prefetchFactoryConfig())
-        .catch(() => {});
+      if (!isFactoryPage) {
+        import('./utils/siteFactoryConfig')
+          .then((module) => module.prefetchFactoryConfig())
+          .catch(() => {});
+      }
     };
     if ('requestIdleCallback' in window) {
       (window as any).requestIdleCallback(preload, { timeout: 5000 });
