@@ -124,6 +124,17 @@ function navItems(config: RenderConfig, s: UiStrings): { href: string; label: st
         ...(config.team && config.team.length ? [{ href: '#team', label: s.pharmacists }] : []),
         { href: '#contact', label: s.contact },
       ];
+    case 'lawyer':
+      return [
+        { href: '#top', label: s.home },
+        { href: '#areas', label: s.services },
+        { href: '#services', label: s.packages },
+        ...(config.team && config.team.length ? [{ href: '#team', label: s.team }] : []),
+        { href: '#about', label: s.about },
+        { href: '#consult', label: s.appointment },
+        { href: '#faq', label: s.faq },
+        { href: '#contact', label: s.contact },
+      ];
     case 'restaurant':
       return [
         { href: '#top', label: s.home },
@@ -262,16 +273,20 @@ export function renderShell(options: ShellOptions): string {
       ? '#booking'
       : config.templateSlug === 'medical'
         ? '#appointment'
-        : config.templateSlug === 'pharmacy'
-          ? '#products'
-          : '#contact';
+        : config.templateSlug === 'lawyer'
+          ? '#consult'
+          : config.templateSlug === 'pharmacy'
+            ? '#products'
+            : '#contact';
   const mobileCtaLabel = config.templateSlug === 'carrental'
     ? s.booking
     : config.templateSlug === 'medical'
       ? s.appointment
-      : config.templateSlug === 'pharmacy'
-        ? s.orderNow
-        : s.contact;
+      : config.templateSlug === 'lawyer'
+        ? s.appointment
+        : config.templateSlug === 'pharmacy'
+          ? s.orderNow
+          : s.contact;
   const alternateTags = (['ar', 'fr', 'en'] as const)
     .filter((code) => alternates[code])
     .map((code) => `<link rel="alternate" hreflang="${code}" href="${attr(absolute(siteUrl, alternates[code]))}">`)
@@ -439,16 +454,20 @@ export function baseHeader(config: RenderConfig, lang: 'ar' | 'fr' | 'en', alter
       ? '#booking'
       : config.templateSlug === 'medical'
         ? '#appointment'
-        : config.templateSlug === 'pharmacy'
-          ? '#products'
-          : '#contact';
+        : config.templateSlug === 'lawyer'
+          ? '#consult'
+          : config.templateSlug === 'pharmacy'
+            ? '#products'
+            : '#contact';
   const mobileCtaLabel = config.templateSlug === 'carrental'
     ? s.booking
     : config.templateSlug === 'medical'
       ? s.appointment
-      : config.templateSlug === 'pharmacy'
-        ? s.orderNow
-        : s.contact;
+      : config.templateSlug === 'lawyer'
+        ? s.appointment
+        : config.templateSlug === 'pharmacy'
+          ? s.orderNow
+          : s.contact;
   const logo = config.logoAssetPath
     ? `<img class="brand-logo" src="${attr(config.logoAssetPath)}" alt="${attr(config.siteName)}" width="44" height="44">`
     : `<span class="brand-mark" aria-hidden="true">${esc(initials(config.siteName))}</span>`;

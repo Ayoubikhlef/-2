@@ -330,6 +330,11 @@ export const DEMO: Record<string, DemoSeed> = {
       ['متابعة قضية مدنية', 40000, 'تقاضي', 'تمثيل ومرافقة حتى صدور الحكم.'],
       ['تسوية نزاع تجاري', 30000, 'تجاري', 'وساطة وصياغة اتفاقية تسوية.'],
     ], 1),
+    team: [
+      { name: 'سمير قاسم', role: 'المدير والمؤسس', specialty: 'القضايا المدنية والتجارية', experience: '14 سنة', photoUrl: photo('person', 0, 700, 800) },
+      { name: 'فاطمة الزهراء', role: 'محامية شريكة', specialty: 'الأحوال الشخصية والمواريث', experience: '9 سنوات', photoUrl: photo('person', 1, 700, 800) },
+      { name: 'يوسف مولاي', role: 'محامي', specialty: 'القانون التجاري والعقود', experience: '7 سنوات', photoUrl: photo('law', 1, 700, 800) },
+    ],
   },
   realestate: {
     name: 'وكالة الدار العقارية',

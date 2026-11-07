@@ -1710,6 +1710,447 @@ export function pharmacyPage(config: RenderConfig, s: UiStrings, lang: Lang): st
 }
 
 /* -------------------------------------------------------------------------
+ * LAWYER
+ * ---------------------------------------------------------------------- */
+interface LawyerCopy {
+  heroBadge: string;
+  consultCta: string;
+  practiceCta: string;
+  openDaily: string;
+  confidential: string;
+  experience: string;
+  heroMessage: string;
+  areasEyebrow: string;
+  areasTitle: string;
+  areasLead: string;
+  areas: Array<{ icon: string; title: string; description: string }>;
+  servicesEyebrow: string;
+  servicesTitle: string;
+  servicesLead: string;
+  fallbackServices: Array<{ title: string; description: string; price: string }>;
+  processTitle: string;
+  processLead: string;
+  step1: string; step1d: string;
+  step2: string; step2d: string;
+  step3: string; step3d: string;
+  step4: string; step4d: string;
+  teamEyebrow: string;
+  teamTitle: string;
+  teamLead: string;
+  aboutTitle: string;
+  aboutLead: string;
+  feat1: string; feat1d: string;
+  feat2: string; feat2d: string;
+  feat3: string; feat3d: string;
+  feat4: string; feat4d: string;
+  stats: Array<[string, string]>;
+  quotes: Array<{ text: string; name: string; role: string }>;
+  faqTitle: string;
+  faq: Array<[string, string]>;
+  consultTitle: string;
+  consultLead: string;
+  formTitle: string;
+  formSub: string;
+  confirm: string;
+  summaryCase: string;
+  summaryService: string;
+  summaryWhen: string;
+  note: string;
+}
+
+const LAWYER: Record<Lang, LawyerCopy> = {
+  ar: {
+    heroBadge: 'مكتب محاماة مرخص · استشارة قانونية',
+    consultCta: 'اطلب استشارة',
+    practiceCta: 'تخصصات المكتب',
+    openDaily: 'مفتوح يومياً',
+    confidential: 'سرية تامة',
+    experience: 'سنوات الخبرة',
+    heroMessage: 'أريد استشارة قانونية أو رفع دعوى',
+    areasEyebrow: 'تخصصات قانونية',
+    areasTitle: 'نقدّمك أمام القضاء بأمانة وكفاءة',
+    areasLead: 'من القضايا المدنية والتجارية إلى العقارية والأسرية، نُدير ملفّك من الاستشارة حتى الحكم.',
+    areas: [
+      { icon: 'shield', title: 'القضايا المدنية', description: 'المرافعة في الدعاوى المدنية والتعويضات والعلاقات القانونية الخاصة.' },
+      { icon: 'briefcase', title: 'القانون التجاري', description: 'تأسيس الشركات، صياغة العقود، والنزاعات التجارية بين التجار والشركات.' },
+      { icon: 'target', title: 'القضايا العقارية', description: 'عقود البيع والإيجار، التسجيل العقاري، والنزاعات على الملكية.' },
+      { icon: 'users', title: 'الأحوال الشخصية', description: 'القضايا الأسرية، الطلاق، النفقة، الحضانة، والمواريث.' },
+    ],
+    servicesEyebrow: 'خدمات وأتعاب المكتب',
+    servicesTitle: 'خدماتنا وأسعارها التقديرية',
+    servicesLead: 'أسعار transparente تُعرض قبل початку أي إجراء، مع إمكانية الدفع بالتقسيط حسب طبيعة القضية.',
+    fallbackServices: [
+      { title: 'استشارة قانونية أولية', description: 'جلسة تقييم للملف وتوضيح المسار القانوني.', price: '3,000 دج' },
+      { title: 'صياغة ومراجعة عقود', description: 'عقود البيع، الإيجار، الشراكة، وعقد قانوني آمن.', price: '8,000 دج' },
+      { title: 'تأسيس شركة', description: 'إجراءات التأسيس والتسجيل التجاري والضريبي.', price: '25,000 دج' },
+      { title: 'متابعة قضية مدنية', description: 'التمثيل أمام المحاكم حتى صدور حكم قطعي.', price: '40,000 دج' },
+      { title: 'تسوية نزاع تجاري', description: 'وساطة وصياغة اتفاقية تسوية بين الأطراف.', price: '30,000 دج' },
+    ],
+    processTitle: 'كيف نتعامل مع قضيتك',
+    processLead: 'نتابع ملفّك خطوة بخطوة مع إطلاعك على كل مستجد أولاً بأول.',
+    step1: 'الاستماع للقضية', step1d: 'نستمع لرواية موكِّلنا ونحدّد النقاط القانونية الأساسية.',
+    step2: 'دراسة الملف', step2d: 'نحلل المستندات والأحكام المماثلة ونضع استراتيجية الدعوة.',
+    step3: 'المتابعة والإجراءات', step3d: 'نُعدّ المذكرات ونُتابِع الجلسات والぶんكة الإجرائية.',
+    step4: 'الحكم والتنفيذ', step4d: 'نستقبل الحكم ونُتابِع تنفيذه حتى استرداد権ك بالكامل.',
+    teamEyebrow: 'فريق المحاماة',
+    teamTitle: 'محامون يدافعون عن حقوقك',
+    teamLead: 'فريق يتمتع بخبرة واسعة في التقاضي والاستشارات القانونية، يعمل بسرية تامة.',
+    aboutTitle: 'مكتب المحامي سمير قاسم',
+    aboutLead: 'مكتب محاماة مرخص يقدّم الاستشارات القانونية والمرافعة أمام المحاكم بسرية تامة وشفافية كاملة، مع مرافقة العميل من الاستشارة الأولى حتى تنفيذ الحكم.',
+    feat1: 'استشارات قانونية', feat1d: 'رأي قانوني مكتوب في مختلف التخصصات.',
+    feat2: 'مرافعة أمام المحاكم', feat2d: 'تمثيل العملاء أمام جميع المحاكم والجهات القضائية.',
+    feat3: 'سرية تامة', feat3d: 'جميع معلومات العملاء محمية ومحمية بموجب سرية المهنة.',
+    feat4: 'مرافقة مستمرة', feat4d: 'متابعة القضية خطوة بخطوة حتى الإنجاز.',
+    stats: [['+12', 'سنة خبرة'], ['+400', 'قضية'], ['98%', 'رضا العملاء'], ['24/7', 'تواصل قانوني']],
+    quotes: [
+      { text: 'المحامي سمير قاسم دافع عني في قضية تعويض وخرجت بحقي كاملاً، أنصح به بقوة.', name: 'فاطمة ز.', role: 'موكِّلة' },
+      { text: 'محامي محترف، شرح لي الإجراءات ببساطة ووقف بجانبي حتى النهاية.', name: 'يوسف م.', role: 'موكِّل' },
+      { text: 'صياغة عقد شراكة محكم، وشكراً على الشفافية في الأتعاب والمواعيد.', name: 'ليلى ب.', role: 'رائدة أعمال' },
+    ],
+    faqTitle: 'أسئلة شائعة',
+    faq: [
+      ['هل أحتاج محامياً لكل قضية؟', 'القضايا البسيطة قد تُحل بالاستشارة، بينما القضايا المعقدة تحتاج مرافعة أمام المحكمة.'],
+      ['كيف أحسب الأتعاب؟', 'تُحدّد الأتعاب حسب نوع القضية والتعقيد والوقت المستغرق، وتُعرض قبل اتخاذ الإجراء.'],
+      ['هل المعلومات سرية؟', 'نعم، جميع معلومات العميل محمية بموجب سرية المهنة ولا تُكشف لأي طرف ثالث.'],
+      ['ما هي أوقات العمل؟', 'نعمل من الأحد إلى الخميس من 09:00 إلى 17:00، ويمكن حجز استشارة عبر واتساب.'],
+      ['هل تُرفق الشركات والمؤسسات؟', 'نعم، نُؤسّس الشركات ونُعدّ عقودها ونُتابع نزاعاتها التجارية.'],
+    ],
+    consultTitle: 'احجز استشارتك القانونية',
+    consultLead: 'املأ النموذج وسنتصل بك لتحديد موعد الاستشارة وتوضيح التكلفة التقديرية.',
+    formTitle: 'طلب استشارة قانونية',
+    formSub: 'أخبرنا عن قضيتك وسنرد عليك في أقرب وقت.',
+    confirm: 'إرسال طلب الاستشارة',
+    summaryCase: 'نوع القضية',
+    summaryService: 'الخدمة المطلوبة',
+    summaryWhen: 'الموعد المفضل',
+    note: 'جميع البيانات محمية بموجب سرية مهنة المحاماة.',
+  },
+  fr: {
+    heroBadge: 'Cabinet d’avocat agréé · Conseil juridique',
+    consultCta: 'Demander une consultation',
+    practiceCta: 'Domaines d’intervention',
+    openDaily: 'Ouvert tous les jours',
+    confidential: 'Confidentialité totale',
+    experience: 'ans d’expérience',
+    heroMessage: 'Je souhaite un conseil juridique ou intenter un procès',
+    areasEyebrow: 'Domaines juridiques',
+    areasTitle: 'Nous vous représentons devant la justice avec honnêteté et compétence',
+    areasLead: 'Des affaires civiles et commerciales aux affaires immobilières et familiales, nous gérons votre dossier de la consultation jusqu’au jugement.',
+    areas: [
+      { icon: 'shield', title: 'Droit civil', description: 'Plaidoirie dans les litiges civils, indemnités et relations juridiques privées.' },
+      { icon: 'briefcase', title: 'Droit commercial', description: 'Création de sociétés, rédaction de contrats et litiges commerciaux.' },
+      { icon: 'target', title: 'Droit immobilier', description: 'Contrats de vente et de location, enregistrement immobilier et litiges de propriété.' },
+      { icon: 'users', title: 'Droit de la famille', description: 'Affaires familiales, divorce, pension alimentaire, garde d’enfants et successions.' },
+    ],
+    servicesEyebrow: 'Services et honoraires du cabinet',
+    servicesTitle: 'Nos services et leurs tarifs indicatifs',
+    servicesLead: 'Des tarifs transparents affichés avant toute procédure, avec possibilité de paiement échelonné selon la nature de l’affaire.',
+    fallbackServices: [
+      { title: 'Consultation juridique initiale', description: 'Évaluation du dossier et explication de la voie juridique.', price: '3 000 DA' },
+      { title: 'Rédaction et révision de contrats', description: 'Contrats de vente, bail, partenariat et acte juridique sécurisé.', price: '8 000 DA' },
+      { title: 'Création de société', description: 'Procédures de création et d’immatriculation commerciale et fiscale.', price: '25 000 DA' },
+      { title: 'Suivi d’affaire civile', description: 'Représentation devant les tribunaux jusqu’à un jugement définitif.', price: '40 000 DA' },
+      { title: 'Règlement d’un litige commercial', description: 'Médiation et rédaction d’accord transactionnel.', price: '30 000 DA' },
+    ],
+    processTitle: 'Comment nous traitons votre dossier',
+    processLead: 'Nous suivons votre dossier étape par étape et vous tenons informé de chaque avancée.',
+    step1: 'Écoute de l’affaire', step1d: 'Nous écoutons le récit de notre client et identifions les points juridiques clés.',
+    step2: 'Étude du dossier', step2d: 'Nous analysons les pièces et la jurisprudence et élaborons la stratégie.',
+    step3: 'Suivi et procédures', step3d: 'Nous rédigeons les mémoires et suivons les audiences et le calendrier procédural.',
+    step4: 'Jugement et exécution', step4d: 'Nous recevons le jugement et suivons son exécution jusqu’à recouvrement intégral.',
+    teamEyebrow: 'Équipe juridique',
+    teamTitle: 'Des avocats qui défendent vos droits',
+    teamLead: 'Une équipe expérimentée en contentieux et conseils juridiques, travaillant dans une confidentialité totale.',
+    aboutTitle: 'Cabinet de l’avocat Samir Qassem',
+    aboutLead: 'Un cabinet d’avocat agréé offrant conseils juridiques et plaidoirie devant les tribunaux avec une confidentialité totale et une transparence complète, accompagnant le client de la première consultation jusqu’à l’exécution du jugement.',
+    feat1: 'Conseils juridiques', feat1d: 'Avis juridique écrit dans diverses spécialités.',
+    feat2: 'Plaidoirie devant les tribunaux', feat2d: 'Représentation des clients devant tous les tribunaux et instances judiciaires.',
+    feat3: 'Confidentialité totale', feat3d: 'Toutes les informations des clients sont protégées par le secret professionnel.',
+    feat4: 'Accompagnement continu', feat4d: 'Suivi de l’affaire étape par étape jusqu’à son issue.',
+    stats: [['+12', 'ans d’expérience'], ['+400', 'affaires'], ['98%', 'satisfaction client'], ['24/7', 'disponibilité juridique']],
+    quotes: [
+      { text: "L’avocat Samir Qassem m’a défendue dans une affaire d’indemnisation et j’ai obtenu mon dû entièrement, je le recommande vivement.", name: 'Fatima Z.', role: 'Cliente' },
+      { text: 'Un avocat professionnel, m’a expliqué la procédure simplement et m’a soutenu jusqu’au bout.', name: 'Youssef M.', role: 'Client' },
+      { text: 'Un contrat de partenariat bien rédigé, merci pour la transparence des honoraires et des délais.', name: 'Layla B.', role: 'Cheffe d’entreprise' },
+    ],
+    faqTitle: 'Questions fréquentes',
+    faq: [
+      ['Ai-je besoin d’un avocat pour chaque affaire ?', 'Les affaires simples peuvent se résoudre par une consultation, tandis que les affaires complexes requièrent une plaidoirie devant le tribunal.'],
+      ['Comment calculez-vous les honoraires ?', 'Les honoraires sont fixés selon le type d’affaire, sa complexité et le temps passé, et sont communiqués avant toute procédure.'],
+      ['Les informations sont-elles confidentielles ?', 'Oui, toutes les informations des clients sont protégées par le secret professionnel et ne sont divulguées à aucun tiers.'],
+      ['Quels sont vos horaires ?', 'Nous travaillons du dimanche au jeudi de 09:00 à 17:00, et une consultation peut être prise sur WhatsApp.'],
+      ['Accompagnez-vous les entreprises et les institutions ?', 'Oui, nous créons des sociétés, rédigeons leurs contrats et suivons leurs litiges commerciaux.'],
+    ],
+    consultTitle: 'Réservez votre consultation juridique',
+    consultLead: 'Remplissez le formulaire et nous vous contacterons pour fixer un rendez-vous et préciser le coût estimatif.',
+    formTitle: 'Demande de consultation juridique',
+    formSub: 'Dites-nous en plus sur votre affaire et nous vous répondrons dans les plus brefs délais.',
+    confirm: 'Envoyer la demande de consultation',
+    summaryCase: 'Type d’affaire',
+    summaryService: 'Service demandé',
+    summaryWhen: 'Rendez-vous préféré',
+    note: 'Toutes les données sont protégées par le secret professionnel de l’avocat.',
+  },
+  en: {
+    heroBadge: 'Licensed law firm · Legal consultation',
+    consultCta: 'Request consultation',
+    practiceCta: 'Practice areas',
+    openDaily: 'Open every day',
+    confidential: 'Full confidentiality',
+    experience: 'years of experience',
+    heroMessage: 'I need legal advice or to file a case',
+    areasEyebrow: 'Practice areas',
+    areasTitle: 'We represent you before justice with integrity and competence',
+    areasLead: 'From civil and commercial cases to real estate and family matters, we manage your file from consultation to judgment.',
+    areas: [
+      { icon: 'shield', title: 'Civil law', description: 'Pleadings in civil disputes, compensation and private legal relations.' },
+      { icon: 'briefcase', title: 'Commercial law', description: 'Company formation, contract drafting and commercial disputes.' },
+      { icon: 'target', title: 'Real estate law', description: 'Sale and lease contracts, property registration and ownership disputes.' },
+      { icon: 'users', title: 'Family law', description: 'Family matters, divorce, alimony, child custody and inheritance.' },
+    ],
+    servicesEyebrow: 'Services and fees',
+    servicesTitle: 'Our services and estimated rates',
+    servicesLead: 'Transparent rates shown before any procedure, with installment payment options depending on the case nature.',
+    fallbackServices: [
+      { title: 'Initial legal consultation', description: 'Case assessment and explanation of the legal path.', price: '3,000 DZD' },
+      { title: 'Contract drafting and review', description: 'Sale, lease, partnership and secure legal deeds.', price: '8,000 DZD' },
+      { title: 'Company formation', description: 'Incorporation and commercial and tax registration procedures.', price: '25,000 DZD' },
+      { title: 'Civil case follow-up', description: 'Representation before courts until a final judgment.', price: '40,000 DZD' },
+      { title: 'Commercial dispute settlement', description: 'Mediation and drafting of settlement agreements.', price: '30,000 DZD' },
+    ],
+    processTitle: 'How we handle your case',
+    processLead: 'We follow your case step by step and keep you informed of every update.',
+    step1: 'Listening to the case', step1d: 'We listen to our client’s account and identify the key legal points.',
+    step2: 'Case study', step2d: 'We analyze documents and case law and develop the strategy.',
+    step3: 'Follow-up and procedures', step3d: 'We draft pleadings and follow hearings and the procedural calendar.',
+    step4: 'Judgment and execution', step4d: 'We receive the judgment and follow its execution until full recovery.',
+    teamEyebrow: 'Legal team',
+    teamTitle: 'Lawyers who defend your rights',
+    teamLead: 'An experienced team in litigation and legal advice, working with full confidentiality.',
+    aboutTitle: 'Law Office of Samir Qassem',
+    aboutLead: 'A licensed law office providing legal consultation and court representation with full confidentiality and complete transparency, accompanying the client from the first consultation until execution of the judgment.',
+    feat1: 'Legal consultation', feat1d: 'Written legal opinion in various specialties.',
+    feat2: 'Court representation', feat2d: 'Representing clients before all courts and judicial bodies.',
+    feat3: 'Full confidentiality', feat3d: 'All client information is protected under attorney-client privilege.',
+    feat4: 'Ongoing support', feat4d: 'Case follow-up step by step until resolution.',
+    stats: [['+12', 'years of experience'], ['+400', 'cases'], ['98%', 'client satisfaction'], ['24/7', 'legal availability']],
+    quotes: [
+      { text: 'Lawyer Samir Qassem defended me in a compensation case and I received my full due, I highly recommend him.', name: 'Fatima Z.', role: 'Client' },
+      { text: 'A professional lawyer who explained the procedure simply and stood by me until the end.', name: 'Youssef M.', role: 'Client' },
+      { text: 'A well-drafted partnership contract, thank you for the transparency of fees and deadlines.', name: 'Layla B.', role: 'Business owner' },
+    ],
+    faqTitle: 'Frequently asked questions',
+    faq: [
+      ['Do I need a lawyer for every case?', 'Simple cases may be resolved through consultation, while complex ones require court representation.'],
+      ['How are fees calculated?', 'Fees are set based on case type, complexity and time spent, and disclosed before any procedure.'],
+      ['Is information confidential?', 'Yes, all client information is protected under attorney-client privilege and not disclosed to any third party.'],
+      ['What are your hours?', 'We work Sunday to Thursday from 09:00 to 17:00, and consultations can be booked on WhatsApp.'],
+      ['Do you serve companies and institutions?', 'Yes, we incorporate companies, draft their contracts and follow their commercial disputes.'],
+    ],
+    consultTitle: 'Book your legal consultation',
+    consultLead: 'Fill out the form and we will contact you to schedule a consultation and clarify the estimated cost.',
+    formTitle: 'Legal consultation request',
+    formSub: 'Tell us about your case and we will respond as soon as possible.',
+    confirm: 'Send consultation request',
+    summaryCase: 'Case type',
+    summaryService: 'Service requested',
+    summaryWhen: 'Preferred appointment',
+    note: 'All data is protected under attorney-client privilege.',
+  },
+};
+
+function lawyerCard(member: RenderTeamMember, copy: LawyerCopy): string {
+  const photo = member.photoUrl
+    ? `<img src="${attr(member.photoUrl)}" alt="${attr(member.name)}" loading="lazy" decoding="async" width="700" height="700">`
+    : `<span class="lawyer-initials">${esc(initialsFor(member.name))}</span>`;
+  return `<article class="lawyer-card" data-reveal>
+    <div class="lawyer-avatar">${photo}</div>
+    <h3>${esc(member.name)}</h3>
+    <p class="lawyer-role">${esc(member.role)}</p>
+    ${member.specialty ? `<span class="lawyer-specialty">${esc(member.specialty)}</span>` : ''}
+    ${member.experience ? `<span class="lawyer-exp">${icon('award')}${esc(member.experience)} ${esc(copy.experience)}</span>` : ''}
+  </article>`;
+}
+
+export function lawyerPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
+  const copy = LAWYER[lang];
+  const services = config.services.length ? config.services : copy.fallbackServices.map(({ title, description, price }) => ({ title, description }));
+  const team = config.team || [];
+  const areaIcons = ['shield', 'briefcase', 'target', 'users'];
+  const heroImage = config.coverUrl
+    ? `<img src="${attr(config.coverUrl)}" alt="${attr(config.siteName)}" width="900" height="1100" fetchpriority="high" decoding="async">`
+    : '';
+  const about = aboutPhoto(config);
+  const heroWa = waHref(config, `${copy.heroMessage} — ${config.siteName}`);
+  const consultWa = waHref(config, `استشارة قانونية — ${config.siteName}`);
+
+  return `<section class="hero lawyer-hero" id="top">
+    <div class="container hero-grid">
+      <div class="hero-copy" data-reveal>
+        <span class="badge">${icon('shield')}${esc(copy.heroBadge)}</span>
+        <h1 class="h1 mt-3">${esc(config.siteName)}</h1>
+        <p class="lead">${esc(config.description)}</p>
+        <div class="hero-actions">
+          <a class="btn btn-wa" href="${attr(heroWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(copy.consultCta)}</a>
+          <a class="btn btn-light" href="#areas">${icon('briefcase')}${esc(copy.practiceCta)}</a>
+        </div>
+        <div class="lawyer-badges">
+          <span>${icon('shield')}${esc(copy.confidential)}</span>
+          <span>${icon('clock')}${esc(copy.openDaily)} · ${esc(config.hours || '09:00 — 17:00')}</span>
+        </div>
+        <div class="hero-stats">
+          ${copy.stats.slice(0, 3).map(([num, label]) => `<div><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="hero-media lawyer-hero-media${heroImage ? '' : ' no-img'}" data-mark="${attr(initials(config.siteName))}" data-reveal>${heroImage}
+        <div class="float-card"><span class="float-icon">${icon('shield')}</span><div><strong>${esc(copy.confidential)}</strong><span>${esc(config.city || '')}</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="trust-strip"><div class="container">
+    <span class="trust-item">${icon('shield')}${esc(copy.confidential)}</span>
+    <span class="trust-item">${icon('clock')}${esc(copy.openDaily)}</span>
+    <span class="trust-item">${icon('award')}${esc(copy.experience)}</span>
+    <span class="trust-item">${icon('target')}${esc(s.satisfaction)}</span>
+  </div></div>
+
+  <section class="section" id="areas">
+    <div class="container">
+      ${sectionHead(copy.areasEyebrow, copy.areasTitle, copy.areasLead, true)}
+      <div class="areas-grid">
+        ${copy.areas.map((item, i) => `<article class="area-card" data-reveal>
+          <span class="area-icon">${icon(item.icon as any)}</span>
+          <h3 class="h3">${esc(item.title)}</h3>
+          <p>${esc(item.description)}</p>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="services">
+    <div class="container">
+      ${sectionHead(copy.servicesEyebrow, copy.servicesTitle, copy.servicesLead)}
+      <div class="lawyer-service-grid">
+        ${services.map((service, i) => `<article class="lawyer-service" data-reveal>
+          <span class="service-num">${String(i + 1).padStart(2, '0')}</span>
+          <div><h3 class="h3">${esc(service.title)}</h3><p>${esc(service.description)}</p></div>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="process">
+    <div class="container">
+      ${sectionHead(copy.processTitle, copy.processLead, undefined, true)}
+      <div class="steps">
+        ${[
+          [copy.step1, copy.step1d],
+          [copy.step2, copy.step2d],
+          [copy.step3, copy.step3d],
+          [copy.step4, copy.step4d],
+        ].map(([title, desc], i) => `<div class="step" data-reveal><div class="n">${i + 1}</div><h3>${esc(title)}</h3><p>${esc(desc)}</p></div>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  ${team.length ? `<section class="section bg-soft" id="team">
+    <div class="container">
+      ${sectionHead(copy.teamEyebrow, copy.teamTitle, copy.teamLead, true)}
+      <div class="lawyer-team-grid">${team.map((m) => lawyerCard(m, copy)).join('')}</div>
+    </div>
+  </section>` : ''}
+
+  <section class="section" id="about">
+    <div class="container about-grid lawyer-about-grid">
+      <div class="lawyer-about-media" data-reveal>
+        ${about ? `<img class="main" src="${attr(about)}" alt="${attr(config.siteName)}" loading="lazy" decoding="async" width="800" height="760">` : ''}
+        <div class="about-badge">${icon('award')}${esc(copy.stats[0][0])} ${esc(copy.stats[0][1])}</div>
+      </div>
+      <div data-reveal>
+        <span class="eyebrow">${esc(s.about)}</span>
+        <h2 class="h2 mt-2">${esc(config.siteName)}</h2>
+        <p class="lead mt-2">${esc(config.description)}</p>
+        <ul class="checklist">
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat1)} — ${esc(copy.feat1d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat2)} — ${esc(copy.feat2d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat3)} — ${esc(copy.feat3d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat4)} — ${esc(copy.feat4d)}</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="consult">
+    <div class="container consult-wrap">
+      <div class="consult-copy" data-reveal>
+        <span class="eyebrow">${esc(s.appointment)}</span>
+        <h2 class="h2 mt-2">${esc(copy.consultTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.consultLead)}</p>
+        <ul class="checklist">
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat1)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat3)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.note)}</span></li>
+        </ul>
+        <div class="lawyer-hours">
+          <div class="hours-row"><span>${icon('clock')}${esc(s.hours)}</span><strong>${esc(config.hours || '09:00 — 17:00')}</strong></div>
+          <div class="hours-row"><span>${icon('map')}${esc(s.location)}</span><strong>${esc(config.address || config.city || '')}</strong></div>
+        </div>
+        <div class="lawyer-contact-actions">
+          <a class="btn btn-light" href="tel:${attr(config.phone)}">${icon('phone')}${esc(s.callNow)}</a>
+          <a class="btn btn-wa" href="${attr(consultWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.whatsapp)}</a>
+        </div>
+      </div>
+      <form class="consult-card" data-lead-form data-lead-kind="consultation" novalidate>
+        <h3>${esc(copy.formTitle)}</h3>
+        <p class="booking-sub">${esc(copy.formSub)}</p>
+        <div class="form-grid">
+          <div class="field"><label for="con-name">${esc(s.name)}</label><input id="con-name" name="name" required maxlength="80" autocomplete="name"><span class="err">${esc(s.required)}</span></div>
+          <div class="field"><label for="con-phone">${esc(s.phone)}</label><input id="con-phone" name="phone" type="tel" required maxlength="20" autocomplete="tel" dir="ltr"><span class="err">${esc(s.invalidPhone)}</span></div>
+          <div class="field full"><label for="con-email">${esc(s.email)}</label><input id="con-email" name="email" type="email" maxlength="120" autocomplete="email" dir="ltr"></div>
+          <div class="field full"><label for="con-case">${esc(copy.summaryCase)}</label><input id="con-case" name="caseType" maxlength="200"></div>
+          <div class="field full"><label for="con-msg">${esc(s.message)}</label><textarea id="con-msg" name="message" required maxlength="1200"></textarea><span class="err">${esc(s.required)}</span></div>
+          <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
+        </div>
+        <button class="btn btn-primary btn-block mt-3" type="submit">${icon('send')}${esc(copy.confirm)}</button>
+        <div class="form-status" role="status"></div>
+        <p class="form-note center mt-2">${esc(copy.note)}</p>
+      </form>
+    </div>
+  </section>
+
+  <section class="stats-band">
+    <div class="container stats-grid">
+      ${copy.stats.map(([num, label]) => `<div class="stat"><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">${sectionHead(s.testimonials, s.testimonials, undefined, true)}
+      <div class="grid g3">${copy.quotes.map((q) => `<div class="quote" data-reveal>
+        <div class="stars" aria-label="5/5">★★★★★</div>
+        <p>“${esc(q.text)}”</p>
+        <div class="who"><span class="avatar">${esc(initialsFor(q.name))}</span><div><strong>${esc(q.name)}</strong><span>${esc(q.role)}</span></div></div>
+      </div>`).join('')}</div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="faq">
+    <div class="container">
+      ${sectionHead(s.faq, copy.faqTitle, undefined, true)}
+      <div class="faq-list">
+        ${copy.faq.map(([q, a]) => `<details class="faq" data-reveal>
+          <summary>${esc(q)}<span class="faq-ic">${icon('plus')}</span></summary>
+          <p>${esc(a)}</p>
+        </details>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  ${contactSection(config, s)}`;
+}
+
+/* -------------------------------------------------------------------------
  * COMPANY
  * ---------------------------------------------------------------------- */
 export function companyPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
@@ -2122,6 +2563,7 @@ export function pageFor(template: string, config: RenderConfig, lang: Lang): str
     case 'medical':
       return medicalPage(config, s, lang);
     case 'lawyer':
+      return lawyerPage(config, s, lang);
     case 'realestate':
     case 'education':
     case 'construction':
@@ -2254,7 +2696,31 @@ export function jsonLdFor(template: string, config: RenderConfig, siteUrl: strin
           image: member.photoUrl || undefined,
         })),
       };
-    case 'lawyer': return { ...base, '@type': 'LegalService', image: config.coverUrl || undefined };
+    case 'lawyer': return {
+      ...base,
+      '@type': 'LegalService',
+      image: config.coverUrl || undefined,
+      priceRange: 'DZD',
+      openingHours: config.hours || undefined,
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: 'Legal services',
+        itemListElement: config.services.slice(0, 12).map((service, index) => ({
+          '@type': 'Offer',
+          position: index + 1,
+          name: service.title,
+          description: service.description,
+          priceCurrency: 'DZD',
+          availability: 'https://schema.org/InStock',
+        })),
+      },
+      employee: (config.team || []).map((member) => ({
+        '@type': 'Person',
+        name: member.name,
+        jobTitle: member.role,
+        image: member.photoUrl || undefined,
+      })),
+    };
     case 'realestate': return { ...base, '@type': 'RealEstateAgent', image: config.coverUrl || undefined };
     case 'education': return { ...base, '@type': 'EducationalOrganization', image: config.coverUrl || undefined };
     case 'fitness': return { ...base, '@type': 'ExerciseGym', image: config.coverUrl || undefined };

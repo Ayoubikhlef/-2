@@ -434,6 +434,13 @@ export const SITE_JS = String.raw`
           ' | ' + (form.date ? form.date.value : '') + ' ' + (form.time ? form.time.value : '') +
           '. ' + message;
       }
+      if (form.getAttribute('data-lead-kind') === 'consultation') {
+        var conCaseSelect = form.querySelector('[name="caseType"]');
+        var conCaseName = conCaseSelect ? conCaseSelect.value : '';
+        message = 'Legal consultation: ' + conCaseName +
+          ' | ' + (form.message ? form.message.value : '') +
+          '. ' + message;
+      }
       post('/public/sites/' + encodeURIComponent(SITE.siteId) + '/leads', {
         name: form.name ? form.name.value : '',
         phone: form.phone ? form.phone.value : '',

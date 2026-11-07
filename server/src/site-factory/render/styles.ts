@@ -641,6 +641,40 @@ body.has-preview .site-header{top:36px}
 .tpl-pharmacy .pharm-badges .trust-item{font-size:.85rem;color:var(--muted)}
 .tpl-pharmacy .hero-stats{display:flex;gap:30px;margin-top:38px;padding-top:26px;border-top:1px solid var(--line);flex-wrap:wrap}
 .tpl-pharmacy .product-empty.hide{display:none!important}
+/* lawyer */
+.tpl-lawyer .lawyer-badges{display:flex;gap:12px;margin-top:16px;padding-top:12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.tpl-lawyer .hero-stats{display:flex;gap:30px;margin-top:38px;padding-top:26px;border-top:1px solid var(--line);flex-wrap:wrap}
+.tpl-lawyer .areas-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.tpl-lawyer .area-card{padding:26px 22px;border-radius:20px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:10px;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-lawyer .area-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-lawyer .area-icon{width:46px;height:46px;border-radius:14px;background:var(--tint-2);color:var(--p-text);display:grid;place-items:center;flex:0 0 auto;margin-bottom:4px}
+.tpl-lawyer .area-icon .icon{width:22px;height:22px}
+.tpl-lawyer .lawyer-service-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.tpl-lawyer .lawyer-service{padding:24px;border-radius:18px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:8px;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-lawyer .lawyer-service:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-lawyer .service-num{font-size:.75rem;font-weight:900;color:color-mix(in srgb,var(--p) 45%,var(--muted))}
+.tpl-lawyer .lawyer-service h3{font-size:1rem;margin-bottom:4px}
+.tpl-lawyer .lawyer-service p{font-size:.82rem;color:var(--muted);line-height:1.65}
+.tpl-lawyer .lawyer-team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.tpl-lawyer .lawyer-card{border-radius:22px;overflow:hidden;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-lawyer .lawyer-card:hover{transform:translateY(-5px);box-shadow:var(--shadow);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-lawyer .lawyer-avatar{position:relative;aspect-ratio:4/4.5;overflow:hidden;background:linear-gradient(150deg,var(--tint-2),var(--p2));display:grid;place-items:center}
+.tpl-lawyer .lawyer-avatar img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.tpl-lawyer .lawyer-card:hover .lawyer-avatar img{transform:scale(1.05)}
+.tpl-lawyer .lawyer-initials{font-size:2.4rem;font-weight:900;color:rgba(255,255,255,.55);letter-spacing:.08em}
+.tpl-lawyer .lawyer-body{padding:16px 17px 18px;display:flex;flex-direction:column;gap:5px;flex:1}
+.tpl-lawyer .lawyer-body h3{font-size:.98rem;line-height:1.35}
+.tpl-lawyer .lawyer-role{font-size:.76rem;color:var(--p-text);font-weight:800;line-height:1.45}
+.tpl-lawyer .lawyer-specialty{font-size:.7rem;color:var(--muted);margin-top:4px}
+.tpl-lawyer .lawyer-exp{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:.7rem;color:var(--muted)}
+.tpl-lawyer .consult-wrap{display:grid;grid-template-columns:.9fr 1.1fr;gap:44px;align-items:start}
+.tpl-lawyer .consult-card{background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:30px;box-shadow:var(--shadow-sm)}
+.tpl-lawyer .consult-card h3{font-size:1.15rem}
+.tpl-lawyer .lawyer-hours{margin-top:18px}
+.tpl-lawyer .hours-row{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.85rem;margin:6px 0}
+.tpl-lawyer .hours-row strong{color:var(--ink);font-weight:800}
+.tpl-lawyer .lawyer-contact-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.tpl-lawyer .lawyer-contact-actions .btn{flex:1 1 auto}
 .theme-toggle{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;flex:0 0 auto;position:relative;transition:transform .2s,border-color .2s,background .2s}
 .theme-toggle:hover{transform:translateY(-2px);border-color:var(--p)}
 .theme-toggle .icon{width:18px;height:18px}
@@ -764,6 +798,10 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .booking-wrap{grid-template-columns:1fr;gap:26px}
   .tpl-pharmacy .pharm-about-grid{grid-template-columns:1fr;gap:34px}
   .tpl-pharmacy .pharm-service-grid{grid-template-columns:repeat(2,1fr)}
+  .tpl-lawyer .areas-grid{grid-template-columns:1fr;gap:16px}
+  .tpl-lawyer .lawyer-service-grid{grid-template-columns:repeat(2,1fr);gap:16px}
+  .tpl-lawyer .lawyer-team-grid{grid-template-columns:repeat(2,1fr);gap:16px}
+  .tpl-lawyer .consult-wrap{grid-template-columns:1fr;gap:34px}
 }
 @media (max-width:720px){
   .container{width:min(100% - 28px,1180px)}
@@ -803,6 +841,10 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-pharmacy .pharm-service-grid{grid-template-columns:1fr 1fr;gap:14px}
   .tpl-pharmacy .stats-band .stats-grid{grid-template-columns:1fr 1fr}
   .tpl-pharmacy .section-head{align-items:flex-start}
+  .tpl-lawyer .areas-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-lawyer .lawyer-service-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-lawyer .lawyer-team-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-lawyer .consult-card{padding:22px}
 }
 @media (max-width:460px){
   .g2,.g3,.g4,.product-grid,.form-grid,.stats-grid{grid-template-columns:1fr}
@@ -823,6 +865,8 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-pharmacy .pharm-product-grid{grid-template-columns:1fr 1fr}
   .tpl-pharmacy .pharm-service-grid{grid-template-columns:1fr}
   .tpl-pharmacy .stats-band .stats-grid{grid-template-columns:1fr 1fr}
+  .tpl-lawyer .lawyer-service-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-lawyer .lawyer-team-grid{grid-template-columns:1fr;gap:14px}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
