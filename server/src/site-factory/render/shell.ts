@@ -261,6 +261,18 @@ function navItems(config: RenderConfig, s: UiStrings): { href: string; label: st
           { href: '#contact', label: s.contact },
         ];
       }
+      if (['showroom'].includes(config.templateSlug)) {
+        return [
+          { href: '#top', label: s.home },
+          { href: '#categories', label: s.services },
+          { href: '#cars', label: s.work },
+          { href: '#financing', label: s.packages },
+          { href: '#team', label: s.team },
+          { href: '#quote', label: s.appointment },
+          { href: '#faq', label: s.faq },
+          { href: '#contact', label: s.contact },
+        ];
+      }
       return [];
   }
 }
@@ -332,7 +344,9 @@ export function renderShell(options: ShellOptions): string {
                   ? '#book'
                   : config.templateSlug === 'pharmacy'
               ? '#products'
-              : '#contact';
+              : config.templateSlug === 'showroom'
+                ? '#quote'
+                : '#contact';
   const mobileCtaLabel = config.templateSlug === 'carrental'
     ? s.booking
     : config.templateSlug === 'medical'
@@ -348,6 +362,8 @@ export function renderShell(options: ShellOptions): string {
               : config.templateSlug === 'pharmacy'
             ? s.orderNow
             : config.templateSlug === 'hotel'
+              ? s.appointment
+            : config.templateSlug === 'showroom'
               ? s.appointment
             : s.contact;
   const alternateTags = (['ar', 'fr', 'en'] as const)
@@ -529,7 +545,9 @@ export function baseHeader(config: RenderConfig, lang: 'ar' | 'fr' | 'en', alter
                   ? '#book'
                   : config.templateSlug === 'pharmacy'
               ? '#products'
-              : '#contact';
+              : config.templateSlug === 'showroom'
+                ? '#quote'
+                : '#contact';
   const mobileCtaLabel = config.templateSlug === 'carrental'
     ? s.booking
     : config.templateSlug === 'medical'

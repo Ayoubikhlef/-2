@@ -4008,6 +4008,477 @@ export function hotelPage(config: RenderConfig, s: UiStrings, lang: Lang): strin
 }
 
 /* -------------------------------------------------------------------------
+ * SHOWROOM
+ * ---------------------------------------------------------------------- */
+interface ShowroomCopy {
+  heroBadge: string;
+  bookCta: string;
+  carsCta: string;
+  openDaily: string;
+  warranty: string;
+  experience: string;
+  heroMessage: string;
+  categoriesEyebrow: string;
+  categoriesTitle: string;
+  categoriesLead: string;
+  categories: Array<{ icon: string; title: string; description: string }>;
+  carsEyebrow: string;
+  carsTitle: string;
+  carsLead: string;
+  financingEyebrow: string;
+  financingTitle: string;
+  financingLead: string;
+  financing: Array<{ title: string; description: string }>;
+  processTitle: string;
+  processLead: string;
+  step1: string; step1d: string;
+  step2: string; step2d: string;
+  step3: string; step3d: string;
+  step4: string; step4d: string;
+  teamEyebrow: string;
+  teamTitle: string;
+  teamLead: string;
+  aboutTitle: string;
+  aboutLead: string;
+  feat1: string; feat1d: string;
+  feat2: string; feat2d: string;
+  feat3: string; feat3d: string;
+  feat4: string; feat4d: string;
+  stats: Array<[string, string]>;
+  quotes: Array<{ text: string; name: string; role: string }>;
+  faqTitle: string;
+  faq: Array<[string, string]>;
+  quoteTitle: string;
+  quoteLead: string;
+  formTitle: string;
+  formSub: string;
+  confirm: string;
+  summaryModel: string;
+  summaryFinance: string;
+  summaryWhen: string;
+  note: string;
+}
+
+const SHOWROOM: Record<Lang, ShowroomCopy> = {
+  ar: {
+    heroBadge: 'صالة عرض سيارات فاخرة · ضمان شامل',
+    bookCta: 'اطلب عرض سعر',
+    carsCta: 'سياراتنا',
+    openDaily: 'مفتوح يومياً',
+    warranty: 'ضمان شامل',
+    experience: 'سنوات الخبرة',
+    heroMessage: 'أريد شراء أو استئجار سيارة',
+    categoriesEyebrow: 'فئات السيارات',
+    categoriesTitle: 'سيارات لكل طريق وكل ميزانية',
+    categoriesLead: 'من السيارات الاقتصادية إلى الفاخرة، نقدم لك أفضل الخيارات.',
+    categories: [
+      { icon: 'home', title: 'سيارات عائلية', description: 'سيارات مريحة وموفرة للعائلات.' },
+      { icon: 'users', title: 'سيارات فاخرة', description: 'سيارات رباعية الدفع وسيارات سيدان فاخرة.' },
+      { icon: 'target', title: 'سيارات رياضية', description: 'سيارات Coupe وスポーツ بأداء عالي.' },
+      { icon: 'truck', title: 'شاحنات ومركبات', description: 'شاحنات ومركبات تجارية للعمل الشاق.' },
+    ],
+    carsEyebrow: 'سيارات متاحة',
+    carsTitle: 'تشكيلة صالتنا',
+    carsLead: 'سيارات جديدة ومستعملة مع ضمان شامل وخيارات تقسيط مرنة.',
+    financingEyebrow: 'خيارات التمويل',
+    financingTitle: 'تمويل يناسب ميزانيتك',
+    financingLead: 'أقساط مرنة وبدل أول منخفض لاقتناء سيارتك الأحلام.',
+    financing: [
+      { title: 'تمويل بنكي', description: 'قروض سيارة بفوائد منخفضة وبديل أول مرن.' },
+      { title: 'تأجير تمويلي', description: 'استئجار مع خيار الشراء في نهاية المدة.' },
+      { title: 'تقسيط مباشر', description: 'تقسيط مباشر من الصالة دون تدخل بنوك.' },
+    ],
+    processTitle: 'كيف تحصل على سيارتك',
+    processLead: 'من الاختيار إلى التسليم، نرافقك في كل خطوة.',
+    step1: 'اختيار السيارة', step1d: 'نساعدك في اختيار السيارة المناسبة لاحتياجاتك وميزانيتك.',
+    step2: 'التجربة', step2d: 'ننظم قيادة تجريبية للسيارة المختارة.',
+    step3: 'التمويل والعقد', step3d: 'نعيد صياغة عقد البيع وننهي إجراءات التمويل.',
+    step4: 'التسليم', step4d: 'نسلمك السيارة مع ضمان شامل وفحص شامل.',
+    teamEyebrow: 'فريق المبيعات',
+    teamTitle: 'فريق خبراء السيارات في خدمتك',
+    teamLead: 'فريق من استشاريي المبيعات ذوي الخبرة في قطاع السيارات.',
+    aboutTitle: 'صالة العرض الذهبي للسيارات',
+    aboutLead: 'صالة عرض سيارات فاخرة تقدّم تشكيلة من السيارات الجديدة والمستعملة مع ضمان شامل، خيارات تقسيط مرنة، وخدمة عملاء متميزة.',
+    feat1: 'ضمان شامل', feat1d: 'ضمان على المحرك والناقل والجسم لجميع السيارات.',
+    feat2: 'فحص شامل', feat2d: 'كل سيارة تخضع لفحص شامل قبل العرض للبيع.',
+    feat3: 'أسعار تنافسية', feat3d: 'أسعار شفافة مع إمكانية المقارنة والمساومة.',
+    feat4: 'خدمة ما بعد البيع', feat4d: 'صيانة دورية وقطع غيار أصلية معguarantee.',
+    stats: [['+10', 'سنة خبرة'], ['+200', 'سيارة'], ['98%', 'رضا العملاء'], ['ضمان', 'شامل']],
+    quotes: [
+      { text: 'اشترت سيارتي من هذه الصالة، الخدمة ممتازة والضمان شامل، أنصح بها.', name: 'خالد ب.', role: 'عميل' },
+      { text: 'سيارة مستعملة بحالة جديدة، السعر مناسب والخدمة راقية.', name: 'فاطمة ت.', role: 'عميلة' },
+      { text: 'عملية التقسيط كانت سلسة جداً، استلمت سيارتي في نفس اليوم.', name: 'سليم ع.', role: 'عميل' },
+    ],
+    faqTitle: 'أسئلة شائعة',
+    faq: [
+      ['هل السيارات مضمونة؟', 'نعم، جميع السيارات تأتي مع ضمان شامل وفحص شامل.'],
+      ['هل يمكن التقسيط؟', 'نعم، نقدم خيارات تقسيط مرنة مع بنوك موثوقة.'],
+      ['هل يمكن تجربة السيارة قبل الشراء؟', 'نعم، ننظم قيادة تجريبية لكل سيارة مهتم بها العميل.'],
+      ['ما هي أوقات العمل؟', 'نعمل من السبت إلى الخميس من 09:00 إلى 19:00.'],
+      ['هل توجد خدمة ما بعد البيع؟', 'نعم، نقدم صيانة دورية وقطع غيار أصلية.'],
+    ],
+    quoteTitle: 'اطلب عرض سعر لسيارتك',
+    quoteLead: 'املأ النموذج وسنتصل بك لتقييم السيارة وتقديم عرض سعر تفصيلي.',
+    formTitle: 'طلب عرض سعر سيارة',
+    formSub: 'أخبرنا عن نوع السيارة والميزانية وسنرد عليك في أقرب وقت.',
+    confirm: 'إرسال طلب العرض',
+    summaryModel: 'موديل السيارة',
+    summaryFinance: 'نوع التمويل',
+    summaryWhen: 'الموعد المفضل',
+    note: 'جميع بياناتك محمية وسرية وفقاً لسياسة الصالة.',
+  },
+  fr: {
+    heroBadge: 'Showroom automobile de luxe · Garantie complète',
+    bookCta: 'Demander un devis',
+    carsCta: 'Nos voitures',
+    openDaily: 'Ouvert tous les jours',
+    warranty: 'Garantie complète',
+    experience: 'ans d’expérience',
+    heroMessage: 'Je souhaite acheter ou louer une voiture',
+    categoriesEyebrow: 'Catégories de voitures',
+    categoriesTitle: 'Des voitures pour chaque route et chaque budget',
+    categoriesLead: 'Des voitures économiques aux véhicules de luxe, nous vous proposons les meilleures options.',
+    categories: [
+      { icon: 'home', title: 'Voitures familiales', description: 'Voitures confortables et économes pour les familles.' },
+      { icon: 'users', title: 'Voitures de luxe', description: 'Véhicules SUV et berlines de luxe.' },
+      { icon: 'target', title: 'Voitures sportives', description: 'Coupés et voitures de sport haute performance.' },
+      { icon: 'truck', title: 'Camions et utilitaires', description: 'Camions et véhicules utilitaires pour travaux lourds.' },
+    ],
+    carsEyebrow: 'Voitures disponibles',
+    carsTitle: 'Notre gamme',
+    carsLead: 'Voitures neuves et d’occasion avec garantie complète et options de financement flexibles.',
+    financingEyebrow: 'Options de financement',
+    financingTitle: 'Un financement adapté à votre budget',
+    financingLead: 'Mensualités flexibles et apport réduit pour acquérir la voiture de vos rêves.',
+    financing: [
+      { title: 'Crédit bancaire', description: 'Prêts auto à taux réduit et apport flexible.' },
+      { title: 'Location avec option d’achat', description: 'Location avec possibilité d’achat en fin de contrat.' },
+      { title: 'Paiement direct', description: 'Paiement échelonné directement au showroom sans banque.' },
+    ],
+    processTitle: 'Comment obtenir votre voiture',
+    processLead: 'Du choix à la livraison, nous vous accompagnons à chaque étape.',
+    step1: 'Choix du véhicule', step1d: 'Nous vous aidons à choisir le véhicule adapté à vos besoins et budget.',
+    step2: 'Essai', step2d: 'Nous organisons un essai routier du véhicule sélectionné.',
+    step3: 'Financement et contrat', step3d: 'Nous rédigeons le contrat de vente et finalisons le financement.',
+    step4: 'Livraison', step4d: 'Nous vous livrons le véhicule avec garantie complète et contrôle.',
+    teamEyebrow: 'Équipe commerciale',
+    teamTitle: 'Une équipe d’experts automobiles à votre service',
+    teamLead: 'Une équipe de conseillers commerciaux expérimentés dans le secteur automobile.',
+    aboutTitle: 'Showroom automobile Or',
+    aboutLead: 'Un showroom automobile de luxe proposant des voitures neuves et d’occasion avec garantie complète, options de financement flexibles et service client d’excellence.',
+    feat1: 'Garantie complète', feat1d: 'Garantie moteur, boîte et carrosserie pour tous les véhicules.',
+    feat2: 'Contrôle complet', feat2d: 'Chaque véhicule subit un contrôle complet avant la vente.',
+    feat3: 'Prix compétitifs', feat3d: 'Prix transparents avec possibilité de comparaison et négociation.',
+    feat4: 'Service après-vente', feat4d: 'Entretien régulier et pièces d’origine avec garantie.',
+    stats: [['+10', 'ans d’expérience'], ['+200', 'voitures'], ['98%', 'satisfaction client'], ['Garantie', 'complète']],
+    quotes: [
+      { text: 'J’ai acheté ma voiture chez ce showroom, service excellent et garantie complète, je recommande.', name: 'Khalid B.', role: 'Client' },
+      { text: 'Voiture d’occasion en excellent état, prix raisonnable et service haut de gamme.', name: 'Fatima T.', role: 'Cliente' },
+      { text: 'Le processus de financement a été très fluide, j’ai reçu ma voiture le jour même.', name: 'Salim A.', role: 'Client' },
+    ],
+    faqTitle: 'Questions fréquentes',
+    faq: [
+      ['Les voitures sont-elles garanties ?', 'Oui, tous les véhicules sont livrés avec garantie complète et contrôle complet.'],
+      ['Puis-je payer en plusieurs fois ?', 'Oui, nous proposons des options de financement avec banques partenaires.'],
+      ['Puis-je essayer la voiture avant achat ?', 'Oui, nous organisons un essai routier pour chaque véhicule qui vous intéresse.'],
+      ['Quels sont vos horaires ?', 'Nous travaillons du samedi au jeudi de 09:00 à 19:00.'],
+      ['Proposez-vous un service après-vente ?', 'Oui, nous assurons l’entretien régulier et les pièces d’origine.'],
+    ],
+    quoteTitle: 'Demandez un devis pour votre voiture',
+    quoteLead: 'Remplissez le formulaire et nous vous contacterons pour évaluer le véhicule et vous proposer un devis détaillé.',
+    formTitle: 'Demande de devis voiture',
+    formSub: 'Dites-nous le type de véhicule et votre budget et nous vous répondrons dans les plus brefs délais.',
+    confirm: 'Envoyer la demande de devis',
+    summaryModel: 'Modèle de voiture',
+    summaryFinance: 'Type de financement',
+    summaryWhen: 'Rendez-vous préféré',
+    note: 'Toutes vos données sont protégées et confidentielles selon la politique du showroom.',
+  },
+  en: {
+    heroBadge: 'Luxury Car Showroom · Full Warranty',
+    bookCta: 'Request a quote',
+    carsCta: 'Our cars',
+    openDaily: 'Open every day',
+    warranty: 'Full warranty',
+    experience: 'years of experience',
+    heroMessage: 'I want to buy or rent a car',
+    categoriesEyebrow: 'Car categories',
+    categoriesTitle: 'Cars for every road and budget',
+    categoriesLead: 'From economy cars to luxury vehicles, we offer you the best options.',
+    categories: [
+      { icon: 'home', title: 'Family Cars', description: 'Comfortable and fuel-efficient cars for families.' },
+      { icon: 'users', title: 'Luxury Cars', description: 'Luxury SUVs and sedans.' },
+      { icon: 'target', title: 'Sports Cars', description: 'Coupes and high-performance sports cars.' },
+      { icon: 'truck', title: 'Trucks & Utility', description: 'Trucks and utility vehicles for heavy duty.' },
+    ],
+    carsEyebrow: 'Available cars',
+    carsTitle: 'Our showroom collection',
+    carsLead: 'New and used cars with full warranty and flexible financing options.',
+    financingEyebrow: 'Financing options',
+    financingTitle: 'Financing that fits your budget',
+    financingLead: 'Flexible installments and low down payment to get your dream car.',
+    financing: [
+      { title: 'Bank loan', description: 'Auto loans with low rates and flexible down payment.' },
+      { title: 'Lease with option to buy', description: 'Lease with purchase option at end of term.' },
+      { title: 'Direct installment', description: 'Direct installment at the showroom without banks.' },
+    ],
+    processTitle: 'How to get your car',
+    processLead: 'From selection to delivery, we accompany you at every step.',
+    step1: 'Car selection', step1d: 'We help you choose the right car for your needs and budget.',
+    step2: 'Test drive', step2d: 'We organize a test drive for the selected car.',
+    step3: 'Financing and contract', step3d: 'We draft the sales contract and finalize financing.',
+    step4: 'Delivery', step4d: 'We deliver the car with full warranty and inspection.',
+    teamEyebrow: 'Sales team',
+    teamTitle: 'Car experts at your service',
+    teamLead: 'A team of experienced sales consultants in the automotive sector.',
+    aboutTitle: 'Golden Car Showroom',
+    aboutLead: 'A luxury car showroom offering new and used cars with full warranty, flexible installment options and excellent customer service.',
+    feat1: 'Full warranty', feat1d: 'Warranty on engine, transmission and body for all cars.',
+    feat2: 'Full inspection', feat2d: 'Every car undergoes full inspection before sale.',
+    feat3: 'Competitive prices', feat3d: 'Transparent prices with possibility of comparison and negotiation.',
+    feat4: 'After-sales service', feat4d: 'Regular maintenance and genuine spare parts with guarantee.',
+    stats: [['+10', 'years of experience'], ['+200', 'cars'], ['98%', 'client satisfaction'], ['Full', 'warranty']],
+    quotes: [
+      { text: 'I bought my car from this showroom, excellent service and full warranty, I recommend it.', name: 'Khalid B.', role: 'Client' },
+      { text: 'Used car in excellent condition, reasonable price and premium service.', name: 'Fatima T.', role: 'Client' },
+      { text: 'The financing process was very smooth, I received my car the same day.', name: 'Salim A.', role: 'Client' },
+    ],
+    faqTitle: 'Frequently asked questions',
+    faq: [
+      ['Are cars guaranteed?', 'Yes, all cars come with full warranty and full inspection.'],
+      ['Can I pay in installments?', 'Yes, we offer flexible financing options with trusted banks.'],
+      ['Can I test drive before buying?', 'Yes, we organize test drives for every car you are interested in.'],
+      ['What are your hours?', 'We work Saturday to Thursday from 09:00 to 19:00.'],
+      ['Do you offer after-sales service?', 'Yes, we offer regular maintenance and genuine spare parts.'],
+    ],
+    quoteTitle: 'Request a quote for your car',
+    quoteLead: 'Fill out the form and we will contact you to evaluate the car and provide a detailed quote.',
+    formTitle: 'Car quote request',
+    formSub: 'Tell us about the car type and budget and we will respond as soon as possible.',
+    confirm: 'Send quote request',
+    summaryModel: 'Car model',
+    summaryFinance: 'Finance type',
+    summaryWhen: 'Preferred appointment',
+    note: 'All your data is protected and confidential according to the showroom policy.',
+  },
+};
+
+function showroomCard(member: RenderTeamMember, copy: ShowroomCopy): string {
+  const photo = member.photoUrl
+    ? `<img src="${attr(member.photoUrl)}" alt="${attr(member.name)}" loading="lazy" decoding="async" width="700" height="700">`
+    : `<span class="showroom-initials">${esc(initialsFor(member.name))}</span>`;
+  return `<article class="showroom-card" data-reveal>
+    <div class="showroom-avatar">${photo}</div>
+    <h3>${esc(member.name)}</h3>
+    <p class="showroom-role">${esc(member.role)}</p>
+    ${member.specialty ? `<span class="showroom-specialty">${esc(member.specialty)}</span>` : ''}
+    ${member.experience ? `<span class="showroom-exp">${icon('award')}${esc(member.experience)} ${esc(copy.experience)}</span>` : ''}
+  </article>`;
+}
+
+function carCard(p: RenderProduct, config: RenderConfig, s: UiStrings, lang: Lang): string {
+  const image = p.imageUrl
+    ? `<img src="${attr(p.imageUrl)}" alt="${attr(p.name)}" loading="lazy" decoding="async" width="600" height="400">`
+    : productPlaceholder(p.name);
+  return `<article class="car-card" data-reveal data-car-card data-category="${attr(p.category || '')}" data-name="${attr(p.name)}" data-desc="${attr(p.description || '')}">
+    <div class="car-thumb">${image}</div>
+    <div class="car-body">
+      ${p.category ? `<span class="cat">${esc(p.category)}</span>` : ''}
+      <h3>${esc(p.name)}</h3>
+      ${p.description ? `<p>${esc(p.description)}</p>` : ''}
+      ${p.price > 0 ? `<span class="price">${money(p.price, lang)}</span>` : ''}
+      <a class="btn btn-wa btn-block mt-3" href="${attr(waHref(config, `أريد شراء سيارة: ${p.name} — ${p.description || ''}`))}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.orderNow)}</a>
+    </div>
+  </article>`;
+}
+
+export function showroomPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
+  const copy = SHOWROOM[lang];
+  const cars = config.products.filter((p) => p.name);
+  const team = config.team || [];
+  const services = config.services.length ? config.services : copy.financing;
+  const heroImage = config.coverUrl
+    ? `<img src="${attr(config.coverUrl)}" alt="${attr(config.siteName)}" width="900" height="1100" fetchpriority="high" decoding="async">`
+    : '';
+  const about = aboutPhoto(config);
+  const heroWa = waHref(config, `${copy.heroMessage} — ${config.siteName}`);
+  const quoteWa = waHref(config, `طلب عرض سعر سيارة — ${config.siteName}`);
+
+  return `<section class="hero showroom-hero" id="top">
+    <div class="container hero-grid">
+      <div class="hero-copy" data-reveal>
+        <span class="badge">${icon('truck')}${esc(copy.heroBadge)}</span>
+        <h1 class="h1 mt-3">${esc(config.siteName)}</h1>
+        <p class="lead">${esc(config.description)}</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#cars">${icon('truck')}${esc(copy.carsCta)}</a>
+          <a class="btn btn-wa" href="${attr(heroWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(copy.bookCta)}</a>
+        </div>
+        <div class="showroom-badges">
+          <span>${icon('shield')}${esc(copy.warranty)}</span>
+          <span>${icon('clock')}${esc(copy.openDaily)} · ${esc(config.hours || '09:00 — 19:00')}</span>
+        </div>
+        <div class="hero-stats">
+          ${copy.stats.slice(0, 3).map(([num, label]) => `<div><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="hero-media showroom-hero-media${heroImage ? '' : ' no-img'}" data-mark="${attr(initials(config.siteName))}" data-reveal>${heroImage}
+        <div class="float-card"><span class="float-icon">${icon('truck')}</span><div><strong>${esc(copy.warranty)}</strong><span>${esc(config.city || '')}</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="trust-strip"><div class="container">
+    <span class="trust-item">${icon('shield')}${esc(copy.warranty)}</span>
+    <span class="trust-item">${icon('truck')}${esc(s.quality)}</span>
+    <span class="trust-item">${icon('award')}${esc(s.satisfaction)}</span>
+    <span class="trust-item">${icon('target')}${esc(s.projects)}</span>
+  </div></div>
+
+  <section class="section" id="categories">
+    <div class="container">
+      ${sectionHead(copy.categoriesEyebrow, copy.categoriesTitle, copy.categoriesLead, true)}
+      <div class="showroom-cats-grid">
+        ${copy.categories.map((item, i) => `<article class="cat-card" data-reveal>
+          <span class="cat-icon">${icon(item.icon as any)}</span>
+          <h3 class="h3">${esc(item.title)}</h3>
+          <p>${esc(item.description)}</p>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="cars">
+    <div class="container">
+      ${sectionHead(copy.carsEyebrow, copy.carsTitle, copy.carsLead)}
+      <div class="car-grid">${cars.length ? cars.map((p) => carCard(p, config, s, lang)).join('') : `<div class="car-empty">${esc(s.emptyCart)}</div>`}</div>
+    </div>
+  </section>
+
+  <section class="section" id="financing">
+    <div class="container">
+      ${sectionHead(copy.financingEyebrow, copy.financingTitle, copy.financingLead)}
+      <div class="showroom-service-grid">
+        ${services.map((service, i) => `<article class="showroom-service" data-reveal>
+          <span class="service-num">${String(i + 1).padStart(2, '0')}</span>
+          <div><h3 class="h3">${esc(service.title)}</h3><p>${esc(service.description)}</p></div>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="process">
+    <div class="container">
+      ${sectionHead(copy.processTitle, copy.processLead, undefined, true)}
+      <div class="steps">
+        ${[
+          [copy.step1, copy.step1d],
+          [copy.step2, copy.step2d],
+          [copy.step3, copy.step3d],
+          [copy.step4, copy.step4d],
+        ].map(([title, desc], i) => `<div class="step" data-reveal><div class="n">${i + 1}</div><h3>${esc(title)}</h3><p>${esc(desc)}</p></div>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  ${team.length ? `<section class="section bg-soft" id="team">
+    <div class="container">
+      ${sectionHead(copy.teamEyebrow, copy.teamTitle, copy.teamLead, true)}
+      <div class="showroom-team-grid">${team.map((m) => showroomCard(m, copy)).join('')}</div>
+    </div>
+  </section>` : ''}
+
+  <section class="section" id="about">
+    <div class="container about-grid showroom-about-grid">
+      <div class="showroom-about-media" data-reveal>
+        ${about ? `<img class="main" src="${attr(about)}" alt="${attr(config.siteName)}" loading="lazy" decoding="async" width="800" height="760">` : ''}
+        <div class="about-badge">${icon('check')}+10 ${esc(s.years)}</div>
+      </div>
+      <div data-reveal>
+        <span class="eyebrow">${esc(s.about)}</span>
+        <h2 class="h2 mt-2">${esc(config.siteName)}</h2>
+        <p class="lead mt-2">${esc(config.description)}</p>
+        <ul class="checklist">
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat1)} — ${esc(copy.feat1d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat2)} — ${esc(copy.feat2d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat3)} — ${esc(copy.feat3d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat4)} — ${esc(copy.feat4d)}</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="quote">
+    <div class="container quote-wrap">
+      <div class="quote-copy" data-reveal>
+        <span class="eyebrow">${esc(s.appointment)}</span>
+        <h2 class="h2 mt-2">${esc(copy.quoteTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.quoteLead)}</p>
+        <ul class="checklist">
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat1)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat3)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.note)}</span></li>
+        </ul>
+        <div class="showroom-hours">
+          <div class="hours-row"><span>${icon('clock')}${esc(s.hours)}</span><strong>${esc(config.hours || '09:00 — 19:00')}</strong></div>
+          <div class="hours-row"><span>${icon('map')}${esc(s.location)}</span><strong>${esc(config.address || config.city || '')}</strong></div>
+        </div>
+        <div class="showroom-contact-actions">
+          <a class="btn btn-light" href="tel:${attr(config.phone)}">${icon('phone')}${esc(s.callNow)}</a>
+          <a class="btn btn-wa" href="${attr(quoteWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.whatsapp)}</a>
+        </div>
+      </div>
+      <form class="quote-card" data-lead-form data-lead-kind="showroom-quote" novalidate>
+        <h3>${esc(copy.formTitle)}</h3>
+        <p class="booking-sub">${esc(copy.formSub)}</p>
+        <div class="form-grid">
+          <div class="field"><label for="car-name">${esc(s.name)}</label><input id="car-name" name="name" required maxlength="80" autocomplete="name"><span class="err">${esc(s.required)}</span></div>
+          <div class="field"><label for="car-phone">${esc(s.phone)}</label><input id="car-phone" name="phone" type="tel" required maxlength="20" autocomplete="tel" dir="ltr"><span class="err">${esc(s.invalidPhone)}</span></div>
+          <div class="field full"><label for="car-email">${esc(s.email)}</label><input id="car-email" name="email" type="email" maxlength="120" autocomplete="email" dir="ltr"></div>
+          <div class="field full"><label for="car-model">${esc(copy.summaryModel)}</label><input id="car-model" name="carModel" maxlength="200"></div>
+          <div class="field full"><label for="car-finance">${esc(copy.summaryFinance)}</label><input id="car-finance" name="financeType" maxlength="200"></div>
+          <div class="field full"><label for="car-msg">${esc(s.message)}</label><textarea id="car-msg" name="message" required maxlength="1200"></textarea><span class="err">${esc(s.required)}</span></div>
+          <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
+        </div>
+        <button class="btn btn-primary btn-block mt-3" type="submit">${icon('send')}${esc(copy.confirm)}</button>
+        <div class="form-status" role="status"></div>
+        <p class="form-note center mt-2">${esc(copy.note)}</p>
+      </form>
+    </div>
+  </section>
+
+  <section class="stats-band">
+    <div class="container stats-grid">
+      ${copy.stats.map(([num, label]) => `<div class="stat"><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">${sectionHead(s.testimonials, s.testimonials, undefined, true)}
+      <div class="grid g3">${copy.quotes.map((q) => `<div class="quote" data-reveal>
+        <div class="stars" aria-label="5/5">★★★★★</div>
+        <p>“${esc(q.text)}”</p>
+        <div class="who"><span class="avatar">${esc(initialsFor(q.name))}</span><div><strong>${esc(q.name)}</strong><span>${esc(q.role)}</span></div></div>
+      </div>`).join('')}</div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="faq">
+    <div class="container">
+      ${sectionHead(s.faq, copy.faqTitle, undefined, true)}
+      <div class="faq-list">
+        ${copy.faq.map(([q, a]) => `<details class="faq" data-reveal>
+          <summary>${esc(q)}<span class="faq-ic">${icon('plus')}</span></summary>
+          <p>${esc(a)}</p>
+        </details>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  ${contactSection(config, s)}`;
+}
+
+/* -------------------------------------------------------------------------
  * COMPANY
  * ---------------------------------------------------------------------- */
 export function companyPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
@@ -4429,6 +4900,8 @@ export function pageFor(template: string, config: RenderConfig, lang: Lang): str
       return constructionPage(config, s, lang);
     case 'hotel':
       return hotelPage(config, s, lang);
+    case 'showroom':
+      return showroomPage(config, s, lang);
 
     // Landing-style templates
     case 'fitness':
@@ -4643,6 +5116,32 @@ export function jsonLdFor(template: string, config: RenderConfig, siteUrl: strin
       hasOfferCatalog: {
         '@type': 'OfferCatalog',
         name: 'Rooms and suites',
+        itemListElement: config.products.slice(0, 12).map((p, index) => ({
+          '@type': 'Offer',
+          position: index + 1,
+          name: p.name,
+          description: p.description,
+          price: p.price,
+          priceCurrency: 'DZD',
+          availability: 'https://schema.org/InStock',
+        })),
+      },
+      employee: (config.team || []).map((member) => ({
+        '@type': 'Person',
+        name: member.name,
+        jobTitle: member.role,
+        image: member.photoUrl || undefined,
+      })),
+    };
+    case 'showroom': return {
+      ...base,
+      '@type': 'AutoDealership',
+      image: config.coverUrl || undefined,
+      priceRange: 'DZD',
+      openingHours: config.hours || undefined,
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: 'Cars',
         itemListElement: config.products.slice(0, 12).map((p, index) => ({
           '@type': 'Offer',
           position: index + 1,

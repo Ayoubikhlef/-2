@@ -255,6 +255,18 @@ export const TEMPLATES: TemplateSeed[] = [
     },
   },
   {
+    slug: 'showroom',
+    category: 'showroom',
+    accent: '#0f172a',
+    sortOrder: 18,
+    name: { ar: 'صالة عرض سيارات', fr: 'Showroom Automobile', en: 'Car Showroom' },
+    description: {
+      ar: 'صالة عرض سيارات فاخرة مع تشكيلة من السيارات الجديدة والمستعملة، خيارات التقسيط، وطلب عرض سعر عبر واتساب.',
+      fr: 'Showroom automobile de luxe avec une gamme de voitures neuves et d\'occasion, options de financement et demande de devis WhatsApp.',
+      en: 'Luxury car showroom with new and used cars, financing options and WhatsApp quote request.',
+    },
+  },
+  {
     slug: 'agriculture',
     category: 'agriculture',
     accent: '#4d7c0f',

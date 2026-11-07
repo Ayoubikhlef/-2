@@ -817,6 +817,52 @@ body.has-preview .site-header{top:36px}
 .tpl-hotel .hotel-contact-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
 .tpl-hotel .hotel-contact-actions .btn{flex:1 1 auto}
 .tpl-hotel input[type="date"]{background:var(--surface);border-color:var(--line);color:var(--ink)}
+/* showroom */
+.tpl-showroom .showroom-badges{display:flex;gap:12px;margin-top:16px;padding-top:12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.tpl-showroom .hero-stats{display:flex;gap:30px;margin-top:38px;padding-top:26px;border-top:1px solid var(--line);flex-wrap:wrap}
+.tpl-showroom .showroom-cats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.tpl-showroom .cat-card{padding:26px 22px;border-radius:20px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:10px;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-showroom .cat-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-showroom .cat-icon{width:46px;height:46px;border-radius:14px;background:var(--tint-2);color:var(--p-text);display:grid;place-items:center;flex:0 0 auto;margin-bottom:4px}
+.tpl-showroom .cat-icon .icon{width:22px;height:22px}
+.tpl-showroom .car-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.tpl-showroom .car-card{border-radius:20px;overflow:hidden;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-showroom .car-card:hover{transform:translateY(-5px);box-shadow:var(--shadow);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-showroom .car-thumb{position:relative;aspect-ratio:16/10;overflow:hidden;background:linear-gradient(145deg,var(--tint),var(--tint-2))}
+.tpl-showroom .car-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.tpl-showroom .car-card:hover .car-thumb img{transform:scale(1.06)}
+.tpl-showroom .car-body{padding:18px 20px 22px;display:flex;flex-direction:column;gap:6px;flex:1}
+.tpl-showroom .car-body .cat{font-size:.65rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--p-text)}
+.tpl-showroom .car-body h3{font-size:1rem;line-height:1.4}
+.tpl-showroom .car-body p{font-size:.82rem;color:var(--muted);line-height:1.65}
+.tpl-showroom .car-body .price{margin-top:auto;padding-top:10px;color:var(--p-text);font-weight:900}
+.tpl-showroom .showroom-service-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.tpl-showroom .showroom-service{padding:24px;border-radius:18px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:8px;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-showroom .showroom-service:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-showroom .service-num{font-size:.75rem;font-weight:900;color:color-mix(in srgb,var(--p) 45%,var(--muted))}
+.tpl-showroom .showroom-service h3{font-size:1rem;margin-bottom:4px}
+.tpl-showroom .showroom-service p{font-size:.82rem;color:var(--muted);line-height:1.65}
+.tpl-showroom .showroom-team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.tpl-showroom .showroom-card{border-radius:22px;overflow:hidden;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-showroom .showroom-card:hover{transform:translateY(-5px);box-shadow:var(--shadow);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-showroom .showroom-avatar{position:relative;aspect-ratio:4/4.5;overflow:hidden;background:linear-gradient(150deg,var(--tint-2),var(--p2));display:grid;place-items:center}
+.tpl-showroom .showroom-avatar img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.tpl-showroom .showroom-card:hover .showroom-avatar img{transform:scale(1.05)}
+.tpl-showroom .showroom-initials{font-size:2.4rem;font-weight:900;color:rgba(255,255,255,.55);letter-spacing:.08em}
+.tpl-showroom .showroom-body{padding:16px 17px 18px;display:flex;flex-direction:column;gap:5px;flex:1}
+.tpl-showroom .showroom-body h3{font-size:.98rem;line-height:1.35}
+.tpl-showroom .showroom-role{font-size:.76rem;color:var(--p-text);font-weight:800;line-height:1.45}
+.tpl-showroom .showroom-specialty{font-size:.7rem;color:var(--muted);margin-top:4px}
+.tpl-showroom .showroom-exp{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:.7rem;color:var(--muted)}
+.tpl-showroom .quote-wrap{display:grid;grid-template-columns:.9fr 1.1fr;gap:44px;align-items:start}
+.tpl-showroom .quote-card{background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:30px;box-shadow:var(--shadow-sm)}
+.tpl-showroom .quote-card h3{font-size:1.15rem}
+.tpl-showroom .showroom-hours{margin-top:18px}
+.tpl-showroom .hours-row{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.85rem;margin:6px 0}
+.tpl-showroom .hours-row strong{color:var(--ink);font-weight:800}
+.tpl-showroom .showroom-contact-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.tpl-showroom .showroom-contact-actions .btn{flex:1 1 auto}
+.tpl-showroom input[type="date"]{background:var(--surface);border-color:var(--line);color:var(--ink)}
 /* construction */
 .tpl-construction .build-badges{display:flex;gap:12px;margin-top:16px;padding-top:12px;border-top:1px solid var(--line);flex-wrap:wrap}
 .tpl-construction .hero-stats{display:flex;gap:30px;margin-top:38px;padding-top:26px;border-top:1px solid var(--line);flex-wrap:wrap}
@@ -989,6 +1035,11 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-hotel .amenities-grid{grid-template-columns:repeat(2,1fr);gap:14px}
   .tpl-hotel .hotel-team-grid{grid-template-columns:repeat(2,1fr);gap:16px}
   .tpl-hotel .book-wrap{grid-template-columns:1fr;gap:34px}
+  .tpl-showroom .showroom-cats-grid{grid-template-columns:1fr;gap:16px}
+  .tpl-showroom .car-grid{grid-template-columns:repeat(2,1fr);gap:16px}
+  .tpl-showroom .showroom-service-grid{grid-template-columns:repeat(2,1fr);gap:16px}
+  .tpl-showroom .showroom-team-grid{grid-template-columns:repeat(2,1fr);gap:16px}
+  .tpl-showroom .quote-wrap{grid-template-columns:1fr;gap:34px}
   .tpl-construction .build-service-grid{grid-template-columns:repeat(2,1fr);gap:16px}
   .tpl-construction .build-team-grid{grid-template-columns:repeat(2,1fr);gap:16px}
   .tpl-construction .quote-wrap{grid-template-columns:1fr;gap:34px}
@@ -1046,6 +1097,11 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-hotel .amenities-grid{grid-template-columns:1fr;gap:14px}
   .tpl-hotel .hotel-team-grid{grid-template-columns:1fr;gap:14px}
   .tpl-hotel .book-card{padding:22px}
+  .tpl-showroom .showroom-cats-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-showroom .car-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-showroom .showroom-service-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-showroom .showroom-team-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-showroom .quote-card{padding:22px}
   .tpl-construction .build-service-grid{grid-template-columns:1fr;gap:14px}
   .tpl-construction .build-team-grid{grid-template-columns:1fr;gap:14px}
   .tpl-construction .quote-card{padding:22px}
@@ -1082,6 +1138,9 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-hotel .room-grid{grid-template-columns:1fr 1fr}
   .tpl-hotel .hotel-service-grid{grid-template-columns:1fr;gap:14px}
   .tpl-hotel .hotel-team-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-showroom .car-grid{grid-template-columns:1fr 1fr}
+  .tpl-showroom .showroom-service-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-showroom .showroom-team-grid{grid-template-columns:1fr;gap:14px}
   .tpl-construction .build-service-grid{grid-template-columns:1fr;gap:14px}
   .tpl-construction .build-team-grid{grid-template-columns:1fr;gap:14px}
 }
