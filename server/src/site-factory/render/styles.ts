@@ -863,6 +863,52 @@ body.has-preview .site-header{top:36px}
 .tpl-showroom .showroom-contact-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
 .tpl-showroom .showroom-contact-actions .btn{flex:1 1 auto}
 .tpl-showroom input[type="date"]{background:var(--surface);border-color:var(--line);color:var(--ink)}
+/* clinic */
+.tpl-clinic .clinic-badges{display:flex;gap:12px;margin-top:16px;padding-top:12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.tpl-clinic .hero-stats{display:flex;gap:30px;margin-top:38px;padding-top:26px;border-top:1px solid var(--line);flex-wrap:wrap}
+.tpl-clinic .clinic-depts-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.tpl-clinic .dept-card{padding:26px 22px;border-radius:20px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:10px;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-clinic .dept-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-clinic .dept-icon{width:46px;height:46px;border-radius:14px;background:var(--tint-2);color:var(--p-text);display:grid;place-items:center;flex:0 0 auto;margin-bottom:4px}
+.tpl-clinic .dept-icon .icon{width:22px;height:22px}
+.tpl-clinic .treatment-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.tpl-clinic .treatment-card{border-radius:20px;overflow:hidden;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-clinic .treatment-card:hover{transform:translateY(-5px);box-shadow:var(--shadow);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-clinic .treatment-thumb{position:relative;aspect-ratio:16/10;overflow:hidden;background:linear-gradient(145deg,var(--tint),var(--tint-2))}
+.tpl-clinic .treatment-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.tpl-clinic .treatment-card:hover .treatment-thumb img{transform:scale(1.06)}
+.tpl-clinic .treatment-body{padding:18px 20px 22px;display:flex;flex-direction:column;gap:6px;flex:1}
+.tpl-clinic .treatment-body .cat{font-size:.65rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--p-text)}
+.tpl-clinic .treatment-body h3{font-size:1rem;line-height:1.4}
+.tpl-clinic .treatment-body p{font-size:.82rem;color:var(--muted);line-height:1.65}
+.tpl-clinic .treatment-body .price{margin-top:auto;padding-top:10px;color:var(--p-text);font-weight:900}
+.tpl-clinic .clinic-service-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.tpl-clinic .clinic-service{padding:24px;border-radius:18px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:8px;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-clinic .clinic-service:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-clinic .service-num{font-size:.75rem;font-weight:900;color:color-mix(in srgb,var(--p) 45%,var(--muted))}
+.tpl-clinic .clinic-service h3{font-size:1rem;margin-bottom:4px}
+.tpl-clinic .clinic-service p{font-size:.82rem;color:var(--muted);line-height:1.65}
+.tpl-clinic .clinic-team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.tpl-clinic .clinic-card{border-radius:22px;overflow:hidden;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-clinic .clinic-card:hover{transform:translateY(-5px);box-shadow:var(--shadow);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-clinic .clinic-avatar{position:relative;aspect-ratio:4/4.5;overflow:hidden;background:linear-gradient(150deg,var(--tint-2),var(--p2));display:grid;place-items:center}
+.tpl-clinic .clinic-avatar img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.tpl-clinic .clinic-card:hover .clinic-avatar img{transform:scale(1.05)}
+.tpl-clinic .clinic-initials{font-size:2.4rem;font-weight:900;color:rgba(255,255,255,.55);letter-spacing:.08em}
+.tpl-clinic .clinic-body{padding:16px 17px 18px;display:flex;flex-direction:column;gap:5px;flex:1}
+.tpl-clinic .clinic-body h3{font-size:.98rem;line-height:1.35}
+.tpl-clinic .clinic-role{font-size:.76rem;color:var(--p-text);font-weight:800;line-height:1.45}
+.tpl-clinic .clinic-specialty{font-size:.7rem;color:var(--muted);margin-top:4px}
+.tpl-clinic .clinic-exp{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:.7rem;color:var(--muted)}
+.tpl-clinic .book-wrap{display:grid;grid-template-columns:.9fr 1.1fr;gap:44px;align-items:start}
+.tpl-clinic .book-card{background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:30px;box-shadow:var(--shadow-sm)}
+.tpl-clinic .book-card h3{font-size:1.15rem}
+.tpl-clinic .clinic-hours{margin-top:18px}
+.tpl-clinic .hours-row{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.85rem;margin:6px 0}
+.tpl-clinic .hours-row strong{color:var(--ink);font-weight:800}
+.tpl-clinic .clinic-contact-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.tpl-clinic .clinic-contact-actions .btn{flex:1 1 auto}
+.tpl-clinic input[type="date"]{background:var(--surface);border-color:var(--line);color:var(--ink)}
 /* construction */
 .tpl-construction .build-badges{display:flex;gap:12px;margin-top:16px;padding-top:12px;border-top:1px solid var(--line);flex-wrap:wrap}
 .tpl-construction .hero-stats{display:flex;gap:30px;margin-top:38px;padding-top:26px;border-top:1px solid var(--line);flex-wrap:wrap}
@@ -1102,6 +1148,12 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-showroom .showroom-service-grid{grid-template-columns:1fr;gap:14px}
   .tpl-showroom .showroom-team-grid{grid-template-columns:1fr;gap:14px}
   .tpl-showroom .quote-card{padding:22px}
+  .tpl-clinic .clinic-depts-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-clinic .treatment-grid{grid-template-columns:repeat(2,1fr);gap:16px}
+  .tpl-clinic .clinic-service-grid{grid-template-columns:repeat(2,1fr);gap:16px}
+  .tpl-clinic .clinic-team-grid{grid-template-columns:repeat(2,1fr);gap:16px}
+  .tpl-clinic .book-wrap{grid-template-columns:1fr;gap:34px}
+  .tpl-clinic .book-card{padding:22px}
   .tpl-construction .build-service-grid{grid-template-columns:1fr;gap:14px}
   .tpl-construction .build-team-grid{grid-template-columns:1fr;gap:14px}
   .tpl-construction .quote-card{padding:22px}
@@ -1141,6 +1193,11 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-showroom .car-grid{grid-template-columns:1fr 1fr}
   .tpl-showroom .showroom-service-grid{grid-template-columns:1fr;gap:14px}
   .tpl-showroom .showroom-team-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-clinic .clinic-depts-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-clinic .treatment-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-clinic .clinic-service-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-clinic .clinic-team-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-clinic .book-card{padding:22px}
   .tpl-construction .build-service-grid{grid-template-columns:1fr;gap:14px}
   .tpl-construction .build-team-grid{grid-template-columns:1fr;gap:14px}
 }

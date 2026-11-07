@@ -4479,6 +4479,455 @@ export function showroomPage(config: RenderConfig, s: UiStrings, lang: Lang): st
 }
 
 /* -------------------------------------------------------------------------
+ * CLINIC
+ * ---------------------------------------------------------------------- */
+interface ClinicCopy {
+  heroBadge: string;
+  bookCta: string;
+  servicesCta: string;
+  openDaily: string;
+  certified: string;
+  experience: string;
+  heroMessage: string;
+  departmentsEyebrow: string;
+  departmentsTitle: string;
+  departmentsLead: string;
+  departments: Array<{ icon: string; title: string; description: string }>;
+  treatmentsEyebrow: string;
+  treatmentsTitle: string;
+  treatmentsLead: string;
+  fallbackTreatments: Array<{ title: string; description: string }>;
+  processTitle: string;
+  processLead: string;
+  step1: string; step1d: string;
+  step2: string; step2d: string;
+  step3: string; step3d: string;
+  step4: string; step4d: string;
+  teamEyebrow: string;
+  teamTitle: string;
+  teamLead: string;
+  aboutTitle: string;
+  aboutLead: string;
+  feat1: string; feat1d: string;
+  feat2: string; feat2d: string;
+  feat3: string; feat3d: string;
+  feat4: string; feat4d: string;
+  stats: Array<[string, string]>;
+  quotes: Array<{ text: string; name: string; role: string }>;
+  faqTitle: string;
+  faq: Array<[string, string]>;
+  bookTitle: string;
+  bookLead: string;
+  formTitle: string;
+  formSub: string;
+  confirm: string;
+  summaryService: string;
+  summaryDoctor: string;
+  summaryWhen: string;
+  note: string;
+}
+
+const CLINIC: Record<Lang, ClinicCopy> = {
+  ar: {
+    heroBadge: 'مركز طبي معتمد · عيادات أسنان',
+    bookCta: 'احجز موعدك',
+    servicesCta: 'خدمات المركز',
+    openDaily: 'مفتوح يومياً',
+    certified: 'شهادات معتمدة',
+    experience: 'سنوات الخبرة',
+    heroMessage: 'أريد حجز موعد طبي',
+    departmentsEyebrow: 'التخصصات الطبية',
+    departmentsTitle: 'رعاية صحية شاملة لك ولعائلتك',
+    departmentsLead: 'من عيادات الأسنان إلى الطب العام والتحليلات، نقدم رعاية طبية متكاملة.',
+    departments: [
+      { icon: 'stethoscope', title: 'طب أسنان', description: 'حشوات، تركيبات، تبييض، وعلاج الأعصاب.' },
+      { icon: 'stethoscope', title: 'طب عام', description: 'كشف تشخيصي ومتابعة للحالات المزمنة والعامة.' },
+      { icon: 'clipboard', title: 'التحليلات الطبية', description: 'فحوصات دم وبول وأشعة مع نتائج سريعة.' },
+      { icon: 'heart', title: 'العلاج الطبيعي', description: 'جلسات تأهيل وعلاج طبيعي بإشراف متخصصين.' },
+    ],
+    treatmentsEyebrow: 'خدمات المركز',
+    treatmentsTitle: 'خدماتنا الطبية المتقدمة',
+    treatmentsLead: 'نقدم خدمات طبية بجودة عالية وأسعار تنافسية مع فريق طبي مؤهل.',
+    fallbackTreatments: [
+      { title: 'كشف أسنان عام', description: 'فحص أسنان شامل مع خطة علاجية مبدئية.' },
+      { title: 'تحاليل طبية', description: 'فحوصات مخبرية دقيقة مع نتائج سريعة وموثوقة.' },
+      { title: 'الكشف الدوري', description: 'باقات فحص شامل للكشف المبكر عن الأمراض.' },
+      { title: 'علاج طبيعي', description: 'جلسات تأهيل وعلاج طبيعي بإشراف أطباء متخصصين.' },
+    ],
+    processTitle: 'كيف تحصل على الرعاية الطبية',
+    processLead: 'من الحجز إلى المتابعة، نضمن لك تجربة طبية مريحة وآمنة.',
+    step1: 'الحجز', step1d: 'ن_helpك في حجز الموعد المناسب مع الطبيب المختص.',
+    step2: 'الكشف', step2d: 'يقوم الطبيب بالفحص السريري وتشخيص الحالة.',
+    step3: 'العلاج', step3d: 'نقدم خطة علاجية مناسبة ومتابعة دورية للحالة.',
+    step4: 'المتابعة', step4d: 'نتبع حالتك بعد العلاج ونقدم التوجيهات اللازمة.',
+    teamEyebrow: 'الفريق الطبي',
+    teamTitle: 'أطباء متخصصون في خدمتك',
+    teamLead: 'فريق من الأطباء والأطباء المتخصصين ذوي الخبرة في التخصصات الطبية المختلفة.',
+    aboutTitle: 'مركز الشفاء الطبي',
+    aboutLead: 'مركز طبي متخصص يقدّم خدمات طبية شاملة تشمل عيادات الأسنان، التحليلات الطبية، والكشف الدوري، بفريق طبي مؤهل وتقنيات حديثة.',
+    feat1: 'شهادات معتمدة', feat1d: 'جميع الأطباء يحملون شهادات معتمدة وخبرة عملية.',
+    feat2: 'تقنيات حديثة', feat2d: 'نستخدم أحدث الأجهزة والمعدات الطبية في التشخيص والعلاج.',
+    feat3: 'أسعار تنافسية', feat3d: 'أسعار شفافة ومناسبة مع باقات تأمين صحي.',
+    feat4: 'رعاية مستمرة', feat4d: 'متابعة دورية للحالات المزمنة والرعاية بعد العلاج.',
+    stats: [['+8', 'سنة خبرة'], ['+500', 'مريض'], ['98%', 'رضا المرضى'], ['24/7', 'دعم طبي']],
+    quotes: [
+      { text: 'مركز طبي ممتاز، الأطباء محترفون والعيادة نظيفة ومجهزة.', name: 'سارة خ.', role: 'مريضة' },
+      { text: 'عيادة أسنان رائعة، العلاج كان بدون ألم والنتيجة رائعة.', name: 'محمد ب.', role: 'مريض' },
+      { text: 'فريقempathetic ومهني، أنصح بالمركز لكل من يبحث عن رعاية طبية جيدة.', name: 'نورى ع.', role: 'مريض' },
+    ],
+    faqTitle: 'أسئلة شائعة',
+    faq: [
+      ['كيف أحجز موعد؟', 'يمكنك الحجز عبر النموذج أو التواصل معنا عبر واتساب.'],
+      ['هل تقبلون التأمين الصحي؟', 'نعم، نقبل معظم بطاقات التأمين الصحي مع تسهيل الدفع.'],
+      ['ما هي أوقات العمل؟', 'نعمل من السبت إلى الخميس من 08:30 إلى 19:00.'],
+      ['هل هناك عيادات أسنان؟', 'نعم، لدينا عيادات أسنان مجهزة بأحدث الأجهزة.'],
+      ['هل يمكنني إلغاء الموعد؟', 'نعم، يمكن إلغاء الموعد مجاناً قبل 24 ساعة من الموعد.'],
+    ],
+    bookTitle: 'احجز موعدك الطبي',
+    bookLead: 'املأ النموذج وسنتصل بك لتأكيد الموعد مع الطبيب المناسب.',
+    formTitle: 'طلب حجز طبي',
+    formSub: 'أخبرنا عن نوع الخدمة والطبيب المفضل وسنرد عليك في أقرب وقت.',
+    confirm: 'إرسال طلب الحجز',
+    summaryService: 'نوع الخدمة',
+    summaryDoctor: 'الطبيب المفضل',
+    summaryWhen: 'الموعد المفضل',
+    note: 'جميع بياناتك محمية وسرية وفقاً لسياسة المركز الطبي.',
+  },
+  fr: {
+    heroBadge: 'Centre médical agréé · Cabinet dentaire',
+    bookCta: 'Prenez rendez-vous',
+    servicesCta: 'Nos services',
+    openDaily: 'Ouvert tous les jours',
+    certified: 'Diplômes certifiés',
+    experience: 'ans d’expérience',
+    heroMessage: 'Je souhaite prendre un rendez-vous médical',
+    departmentsEyebrow: 'Spécialités médicales',
+    departmentsTitle: 'Des soins de santé complets pour vous et votre famille',
+    departmentsLead: 'Du cabinet dentaire à la médecine générale et les analyses, nous offrons des soins médicaux complets.',
+    departments: [
+      { icon: 'stethoscope', title: 'Médecine dentaire', description: 'Obturations, couronnes, blanchiment et traitement des canaux.' },
+      { icon: 'stethoscope', title: 'Médecine générale', description: 'Consultation diagnostique et suivi des maladies chroniques et générales.' },
+      { icon: 'clipboard', title: 'Analyses médicales', description: 'Analyses de sang et d’urine et radiographies avec résultats rapides.' },
+      { icon: 'heart', title: 'Kinésithérapie', description: 'Séances de rééducation et de kinésithérapie avec des spécialistes.' },
+    ],
+    treatmentsEyebrow: 'Services du centre',
+    treatmentsTitle: 'Nos services médicaux avancés',
+    treatmentsLead: 'Nous offrons des soins médicaux de haute qualité à des tarifs compétitifs avec une équipe médicale qualifiée.',
+    fallbackTreatments: [
+      { title: 'Consultation dentaire générale', description: 'Examen dentaire complet avec plan de traitement préliminaire.' },
+      { title: 'Analyses médicales', description: 'Analyses de laboratoire précises avec résultats rapides et fiables.' },
+      { title: 'Contrôle périodique', description: 'Forfaits de bilan complet pour le dépistage précoce des maladies.' },
+      { title: 'Kinésithérapie', description: 'Séances de rééducation avec des médecins spécialisés.' },
+    ],
+    processTitle: 'Comment obtenir vos soins médicaux',
+    processLead: 'De la prise de rendez-vous au suivi, nous vous garantissons une expérience médicale confortable et sûre.',
+    step1: 'Rendez-vous', step1d: 'Nous vous aidons à prendre rendez-vous avec le médecin spécialiste approprié.',
+    step2: 'Consultation', step2d: 'Le médecin effectue l’examen clinique et pose le diagnostic.',
+    step3: 'Traitement', step3d: 'Nous proposons un plan de traitement adapté et un suivi régulier.',
+    step4: 'Suivi', step4d: 'Nous suivons votre état après le traitement et vous donnons les conseils nécessaires.',
+    teamEyebrow: 'Équipe médicale',
+    teamTitle: 'Des médecins spécialistes à votre service',
+    teamLead: 'Une équipe de médecins et de spécialistes expérimentés dans les différentes spécialités médicales.',
+    aboutTitle: 'Centre médical Al Chifaa',
+    aboutLead: 'Un centre médical spécialisé offrant des soins médicaux complets incluant le cabinet dentaire, les analyses médicales et le contrôle périodique, avec une équipe médicale qualifiée et des techniques modernes.',
+    feat1: 'Diplômes certifiés', feat1d: 'Tous les médecins détiennent des diplômes certifiés et une expérience pratique.',
+    feat2: 'Techniques modernes', feat2d: 'Nous utilisons les derniers appareils et équipements médicaux pour le diagnostic et le traitement.',
+    feat3: 'Tarifs compétitifs', feat3d: 'Des tarifs transparents et adaptés avec des forfaits d’assurance santé.',
+    feat4: 'Soins continus', feat4d: 'Suivi régulier des maladies chroniques et des soins après le traitement.',
+    stats: [['+8', 'ans d’expérience'], ['+500', 'patients'], ['98%', 'satisfaction patients'], ['24/7', 'soutien médical']],
+    quotes: [
+      { text: 'Un excellent centre médical, les médecins sont professionnels et la clinique est propre et bien équipée.', name: 'Sarah K.', role: 'Patiente' },
+      { text: 'Un cabinet dentaire merveilleux, le traitement était sans douleur et le résultat magnifique.', name: 'Mohamed B.', role: 'Patient' },
+      { text: 'Une équipe empathique et professionnelle, je recommande ce centre pour tous ceux qui recherchent de bons soins médicaux.', name: 'Nouri A.', role: 'Patient' },
+    ],
+    faqTitle: 'Questions fréquentes',
+    faq: [
+      ['Comment prendre rendez-vous ?', 'Vous pouvez prendre rendez-vous via le formulaire ou nous contacter sur WhatsApp.'],
+      ['Acceptez-vous l’assurance maladie ?', 'Oui, nous acceptons la plupart des cartes d’assurance maladie avec facilités de paiement.'],
+      ['Quels sont vos horaires ?', 'Nous travaillons du samedi au jeudi de 08:30 à 19:00.'],
+      ['Avez-vous un cabinet dentaire ?', 'Oui, nous disposons d’un cabinet dentaire équipé des derniers appareils.'],
+      ['Puis-je annuler mon rendez-vous ?', 'Oui, l’annulation est gratuite jusqu’à 24h avant le rendez-vous.'],
+    ],
+    bookTitle: 'Prenez votre rendez-vous médical',
+    bookLead: 'Remplissez le formulaire et nous vous contacterons pour confirmer votre rendez-vous avec le médecin approprié.',
+    formTitle: 'Demande de rendez-vous médical',
+    formSub: 'Dites-nous le type de service et le médecin préféré et nous vous répondrons dans les plus brefs délais.',
+    confirm: 'Envoyer la demande de rendez-vous',
+    summaryService: 'Type de service',
+    summaryDoctor: 'Médecin préféré',
+    summaryWhen: 'Rendez-vous préféré',
+    note: 'Toutes vos données sont protégées et confidentielles selon la politique du centre médical.',
+  },
+  en: {
+    heroBadge: 'Certified Medical Center · Dental Clinic',
+    bookCta: 'Book your appointment',
+    servicesCta: 'Our services',
+    openDaily: 'Open every day',
+    certified: 'Certified diplomas',
+    experience: 'years of experience',
+    heroMessage: 'I want to book a medical appointment',
+    departmentsEyebrow: 'Medical departments',
+    departmentsTitle: 'Comprehensive healthcare for you and your family',
+    departmentsLead: 'From dental clinics to general medicine and lab tests, we provide integrated medical care.',
+    departments: [
+      { icon: 'stethoscope', title: 'Dentistry', description: 'Fillings, crowns, whitening and root canal treatment.' },
+      { icon: 'stethoscope', title: 'General Medicine', description: 'Diagnostic examination and follow-up of chronic and general conditions.' },
+      { icon: 'clipboard', title: 'Lab Tests', description: 'Blood and urine tests and X-rays with fast results.' },
+      { icon: 'heart', title: 'Physiotherapy', description: 'Rehabilitation and physiotherapy sessions with specialists.' },
+    ],
+    treatmentsEyebrow: 'Center services',
+    treatmentsTitle: 'Our advanced medical services',
+    treatmentsLead: 'We offer high-quality medical services at competitive rates with a qualified medical team.',
+    fallbackTreatments: [
+      { title: 'General dental checkup', description: 'Complete dental exam with preliminary treatment plan.' },
+      { title: 'Lab tests', description: 'Accurate laboratory tests with fast and reliable results.' },
+      { title: 'Periodic checkup', description: 'Complete checkup packages for early disease detection.' },
+      { title: 'Physiotherapy', description: 'Rehabilitation and physiotherapy sessions with specialized doctors.' },
+    ],
+    processTitle: 'How to get medical care',
+    processLead: 'From booking to follow-up, we ensure a comfortable and safe medical experience.',
+    step1: 'Booking', step1d: 'We help you book the right appointment with the specialist doctor.',
+    step2: 'Examination', step2d: 'The doctor performs clinical examination and diagnosis.',
+    step3: 'Treatment', step3d: 'We provide an appropriate treatment plan and regular follow-up.',
+    step4: 'Follow-up', step4d: 'We follow up your condition after treatment and provide necessary guidance.',
+    teamEyebrow: 'Medical team',
+    teamTitle: 'Specialist doctors at your service',
+    teamLead: 'A team of doctors and specialists experienced in various medical specialties.',
+    aboutTitle: 'Al Shifaa Medical Center',
+    aboutLead: 'A specialized medical center offering comprehensive medical services including dental clinic, lab tests and periodic checkup, with a qualified medical team and modern techniques.',
+    feat1: 'Certified diplomas', feat1d: 'All doctors hold certified diplomas and practical experience.',
+    feat2: 'Modern techniques', feat2d: 'We use the latest devices and medical equipment for diagnosis and treatment.',
+    feat3: 'Competitive prices', feat3d: 'Transparent and affordable prices with health insurance packages.',
+    feat4: 'Continuous care', feat4d: 'Regular follow-up for chronic conditions and post-treatment care.',
+    stats: [['+8', 'years of experience'], ['+500', 'patients'], ['98%', 'patient satisfaction'], ['24/7', 'medical support']],
+    quotes: [
+      { text: 'An excellent medical center, the doctors are professional and the clinic is clean and well equipped.', name: 'Sarah K.', role: 'Patient' },
+      { text: 'A wonderful dental clinic, the treatment was painless and the result was great.', name: 'Mohamed B.', role: 'Patient' },
+      { text: 'An empathetic and professional team, I recommend this center for anyone looking for good medical care.', name: 'Nouri A.', role: 'Patient' },
+    ],
+    faqTitle: 'Frequently asked questions',
+    faq: [
+      ['How do I book an appointment?', 'You can book via the form or contact us on WhatsApp.'],
+      ['Do you accept health insurance?', 'Yes, we accept most health insurance cards with payment facilities.'],
+      ['What are your hours?', 'We work Saturday to Thursday from 08:30 to 19:00.'],
+      ['Do you have a dental clinic?', 'Yes, we have a dental clinic equipped with the latest devices.'],
+      ['Can I cancel my appointment?', 'Yes, cancellation is free up to 24 hours before the appointment.'],
+    ],
+    bookTitle: 'Book your medical appointment',
+    bookLead: 'Fill out the form and we will contact you to confirm your appointment with the right doctor.',
+    formTitle: 'Medical appointment request',
+    formSub: 'Tell us about the service type and preferred doctor and we will respond as soon as possible.',
+    confirm: 'Send appointment request',
+    summaryService: 'Service type',
+    summaryDoctor: 'Preferred doctor',
+    summaryWhen: 'Preferred appointment',
+    note: 'All your data is protected and confidential according to the medical center policy.',
+  },
+};
+
+function clinicCard(member: RenderTeamMember, copy: ClinicCopy): string {
+  const photo = member.photoUrl
+    ? `<img src="${attr(member.photoUrl)}" alt="${attr(member.name)}" loading="lazy" decoding="async" width="700" height="700">`
+    : `<span class="clinic-initials">${esc(initialsFor(member.name))}</span>`;
+  return `<article class="clinic-card" data-reveal>
+    <div class="clinic-avatar">${photo}</div>
+    <h3>${esc(member.name)}</h3>
+    <p class="clinic-role">${esc(member.role)}</p>
+    ${member.specialty ? `<span class="clinic-specialty">${esc(member.specialty)}</span>` : ''}
+    ${member.experience ? `<span class="clinic-exp">${icon('award')}${esc(member.experience)} ${esc(copy.experience)}</span>` : ''}
+  </article>`;
+}
+
+function treatmentCard(p: RenderProduct, config: RenderConfig, s: UiStrings, lang: Lang): string {
+  const image = p.imageUrl
+    ? `<img src="${attr(p.imageUrl)}" alt="${attr(p.name)}" loading="lazy" decoding="async" width="600" height="450">`
+    : productPlaceholder(p.name);
+  return `<article class="treatment-card" data-reveal data-treatment-card data-category="${attr(p.category || '')}" data-name="${attr(p.name)}" data-desc="${attr(p.description || '')}">
+    <div class="treatment-thumb">${image}</div>
+    <div class="treatment-body">
+      ${p.category ? `<span class="cat">${esc(p.category)}</span>` : ''}
+      <h3>${esc(p.name)}</h3>
+      ${p.description ? `<p>${esc(p.description)}</p>` : ''}
+      ${p.price > 0 ? `<span class="price">${money(p.price, lang)}</span>` : ''}
+      <a class="btn btn-wa btn-block mt-3" href="${attr(waHref(config, `أريد حجز موعد: ${p.name} — ${p.description || ''}`))}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.orderNow)}</a>
+    </div>
+  </article>`;
+}
+
+export function clinicPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
+  const copy = CLINIC[lang];
+  const treatments = config.products.filter((p) => p.name);
+  const team = config.team || [];
+  const heroImage = config.coverUrl
+    ? `<img src="${attr(config.coverUrl)}" alt="${attr(config.siteName)}" width="900" height="1100" fetchpriority="high" decoding="async">`
+    : '';
+  const about = aboutPhoto(config);
+  const heroWa = waHref(config, `${copy.heroMessage} — ${config.siteName}`);
+  const bookWa = waHref(config, `حجز موعد طبي — ${config.siteName}`);
+
+  return `<section class="hero clinic-hero" id="top">
+    <div class="container hero-grid">
+      <div class="hero-copy" data-reveal>
+        <span class="badge">${icon('stethoscope')}${esc(copy.heroBadge)}</span>
+        <h1 class="h1 mt-3">${esc(config.siteName)}</h1>
+        <p class="lead">${esc(config.description)}</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#services">${icon('stethoscope')}${esc(copy.servicesCta)}</a>
+          <a class="btn btn-wa" href="${attr(heroWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(copy.bookCta)}</a>
+        </div>
+        <div class="clinic-badges">
+          <span>${icon('shield')}${esc(copy.certified)}</span>
+          <span>${icon('clock')}${esc(copy.openDaily)} · ${esc(config.hours || '08:30 — 19:00')}</span>
+        </div>
+        <div class="hero-stats">
+          ${copy.stats.slice(0, 3).map(([num, label]) => `<div><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="hero-media clinic-hero-media${heroImage ? '' : ' no-img'}" data-mark="${attr(initials(config.siteName))}" data-reveal>${heroImage}
+        <div class="float-card"><span class="float-icon">${icon('stethoscope')}</span><div><strong>${esc(copy.certified)}</strong><span>${esc(config.city || '')}</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="trust-strip"><div class="container">
+    <span class="trust-item">${icon('shield')}${esc(copy.certified)}</span>
+    <span class="trust-item">${icon('home')}${esc(s.quality)}</span>
+    <span class="trust-item">${icon('award')}${esc(s.satisfaction)}</span>
+    <span class="trust-item">${icon('target')}${esc(s.projects)}</span>
+  </div></div>
+
+  <section class="section bg-soft" id="departments">
+    <div class="container">
+      ${sectionHead(copy.departmentsEyebrow, copy.departmentsTitle, copy.departmentsLead, true)}
+      <div class="clinic-depts-grid">
+        ${copy.departments.map((item, i) => `<article class="dept-card" data-reveal>
+          <span class="dept-icon">${icon(item.icon as any)}</span>
+          <h3 class="h3">${esc(item.title)}</h3>
+          <p>${esc(item.description)}</p>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="treatments">
+    <div class="container">
+      ${sectionHead(copy.treatmentsEyebrow, copy.treatmentsTitle, copy.treatmentsLead)}
+      <div class="treatment-grid">${treatments.length ? treatments.map((p) => treatmentCard(p, config, s, lang)).join('') : `<div class="treatment-empty">${esc(s.emptyCart)}</div>`}</div>
+    </div>
+  </section>
+
+  <section class="section" id="process">
+    <div class="container">
+      ${sectionHead(copy.processTitle, copy.processLead, undefined, true)}
+      <div class="steps">
+        ${[
+          [copy.step1, copy.step1d],
+          [copy.step2, copy.step2d],
+          [copy.step3, copy.step3d],
+          [copy.step4, copy.step4d],
+        ].map(([title, desc], i) => `<div class="step" data-reveal><div class="n">${i + 1}</div><h3>${esc(title)}</h3><p>${esc(desc)}</p></div>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  ${team.length ? `<section class="section bg-soft" id="team">
+    <div class="container">
+      ${sectionHead(copy.teamEyebrow, copy.teamTitle, copy.teamLead, true)}
+      <div class="clinic-team-grid">${team.map((m) => clinicCard(m, copy)).join('')}</div>
+    </div>
+  </section>` : ''}
+
+  <section class="section" id="about">
+    <div class="container about-grid clinic-about-grid">
+      <div class="clinic-about-media" data-reveal>
+        ${about ? `<img class="main" src="${attr(about)}" alt="${attr(config.siteName)}" loading="lazy" decoding="async" width="800" height="760">` : ''}
+        <div class="about-badge">${icon('check')}+8 ${esc(s.years)}</div>
+      </div>
+      <div data-reveal>
+        <span class="eyebrow">${esc(s.about)}</span>
+        <h2 class="h2 mt-2">${esc(config.siteName)}</h2>
+        <p class="lead mt-2">${esc(config.description)}</p>
+        <ul class="checklist">
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat1)} — ${esc(copy.feat1d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat2)} — ${esc(copy.feat2d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat3)} — ${esc(copy.feat3d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat4)} — ${esc(copy.feat4d)}</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="book">
+    <div class="container book-wrap">
+      <div class="book-copy" data-reveal>
+        <span class="eyebrow">${esc(s.appointment)}</span>
+        <h2 class="h2 mt-2">${esc(copy.bookTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.bookLead)}</p>
+        <ul class="checklist">
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat1)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat3)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.note)}</span></li>
+        </ul>
+        <div class="clinic-hours">
+          <div class="hours-row"><span>${icon('clock')}${esc(s.hours)}</span><strong>${esc(config.hours || '08:30 — 19:00')}</strong></div>
+          <div class="hours-row"><span>${icon('map')}${esc(s.location)}</span><strong>${esc(config.address || config.city || '')}</strong></div>
+        </div>
+        <div class="clinic-contact-actions">
+          <a class="btn btn-light" href="tel:${attr(config.phone)}">${icon('phone')}${esc(s.callNow)}</a>
+          <a class="btn btn-wa" href="${attr(bookWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.whatsapp)}</a>
+        </div>
+      </div>
+      <form class="book-card" data-lead-form data-lead-kind="clinic-booking" novalidate>
+        <h3>${esc(copy.formTitle)}</h3>
+        <p class="booking-sub">${esc(copy.formSub)}</p>
+        <div class="form-grid">
+          <div class="field"><label for="clinic-name">${esc(s.name)}</label><input id="clinic-name" name="name" required maxlength="80" autocomplete="name"><span class="err">${esc(s.required)}</span></div>
+          <div class="field"><label for="clinic-phone">${esc(s.phone)}</label><input id="clinic-phone" name="phone" type="tel" required maxlength="20" autocomplete="tel" dir="ltr"><span class="err">${esc(s.invalidPhone)}</span></div>
+          <div class="field full"><label for="clinic-email">${esc(s.email)}</label><input id="clinic-email" name="email" type="email" maxlength="120" autocomplete="email" dir="ltr"></div>
+          <div class="field full"><label for="clinic-service">${esc(copy.summaryService)}</label><input id="clinic-service" name="serviceType" maxlength="200"></div>
+          <div class="field full"><label for="clinic-doctor">${esc(copy.summaryDoctor)}</label><input id="clinic-doctor" name="doctorName" maxlength="200"></div>
+          <div class="field full"><label for="clinic-msg">${esc(s.message)}</label><textarea id="clinic-msg" name="message" required maxlength="1200"></textarea><span class="err">${esc(s.required)}</span></div>
+          <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
+        </div>
+        <button class="btn btn-primary btn-block mt-3" type="submit">${icon('send')}${esc(copy.confirm)}</button>
+        <div class="form-status" role="status"></div>
+        <p class="form-note center mt-2">${esc(copy.note)}</p>
+      </form>
+    </div>
+  </section>
+
+  <section class="stats-band">
+    <div class="container stats-grid">
+      ${copy.stats.map(([num, label]) => `<div class="stat"><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">${sectionHead(s.testimonials, s.testimonials, undefined, true)}
+      <div class="grid g3">${copy.quotes.map((q) => `<div class="quote" data-reveal>
+        <div class="stars" aria-label="5/5">★★★★★</div>
+        <p>“${esc(q.text)}”</p>
+        <div class="who"><span class="avatar">${esc(initialsFor(q.name))}</span><div><strong>${esc(q.name)}</strong><span>${esc(q.role)}</span></div></div>
+      </div>`).join('')}</div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="faq">
+    <div class="container">
+      ${sectionHead(s.faq, copy.faqTitle, undefined, true)}
+      <div class="faq-list">
+        ${copy.faq.map(([q, a]) => `<details class="faq" data-reveal>
+          <summary>${esc(q)}<span class="faq-ic">${icon('plus')}</span></summary>
+          <p>${esc(a)}</p>
+        </details>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  ${contactSection(config, s)}`;
+}
+
+/* -------------------------------------------------------------------------
  * COMPANY
  * ---------------------------------------------------------------------- */
 export function companyPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
@@ -4898,6 +5347,8 @@ export function pageFor(template: string, config: RenderConfig, lang: Lang): str
       return educationPage(config, s, lang);
     case 'construction':
       return constructionPage(config, s, lang);
+    case 'clinic':
+      return clinicPage(config, s, lang);
     case 'hotel':
       return hotelPage(config, s, lang);
     case 'showroom':
@@ -5142,6 +5593,32 @@ export function jsonLdFor(template: string, config: RenderConfig, siteUrl: strin
       hasOfferCatalog: {
         '@type': 'OfferCatalog',
         name: 'Cars',
+        itemListElement: config.products.slice(0, 12).map((p, index) => ({
+          '@type': 'Offer',
+          position: index + 1,
+          name: p.name,
+          description: p.description,
+          price: p.price,
+          priceCurrency: 'DZD',
+          availability: 'https://schema.org/InStock',
+        })),
+      },
+      employee: (config.team || []).map((member) => ({
+        '@type': 'Person',
+        name: member.name,
+        jobTitle: member.role,
+        image: member.photoUrl || undefined,
+      })),
+    };
+    case 'clinic': return {
+      ...base,
+      '@type': 'MedicalClinic',
+      image: config.coverUrl || undefined,
+      priceRange: 'DZD',
+      openingHours: config.hours || undefined,
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: 'Medical services',
         itemListElement: config.products.slice(0, 12).map((p, index) => ({
           '@type': 'Offer',
           position: index + 1,

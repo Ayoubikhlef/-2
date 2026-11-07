@@ -267,6 +267,18 @@ export const TEMPLATES: TemplateSeed[] = [
     },
   },
   {
+    slug: 'clinic',
+    category: 'clinic',
+    accent: '#059669',
+    sortOrder: 19,
+    name: { ar: 'مركز طبي متخصص / عيادات أسنان', fr: 'Centre Médical / Cabinet Dentaire', en: 'Medical Center / Dental Clinic' },
+    description: {
+      ar: 'مركز طبي متخصص مع عيادات أسنان، تحليلات طبية، باقات كشف دورية، وحجز موعد عبر واتساب.',
+      fr: 'Centre médical spécialisé avec cabinet dentaire, analyses médicales, forfaits de contrôle et prise de rendez-vous WhatsApp.',
+      en: 'Specialized medical center with dental clinic, lab tests, check-up packages and WhatsApp appointment booking.',
+    },
+  },
+  {
     slug: 'agriculture',
     category: 'agriculture',
     accent: '#4d7c0f',

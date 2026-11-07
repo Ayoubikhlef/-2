@@ -273,6 +273,18 @@ function navItems(config: RenderConfig, s: UiStrings): { href: string; label: st
           { href: '#contact', label: s.contact },
         ];
       }
+      if (['clinic'].includes(config.templateSlug)) {
+        return [
+          { href: '#top', label: s.home },
+          { href: '#departments', label: s.services },
+          { href: '#treatments', label: s.work },
+          { href: '#team', label: s.team },
+          { href: '#about', label: s.about },
+          { href: '#book', label: s.appointment },
+          { href: '#faq', label: s.faq },
+          { href: '#contact', label: s.contact },
+        ];
+      }
       return [];
   }
 }
@@ -364,6 +376,8 @@ export function renderShell(options: ShellOptions): string {
             : config.templateSlug === 'hotel'
               ? s.appointment
             : config.templateSlug === 'showroom'
+              ? s.appointment
+            : config.templateSlug === 'clinic'
               ? s.appointment
             : s.contact;
   const alternateTags = (['ar', 'fr', 'en'] as const)
