@@ -615,7 +615,7 @@ body.has-preview .site-header{top:36px}
 .tpl-pharmacy .pharm-about-media .about-badge{position:absolute;bottom:20px;inset-inline-start:20px;z-index:2;padding:12px 16px;border-radius:14px;background:var(--glass);color:var(--glass-ink);font-weight:800;font-size:.85rem;display:flex;align-items:center;gap:8px}
 .tpl-pharmacy .pharm-about-media .about-badge .icon{width:20px;height:20px}
 .tpl-pharmacy .pharm-info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px}
-.tpl-pharmacy .pharm-info{display:flex;align-items:flex-start;gap:12px;padding:16px;border-radius:14px;background:var(--surface);border:1px solid var(--line}}
+.tpl-pharmacy .pharm-info{display:flex;align-items:flex-start;gap:12px;padding:16px;border-radius:14px;background:var(--surface);border:1px solid var(--line)}
 .tpl-pharmacy .pharm-info .pharm-info-icon{width:24px;height:24px;flex-shrink:0}
 .tpl-pharmacy .pharm-info .pharm-info-icon .icon{width:24px;height:24px}
 .tpl-pharmacy .pharm-info strong{font-weight:800;color:var(--ink)}
@@ -623,7 +623,6 @@ body.has-preview .site-header{top:36px}
 .tpl-pharmacy .pharm-info a{color:var(--p);text-decoration:underline}
 .tpl-pharmacy .stats-band{padding:44px 0;background:linear-gradient(120deg,var(--p2),var(--p));color:#fff;position:relative;overflow:hidden}
 .tpl-pharmacy .stats-band .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:24px;position:relative;z-index:1}
-.tpl-pharmacy .grid.g3{grid-template-columns:1fr 1fr 1fr}
 .tpl-pharmacy .section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:42px}
 .tpl-pharmacy .section-head .lead{margin-top:10px}
 .tpl-pharmacy .faq-list{display:grid;gap:10px;max-width:840px;margin-inline:auto}
@@ -763,6 +762,8 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .fleet-grid,.rental-steps{grid-template-columns:repeat(2,1fr)}
   .specialty-grid,.med-service-grid,.doctor-grid{grid-template-columns:repeat(2,1fr)}
   .booking-wrap{grid-template-columns:1fr;gap:26px}
+  .tpl-pharmacy .pharm-about-grid{grid-template-columns:1fr;gap:34px}
+  .tpl-pharmacy .pharm-service-grid{grid-template-columns:repeat(2,1fr)}
 }
 @media (max-width:720px){
   .container{width:min(100% - 28px,1180px)}
@@ -797,6 +798,11 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .fleet-grid{gap:14px}
   .insurance-inner{align-items:flex-start;gap:18px}
   .doctor-grid,.specialty-grid,.med-service-grid{gap:14px}
+  .showcase-grid{grid-template-columns:1fr 1fr;gap:16px}
+  .tpl-pharmacy .pharm-product-grid{grid-template-columns:1fr 1fr;gap:12px}
+  .tpl-pharmacy .pharm-service-grid{grid-template-columns:1fr 1fr;gap:14px}
+  .tpl-pharmacy .stats-band .stats-grid{grid-template-columns:1fr 1fr}
+  .tpl-pharmacy .section-head{align-items:flex-start}
 }
 @media (max-width:460px){
   .g2,.g3,.g4,.product-grid,.form-grid,.stats-grid{grid-template-columns:1fr}
@@ -813,6 +819,10 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .specialty-grid,.med-service-grid,.doctor-grid{grid-template-columns:1fr}
   .doctor-media{aspect-ratio:4/3.6}
   .med-service-foot{flex-wrap:nowrap}
+  .showcase-grid{grid-template-columns:1fr}
+  .tpl-pharmacy .pharm-product-grid{grid-template-columns:1fr 1fr}
+  .tpl-pharmacy .pharm-service-grid{grid-template-columns:1fr}
+  .tpl-pharmacy .stats-band .stats-grid{grid-template-columns:1fr 1fr}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
