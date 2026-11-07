@@ -238,6 +238,19 @@ function navItems(config: RenderConfig, s: UiStrings): { href: string; label: st
           { href: '#contact', label: s.contact },
         ];
       }
+      if (['hotel'].includes(config.templateSlug)) {
+        return [
+          { href: '#top', label: s.home },
+          { href: '#rooms', label: s.services },
+          { href: '#listings', label: s.work },
+          { href: '#services', label: s.packages },
+          { href: '#amenities', label: s.services },
+          { href: '#team', label: s.team },
+          { href: '#book', label: s.appointment },
+          { href: '#faq', label: s.faq },
+          { href: '#contact', label: s.contact },
+        ];
+      }
       if (['fitness', 'travel', 'nonprofit', 'events'].includes(config.templateSlug)) {
         return [
           { href: '#top', label: s.home },
@@ -315,7 +328,9 @@ export function renderShell(options: ShellOptions): string {
               ? '#register'
               : config.templateSlug === 'construction'
                 ? '#quote'
-                : config.templateSlug === 'pharmacy'
+                : config.templateSlug === 'hotel'
+                  ? '#book'
+                  : config.templateSlug === 'pharmacy'
               ? '#products'
               : '#contact';
   const mobileCtaLabel = config.templateSlug === 'carrental'
@@ -332,6 +347,8 @@ export function renderShell(options: ShellOptions): string {
               ? s.appointment
               : config.templateSlug === 'pharmacy'
             ? s.orderNow
+            : config.templateSlug === 'hotel'
+              ? s.appointment
             : s.contact;
   const alternateTags = (['ar', 'fr', 'en'] as const)
     .filter((code) => alternates[code])
@@ -508,7 +525,9 @@ export function baseHeader(config: RenderConfig, lang: 'ar' | 'fr' | 'en', alter
               ? '#register'
               : config.templateSlug === 'construction'
                 ? '#quote'
-                : config.templateSlug === 'pharmacy'
+                : config.templateSlug === 'hotel'
+                  ? '#book'
+                  : config.templateSlug === 'pharmacy'
               ? '#products'
               : '#contact';
   const mobileCtaLabel = config.templateSlug === 'carrental'

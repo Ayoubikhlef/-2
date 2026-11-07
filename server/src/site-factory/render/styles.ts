@@ -765,6 +765,58 @@ body.has-preview .site-header{top:36px}
 .tpl-education .hours-row strong{color:var(--ink);font-weight:800}
 .tpl-education .edu-contact-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
 .tpl-education .edu-contact-actions .btn{flex:1 1 auto}
+/* hotel */
+.tpl-hotel .hotel-badges{display:flex;gap:12px;margin-top:16px;padding-top:12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.tpl-hotel .hero-stats{display:flex;gap:30px;margin-top:38px;padding-top:26px;border-top:1px solid var(--line);flex-wrap:wrap}
+.tpl-hotel .hotel-rooms-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.tpl-hotel .room-type-card{padding:26px 22px;border-radius:20px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:10px;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-hotel .room-type-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-hotel .room-type-icon{width:46px;height:46px;border-radius:14px;background:var(--tint-2);color:var(--p-text);display:grid;place-items:center;flex:0 0 auto;margin-bottom:4px}
+.tpl-hotel .room-type-icon .icon{width:22px;height:22px}
+.tpl-hotel .room-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.tpl-hotel .room-card{border-radius:20px;overflow:hidden;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-hotel .room-card:hover{transform:translateY(-5px);box-shadow:var(--shadow);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-hotel .room-thumb{position:relative;aspect-ratio:4/3;overflow:hidden;background:linear-gradient(145deg,var(--tint),var(--tint-2))}
+.tpl-hotel .room-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.tpl-hotel .room-card:hover .room-thumb img{transform:scale(1.06)}
+.tpl-hotel .room-body{padding:18px 20px 22px;display:flex;flex-direction:column;gap:6px;flex:1}
+.tpl-hotel .room-body .cat{font-size:.65rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--p-text)}
+.tpl-hotel .room-body h3{font-size:1rem;line-height:1.4}
+.tpl-hotel .room-body p{font-size:.82rem;color:var(--muted);line-height:1.65}
+.tpl-hotel .room-body .price{margin-top:auto;padding-top:10px;color:var(--p-text);font-weight:900}
+.tpl-hotel .hotel-service-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.tpl-hotel .hotel-service{padding:24px;border-radius:18px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:8px;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-hotel .hotel-service:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-hotel .service-num{font-size:.75rem;font-weight:900;color:color-mix(in srgb,var(--p) 45%,var(--muted))}
+.tpl-hotel .hotel-service h3{font-size:1rem;margin-bottom:4px}
+.tpl-hotel .hotel-service p{font-size:.82rem;color:var(--muted);line-height:1.65}
+.tpl-hotel .amenities-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.tpl-hotel .amenity-card{padding:22px;border-radius:16px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:8px;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-hotel .amenity-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-hotel .amenity-icon{width:40px;height:40px;border-radius:12px;background:var(--tint-2);color:var(--p-text);display:grid;place-items:center;flex:0 0 auto;margin-bottom:4px}
+.tpl-hotel .amenity-icon .icon{width:20px;height:20px}
+.tpl-hotel .amenity-card h3{font-size:1rem;margin-bottom:4px}
+.tpl-hotel .hotel-team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.tpl-hotel .hotel-card{border-radius:22px;overflow:hidden;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-hotel .hotel-card:hover{transform:translateY(-5px);box-shadow:var(--shadow);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-hotel .hotel-avatar{position:relative;aspect-ratio:4/4.5;overflow:hidden;background:linear-gradient(150deg,var(--tint-2),var(--p2));display:grid;place-items:center}
+.tpl-hotel .hotel-avatar img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.tpl-hotel .hotel-card:hover .hotel-avatar img{transform:scale(1.05)}
+.tpl-hotel .hotel-initials{font-size:2.4rem;font-weight:900;color:rgba(255,255,255,.55);letter-spacing:.08em}
+.tpl-hotel .hotel-body{padding:16px 17px 18px;display:flex;flex-direction:column;gap:5px;flex:1}
+.tpl-hotel .hotel-body h3{font-size:.98rem;line-height:1.35}
+.tpl-hotel .hotel-role{font-size:.76rem;color:var(--p-text);font-weight:800;line-height:1.45}
+.tpl-hotel .hotel-specialty{font-size:.7rem;color:var(--muted);margin-top:4px}
+.tpl-hotel .hotel-exp{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:.7rem;color:var(--muted)}
+.tpl-hotel .book-wrap{display:grid;grid-template-columns:.9fr 1.1fr;gap:44px;align-items:start}
+.tpl-hotel .book-card{background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:30px;box-shadow:var(--shadow-sm)}
+.tpl-hotel .book-card h3{font-size:1.15rem}
+.tpl-hotel .hotel-hours{margin-top:18px}
+.tpl-hotel .hours-row{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.85rem;margin:6px 0}
+.tpl-hotel .hours-row strong{color:var(--ink);font-weight:800}
+.tpl-hotel .hotel-contact-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.tpl-hotel .hotel-contact-actions .btn{flex:1 1 auto}
+.tpl-hotel input[type="date"]{background:var(--surface);border-color:var(--line);color:var(--ink)}
 /* construction */
 .tpl-construction .build-badges{display:flex;gap:12px;margin-top:16px;padding-top:12px;border-top:1px solid var(--line);flex-wrap:wrap}
 .tpl-construction .hero-stats{display:flex;gap:30px;margin-top:38px;padding-top:26px;border-top:1px solid var(--line);flex-wrap:wrap}
@@ -931,6 +983,12 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-education .edu-service-grid{grid-template-columns:repeat(2,1fr);gap:16px}
   .tpl-education .edu-team-grid{grid-template-columns:repeat(2,1fr);gap:16px}
   .tpl-education .register-wrap{grid-template-columns:1fr;gap:34px}
+  .tpl-hotel .hotel-rooms-grid{grid-template-columns:1fr;gap:16px}
+  .tpl-hotel .room-grid{grid-template-columns:repeat(2,1fr);gap:16px}
+  .tpl-hotel .hotel-service-grid{grid-template-columns:repeat(2,1fr);gap:16px}
+  .tpl-hotel .amenities-grid{grid-template-columns:repeat(2,1fr);gap:14px}
+  .tpl-hotel .hotel-team-grid{grid-template-columns:repeat(2,1fr);gap:16px}
+  .tpl-hotel .book-wrap{grid-template-columns:1fr;gap:34px}
   .tpl-construction .build-service-grid{grid-template-columns:repeat(2,1fr);gap:16px}
   .tpl-construction .build-team-grid{grid-template-columns:repeat(2,1fr);gap:16px}
   .tpl-construction .quote-wrap{grid-template-columns:1fr;gap:34px}
@@ -982,6 +1040,12 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-realestate .estate-service-grid{grid-template-columns:1fr;gap:14px}
   .tpl-realestate .estate-team-grid{grid-template-columns:1fr;gap:14px}
   .tpl-realestate .viewing-card{padding:22px}
+  .tpl-hotel .hotel-rooms-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-hotel .room-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-hotel .hotel-service-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-hotel .amenities-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-hotel .hotel-team-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-hotel .book-card{padding:22px}
   .tpl-construction .build-service-grid{grid-template-columns:1fr;gap:14px}
   .tpl-construction .build-team-grid{grid-template-columns:1fr;gap:14px}
   .tpl-construction .quote-card{padding:22px}
@@ -1015,6 +1079,9 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-education .edu-service-grid{grid-template-columns:1fr;gap:14px}
   .tpl-education .edu-team-grid{grid-template-columns:1fr;gap:14px}
   .tpl-education .register-card{padding:22px}
+  .tpl-hotel .room-grid{grid-template-columns:1fr 1fr}
+  .tpl-hotel .hotel-service-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-hotel .hotel-team-grid{grid-template-columns:1fr;gap:14px}
   .tpl-construction .build-service-grid{grid-template-columns:1fr;gap:14px}
   .tpl-construction .build-team-grid{grid-template-columns:1fr;gap:14px}
 }

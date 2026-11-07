@@ -3496,6 +3496,518 @@ export function constructionPage(config: RenderConfig, s: UiStrings, lang: Lang)
 }
 
 /* -------------------------------------------------------------------------
+ * HOTEL
+ * ---------------------------------------------------------------------- */
+interface HotelCopy {
+  heroBadge: string;
+  bookCta: string;
+  roomsCta: string;
+  openDaily: string;
+  luxury: string;
+  experience: string;
+  heroMessage: string;
+  roomsEyebrow: string;
+  roomsTitle: string;
+  roomsLead: string;
+  rooms: Array<{ icon: string; title: string; description: string }>;
+  servicesEyebrow: string;
+  servicesTitle: string;
+  servicesLead: string;
+  fallbackServices: Array<{ title: string; description: string }>;
+  amenitiesEyebrow: string;
+  amenitiesTitle: string;
+  amenitiesLead: string;
+  amenities: string[];
+  processTitle: string;
+  processLead: string;
+  step1: string; step1d: string;
+  step2: string; step2d: string;
+  step3: string; step3d: string;
+  step4: string; step4d: string;
+  teamEyebrow: string;
+  teamTitle: string;
+  teamLead: string;
+  aboutTitle: string;
+  aboutLead: string;
+  feat1: string; feat1d: string;
+  feat2: string; feat2d: string;
+  feat3: string; feat3d: string;
+  feat4: string; feat4d: string;
+  stats: Array<[string, string]>;
+  quotes: Array<{ text: string; name: string; role: string }>;
+  faqTitle: string;
+  faq: Array<[string, string]>;
+  bookTitle: string;
+  bookLead: string;
+  formTitle: string;
+  formSub: string;
+  confirm: string;
+  summaryRoom: string;
+  summaryNights: string;
+  summaryWhen: string;
+  note: string;
+}
+
+const HOTEL: Record<Lang, HotelCopy> = {
+  ar: {
+    heroBadge: 'فندق خمس نجوم · إقامة فاخرة',
+    bookCta: 'احجز إقامتك',
+    roomsCta: 'غرفنا وأجنحتنا',
+    openDaily: 'مفتوح على مدار الساعة',
+    luxury: 'رفاهية لا تضاهى',
+    experience: 'سنوات الخبرة',
+    heroMessage: 'أريد حجز غرفة أو جناح',
+    roomsEyebrow: 'الإقامة الفاخرة',
+    roomsTitle: 'غرف وأجنحة مصممة لراحتك',
+    roomsLead: 'من الغرف الكلاسيكية إلى الأجنحة الملكية، كل تفاصيل إقامتك مصممة بعناية.',
+    rooms: [
+      { icon: 'home', title: 'غرفة كلاسيكية', description: 'غرفة مريحة مع سرير مزدوج وإطلالة على المدينة.' },
+      { icon: 'home', title: 'غرفة ديلوكس', description: 'غرفة فسيحة مع كرسي استرخاء وإطلالة على البحر.' },
+      { icon: 'users', title: 'جناح ملكي', description: 'جناح فاخر مع غرفة معيشة وخدمة ماستر.' },
+      { icon: 'target', title: 'جناح عرس', description: 'جناح رومانسي مع شرفة خاصة وجاكوزي.' },
+    ],
+    servicesEyebrow: 'خدمات الفندق',
+    servicesTitle: 'نقدّم لك إقامة لا تُنسى',
+    servicesLead: 'من الاستقبال إلى المغادرة، نضمن لك تجربة ضيافة من الدرجة الأولى.',
+    fallbackServices: [
+      { title: 'غرف وأجنحة فاخرة', description: 'إقامة مريحة مع وسائل راحة حديثة وإطلالات مذهلة.' },
+      { title: 'مطعم فاخر', description: 'أطباق عالمية ومحلية بأيدي طباخين محترفين.' },
+      { title: 'منتجع صحي', description: 'سبا وساونا وعلاجات استرخاء وتجميل.' },
+      { title: 'خدمة الغرف', description: 'خدمة على مدار الساعة لتلبية جميع احتياجاتك.' },
+    ],
+    amenitiesEyebrow: 'مرافق الفندق',
+    amenitiesTitle: 'كل ما تحتاجه لإقامة مريحة',
+    amenitiesLead: 'كل ما تحتاجه لإقامة مريحة',
+    amenities: [
+      'مسبح خارجي مُدفأ',
+      'صالة لياقة بدنية مجهزة',
+      'موقف سيارات خاص ومجاني',
+      'إنترنت لاسلكي فائق السرعة',
+      'مطعم ومقهى على مدار الساعة',
+      'خدمة غرف على مدار الساعة',
+    ],
+    processTitle: 'كيف تحجز إقامتك',
+    processLead: 'من اختيار الغرفة إلى تسجيل الوصول، ن accompagnك في كل خطوة.',
+    step1: 'اختيار الغرفة', step1d: 'ن帮ك في اختيار الغرفة أو الجناح المناسب لاحتياجاتك.',
+    step2: 'الحجز', step2d: 'نحجز إقامتك ونؤكد التواريخ والسعر النهائي.',
+    step3: 'الوصول', step3d: 'نستقبلك في الفندق ونقدم لك جولة تعريفية بالمرافق.',
+    step4: 'الإقامة', step4d: 'نضمن لك إقامة مريحة مع خدمة على مدار الساعة.',
+    teamEyebrow: 'فريق الضيافة',
+    teamTitle: 'فريق في خدمتك على مدار الساعة',
+    teamLead: 'فريق من موظفي الضيافة المدربين بأعلى معايير الاحترافية.',
+    aboutTitle: 'فندق وقلعة الذهب',
+    aboutLead: 'فندق خمس نجوم يقدّم غرفاً وأجنحة فاخرة، خدمات ضيافة عالمية، مطعم فاخر ومنتجع صحي، مع حجز مريح عبر واتساب.',
+    feat1: 'إقامة فاخرة', feat1d: 'غرف وأجنحة فاخرة مع إطلالات مذهلة ووسائل راحة حديثة.',
+    feat2: 'مطعم فاخر', feat2d: 'أطباق عالمية ومحلية بأيدي طباخين محترفين.',
+    feat3: 'منتجع صحي', feat3d: 'سبا وساونا وعلاجات استرخاء وتجميل.',
+    feat4: 'خدمة على مدار الساعة', feat4d: 'فريق الضيافة في خدمتك طوال اليوم والليلة.',
+    stats: [['+8', 'سنة خبرة'], ['+120', 'غرفة وجناح'], ['98%', 'رضا النزلاء'], ['24/7', 'خدمة الضيافة']],
+    quotes: [
+      { text: 'إقامة فاخرة في أبهى صورة، الغرف نظيفة جداً والخدمة ممتازة، أنصح بالفندق بشدة.', name: 'سارة خ.', role: 'نزيلة' },
+      { text: 'فندق رائع، الإطلالة من الغرفة رائعة، والمطعم يقدم أشهى الأطباق.', name: 'محمد ب.', role: 'نزيل' },
+      { text: 'منتجع صحي رائع، الاسترخاء والتدليك كانا ممتازين، شكراً لفريق الفندق.', name: 'نورى ع.', role: 'نزل' },
+    ],
+    faqTitle: 'أسئلة شائعة',
+    faq: [
+      ['كيف أحجز غرفة؟', 'يمكنك الحجز عبر النموذج أو التواصل معنا عبر واتساب.'],
+      ['هل يوجد مواقف سيارات؟', 'نعم، يتوفر موقف سيارات خاص ومجاني للنزلاء.'],
+      ['هل يشمل السعر وجبة الإفطار؟', 'باقات الإقامة تشمل وجبة الإفطار المجانية.'],
+      ['ما هي أوقات تسجيل الوصول والمغادرة؟', 'تسجيل الوصول من الساعة 15:00، والمغادرة حتى الساعة 12:00.'],
+      ['هل يمكنني إلغاء الحجز؟', 'نعم، يمكن إلغاء الحجز مجاناً قبل 24 ساعة من الوصول.'],
+    ],
+    bookTitle: 'احجز إقامتك الفاخرة',
+    bookLead: 'املأ النموذج وسنتصل بك لتأكيد الحجز وتحديد تفاصيل إقامتك.',
+    formTitle: 'طلب حجز فندق',
+    formSub: 'أخبرنا عن نوع الغرفة ومدة الإقامة وسنرد عليك في أقرب وقت.',
+    confirm: 'إرسال طلب الحجز',
+    summaryRoom: 'نوع الغرفة',
+    summaryNights: 'عدد الليالي',
+    summaryWhen: 'تاريخ الوصول',
+    note: 'جميع بياناتك محمية وسرية وفقاً لسياسة الفندق.',
+  },
+  fr: {
+    heroBadge: 'Hôtel 5 étoiles · Séjour de luxe',
+    bookCta: 'Réservez votre séjour',
+    roomsCta: 'Nos chambres et suites',
+    openDaily: 'Ouvert 24h/24',
+    luxury: 'Luxure incomparable',
+    experience: 'ans d’expérience',
+    heroMessage: 'Je souhaite réserver une chambre ou une suite',
+    roomsEyebrow: 'Hébergement de luxe',
+    roomsTitle: 'Chambres et suites conçues pour votre confort',
+    roomsLead: 'Des chambres classiques aux suites royales, chaque détail de votre séjour est soigneusement conçu.',
+    rooms: [
+      { icon: 'home', title: 'Chambre classique', description: 'Chambre confortable avec lit double et vue sur la ville.' },
+      { icon: 'home', title: 'Chambre deluxe', description: 'Chambre spacieuse avec fauteuil et vue sur la mer.' },
+      { icon: 'users', title: 'Suite royale', description: 'Suite luxueuse avec salon et service maître.' },
+      { icon: 'target', title: 'Suite lune de miel', description: 'Suite romantique avec terrasse privée et jacuzzi.' },
+    ],
+    servicesEyebrow: 'Services de l’hôtel',
+    servicesTitle: 'Nous vous offrons un séjour inoubliable',
+    servicesLead: 'De la réception au départ, nous vous garantissons une expérience hôtelière de premier ordre.',
+    fallbackServices: [
+      { title: 'Chambres et suites de luxe', description: 'Séjour confortable avec équipements modernes et vues imprenables.' },
+      { title: 'Restaurant gastronomique', description: 'Plats internationaux et locaux par des chefs professionnels.' },
+      { title: 'Spa et bien-être', description: 'Spa, sauna et soins de détente et de beauté.' },
+      { title: 'Service en chambre', description: 'Service 24h/24 pour répondre à tous vos besoins.' },
+    ],
+    amenitiesEyebrow: 'Équipements de l’hôtel',
+    amenitiesTitle: 'Tout ce dont vous avez besoin pour un séjour confortable',
+    amenitiesLead: 'Tout ce dont vous avez besoin pour un séjour confortable',
+    amenities: [
+      'Piscine extérieure chauffée',
+      'Salle de sport entièrement équipée',
+      'Parking privé et gratuit',
+      'Wi-Fi haut débit',
+      'Restaurant et café ouverts 24h/24',
+      'Service en chambre 24h/24',
+    ],
+    processTitle: 'Comment réserver votre séjour',
+    processLead: 'Du choix de la chambre à l\'arrivée, nous vous accompagnons à chaque étape.',
+    step1: 'Choix de la chambre', step1d: 'Nous vous aidons à choisir la chambre ou la suite adaptée à vos besoins.',
+    step2: 'Réservation', step2d: 'Nous réservons votre séjour et confirmons les dates et le prix final.',
+    step3: 'Arrivée', step3d: 'Nous vous accueillons à l\'hôtel et vous faisons visiter les installations.',
+    step4: 'Séjour', step4d: 'Nous vous garantissons un séjour confortable avec un service 24h/24.',
+    teamEyebrow: 'Équipe d’hospitalité',
+    teamTitle: 'Une équipe à votre service 24h/24',
+    teamLead: 'Une équipe de professionnels de l’hospitalité formés aux plus hauts standards.',
+    aboutTitle: 'Hôtel et Château d’Or',
+    aboutLead: 'Un hôtel 5 étoiles proposant chambres et suites de luxe, services hôteliers internationaux, restaurant gastronomique et spa, avec réservation facile via WhatsApp.',
+    feat1: 'Séjour de luxe', feat1d: 'Chambres et suites de luxe avec vues imprenables et équipements modernes.',
+    feat2: 'Restaurant gastronomique', feat2d: 'Plats internationaux et locaux par des chefs professionnels.',
+    feat3: 'Spa et bien-être', feat3d: 'Spa, sauna et soins de détente et de beauté.',
+    feat4: 'Service 24h/24', feat4d: 'L\'équipe d’hospitalité à votre service jour et nuit.',
+    stats: [['+8', 'ans d’expérience'], ['+120', 'chambres et suites'], ['98%', 'satisfaction clients'], ['24/7', 'service hôtelier']],
+    quotes: [
+      { text: 'Un séjour de luxe magnifique, les chambres sont très propres et le service excellent, je recommande vivement cet hôtel.', name: 'Sarah K.', role: 'Cliente' },
+      { text: 'Un hôtel superbe, la vue depuis la chambre est magnifique, et le restaurant propose les meilleurs plats.', name: 'Mohamed B.', role: 'Client' },
+      { text: 'Un spa formidable, détente et massages excellents, merci à l\'équipe de l\'hôtel.', name: 'Nouri A.', role: 'Client' },
+    ],
+    faqTitle: 'Questions fréquentes',
+    faq: [
+      ['Comment réserver une chambre ?', 'Vous pouvez réserver via le formulaire ou nous contacter sur WhatsApp.'],
+      ['Y a-t-il un parking ?', 'Oui, un parking privé et gratuit est disponible pour les clients.'],
+      ['Le petit-déjeuner est-il inclus ?', 'Les forfaits de séjour incluent le petit-déjeuner gratuit.'],
+      ['Quelles sont les heures d\'arrivée et de départ ?', 'L\'arrivée à partir de 15h00, le départ jusqu\'à 12h00.'],
+      ['Puis-je annuler ma réservation ?', 'Oui, l\'annulation est gratuite jusqu\'à 24h avant l\'arrivée.'],
+    ],
+    bookTitle: 'Réservez votre séjour de luxe',
+    bookLead: 'Remplissez le formulaire et nous vous contacterons pour confirmer votre réservation et préciser les détails de votre séjour.',
+    formTitle: 'Demande de réservation d’hôtel',
+    formSub: 'Dites-nous le type de chambre et la durée du séjour et nous vous répondrons dans les plus brefs délais.',
+    confirm: 'Envoyer la demande de réservation',
+    summaryRoom: 'Type de chambre',
+    summaryNights: 'Nombre de nuits',
+    summaryWhen: 'Date d\'arrivée',
+    note: 'Toutes vos données sont protégées et confidentielles selon la politique de l’hôtel.',
+  },
+  en: {
+    heroBadge: '5-Star Hotel · Luxury Stay',
+    bookCta: 'Book your stay',
+    roomsCta: 'Our rooms and suites',
+    openDaily: 'Open 24/7',
+    luxury: 'Unmatched luxury',
+    experience: 'years of experience',
+    heroMessage: 'I want to book a room or suite',
+    roomsEyebrow: 'Luxury accommodation',
+    roomsTitle: 'Rooms and suites designed for your comfort',
+    roomsLead: 'From classic rooms to royal suites, every detail of your stay is carefully designed.',
+    rooms: [
+      { icon: 'home', title: 'Classic Room', description: 'Comfortable room with double bed and city view.' },
+      { icon: 'home', title: 'Deluxe Room', description: 'Spacious room with lounge chair and sea view.' },
+      { icon: 'users', title: 'Royal Suite', description: 'Luxury suite with living room and butler service.' },
+      { icon: 'target', title: 'Honeymoon Suite', description: 'Romantic suite with private terrace and jacuzzi.' },
+    ],
+    servicesEyebrow: 'Hotel services',
+    servicesTitle: 'We offer you an unforgettable stay',
+    servicesLead: 'From reception to departure, we ensure a first-class hospitality experience.',
+    fallbackServices: [
+      { title: 'Luxury rooms and suites', description: 'Comfortable stay with modern amenities and stunning views.' },
+      { title: 'Fine dining restaurant', description: 'International and local dishes by professional chefs.' },
+      { title: 'Spa and wellness', description: 'Spa, sauna and relaxation and beauty treatments.' },
+      { title: 'Room service', description: '24/7 service to meet all your needs.' },
+    ],
+    amenitiesEyebrow: 'Hotel amenities',
+    amenitiesTitle: 'Everything you need for a comfortable stay',
+    amenitiesLead: 'Everything you need for a comfortable stay',
+    amenities: [
+      'Heated outdoor pool',
+      'Fully equipped fitness center',
+      'Private and free parking',
+      'High-speed Wi-Fi',
+      'Restaurant and café open 24/7',
+      'Room service 24/7',
+    ],
+    processTitle: 'How to book your stay',
+    processLead: 'From choosing your room to check-in, we accompany you at every step.',
+    step1: 'Room selection', step1d: 'We help you choose the right room or suite for your needs.',
+    step2: 'Booking', step2d: 'We book your stay and confirm dates and final price.',
+    step3: 'Arrival', step3d: 'We welcome you at the hotel and give you a tour of the facilities.',
+    step4: 'Stay', step4d: 'We ensure a comfortable stay with 24/7 service.',
+    teamEyebrow: 'Hospitality team',
+    teamTitle: 'A team at your service 24/7',
+    teamLead: 'A team of hospitality professionals trained to the highest standards.',
+    aboutTitle: 'Hotel & Castle of Gold',
+    aboutLead: 'A 5-star hotel offering luxury rooms and suites, world-class hospitality services, fine dining restaurant and spa, with easy booking via WhatsApp.',
+    feat1: 'Luxury stay', feat1d: 'Luxury rooms and suites with stunning views and modern amenities.',
+    feat2: 'Fine dining restaurant', feat2d: 'International and local dishes by professional chefs.',
+    feat3: 'Spa and wellness', feat3d: 'Spa, sauna and relaxation and beauty treatments.',
+    feat4: '24/7 service', feat4d: 'Hospitality team at your service day and night.',
+    stats: [['+8', 'years of experience'], ['+120', 'rooms and suites'], ['98%', 'guest satisfaction'], ['24/7', 'hospitality service']],
+    quotes: [
+      { text: 'A magnificent luxury stay, the rooms are very clean and the service excellent, I highly recommend this hotel.', name: 'Sarah K.', role: 'Guest' },
+      { text: 'A superb hotel, the view from the room is magnificent, and the restaurant offers the best dishes.', name: 'Mohamed B.', role: 'Guest' },
+      { text: 'A wonderful spa, relaxation and massages were excellent, thank you to the hotel team.', name: 'Nouri A.', role: 'Guest' },
+    ],
+    faqTitle: 'Frequently asked questions',
+    faq: [
+      ['How do I book a room?', 'You can book via the form or contact us on WhatsApp.'],
+      ['Is there parking?', 'Yes, private and free parking is available for guests.'],
+      ['Is breakfast included?', 'Stay packages include free breakfast.'],
+      ['What are check-in and check-out times?', 'Check-in from 15:00, check-out until 12:00.'],
+      ['Can I cancel my booking?', 'Yes, cancellation is free up to 24 hours before arrival.'],
+    ],
+    bookTitle: 'Book your luxury stay',
+    bookLead: 'Fill out the form and we will contact you to confirm your booking and clarify your stay details.',
+    formTitle: 'Hotel booking request',
+    formSub: 'Tell us about the room type and length of stay and we will respond as soon as possible.',
+    confirm: 'Send booking request',
+    summaryRoom: 'Room type',
+    summaryNights: 'Number of nights',
+    summaryWhen: 'Arrival date',
+    note: 'All your data is protected and confidential according to the hotel policy.',
+  },
+};
+
+function hotelCard(member: RenderTeamMember, copy: HotelCopy): string {
+  const photo = member.photoUrl
+    ? `<img src="${attr(member.photoUrl)}" alt="${attr(member.name)}" loading="lazy" decoding="async" width="700" height="700">`
+    : `<span class="hotel-initials">${esc(initialsFor(member.name))}</span>`;
+  return `<article class="hotel-card" data-reveal>
+    <div class="hotel-avatar">${photo}</div>
+    <h3>${esc(member.name)}</h3>
+    <p class="hotel-role">${esc(member.role)}</p>
+    ${member.specialty ? `<span class="hotel-specialty">${esc(member.specialty)}</span>` : ''}
+    ${member.experience ? `<span class="hotel-exp">${icon('award')}${esc(member.experience)} ${esc(copy.experience)}</span>` : ''}
+  </article>`;
+}
+
+function roomCard(p: RenderProduct, config: RenderConfig, s: UiStrings, lang: Lang): string {
+  const image = p.imageUrl
+    ? `<img src="${attr(p.imageUrl)}" alt="${attr(p.name)}" loading="lazy" decoding="async" width="600" height="450">`
+    : productPlaceholder(p.name);
+  return `<article class="room-card" data-reveal data-room-card data-category="${attr(p.category || '')}" data-name="${attr(p.name)}" data-desc="${attr(p.description || '')}">
+    <div class="room-thumb">${image}</div>
+    <div class="room-body">
+      ${p.category ? `<span class="cat">${esc(p.category)}</span>` : ''}
+      <h3>${esc(p.name)}</h3>
+      ${p.description ? `<p>${esc(p.description)}</p>` : ''}
+      ${p.price > 0 ? `<span class="price">${money(p.price, lang)}</span>` : ''}
+      <a class="btn btn-wa btn-block mt-3" href="${attr(waHref(config, `أريد حجز غرفة: ${p.name} — ${p.description || ''}`))}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.orderNow)}</a>
+    </div>
+  </article>`;
+}
+
+export function hotelPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
+  const copy = HOTEL[lang];
+  const rooms = config.products.filter((p) => p.name);
+  const team = config.team || [];
+  const services = config.services.length ? config.services : copy.fallbackServices;
+  const heroImage = config.coverUrl
+    ? `<img src="${attr(config.coverUrl)}" alt="${attr(config.siteName)}" width="900" height="1100" fetchpriority="high" decoding="async">`
+    : '';
+  const about = aboutPhoto(config);
+  const heroWa = waHref(config, `${copy.heroMessage} — ${config.siteName}`);
+  const bookWa = waHref(config, `حجز فندق — ${config.siteName}`);
+
+  return `<section class="hero hotel-hero" id="top">
+    <div class="container hero-grid">
+      <div class="hero-copy" data-reveal>
+        <span class="badge">${icon('home')}${esc(copy.heroBadge)}</span>
+        <h1 class="h1 mt-3">${esc(config.siteName)}</h1>
+        <p class="lead">${esc(config.description)}</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#rooms">${icon('home')}${esc(copy.roomsCta)}</a>
+          <a class="btn btn-wa" href="${attr(heroWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(copy.bookCta)}</a>
+        </div>
+        <div class="hotel-badges">
+          <span>${icon('shield')}${esc(copy.luxury)}</span>
+          <span>${icon('clock')}${esc(copy.openDaily)} · ${esc(config.hours || '24/7')}</span>
+        </div>
+        <div class="hero-stats">
+          ${copy.stats.slice(0, 3).map(([num, label]) => `<div><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="hero-media hotel-hero-media${heroImage ? '' : ' no-img'}" data-mark="${attr(initials(config.siteName))}" data-reveal>${heroImage}
+        <div class="float-card"><span class="float-icon">${icon('home')}</span><div><strong>${esc(copy.luxury)}</strong><span>${esc(config.city || '')}</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="trust-strip"><div class="container">
+    <span class="trust-item">${icon('shield')}${esc(copy.luxury)}</span>
+    <span class="trust-item">${icon('home')}${esc(s.quality)}</span>
+    <span class="trust-item">${icon('award')}${esc(s.satisfaction)}</span>
+    <span class="trust-item">${icon('target')}${esc(s.projects)}</span>
+  </div></div>
+
+  <section class="section bg-soft" id="rooms">
+    <div class="container">
+      ${sectionHead(copy.roomsEyebrow, copy.roomsTitle, copy.roomsLead, true)}
+      <div class="hotel-rooms-grid">
+        ${copy.rooms.map((item, i) => `<article class="room-type-card" data-reveal>
+          <span class="room-type-icon">${icon(item.icon as any)}</span>
+          <h3 class="h3">${esc(item.title)}</h3>
+          <p>${esc(item.description)}</p>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="listings">
+    <div class="container">
+      ${sectionHead(s.ourWork, copy.roomsTitle, copy.roomsLead)}
+      <div class="room-grid">${rooms.length ? rooms.map((p) => roomCard(p, config, s, lang)).join('') : `<div class="room-empty">${esc(s.emptyCart)}</div>`}</div>
+    </div>
+  </section>
+
+  <section class="section" id="services">
+    <div class="container">
+      ${sectionHead(copy.servicesEyebrow, copy.servicesTitle, copy.servicesLead)}
+      <div class="hotel-service-grid">
+        ${services.map((service, i) => `<article class="hotel-service" data-reveal>
+          <span class="service-num">${String(i + 1).padStart(2, '0')}</span>
+          <div><h3 class="h3">${esc(service.title)}</h3><p>${esc(service.description)}</p></div>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="amenities">
+    <div class="container">
+      ${sectionHead(copy.amenitiesEyebrow, copy.amenitiesTitle, copy.amenitiesLead)}
+      <div class="amenities-grid">
+        ${copy.amenities.map((amenity, i) => `<article class="amenity-card" data-reveal>
+          <span class="amenity-icon">${icon('check')}</span>
+          <h3 class="h3">${esc(amenity)}</h3>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="process">
+    <div class="container">
+      ${sectionHead(copy.processTitle, copy.processLead, undefined, true)}
+      <div class="steps">
+        ${[
+          [copy.step1, copy.step1d],
+          [copy.step2, copy.step2d],
+          [copy.step3, copy.step3d],
+          [copy.step4, copy.step4d],
+        ].map(([title, desc], i) => `<div class="step" data-reveal><div class="n">${i + 1}</div><h3>${esc(title)}</h3><p>${esc(desc)}</p></div>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  ${team.length ? `<section class="section bg-soft" id="team">
+    <div class="container">
+      ${sectionHead(copy.teamEyebrow, copy.teamTitle, copy.teamLead, true)}
+      <div class="hotel-team-grid">${team.map((m) => hotelCard(m, copy)).join('')}</div>
+    </div>
+  </section>` : ''}
+
+  <section class="section" id="about">
+    <div class="container about-grid hotel-about-grid">
+      <div class="hotel-about-media" data-reveal>
+        ${about ? `<img class="main" src="${attr(about)}" alt="${attr(config.siteName)}" loading="lazy" decoding="async" width="800" height="760">` : ''}
+        <div class="about-badge">${icon('check')}+8 ${esc(s.years)}</div>
+      </div>
+      <div data-reveal>
+        <span class="eyebrow">${esc(s.about)}</span>
+        <h2 class="h2 mt-2">${esc(config.siteName)}</h2>
+        <p class="lead mt-2">${esc(config.description)}</p>
+        <ul class="checklist">
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat1)} — ${esc(copy.feat1d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat2)} — ${esc(copy.feat2d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat3)} — ${esc(copy.feat3d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat4)} — ${esc(copy.feat4d)}</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="book">
+    <div class="container book-wrap">
+      <div class="book-copy" data-reveal>
+        <span class="eyebrow">${esc(s.appointment)}</span>
+        <h2 class="h2 mt-2">${esc(copy.bookTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.bookLead)}</p>
+        <ul class="checklist">
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat1)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat3)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.note)}</span></li>
+        </ul>
+        <div class="hotel-hours">
+          <div class="hours-row"><span>${icon('clock')}${esc(s.hours)}</span><strong>${esc(config.hours || '24/7')}</strong></div>
+          <div class="hours-row"><span>${icon('map')}${esc(s.location)}</span><strong>${esc(config.address || config.city || '')}</strong></div>
+        </div>
+        <div class="hotel-contact-actions">
+          <a class="btn btn-light" href="tel:${attr(config.phone)}">${icon('phone')}${esc(s.callNow)}</a>
+          <a class="btn btn-wa" href="${attr(bookWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.whatsapp)}</a>
+        </div>
+      </div>
+      <form class="book-card" data-lead-form data-lead-kind="hotel-booking" novalidate>
+        <h3>${esc(copy.formTitle)}</h3>
+        <p class="booking-sub">${esc(copy.formSub)}</p>
+        <div class="form-grid">
+          <div class="field"><label for="bok-name">${esc(s.name)}</label><input id="bok-name" name="name" required maxlength="80" autocomplete="name"><span class="err">${esc(s.required)}</span></div>
+          <div class="field"><label for="bok-phone">${esc(s.phone)}</label><input id="bok-phone" name="phone" type="tel" required maxlength="20" autocomplete="tel" dir="ltr"><span class="err">${esc(s.invalidPhone)}</span></div>
+          <div class="field full"><label for="bok-email">${esc(s.email)}</label><input id="bok-email" name="email" type="email" maxlength="120" autocomplete="email" dir="ltr"></div>
+          <div class="field full"><label for="bok-room">${esc(copy.summaryRoom)}</label><input id="bok-room" name="roomType" maxlength="200"></div>
+          <div class="field full"><label for="bok-nights">${esc(copy.summaryNights)}</label><input id="bok-nights" name="nights" type="number" min="1" maxlength="10"></div>
+          <div class="field full"><label for="bok-date">${esc(copy.summaryWhen)}</label><input id="bok-date" name="arrivalDate" type="date"></div>
+          <div class="field full"><label for="bok-msg">${esc(s.message)}</label><textarea id="bok-msg" name="message" required maxlength="1200"></textarea><span class="err">${esc(s.required)}</span></div>
+          <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
+        </div>
+        <button class="btn btn-primary btn-block mt-3" type="submit">${icon('send')}${esc(copy.confirm)}</button>
+        <div class="form-status" role="status"></div>
+        <p class="form-note center mt-2">${esc(copy.note)}</p>
+      </form>
+    </div>
+  </section>
+
+  <section class="stats-band">
+    <div class="container stats-grid">
+      ${copy.stats.map(([num, label]) => `<div class="stat"><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">${sectionHead(s.testimonials, s.testimonials, undefined, true)}
+      <div class="grid g3">${copy.quotes.map((q) => `<div class="quote" data-reveal>
+        <div class="stars" aria-label="5/5">★★★★★</div>
+        <p>“${esc(q.text)}”</p>
+        <div class="who"><span class="avatar">${esc(initialsFor(q.name))}</span><div><strong>${esc(q.name)}</strong><span>${esc(q.role)}</span></div></div>
+      </div>`).join('')}</div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="faq">
+    <div class="container">
+      ${sectionHead(s.faq, copy.faqTitle, undefined, true)}
+      <div class="faq-list">
+        ${copy.faq.map(([q, a]) => `<details class="faq" data-reveal>
+          <summary>${esc(q)}<span class="faq-ic">${icon('plus')}</span></summary>
+          <p>${esc(a)}</p>
+        </details>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  ${contactSection(config, s)}`;
+}
+
+/* -------------------------------------------------------------------------
  * COMPANY
  * ---------------------------------------------------------------------- */
 export function companyPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
@@ -3915,6 +4427,8 @@ export function pageFor(template: string, config: RenderConfig, lang: Lang): str
       return educationPage(config, s, lang);
     case 'construction':
       return constructionPage(config, s, lang);
+    case 'hotel':
+      return hotelPage(config, s, lang);
 
     // Landing-style templates
     case 'fitness':
@@ -4103,6 +4617,32 @@ export function jsonLdFor(template: string, config: RenderConfig, siteUrl: strin
       hasOfferCatalog: {
         '@type': 'OfferCatalog',
         name: 'Courses',
+        itemListElement: config.products.slice(0, 12).map((p, index) => ({
+          '@type': 'Offer',
+          position: index + 1,
+          name: p.name,
+          description: p.description,
+          price: p.price,
+          priceCurrency: 'DZD',
+          availability: 'https://schema.org/InStock',
+        })),
+      },
+      employee: (config.team || []).map((member) => ({
+        '@type': 'Person',
+        name: member.name,
+        jobTitle: member.role,
+        image: member.photoUrl || undefined,
+      })),
+    };
+    case 'hotel': return {
+      ...base,
+      '@type': 'Hotel',
+      image: config.coverUrl || undefined,
+      priceRange: 'DZD',
+      openingHours: config.hours || undefined,
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: 'Rooms and suites',
         itemListElement: config.products.slice(0, 12).map((p, index) => ({
           '@type': 'Offer',
           position: index + 1,

@@ -267,6 +267,18 @@ export const TEMPLATES: TemplateSeed[] = [
     },
   },
   {
+    slug: 'hotel',
+    category: 'hotel',
+    accent: '#92400e',
+    sortOrder: 18,
+    name: { ar: 'فندق / منتجع سياحي', fr: 'Hôtel / Resort', en: 'Hotel / Resort' },
+    description: {
+      ar: 'فندق ومنتجع سياحي مع غرف وأجنحة، خدمات الضيافة، الحجز عبر واتساب ومعرض صورふاخرة.',
+      fr: 'Hôtel et resort avec chambres et suites, services d\'hospitalité, réservation WhatsApp et galerie photos haut de gamme.',
+      en: 'Hotel and resort with rooms and suites, hospitality services, WhatsApp booking and luxury photo gallery.',
+    },
+  },
+  {
     slug: 'electronics',
     category: 'electronics',
     accent: '#1d4ed8',
