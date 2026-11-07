@@ -157,6 +157,9 @@ const leadSchema = z.object({
 
 siteFactoryRouter.get('/public/config', publicLimiter, async (_req, res) => {
   const catalog = await factory.listCatalog();
+  // Catalog data changes rarely; let the browser and edge cache it so repeat
+  // visits do not wait for a cold API instance.
+  res.set('Cache-Control', 'public, max-age=60, s-maxage=600, stale-while-revalidate=86400');
   res.json({
     ...catalog,
     cloudflareConfigured: isCloudflareConfigured(),

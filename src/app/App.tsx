@@ -1,5 +1,5 @@
 import { Suspense, lazy, useState, useEffect } from 'react';
-import { isMaintenanceMode, getMaintenanceMessage, loadMaintenanceFromServer } from './utils/maintenanceStorage';
+import { isMaintenanceMode, getMaintenanceMessage, loadMaintenanceFromServer, hasMaintenanceCache } from './utils/maintenanceStorage';
 import { initCrossTabSync } from './utils/sync';
 import { Wrench, Construction } from 'lucide-react';
 import { Toaster } from 'sonner';
@@ -127,9 +127,10 @@ export default function App() {
   const is404 = !isFactoryPage && typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#hqpanel', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq', '#web', '#demo'].includes(hash);
   const [showLogin, setShowLogin] = useState(false);
   const [maintenance, setMaintenance] = useState(false);
-  // Block the public UI until the maintenance flag is known, so the site
-  // never flashes its content while maintenance mode is on.
-  const [maintenanceChecked, setMaintenanceChecked] = useState(() => isMaintenanceMode());
+  // Render immediately for returning visitors (the flag is cached locally)
+  // and refresh it in the background. Only the very first visit waits, with
+  // a short cap so a cold API never freezes the site.
+  const [maintenanceChecked, setMaintenanceChecked] = useState(() => hasMaintenanceCache());
 
   useEffect(() => {
     const handleOpenLogin = () => setShowLogin(true);
@@ -166,7 +167,7 @@ export default function App() {
       setMaintenanceChecked(true);
     };
     // Cap the wait: if the API is slow/down we still render the site.
-    const timer = setTimeout(finish, 3000);
+    const timer = setTimeout(finish, 1000);
     loadMaintenanceFromServer().then(finish).catch(finish);
     const handleChange = () => {
       setMaintenance(isMaintenanceMode());
@@ -182,6 +183,10 @@ export default function App() {
     const preload = () => {
       import('./components/Admin');
       import('./components/OrderForm');
+      // Wake the factory catalog API early so /create-website opens instantly.
+      import('./utils/siteFactoryConfig')
+        .then((module) => module.prefetchFactoryConfig())
+        .catch(() => {});
     };
     if ('requestIdleCallback' in window) {
       (window as any).requestIdleCallback(preload, { timeout: 5000 });

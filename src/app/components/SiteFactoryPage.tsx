@@ -8,7 +8,6 @@ import {
   Globe,
   Languages,
   LayoutTemplate,
-  Loader2,
   MessageCircle,
   Palette,
   Phone,
@@ -20,7 +19,7 @@ import {
   Store,
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { api } from '../utils/api';
+import { getInitialFactoryConfig, loadFactoryConfig } from '../utils/siteFactoryConfig';
 import { Footer } from './Footer';
 import { TemplatePreview } from './site-factory/FactoryShared';
 import { FactoryWizard } from './site-factory/FactoryWizard';
@@ -34,7 +33,9 @@ import {
 
 export function SiteFactoryPage() {
   const { t } = useLanguage();
-  const [config, setConfig] = useState<FactoryConfig | null>(null);
+  // Never block the page on the API: start from the saved catalog or the
+  // built-in defaults, then refresh live prices in the background.
+  const [config, setConfig] = useState<FactoryConfig>(() => getInitialFactoryConfig());
   const [configError, setConfigError] = useState('');
   const [reloadKey, setReloadKey] = useState(0);
   const [view, setView] = useState<'order' | 'track'>('order');
@@ -45,26 +46,19 @@ export function SiteFactoryPage() {
   useEffect(() => {
     let active = true;
     setConfigError('');
-    api.siteFactory
-      .config()
-      .then((response) => {
+    loadFactoryConfig()
+      .then((next) => {
         if (!active) return;
-        setConfig({
-          templates: response.templates || [],
-          packages: response.packages || [],
-          settings: response.settings,
-          cloudflareConfigured: Boolean(response.cloudflareConfigured),
-        });
+        setConfig(next);
       })
-      .catch((error: any) => {
+      .catch(() => {
         if (!active) return;
         setConfigError(
-          error?.message ||
-            t({
-              ar: 'تعذر تحميل القوالب. تحقق من اتصالك وأعد المحاولة.',
-              fr: 'Impossible de charger les modèles. Vérifiez votre connexion.',
-              en: 'Could not load templates. Check your connection and retry.',
-            }),
+          t({
+            ar: 'تعذر تحديث الأسعار الآن — نعرض نسخة محفوظة. تحقق من اتصالك وأعد المحاولة.',
+            fr: 'Mise à jour des prix impossible — affichage d’une copie enregistrée. Vérifiez votre connexion.',
+            en: 'Could not refresh prices — showing a saved copy. Check your connection and retry.',
+          }),
         );
       });
     return () => {
@@ -307,25 +301,7 @@ export function SiteFactoryPage() {
             </div>
           )}
 
-          {!config && !configError && (
-            <div className="flex flex-col items-center justify-center rounded-3xl border border-border bg-card px-6 py-20 text-center shadow-sm">
-              <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                <Loader2 className="h-6 w-6 animate-spin" />
-              </span>
-              <p className="mt-4 text-sm font-bold">
-                {t({ ar: 'جاري تحميل القوالب والباقات...', fr: 'Chargement des modèles et offres...', en: 'Loading templates and packages...' })}
-              </p>
-              <p className="mt-1 max-w-md text-xs leading-relaxed text-muted-foreground">
-                {t({
-                  ar: 'قد يستغرق التحميل حتى دقيقة عند أول زيارة. شكراً لصبرك.',
-                  fr: 'Le premier chargement peut prendre jusqu’à une minute. Merci de patienter.',
-                  en: 'The first load can take up to a minute. Thanks for waiting.',
-                })}
-              </p>
-            </div>
-          )}
-
-          {config && view === 'track' && (
+          {view === 'track' && (
             <TrackingPanel
               initialRef={trackSeed.ref}
               initialContact={trackSeed.contact}
@@ -334,7 +310,7 @@ export function SiteFactoryPage() {
             />
           )}
 
-          {config && view === 'order' && result && submittedDraft && (
+          {view === 'order' && result && submittedDraft && (
             <SuccessPanel
               result={result}
               draft={submittedDraft}
@@ -348,7 +324,7 @@ export function SiteFactoryPage() {
             />
           )}
 
-          {config && view === 'order' && !result && (
+          {view === 'order' && !result && (
             <FactoryWizard
               config={config}
               onSuccess={(factoryResult, draft) => {

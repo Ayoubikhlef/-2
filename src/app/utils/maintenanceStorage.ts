@@ -41,6 +41,19 @@ export function isMaintenanceMode(): boolean {
   return getData().enabled;
 }
 
+/**
+ * True when this device already has a maintenance answer. In that case the
+ * app can render immediately and refresh the flag in the background instead
+ * of showing the splash screen while a cold API wakes up.
+ */
+export function hasMaintenanceCache(): boolean {
+  try {
+    return localStorage.getItem(STORAGE_KEY) !== null;
+  } catch {
+    return false;
+  }
+}
+
 export function setMaintenanceMode(enabled: boolean): Promise<boolean> {
   const data = getData();
   data.enabled = enabled;
