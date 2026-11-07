@@ -675,6 +675,51 @@ body.has-preview .site-header{top:36px}
 .tpl-lawyer .hours-row strong{color:var(--ink);font-weight:800}
 .tpl-lawyer .lawyer-contact-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
 .tpl-lawyer .lawyer-contact-actions .btn{flex:1 1 auto}
+/* real estate */
+.tpl-realestate .estate-badges{display:flex;gap:12px;margin-top:16px;padding-top:12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.tpl-realestate .hero-stats{display:flex;gap:30px;margin-top:38px;padding-top:26px;border-top:1px solid var(--line);flex-wrap:wrap}
+.tpl-realestate .types-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.tpl-realestate .type-card{padding:26px 22px;border-radius:20px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:10px;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-realestate .type-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-realestate .type-icon{width:46px;height:46px;border-radius:14px;background:var(--tint-2);color:var(--p-text);display:grid;place-items:center;flex:0 0 auto;margin-bottom:4px}
+.tpl-realestate .type-icon .icon{width:22px;height:22px}
+.tpl-realestate .property-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.tpl-realestate .property-card{border-radius:20px;overflow:hidden;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-realestate .property-card:hover{transform:translateY(-5px);box-shadow:var(--shadow);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-realestate .property-thumb{position:relative;aspect-ratio:4/3;overflow:hidden;background:linear-gradient(145deg,var(--tint),var(--tint-2))}
+.tpl-realestate .property-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.tpl-realestate .property-card:hover .property-thumb img{transform:scale(1.06)}
+.tpl-realestate .property-body{padding:18px 20px 22px;display:flex;flex-direction:column;gap:6px;flex:1}
+.tpl-realestate .property-body .cat{font-size:.65rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--p-text)}
+.tpl-realestate .property-body h3{font-size:1rem;line-height:1.4}
+.tpl-realestate .property-body p{font-size:.82rem;color:var(--muted);line-height:1.65}
+.tpl-realestate .property-body .price{margin-top:auto;padding-top:10px;color:var(--p-text);font-weight:900}
+.tpl-realestate .estate-service-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.tpl-realestate .estate-service{padding:24px;border-radius:18px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:8px;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-realestate .estate-service:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-realestate .service-num{font-size:.75rem;font-weight:900;color:color-mix(in srgb,var(--p) 45%,var(--muted))}
+.tpl-realestate .estate-service h3{font-size:1rem;margin-bottom:4px}
+.tpl-realestate .estate-service p{font-size:.82rem;color:var(--muted);line-height:1.65}
+.tpl-realestate .estate-team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.tpl-realestate .estate-card{border-radius:22px;overflow:hidden;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-realestate .estate-card:hover{transform:translateY(-5px);box-shadow:var(--shadow);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-realestate .estate-avatar{position:relative;aspect-ratio:4/4.5;overflow:hidden;background:linear-gradient(150deg,var(--tint-2),var(--p2));display:grid;place-items:center}
+.tpl-realestate .estate-avatar img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.tpl-realestate .estate-card:hover .estate-avatar img{transform:scale(1.05)}
+.tpl-realestate .estate-initials{font-size:2.4rem;font-weight:900;color:rgba(255,255,255,.55);letter-spacing:.08em}
+.tpl-realestate .estate-body{padding:16px 17px 18px;display:flex;flex-direction:column;gap:5px;flex:1}
+.tpl-realestate .estate-body h3{font-size:.98rem;line-height:1.35}
+.tpl-realestate .estate-role{font-size:.76rem;color:var(--p-text);font-weight:800;line-height:1.45}
+.tpl-realestate .estate-specialty{font-size:.7rem;color:var(--muted);margin-top:4px}
+.tpl-realestate .estate-exp{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:.7rem;color:var(--muted)}
+.tpl-realestate .viewing-wrap{display:grid;grid-template-columns:.9fr 1.1fr;gap:44px;align-items:start}
+.tpl-realestate .viewing-card{background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:30px;box-shadow:var(--shadow-sm)}
+.tpl-realestate .viewing-card h3{font-size:1.15rem}
+.tpl-realestate .estate-hours{margin-top:18px}
+.tpl-realestate .hours-row{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.85rem;margin:6px 0}
+.tpl-realestate .hours-row strong{color:var(--ink);font-weight:800}
+.tpl-realestate .estate-contact-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.tpl-realestate .estate-contact-actions .btn{flex:1 1 auto}
 .theme-toggle{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;flex:0 0 auto;position:relative;transition:transform .2s,border-color .2s,background .2s}
 .theme-toggle:hover{transform:translateY(-2px);border-color:var(--p)}
 .theme-toggle .icon{width:18px;height:18px}
@@ -802,6 +847,11 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-lawyer .lawyer-service-grid{grid-template-columns:repeat(2,1fr);gap:16px}
   .tpl-lawyer .lawyer-team-grid{grid-template-columns:repeat(2,1fr);gap:16px}
   .tpl-lawyer .consult-wrap{grid-template-columns:1fr;gap:34px}
+  .tpl-realestate .types-grid{grid-template-columns:1fr;gap:16px}
+  .tpl-realestate .property-grid{grid-template-columns:repeat(2,1fr);gap:16px}
+  .tpl-realestate .estate-service-grid{grid-template-columns:repeat(2,1fr);gap:16px}
+  .tpl-realestate .estate-team-grid{grid-template-columns:repeat(2,1fr);gap:16px}
+  .tpl-realestate .viewing-wrap{grid-template-columns:1fr;gap:34px}
 }
 @media (max-width:720px){
   .container{width:min(100% - 28px,1180px)}
@@ -845,6 +895,11 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-lawyer .lawyer-service-grid{grid-template-columns:1fr;gap:14px}
   .tpl-lawyer .lawyer-team-grid{grid-template-columns:1fr;gap:14px}
   .tpl-lawyer .consult-card{padding:22px}
+  .tpl-realestate .types-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-realestate .property-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-realestate .estate-service-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-realestate .estate-team-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-realestate .viewing-card{padding:22px}
 }
 @media (max-width:460px){
   .g2,.g3,.g4,.product-grid,.form-grid,.stats-grid{grid-template-columns:1fr}
@@ -867,6 +922,9 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-pharmacy .stats-band .stats-grid{grid-template-columns:1fr 1fr}
   .tpl-lawyer .lawyer-service-grid{grid-template-columns:1fr;gap:14px}
   .tpl-lawyer .lawyer-team-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-realestate .property-grid{grid-template-columns:1fr 1fr}
+  .tpl-realestate .estate-service-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-realestate .estate-team-grid{grid-template-columns:1fr;gap:14px}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}

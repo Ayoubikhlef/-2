@@ -441,6 +441,13 @@ export const SITE_JS = String.raw`
           ' | ' + (form.message ? form.message.value : '') +
           '. ' + message;
       }
+      if (form.getAttribute('data-lead-kind') === 'viewing') {
+        var vieTypeSelect = form.querySelector('[name="propertyType"]');
+        var vieTypeName = vieTypeSelect ? vieTypeSelect.value : '';
+        message = 'Property viewing: ' + vieTypeName +
+          ' | ' + (form.message ? form.message.value : '') +
+          '. ' + message;
+      }
       post('/public/sites/' + encodeURIComponent(SITE.siteId) + '/leads', {
         name: form.name ? form.name.value : '',
         phone: form.phone ? form.phone.value : '',

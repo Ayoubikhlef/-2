@@ -364,6 +364,11 @@ export const DEMO: Record<string, DemoSeed> = {
       ['أرض بناء', 4200000, 'أراضٍ', 'مساحة 200م² مع وثائق كاملة.'],
       ['شقة مفروشة للإيجار', 45000, 'إيجار', 'مساحة 70م² قريبة من المركز، إيجار شهري.'],
     ], 1),
+    team: [
+      { name: 'ليلى بن علي', role: 'وكيلة عقارية رئيسية', specialty: 'شقق وفيلات', experience: '8 سنوات', photoUrl: photo('person', 0, 700, 800) },
+      { name: 'رامي بن ثابت', role: 'وكيل عقاري', specialty: 'محلات وتجاري', experience: '5 سنوات', photoUrl: photo('person', 1, 700, 800) },
+      { name: 'نادية خليف', role: 'وكيلة عقارية', specialty: 'أراضٍ وبناء', experience: '4 سنوات', photoUrl: photo('person', 2, 700, 800) },
+    ],
   },
   education: {
     name: 'مركز النجاح للتكوين',

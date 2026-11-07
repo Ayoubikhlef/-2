@@ -168,6 +168,17 @@ function navItems(config: RenderConfig, s: UiStrings): { href: string; label: st
         { href: '#faq', label: s.faq },
         { href: '#contact', label: s.contact },
       ];
+    case 'realestate':
+      return [
+        { href: '#top', label: s.home },
+        { href: '#types', label: s.services },
+        { href: '#properties', label: s.work },
+        { href: '#services', label: s.packages },
+        { href: '#team', label: s.team },
+        { href: '#viewing', label: s.appointment },
+        { href: '#faq', label: s.faq },
+        { href: '#contact', label: s.contact },
+      ];
     default:
       if (['electronics', 'fashion', 'agriculture'].includes(config.templateSlug)) {
         return [
@@ -194,7 +205,7 @@ function navItems(config: RenderConfig, s: UiStrings): { href: string; label: st
           { href: '#contact', label: s.contact },
         ];
       }
-      if (['medical', 'lawyer', 'realestate', 'education', 'construction'].includes(config.templateSlug)) {
+      if (['medical', 'lawyer', 'education', 'construction'].includes(config.templateSlug)) {
         return [
           { href: '#top', label: s.home },
           { href: '#services', label: s.services },
@@ -275,18 +286,22 @@ export function renderShell(options: ShellOptions): string {
         ? '#appointment'
         : config.templateSlug === 'lawyer'
           ? '#consult'
-          : config.templateSlug === 'pharmacy'
-            ? '#products'
-            : '#contact';
+          : config.templateSlug === 'realestate'
+            ? '#viewing'
+            : config.templateSlug === 'pharmacy'
+              ? '#products'
+              : '#contact';
   const mobileCtaLabel = config.templateSlug === 'carrental'
     ? s.booking
     : config.templateSlug === 'medical'
       ? s.appointment
       : config.templateSlug === 'lawyer'
         ? s.appointment
-        : config.templateSlug === 'pharmacy'
-          ? s.orderNow
-          : s.contact;
+        : config.templateSlug === 'realestate'
+          ? s.appointment
+          : config.templateSlug === 'pharmacy'
+            ? s.orderNow
+            : s.contact;
   const alternateTags = (['ar', 'fr', 'en'] as const)
     .filter((code) => alternates[code])
     .map((code) => `<link rel="alternate" hreflang="${code}" href="${attr(absolute(siteUrl, alternates[code]))}">`)
@@ -456,18 +471,22 @@ export function baseHeader(config: RenderConfig, lang: 'ar' | 'fr' | 'en', alter
         ? '#appointment'
         : config.templateSlug === 'lawyer'
           ? '#consult'
-          : config.templateSlug === 'pharmacy'
-            ? '#products'
-            : '#contact';
+          : config.templateSlug === 'realestate'
+            ? '#viewing'
+            : config.templateSlug === 'pharmacy'
+              ? '#products'
+              : '#contact';
   const mobileCtaLabel = config.templateSlug === 'carrental'
     ? s.booking
     : config.templateSlug === 'medical'
       ? s.appointment
       : config.templateSlug === 'lawyer'
         ? s.appointment
-        : config.templateSlug === 'pharmacy'
-          ? s.orderNow
-          : s.contact;
+        : config.templateSlug === 'realestate'
+          ? s.appointment
+          : config.templateSlug === 'pharmacy'
+            ? s.orderNow
+            : s.contact;
   const logo = config.logoAssetPath
     ? `<img class="brand-logo" src="${attr(config.logoAssetPath)}" alt="${attr(config.siteName)}" width="44" height="44">`
     : `<span class="brand-mark" aria-hidden="true">${esc(initials(config.siteName))}</span>`;

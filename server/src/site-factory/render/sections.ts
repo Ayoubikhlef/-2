@@ -2151,6 +2151,479 @@ export function lawyerPage(config: RenderConfig, s: UiStrings, lang: Lang): stri
 }
 
 /* -------------------------------------------------------------------------
+ * REAL ESTATE
+ * ---------------------------------------------------------------------- */
+interface RealEstateCopy {
+  heroBadge: string;
+  viewingCta: string;
+  propertiesCta: string;
+  openDaily: string;
+  verified: string;
+  experience: string;
+  heroMessage: string;
+  typesEyebrow: string;
+  typesTitle: string;
+  typesLead: string;
+  types: Array<{ icon: string; title: string; description: string }>;
+  propertiesEyebrow: string;
+  propertiesTitle: string;
+  propertiesLead: string;
+  servicesEyebrow: string;
+  servicesTitle: string;
+  servicesLead: string;
+  fallbackServices: Array<{ title: string; description: string }>;
+  processTitle: string;
+  processLead: string;
+  step1: string; step1d: string;
+  step2: string; step2d: string;
+  step3: string; step3d: string;
+  step4: string; step4d: string;
+  teamEyebrow: string;
+  teamTitle: string;
+  teamLead: string;
+  aboutTitle: string;
+  aboutLead: string;
+  feat1: string; feat1d: string;
+  feat2: string; feat2d: string;
+  feat3: string; feat3d: string;
+  feat4: string; feat4d: string;
+  stats: Array<[string, string]>;
+  quotes: Array<{ text: string; name: string; role: string }>;
+  faqTitle: string;
+  faq: Array<[string, string]>;
+  viewingTitle: string;
+  viewingLead: string;
+  formTitle: string;
+  formSub: string;
+  confirm: string;
+  summaryType: string;
+  summaryService: string;
+  summaryWhen: string;
+  note: string;
+}
+
+const REALESTATE: Record<Lang, RealEstateCopy> = {
+  ar: {
+    heroBadge: 'وكالة عقارية مرخصة · عقارات موثقة',
+    viewingCta: 'اطلب معاينة',
+    propertiesCta: 'عقاراتنا',
+    openDaily: 'مفتوح يومياً',
+    verified: 'عقارات موثقة',
+    experience: 'سنوات الخبرة',
+    heroMessage: 'أريد شراء أو استئجار عقار',
+    typesEyebrow: 'أنواع العقارات',
+    typesTitle: 'نجد لك العقار الذي يلبي تطلعاتك',
+    typesLead: 'من الشقق والفيلات إلى المحلات التجارية والأراضي، نغطي جميع احتياجاتك السكنية والاستثمارية.',
+    types: [
+      { icon: 'home', title: 'شقق سكنية', description: 'شقق للملكية والإيجار بمساحات وتصاميم متنوعة.' },
+      { icon: 'home', title: 'فلل وقصور', description: 'فلل فاخرة مع حدائق ومساحات خارجية خاصة.' },
+      { icon: 'briefcase', title: 'محلات تجارية', description: 'واجهات محلات ومساحات تجارية في المناطق الحيوية.' },
+      { icon: 'target', title: 'أراضٍ وبناء', description: 'أراضٍ قابلة للبناء مع وثائق ملكية كاملة.' },
+    ],
+    propertiesEyebrow: 'عقارات متاحة',
+    propertiesTitle: 'مختارات من عقاراتنا',
+    propertiesLead: 'عقارات مع ملفات موثقة وصور حقيقية، والأسعار واضحة قبل أي معاينة.',
+    servicesEyebrow: 'خدمات الوكالة',
+    servicesTitle: 'نقدّم لك مرافقة عقارية كاملة',
+    servicesLead: 'من البحث عن العقار إلى توقيع العقد وتوثيقه، نكون بجانبك في كل خطوة.',
+    fallbackServices: [
+      { title: 'بيع وشراء العقارات', description: 'مرافقة كاملة في إجراءات البيع والشراء والتوثيق.' },
+      { title: 'الإيجار', description: 'عقود إيجار سكنية وتجارية موثقة ومنظمة.' },
+      { title: 'المرافقة القانونية', description: 'توثيق العقود ومرافقة الموثق خطوة بخطوة.' },
+      { title: 'تقييم العقار', description: 'تقدير واقعي للسعر العقاري قبل العرض أو البيع.' },
+    ],
+    processTitle: 'كيف ننهي صفقتك العقارية',
+    processLead: 'نتابع كل خطوة من البحث إلى التسليم النهائي مع الشفافية الكاملة.',
+    step1: 'فهم احتياجاتك', step1d: 'نستمع لمتطلباتك وميزانيتك ونحدد مواصفات العقار المناسب.',
+    step2: 'البحث والمعاينة', step2d: 'نعرض لك خيارات متوافقة وننظم زيارات ميدانية للعقارات المختارة.',
+    step3: 'التفاوض والعقد', step3d: 'نعمل على التفاوض على السعر ونعيد صياغة العقد بمراجعة قانونية.',
+    step4: 'التسليم والتوثيق', step4d: 'نرافقك حتى استلام العقار وتوثيق العقد رسمياً.',
+    teamEyebrow: 'فريق الوكالة',
+    teamTitle: 'وكلاء عقاريون في خدمتك',
+    teamLead: 'فريق يمتلك معرفة عميقة بالسوق العقاري المحلي ويعمل بسرية تامة.',
+    aboutTitle: 'وكالة الدار العقارية',
+    aboutLead: 'وكالة عقارية مرخصة متخصصة في البيع والإيجار، بخيارات موثقة ومعاينات منظمة ومرافقة قانونية كاملة، من البحث عن العقار حتى تسليم المفاتيح.',
+    feat1: 'عقارات موثقة', feat1d: 'جميع العقارات مدعومة بوثائق ملكية وصور حقيقية.',
+    feat2: 'مرافقة قانونية', feat2d: 'توثيق العقود ومرافقة الموثق لضمان حقوق جميع الأطراف.',
+    feat3: 'أسعار شفافة', feat3d: 'السعر معروض بوضوح قبل أي معاينة أو إجراء.',
+    feat4: 'معاينات منظمة', feat4d: 'زيارات ميدانية مجدولة وموجهة من قبل وكلاء مختصين.',
+    stats: [['+8', 'سنة خبرة'], ['+300', 'عقار'], ['98%', 'رضا العملاء'], ['24/7', 'تواصل عقاري']],
+    quotes: [
+      { text: 'وجدت شقتي المثالية عبر وكالة الدار، والمعاينة كانت منظمة والمحترفون في الموعد.', name: 'خالد ب.', role: 'مشتري' },
+      { text: 'وكالة محترفة، ساعدوني في بيع فيلتي بسرعة وبسعر عادل، أنصح بهم.', name: 'أمينة ت.', role: 'بائعة' },
+      { text: 'عقد إيجار تجاري واضح ومحمي قانونياً، شكراً على المرافقة الممتازة.', name: 'سليم ع.', role: 'تاجر' },
+    ],
+    faqTitle: 'أسئلة شائعة',
+    faq: [
+      ['هل العقارات موثقة؟', 'نعم، جميع العقارات معروضة مع ملفات موثقة ووثائق ملكية مكتملة.'],
+      ['كيف أحجز معاينة؟', 'اطلب معاينة عبر النموذج أو واتساب وسنحدد موعداً معك في أقرب وقت.'],
+      ['هل تشمل الخدمة التوثيق؟', 'نعم، نقدم مرافقة قانونية كاملة لتوثيق العقود أمام الموثق.'],
+      ['ما هي أوقات العمل؟', 'نعمل من السبت إلى الخميس من 09:00 إلى 18:00.'],
+      ['هل تتعاملون مع الإيجار التجاري؟', 'نعم، نقدم عقود إيجار تجارية موثقة ومساحات محلات في المناطق الحيوية.'],
+    ],
+    viewingTitle: 'احجز معاينة عقارية',
+    viewingLead: 'املأ النموذج وسنتصل بك لتحديد موعد معاينة العقار الذي يثير اهتمامك.',
+    formTitle: 'طلب معاينة عقارية',
+    formSub: 'أخبرنا عن نوع العقار الذي تبحث عنه وسنرد عليك في أقرب وقت.',
+    confirm: 'إرسال طلب المعاينة',
+    summaryType: 'نوع العقار',
+    summaryService: 'الخدمة المطلوبة',
+    summaryWhen: 'الموعد المفضل',
+    note: 'جميع بياناتك محمية وسرية وفقاً لسياسة الوكالة.',
+  },
+  fr: {
+    heroBadge: 'Agence immobilière agréée · Biens vérifiés',
+    viewingCta: 'Demander une visite',
+    propertiesCta: 'Nos biens',
+    openDaily: 'Ouvert tous les jours',
+    verified: 'Biens vérifiés',
+    experience: 'ans d’expérience',
+    heroMessage: 'Je souhaite acheter ou louer un bien',
+    typesEyebrow: 'Types de biens',
+    typesTitle: 'Nous trouvons le bien qui répond à vos attentes',
+    typesLead: 'Des appartements et villas aux commerces et terrains, nous couvrons tous vos besoins résidentiels et d’investissement.',
+    types: [
+      { icon: 'home', title: 'Appartements', description: 'Appartements à vendre ou à louer, de surfaces et de designs variés.' },
+      { icon: 'home', title: 'Villas', description: 'Villas de luxe avec jardins et espaces extérieurs privés.' },
+      { icon: 'briefcase', title: 'Commerces', description: 'Locaux commerciaux et surfaces en pieds d’immeuble dans les zones stratégiques.' },
+      { icon: 'target', title: 'Terrains', description: 'Terrains constructibles avec titres de propriété complets.' },
+    ],
+    propertiesEyebrow: 'Biens disponibles',
+    propertiesTitle: 'Sélection de nos biens',
+    propertiesLead: 'Des biens avec dossiers vérifiés et photos réelles, des prix clairs avant toute visite.',
+    servicesEyebrow: 'Services de l’agence',
+    servicesTitle: 'Nous vous accompagnons dans votre projet immobilier',
+    servicesLead: 'De la recherche du bien à la signature et l’acte authentique, nous sommes à vos côtés à chaque étape.',
+    fallbackServices: [
+      { title: 'Vente et achat de biens', description: 'Accompagnement complet dans les procédures de vente et d’achat.' },
+      { title: 'Location', description: 'Contrats de location résidentiels et commerciaux vérifiés et organisés.' },
+      { title: 'Accompagnement juridique', description: 'Rédaction des actes et accompagnement chez le notaire étape par étape.' },
+      { title: 'Évaluation immobilière', description: 'Estimation réaliste du prix avant la mise en vente ou la location.' },
+    ],
+    processTitle: 'Comment nous menons votre transaction',
+    processLead: 'Nous suivons chaque étape, de la recherche à la remise des clés, avec une transparence totale.',
+    step1: 'Comprendre vos besoins', step1d: 'Nous écoutons vos exigences et votre budget et définissons les spécifications du bien.',
+    step2: 'Recherche et visite', step2d: 'Nous vous présentons des options compatibles et organisons des visites sur place.',
+    step3: 'Négociation et acte', step3d: 'Nous négocions le prix et rédigeons le contrat avec révision juridique.',
+    step4: 'Remise et acte authentique', step4d: 'Nous vous accompagnons jusqu’à la remise du bien et l’acte authentique.',
+    teamEyebrow: 'Équipe de l’agence',
+    teamTitle: 'Des agents immobiliers à votre service',
+    teamLead: 'Une équipe possédant une connaissance approfondie du marché immobilier local, travaillant en toute confidentialité.',
+    aboutTitle: 'Agence immobilière Dar',
+    aboutLead: 'Une agence immobilière agréée spécialisée dans la vente et la location, proposant des biens vérifiés, des visites organisées et un accompagnement juridique complet, de la recherche du bien jusqu’à la remise des clés.',
+    feat1: 'Biens vérifiés', feat1d: 'Tous les biens sont accompagnés de titres de propriété et de photos réelles.',
+    feat2: 'Accompagnement juridique', feat2d: 'Rédaction des actes et accompagnement chez le notaire pour garantir les droits de tous.',
+    feat3: 'Prix transparents', feat3d: 'Le prix est affiché clairement avant toute visite ou procédure.',
+    feat4: 'Visites organisées', feat4d: 'Visites sur place planifiées et guidées par des agents spécialisés.',
+    stats: [['+8', 'ans d’expérience'], ['+300', 'biens'], ['98%', 'satisfaction client'], ['24/7', 'disponibilité immobilière']],
+    quotes: [
+      { text: 'J’ai trouvé mon appartement idéal via l’agence Dar, la visite était organisée et les professionnels étaient à l’heure.', name: 'Khalid B.', role: 'Acheteur' },
+      { text: 'Une agence professionnelle, ils m’ont aidé à vendre ma villa rapidement et à un prix juste, je les recommande.', name: 'Amina T.', role: 'Vendeur' },
+      { text: 'Un contrat de bail commercial clair et protégé juridiquement, merci pour l’excellent accompagnement.', name: 'Salim A.', role: 'Commerçant' },
+    ],
+    faqTitle: 'Questions fréquentes',
+    faq: [
+      ['Les biens sont-ils vérifiés ?', 'Oui, tous les biens sont présentés avec des dossiers vérifiés et des titres de propriété complets.'],
+      ['Comment réserver une visite ?', 'Demandez une visite via le formulaire ou WhatsApp et nous fixerons un rendez-vous dans les plus brefs délais.'],
+      ['Le service inclut-il l’acte authentique ?', 'Oui, nous offrons un accompagnement juridique complet pour l’acte authentique chez le notaire.'],
+      ['Quels sont vos horaires ?', 'Nous travaillons du samedi au jeudi de 09:00 à 18:00.'],
+      ['Gérez-vous les baux commerciaux ?', 'Oui, nous proposons des baux commerciaux vérifiés et des surfaces de locaux dans les zones stratégiques.'],
+    ],
+    viewingTitle: 'Réservez une visite immobilière',
+    viewingLead: 'Remplissez le formulaire et nous vous contacterons pour fixer un rendez-vous de visite du bien qui vous intéresse.',
+    formTitle: 'Demande de visite immobilière',
+    formSub: 'Dites-nous le type de bien que vous recherchez et nous vous répondrons dans les plus brefs délais.',
+    confirm: 'Envoyer la demande de visite',
+    summaryType: 'Type de bien',
+    summaryService: 'Service demandé',
+    summaryWhen: 'Rendez-vous préféré',
+    note: 'Toutes vos données sont protégées et confidentielles selon la politique de l’agence.',
+  },
+  en: {
+    heroBadge: 'Licensed real estate agency · Verified properties',
+    viewingCta: 'Request viewing',
+    propertiesCta: 'Our properties',
+    openDaily: 'Open every day',
+    verified: 'Verified properties',
+    experience: 'years of experience',
+    heroMessage: 'I want to buy or rent a property',
+    typesEyebrow: 'Property types',
+    typesTitle: 'We find the property that meets your expectations',
+    typesLead: 'From apartments and villas to shops and land, we cover all your residential and investment needs.',
+    types: [
+      { icon: 'home', title: 'Apartments', description: 'Apartments for sale and rent with various sizes and designs.' },
+      { icon: 'home', title: 'Villas', description: 'Luxury villas with private gardens and outdoor spaces.' },
+      { icon: 'briefcase', title: 'Shops', description: 'Shop fronts and commercial spaces in strategic areas.' },
+      { icon: 'target', title: 'Land', description: 'Buildable land with full title deeds.' },
+    ],
+    propertiesEyebrow: 'Available properties',
+    propertiesTitle: 'Selection of our properties',
+    propertiesLead: 'Properties with verified files and real photos, clear prices before any viewing.',
+    servicesEyebrow: 'Agency services',
+    servicesTitle: 'We offer you complete real estate support',
+    servicesLead: 'From property search to contract signing and authentication, we are with you at every step.',
+    fallbackServices: [
+      { title: 'Sale and purchase', description: 'Full support in sale and purchase procedures and documentation.' },
+      { title: 'Rent', description: 'Verified and organized residential and commercial lease contracts.' },
+      { title: 'Legal support', description: 'Contract drafting and notary accompaniment step by step.' },
+      { title: 'Property valuation', description: 'Realistic price estimation before listing or sale.' },
+    ],
+    processTitle: 'How we complete your transaction',
+    processLead: 'We follow every step from search to final handover with full transparency.',
+    step1: 'Understanding your needs', step1d: 'We listen to your requirements and budget and define the right property specifications.',
+    step2: 'Search and viewing', step2d: 'We present compatible options and organize site visits for selected properties.',
+    step3: 'Negotiation and contract', step3d: 'We negotiate the price and draft the contract with legal review.',
+    step4: 'Handover and authentication', step4d: 'We accompany you until property handover and official contract authentication.',
+    teamEyebrow: 'Agency team',
+    teamTitle: 'Real estate agents at your service',
+    teamLead: 'A team with deep knowledge of the local real estate market, working with full confidentiality.',
+    aboutTitle: 'Dar Real Estate Agency',
+    aboutLead: 'A licensed real estate agency specialized in sale and rent, with verified options, organized viewings and full legal support, from property search to key handover.',
+    feat1: 'Verified properties', feat1d: 'All properties are backed by title deeds and real photos.',
+    feat2: 'Legal support', feat2d: 'Contract drafting and notary accompaniment to protect all parties\' rights.',
+    feat3: 'Transparent prices', feat3d: 'The price is clearly displayed before any viewing or procedure.',
+    feat4: 'Organized viewings', feat4d: 'Scheduled and guided site visits by specialized agents.',
+    stats: [['+8', 'years of experience'], ['+300', 'properties'], ['98%', 'client satisfaction'], ['24/7', 'real estate availability']],
+    quotes: [
+      { text: 'I found my ideal apartment through Dar Agency, the viewing was organized and the professionals were on time.', name: 'Khalid B.', role: 'Buyer' },
+      { text: 'A professional agency, they helped me sell my villa quickly at a fair price, I recommend them.', name: 'Amina T.', role: 'Seller' },
+      { text: 'A clear and legally protected commercial lease contract, thank you for the excellent support.', name: 'Salim A.', role: 'Merchant' },
+    ],
+    faqTitle: 'Frequently asked questions',
+    faq: [
+      ['Are properties verified?', 'Yes, all properties are presented with verified files and complete title deeds.'],
+      ['How do I book a viewing?', 'Request a viewing via the form or WhatsApp and we will set an appointment as soon as possible.'],
+      ['Does the service include authentication?', 'Yes, we provide full legal support for authentication before the notary.'],
+      ['What are your hours?', 'We work Saturday to Thursday from 09:00 to 18:00.'],
+      ['Do you handle commercial leases?', 'Yes, we offer verified commercial leases and shop spaces in strategic areas.'],
+    ],
+    viewingTitle: 'Book a real estate viewing',
+    viewingLead: 'Fill out the form and we will contact you to schedule a viewing of the property that interests you.',
+    formTitle: 'Real estate viewing request',
+    formSub: 'Tell us what type of property you are looking for and we will respond as soon as possible.',
+    confirm: 'Send viewing request',
+    summaryType: 'Property type',
+    summaryService: 'Service requested',
+    summaryWhen: 'Preferred appointment',
+    note: 'All your data is protected and confidential according to the agency policy.',
+  },
+};
+
+function realEstateCard(member: RenderTeamMember, copy: RealEstateCopy): string {
+  const photo = member.photoUrl
+    ? `<img src="${attr(member.photoUrl)}" alt="${attr(member.name)}" loading="lazy" decoding="async" width="700" height="700">`
+    : `<span class="estate-initials">${esc(initialsFor(member.name))}</span>`;
+  return `<article class="estate-card" data-reveal>
+    <div class="estate-avatar">${photo}</div>
+    <h3>${esc(member.name)}</h3>
+    <p class="estate-role">${esc(member.role)}</p>
+    ${member.specialty ? `<span class="estate-specialty">${esc(member.specialty)}</span>` : ''}
+    ${member.experience ? `<span class="estate-exp">${icon('award')}${esc(member.experience)} ${esc(copy.experience)}</span>` : ''}
+  </article>`;
+}
+
+function propertyCard(p: RenderProduct, config: RenderConfig, s: UiStrings, lang: Lang): string {
+  const image = p.imageUrl
+    ? `<img src="${attr(p.imageUrl)}" alt="${attr(p.name)}" loading="lazy" decoding="async" width="600" height="450">`
+    : productPlaceholder(p.name);
+  return `<article class="property-card" data-reveal data-property-card data-category="${attr(p.category || '')}" data-name="${attr(p.name)}" data-desc="${attr(p.description || '')}">
+    <div class="property-thumb">${image}</div>
+    <div class="property-body">
+      ${p.category ? `<span class="cat">${esc(p.category)}</span>` : ''}
+      <h3>${esc(p.name)}</h3>
+      ${p.description ? `<p>${esc(p.description)}</p>` : ''}
+      ${p.price > 0 ? `<span class="price">${money(p.price, lang)}</span>` : ''}
+      <a class="btn btn-wa btn-block mt-3" href="${attr(waHref(config, `أنا مهتم بعقار: ${p.name} — ${p.description || ''}`))}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.orderNow)}</a>
+    </div>
+  </article>`;
+}
+
+export function realEstatePage(config: RenderConfig, s: UiStrings, lang: Lang): string {
+  const copy = REALESTATE[lang];
+  const properties = config.products.filter((p) => p.name);
+  const team = config.team || [];
+  const services = config.services.length ? config.services : copy.fallbackServices;
+  const heroImage = config.coverUrl
+    ? `<img src="${attr(config.coverUrl)}" alt="${attr(config.siteName)}" width="900" height="1100" fetchpriority="high" decoding="async">`
+    : '';
+  const about = aboutPhoto(config);
+  const heroWa = waHref(config, `${copy.heroMessage} — ${config.siteName}`);
+  const viewingWa = waHref(config, `معاينة عقارية — ${config.siteName}`);
+
+  return `<section class="hero realestate-hero" id="top">
+    <div class="container hero-grid">
+      <div class="hero-copy" data-reveal>
+        <span class="badge">${icon('home')}${esc(copy.heroBadge)}</span>
+        <h1 class="h1 mt-3">${esc(config.siteName)}</h1>
+        <p class="lead">${esc(config.description)}</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#properties">${icon('home')}${esc(copy.propertiesCta)}</a>
+          <a class="btn btn-wa" href="${attr(heroWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(copy.viewingCta)}</a>
+        </div>
+        <div class="estate-badges">
+          <span>${icon('shield')}${esc(copy.verified)}</span>
+          <span>${icon('clock')}${esc(copy.openDaily)} · ${esc(config.hours || '09:00 — 18:00')}</span>
+        </div>
+        <div class="hero-stats">
+          ${copy.stats.slice(0, 3).map(([num, label]) => `<div><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="hero-media realestate-hero-media${heroImage ? '' : ' no-img'}" data-mark="${attr(initials(config.siteName))}" data-reveal>${heroImage}
+        <div class="float-card"><span class="float-icon">${icon('home')}</span><div><strong>${esc(copy.verified)}</strong><span>${esc(config.city || '')}</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="trust-strip"><div class="container">
+    <span class="trust-item">${icon('shield')}${esc(copy.verified)}</span>
+    <span class="trust-item">${icon('home')}${esc(s.quality)}</span>
+    <span class="trust-item">${icon('key')}${esc(s.satisfaction)}</span>
+    <span class="trust-item">${icon('target')}${esc(s.projects)}</span>
+  </div></div>
+
+  <section class="section" id="types">
+    <div class="container">
+      ${sectionHead(copy.typesEyebrow, copy.typesTitle, copy.typesLead, true)}
+      <div class="types-grid">
+        ${copy.types.map((item, i) => `<article class="type-card" data-reveal>
+          <span class="type-icon">${icon(item.icon as any)}</span>
+          <h3 class="h3">${esc(item.title)}</h3>
+          <p>${esc(item.description)}</p>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="properties">
+    <div class="container">
+      ${sectionHead(copy.propertiesEyebrow, copy.propertiesTitle, copy.propertiesLead)}
+      <div class="property-grid">${properties.length ? properties.map((p) => propertyCard(p, config, s, lang)).join('') : `<div class="property-empty">${esc(s.emptyCart)}</div>`}</div>
+    </div>
+  </section>
+
+  <section class="section" id="services">
+    <div class="container">
+      ${sectionHead(copy.servicesEyebrow, copy.servicesTitle, copy.servicesLead)}
+      <div class="estate-service-grid">
+        ${services.map((service, i) => `<article class="estate-service" data-reveal>
+          <span class="service-num">${String(i + 1).padStart(2, '0')}</span>
+          <div><h3 class="h3">${esc(service.title)}</h3><p>${esc(service.description)}</p></div>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="process">
+    <div class="container">
+      ${sectionHead(copy.processTitle, copy.processLead, undefined, true)}
+      <div class="steps">
+        ${[
+          [copy.step1, copy.step1d],
+          [copy.step2, copy.step2d],
+          [copy.step3, copy.step3d],
+          [copy.step4, copy.step4d],
+        ].map(([title, desc], i) => `<div class="step" data-reveal><div class="n">${i + 1}</div><h3>${esc(title)}</h3><p>${esc(desc)}</p></div>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  ${team.length ? `<section class="section bg-soft" id="team">
+    <div class="container">
+      ${sectionHead(copy.teamEyebrow, copy.teamTitle, copy.teamLead, true)}
+      <div class="estate-team-grid">${team.map((m) => realEstateCard(m, copy)).join('')}</div>
+    </div>
+  </section>` : ''}
+
+  <section class="section" id="about">
+    <div class="container about-grid realestate-about-grid">
+      <div class="realestate-about-media" data-reveal>
+        ${about ? `<img class="main" src="${attr(about)}" alt="${attr(config.siteName)}" loading="lazy" decoding="async" width="800" height="760">` : ''}
+        <div class="about-badge">${icon('check')}+8 ${esc(s.years)}</div>
+      </div>
+      <div data-reveal>
+        <span class="eyebrow">${esc(s.about)}</span>
+        <h2 class="h2 mt-2">${esc(config.siteName)}</h2>
+        <p class="lead mt-2">${esc(config.description)}</p>
+        <ul class="checklist">
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat1)} — ${esc(copy.feat1d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat2)} — ${esc(copy.feat2d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat3)} — ${esc(copy.feat3d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat4)} — ${esc(copy.feat4d)}</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="viewing">
+    <div class="container viewing-wrap">
+      <div class="viewing-copy" data-reveal>
+        <span class="eyebrow">${esc(s.appointment)}</span>
+        <h2 class="h2 mt-2">${esc(copy.viewingTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.viewingLead)}</p>
+        <ul class="checklist">
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat1)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat3)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.note)}</span></li>
+        </ul>
+        <div class="estate-hours">
+          <div class="hours-row"><span>${icon('clock')}${esc(s.hours)}</span><strong>${esc(config.hours || '09:00 — 18:00')}</strong></div>
+          <div class="hours-row"><span>${icon('map')}${esc(s.location)}</span><strong>${esc(config.address || config.city || '')}</strong></div>
+        </div>
+        <div class="estate-contact-actions">
+          <a class="btn btn-light" href="tel:${attr(config.phone)}">${icon('phone')}${esc(s.callNow)}</a>
+          <a class="btn btn-wa" href="${attr(viewingWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.whatsapp)}</a>
+        </div>
+      </div>
+      <form class="viewing-card" data-lead-form data-lead-kind="viewing" novalidate>
+        <h3>${esc(copy.formTitle)}</h3>
+        <p class="booking-sub">${esc(copy.formSub)}</p>
+        <div class="form-grid">
+          <div class="field"><label for="vie-name">${esc(s.name)}</label><input id="vie-name" name="name" required maxlength="80" autocomplete="name"><span class="err">${esc(s.required)}</span></div>
+          <div class="field"><label for="vie-phone">${esc(s.phone)}</label><input id="vie-phone" name="phone" type="tel" required maxlength="20" autocomplete="tel" dir="ltr"><span class="err">${esc(s.invalidPhone)}</span></div>
+          <div class="field full"><label for="vie-email">${esc(s.email)}</label><input id="vie-email" name="email" type="email" maxlength="120" autocomplete="email" dir="ltr"></div>
+          <div class="field full"><label for="vie-type">${esc(copy.summaryType)}</label><input id="vie-type" name="propertyType" maxlength="200"></div>
+          <div class="field full"><label for="vie-msg">${esc(s.message)}</label><textarea id="vie-msg" name="message" required maxlength="1200"></textarea><span class="err">${esc(s.required)}</span></div>
+          <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
+        </div>
+        <button class="btn btn-primary btn-block mt-3" type="submit">${icon('send')}${esc(copy.confirm)}</button>
+        <div class="form-status" role="status"></div>
+        <p class="form-note center mt-2">${esc(copy.note)}</p>
+      </form>
+    </div>
+  </section>
+
+  <section class="stats-band">
+    <div class="container stats-grid">
+      ${copy.stats.map(([num, label]) => `<div class="stat"><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">${sectionHead(s.testimonials, s.testimonials, undefined, true)}
+      <div class="grid g3">${copy.quotes.map((q) => `<div class="quote" data-reveal>
+        <div class="stars" aria-label="5/5">★★★★★</div>
+        <p>“${esc(q.text)}”</p>
+        <div class="who"><span class="avatar">${esc(initialsFor(q.name))}</span><div><strong>${esc(q.name)}</strong><span>${esc(q.role)}</span></div></div>
+      </div>`).join('')}</div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="faq">
+    <div class="container">
+      ${sectionHead(s.faq, copy.faqTitle, undefined, true)}
+      <div class="faq-list">
+        ${copy.faq.map(([q, a]) => `<details class="faq" data-reveal>
+          <summary>${esc(q)}<span class="faq-ic">${icon('plus')}</span></summary>
+          <p>${esc(a)}</p>
+        </details>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  ${contactSection(config, s)}`;
+}
+
+/* -------------------------------------------------------------------------
  * COMPANY
  * ---------------------------------------------------------------------- */
 export function companyPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
@@ -2565,6 +3038,7 @@ export function pageFor(template: string, config: RenderConfig, lang: Lang): str
     case 'lawyer':
       return lawyerPage(config, s, lang);
     case 'realestate':
+      return realEstatePage(config, s, lang);
     case 'education':
     case 'construction':
       return companyPage(config, s, lang);
@@ -2721,7 +3195,32 @@ export function jsonLdFor(template: string, config: RenderConfig, siteUrl: strin
         image: member.photoUrl || undefined,
       })),
     };
-    case 'realestate': return { ...base, '@type': 'RealEstateAgent', image: config.coverUrl || undefined };
+    case 'realestate': return {
+      ...base,
+      '@type': 'RealEstateAgent',
+      image: config.coverUrl || undefined,
+      priceRange: 'DZD',
+      openingHours: config.hours || undefined,
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: 'Properties',
+        itemListElement: config.products.slice(0, 12).map((p, index) => ({
+          '@type': 'Offer',
+          position: index + 1,
+          name: p.name,
+          description: p.description,
+          price: p.price,
+          priceCurrency: 'DZD',
+          availability: 'https://schema.org/InStock',
+        })),
+      },
+      employee: (config.team || []).map((member) => ({
+        '@type': 'Person',
+        name: member.name,
+        jobTitle: member.role,
+        image: member.photoUrl || undefined,
+      })),
+    };
     case 'education': return { ...base, '@type': 'EducationalOrganization', image: config.coverUrl || undefined };
     case 'fitness': return { ...base, '@type': 'ExerciseGym', image: config.coverUrl || undefined };
     case 'beauty': return { ...base, '@type': 'BeautySalon', image: config.coverUrl || undefined };
