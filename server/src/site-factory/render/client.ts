@@ -448,6 +448,13 @@ export const SITE_JS = String.raw`
           ' | ' + (form.message ? form.message.value : '') +
           '. ' + message;
       }
+      if (form.getAttribute('data-lead-kind') === 'registration') {
+        var regCourseSelect = form.querySelector('[name="courseType"]');
+        var regCourseName = regCourseSelect ? regCourseSelect.value : '';
+        message = 'Course registration: ' + regCourseName +
+          ' | ' + (form.message ? form.message.value : '') +
+          '. ' + message;
+      }
       post('/public/sites/' + encodeURIComponent(SITE.siteId) + '/leads', {
         name: form.name ? form.name.value : '',
         phone: form.phone ? form.phone.value : '',

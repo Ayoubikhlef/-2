@@ -2624,6 +2624,455 @@ export function realEstatePage(config: RenderConfig, s: UiStrings, lang: Lang): 
 }
 
 /* -------------------------------------------------------------------------
+ * EDUCATION
+ * ---------------------------------------------------------------------- */
+interface EducationCopy {
+  heroBadge: string;
+  registerCta: string;
+  programsCta: string;
+  openDaily: string;
+  certified: string;
+  experience: string;
+  heroMessage: string;
+  programsEyebrow: string;
+  programsTitle: string;
+  programsLead: string;
+  programs: Array<{ icon: string; title: string; description: string }>;
+  coursesEyebrow: string;
+  coursesTitle: string;
+  coursesLead: string;
+  fallbackCourses: Array<{ title: string; description: string; price: string }>;
+  processTitle: string;
+  processLead: string;
+  step1: string; step1d: string;
+  step2: string; step2d: string;
+  step3: string; step3d: string;
+  step4: string; step4d: string;
+  teamEyebrow: string;
+  teamTitle: string;
+  teamLead: string;
+  aboutTitle: string;
+  aboutLead: string;
+  feat1: string; feat1d: string;
+  feat2: string; feat2d: string;
+  feat3: string; feat3d: string;
+  feat4: string; feat4d: string;
+  stats: Array<[string, string]>;
+  quotes: Array<{ text: string; name: string; role: string }>;
+  faqTitle: string;
+  faq: Array<[string, string]>;
+  registerTitle: string;
+  registerLead: string;
+  formTitle: string;
+  formSub: string;
+  confirm: string;
+  summaryCourse: string;
+  summaryLevel: string;
+  summaryWhen: string;
+  note: string;
+}
+
+const EDUCATION: Record<Lang, EducationCopy> = {
+  ar: {
+    heroBadge: 'مركز تكوين معتمد · شهادات معترف بها',
+    registerCta: 'التسجيل الآن',
+    programsCta: 'برامجنا',
+    openDaily: 'مفتوح يومياً',
+    certified: 'شهادات معتمدة',
+    experience: 'سنوات الخبرة',
+    heroMessage: 'أريد التسجيل في دورة تدريبية',
+    programsEyebrow: 'برامج التكوين',
+    programsTitle: 'نُكوّن مهاراتك لمستقبل أفضل',
+    programsLead: 'من الإعلام الآلي واللغات إلى التسيير والتصميم، نقدّم دورات عملية بشهادات معترف بها.',
+    programs: [
+      { icon: 'home', title: 'إعلام آلي', description: 'دورات عملية في الحاسوب والبرمجيات المكتبية لمستويات مختلفة.' },
+      { icon: 'clipboard', title: 'لغات', description: 'فرنسية وإنجليزية بمجموعات صغيرة ومستويات متدرجة.' },
+      { icon: 'briefcase', title: 'تسيير ومحاسبة', description: 'تكوين عملي على برامج المحاسبة والإدارة المالية.' },
+      { icon: 'target', title: 'تصميم جرافيكي', description: 'تصميم بالبرامج الاحترافية وإعداد مشاريع تطبيقية.' },
+    ],
+    coursesEyebrow: 'الدورات المتاحة',
+    coursesTitle: 'دوراتنا التدريبية',
+    coursesLead: 'دورات عملية مع مدربين معتمدين، وشهادة معتمدة بعد كل دورة.',
+    fallbackCourses: [
+      { title: 'إعلام آلي ومكتبي', description: 'Word وExcel وPowerPoint بمستويات متدرجة.', price: '12,000 دج' },
+      { title: 'اللغة الإنجليزية', description: 'مستوى A1 إلى B1 بمجموعات صغيرة.', price: '15,000 دج' },
+      { title: 'المحاسبة والتسيير', description: 'تكوين عملي على برامج المحاسبة.', price: '18,000 دج' },
+      { title: 'التصميم الجرافيكي', description: 'Photoshop وIllustrator مع مشروع نهائي.', price: '22,000 دج' },
+    ],
+    processTitle: 'كيف تسجل وتتدرب',
+    processLead: 'من اختيار الدورة إلى الحصول على الشهادة، نمرافقك في كل خطوة.',
+    step1: 'اختيار الدورة', step1d: 'نساعدك في اختيار الدورة المناسبة لمستواك وهدفك المهني.',
+    step2: 'التسجيل', step2d: 'نسجل بياناتك ونحدد لك مواعيد الحصص والوسيلة التدريبية.',
+    step3: 'التدريب', step3d: 'تحضر الحصص العملية مع مدرب معتمد وتطبق ما تتعلمه على مشاريع حقيقية.',
+    step4: 'الشهادة', step4d: 'تحصل على شهادة معترف بها بعد إكمال الدورة والتقييم النهائي.',
+    teamEyebrow: 'فريق التكوين',
+    teamTitle: 'مدربون معتمدون في خدمتك',
+    teamLead: 'فريق من المدربين المؤهلين具有 خبرة عملية في المجالات التقنية والإدارية.',
+    aboutTitle: 'مركز النجاح للتكوين',
+    aboutLead: 'مركز تكوين معتمد يقدّم دورات عملية في الإعلام الآلي واللغات والتسيير، بشهادات معترف بها، مع مرافقة المتدرب من التسجيل حتى الحصول على الشهادة.',
+    feat1: 'شهادات معتمدة', feat1d: 'شهادة بعد كل دورة معترف بها في سوق العمل.',
+    feat2: 'مدربون مؤهلون', feat2d: 'مدربون يمتلكون خبرة عملية وشهادات معترف بها.',
+    feat3: 'تكوين عملي', feat3d: 'تدريب عملي على مشاريع حقيقية وحالات دراسية.',
+    feat4: 'جدول مرن', feat4d: 'حصص صباحية ومسائية تناسب جميع الفئات.',
+    stats: [['+6', 'سنة خبرة'], ['+200', 'متدرب'], ['98%', 'رضا المتدربين'], ['24/7', 'دعم أكاديمي']],
+    quotes: [
+      { text: 'دورة ممتازة في الإعلام الآلي، المدرب محترف والحصول على الشهادة كان سهلاً.', name: 'سارة خ.', role: 'متدربة' },
+      { text: 'تعلمت اللغة الإنجليزية بسرعة وبطريقة عملية، أنصح بالمركز للجميع.', name: 'محمد ب.', role: 'متدرب' },
+      { text: 'دورة التصميم الجرافيكي كانت مفيدة جداً، وحصلت على شهادة معتمدة.', name: 'نورى ع.', role: 'متدرب' },
+    ],
+    faqTitle: 'أسئلة شائعة',
+    faq: [
+      ['هل الشهادات معترف بها؟', 'نعم، جميع الشهادات معترف بها وتمنح بعد إكمال الدورة والتقييم.'],
+      ['كيف أسجل في دورة؟', 'يمكنك التسجيل عبر النموذج أو زيارة المركز 직접اً.'],
+      ['هل هناك حصص مسائية؟', 'نعم، نقدم حصصاً صباحية ومسائية تناسب جميع الفئات.'],
+      ['ما هي أوقات العمل؟', 'نعمل من السبت إلى الخميس من 08:30 إلى 19:00.'],
+      ['هل يمكن الدفع بالتقسيط؟', 'نعم، يمكن تقسيط رسوم الدورة على عدة دفعات حسب الاتفاق.'],
+    ],
+    registerTitle: 'سجل في دورة تدريبية',
+    registerLead: 'املأ النموذج وسنتصل بك لتحديد الدورة المناسبة وموعد البدء.',
+    formTitle: 'طلب تسجيل في دورة',
+    formSub: 'أخبرنا عن الدورة التي تهتم بها وسنرد عليك في أقرب وقت.',
+    confirm: 'إرسال طلب التسجيل',
+    summaryCourse: 'الدورة المختارة',
+    summaryLevel: 'المستوى المطلوب',
+    summaryWhen: 'الموعد المفضل',
+    note: 'جميع بياناتك محمية وسرية وفقاً لسياسة المركز.',
+  },
+  fr: {
+    heroBadge: 'Centre de formation agréé · Diplômes reconnus',
+    registerCta: 'S\'inscrire maintenant',
+    programsCta: 'Nos programmes',
+    openDaily: 'Ouvert tous les jours',
+    certified: 'Diplômes certifiés',
+    experience: 'ans d’expérience',
+    heroMessage: 'Je souhaite m\'inscrire à une formation',
+    programsEyebrow: 'Programmes de formation',
+    programsTitle: 'Nous formons vos compétences pour un meilleur avenir',
+    programsLead: 'De l\'informatique et les langues à la gestion et le design, nous proposons des formations pratiques avec diplômes reconnus.',
+    programs: [
+      { icon: 'home', title: 'Informatique', description: 'Formations pratiques en informatique et bureautique pour différents niveaux.' },
+      { icon: 'clipboard', title: 'Langues', description: 'Français et anglais en petits groupes et niveaux progressifs.' },
+      { icon: 'briefcase', title: 'Gestion et comptabilité', description: 'Formation pratique sur les logiciels de comptabilité et de gestion financière.' },
+      { icon: 'target', title: 'Graphisme', description: 'Design avec logiciels professionnels et préparation de projets applicatifs.' },
+    ],
+    coursesEyebrow: 'Formations disponibles',
+    coursesTitle: 'Nos formations',
+    coursesLead: 'Des formations pratiques avec des formateurs certifiés, et un diplôme certifié après chaque formation.',
+    fallbackCourses: [
+      { title: 'Informatique et bureautique', description: 'Word, Excel et PowerPoint par niveaux progressifs.', price: '12 000 DA' },
+      { title: 'Anglais', description: 'Niveau A1 à B1 en petits groupes.', price: '15 000 DA' },
+      { title: 'Comptabilité et gestion', description: 'Formation pratique sur les logiciels de comptabilité.', price: '18 000 DA' },
+      { title: 'Graphisme', description: 'Photoshop et Illustrator avec projet final.', price: '22 000 DA' },
+    ],
+    processTitle: 'Comment vous inscrire et vous former',
+    processLead: 'Du choix de la formation à l\'obtention du diplôme, nous vous accompagnons à chaque étape.',
+    step1: 'Choix de la formation', step1d: 'Nous vous aidons à choisir la formation adaptée à votre niveau et objectif professionnel.',
+    step2: 'Inscription', step2d: 'Nous enregistrons vos données et fixons les dates des cours et le support de formation.',
+    step3: 'Formation', step3d: 'Vous assistez aux cours pratiques avec un formateur certifié et appliquez ce que vous apprenez sur des projets réels.',
+    step4: 'Diplôme', step4d: 'Vous obtenez un diplôme reconnu après achèvement de la formation et évaluation finale.',
+    teamEyebrow: 'Équipe de formation',
+    teamTitle: 'Des formateurs certifiés à votre service',
+    teamLead: 'Une équipe de formateurs qualifiés ayant une expérience pratique dans les domaines techniques et administratifs.',
+    aboutTitle: 'Centre de formation Al Najah',
+    aboutLead: 'Un centre de formation agréé proposant des formations pratiques en informatique, langues et gestion, avec diplômes reconnus, accompagnant le stagiaire de l\'inscription jusqu\'à l\'obtention du diplôme.',
+    feat1: 'Diplômes certifiés', feat1d: 'Un diplôme certifié après chaque formation reconnu sur le marché du travail.',
+    feat2: 'Formateurs qualifiés', feat2d: 'Des formateurs possédant une expérience pratique et des diplômes reconnus.',
+    feat3: 'Formation pratique', feat3d: 'Une formation pratique sur des projets réels et des études de cas.',
+    feat4: 'Emploi du temps flexible', feat4d: 'Des cours matinaux et soirés convenant à toutes les catégories.',
+    stats: [['+6', 'ans d’expérience'], ['+200', 'stagiaires'], ['98%', 'satisfaction stagiaires'], ['24/7', 'soutien académique']],
+    quotes: [
+      { text: 'Une excellente formation en informatique, le formateur est professionnel et l\'obtention du diplôme a été facile.', name: 'Sarah K.', role: 'Stagiaire' },
+      { text: 'J\'ai appris l\'anglais rapidement et de manière pratique, je recommande ce centre à tous.', name: 'Mohamed B.', role: 'Stagiaire' },
+      { text: 'La formation en graphisme a été très utile, et j\'ai obtenu un diplôme certifié.', name: 'Nouri A.', role: 'Stagiaire' },
+    ],
+    faqTitle: 'Questions fréquentes',
+    faq: [
+      ['Les diplômes sont-ils reconnus ?', 'Oui, tous les diplômes sont reconnus et délivrés après achèvement de la formation et évaluation.'],
+      ['Comment m\'inscrire à une formation ?', 'Vous pouvez vous inscrire via le formulaire ou visiter le centre directement.'],
+      ['Y a-t-il des cours du soir ?', 'Oui, nous proposons des cours du matin et du soir convenant à toutes les catégories.'],
+      ['Quels sont vos horaires ?', 'Nous travaillons du samedi au jeudi de 08:30 à 19:00.'],
+      ['Peut-on payer en plusieurs fois ?', 'Oui, les frais de formation peuvent être étalés sur plusieurs versements selon l\'accord.'],
+    ],
+    registerTitle: 'Inscrivez-vous à une formation',
+    registerLead: 'Remplissez le formulaire et nous vous contacterons pour fixer la formation appropriée et la date de début.',
+    formTitle: 'Demande d\'inscription à une formation',
+    formSub: 'Dites-nous la formation qui vous intéresse et nous vous répondrons dans les plus brefs délais.',
+    confirm: 'Envoyer la demande d\'inscription',
+    summaryCourse: 'Formation choisie',
+    summaryLevel: 'Niveau demandé',
+    summaryWhen: 'Rendez-vous préféré',
+    note: 'Toutes vos données sont protégées et confidentielles selon la politique du centre.',
+  },
+  en: {
+    heroBadge: 'Certified training center · Recognized certificates',
+    registerCta: 'Register now',
+    programsCta: 'Our programs',
+    openDaily: 'Open every day',
+    certified: 'Certified diplomas',
+    experience: 'years of experience',
+    heroMessage: 'I want to register for a training course',
+    programsEyebrow: 'Training programs',
+    programsTitle: 'We build your skills for a better future',
+    programsLead: 'From IT and languages to management and design, we offer practical courses with recognized certificates.',
+    programs: [
+      { icon: 'home', title: 'IT & Office', description: 'Practical courses in computer and office software for various levels.' },
+      { icon: 'clipboard', title: 'Languages', description: 'French and English in small groups with progressive levels.' },
+      { icon: 'briefcase', title: 'Management & Accounting', description: 'Practical training on accounting and financial management software.' },
+      { icon: 'target', title: 'Graphic Design', description: 'Design with professional software and applied project preparation.' },
+    ],
+    coursesEyebrow: 'Available courses',
+    coursesTitle: 'Our training courses',
+    coursesLead: 'Practical courses with certified trainers, and a certified certificate after each course.',
+    fallbackCourses: [
+      { title: 'IT & Office', description: 'Word, Excel and PowerPoint at progressive levels.', price: '12,000 DZD' },
+      { title: 'English', description: 'Level A1 to B1 in small groups.', price: '15,000 DZD' },
+      { title: 'Accounting & Management', description: 'Practical training on accounting software.', price: '18,000 DZD' },
+      { title: 'Graphic Design', description: 'Photoshop and Illustrator with final project.', price: '22,000 DZD' },
+    ],
+    processTitle: 'How to register and train',
+    processLead: 'From course selection to certificate issuance, we accompany you at every step.',
+    step1: 'Course selection', step1d: 'We help you choose the right course for your level and career goal.',
+    step2: 'Registration', step2d: 'We register your details and set class dates and training materials.',
+    step3: 'Training', step3d: 'You attend practical sessions with a certified trainer and apply what you learn on real projects.',
+    step4: 'Certificate', step4d: 'You receive a recognized certificate after completing the course and final assessment.',
+    teamEyebrow: 'Training team',
+    teamTitle: 'Certified trainers at your service',
+    teamLead: 'A team of qualified trainers with practical experience in technical and administrative fields.',
+    aboutTitle: 'Al Najah Training Center',
+    aboutLead: 'A certified training center offering practical courses in IT, languages and management, with recognized certificates, accompanying the trainee from registration to certificate issuance.',
+    feat1: 'Certified certificates', feat1d: 'A certified certificate after each course recognized in the job market.',
+    feat2: 'Qualified trainers', feat2d: 'Trainers with practical experience and recognized certificates.',
+    feat3: 'Practical training', feat3d: 'Practical training on real projects and case studies.',
+    feat4: 'Flexible schedule', feat4d: 'Morning and evening classes suitable for all categories.',
+    stats: [['+6', 'years of experience'], ['+200', 'trainees'], ['98%', 'trainee satisfaction'], ['24/7', 'academic support']],
+    quotes: [
+      { text: 'An excellent IT course, the trainer is professional and getting the certificate was easy.', name: 'Sarah K.', role: 'Trainee' },
+      { text: 'I learned English quickly and practically, I recommend this center to everyone.', name: 'Mohamed B.', role: 'Trainee' },
+      { text: 'The graphic design course was very useful, and I got a certified certificate.', name: 'Nouri A.', role: 'Trainee' },
+    ],
+    faqTitle: 'Frequently asked questions',
+    faq: [
+      ['Are certificates recognized?', 'Yes, all certificates are recognized and issued after completing the course and assessment.'],
+      ['How do I register for a course?', 'You can register via the form or visit the center directly.'],
+      ['Are there evening classes?', 'Yes, we offer morning and evening classes suitable for all categories.'],
+      ['What are your hours?', 'We work Saturday to Thursday from 08:30 to 19:00.'],
+      ['Can I pay in installments?', 'Yes, course fees can be paid in several installments by agreement.'],
+    ],
+    registerTitle: 'Register for a training course',
+    registerLead: 'Fill out the form and we will contact you to determine the right course and start date.',
+    formTitle: 'Course registration request',
+    formSub: 'Tell us about the course you are interested in and we will respond as soon as possible.',
+    confirm: 'Send registration request',
+    summaryCourse: 'Selected course',
+    summaryLevel: 'Level required',
+    summaryWhen: 'Preferred appointment',
+    note: 'All your data is protected and confidential according to the center policy.',
+  },
+};
+
+function educationCard(member: RenderTeamMember, copy: EducationCopy): string {
+  const photo = member.photoUrl
+    ? `<img src="${attr(member.photoUrl)}" alt="${attr(member.name)}" loading="lazy" decoding="async" width="700" height="700">`
+    : `<span class="edu-initials">${esc(initialsFor(member.name))}</span>`;
+  return `<article class="edu-card" data-reveal>
+    <div class="edu-avatar">${photo}</div>
+    <h3>${esc(member.name)}</h3>
+    <p class="edu-role">${esc(member.role)}</p>
+    ${member.specialty ? `<span class="edu-specialty">${esc(member.specialty)}</span>` : ''}
+    ${member.experience ? `<span class="edu-exp">${icon('award')}${esc(member.experience)} ${esc(copy.experience)}</span>` : ''}
+  </article>`;
+}
+
+function courseCard(p: RenderProduct, config: RenderConfig, s: UiStrings, lang: Lang): string {
+  const image = p.imageUrl
+    ? `<img src="${attr(p.imageUrl)}" alt="${attr(p.name)}" loading="lazy" decoding="async" width="600" height="450">`
+    : productPlaceholder(p.name);
+  return `<article class="course-card" data-reveal data-course-card data-category="${attr(p.category || '')}" data-name="${attr(p.name)}" data-desc="${attr(p.description || '')}">
+    <div class="course-thumb">${image}</div>
+    <div class="course-body">
+      ${p.category ? `<span class="cat">${esc(p.category)}</span>` : ''}
+      <h3>${esc(p.name)}</h3>
+      ${p.description ? `<p>${esc(p.description)}</p>` : ''}
+      ${p.price > 0 ? `<span class="price">${money(p.price, lang)}</span>` : ''}
+      <a class="btn btn-wa btn-block mt-3" href="${attr(waHref(config, `أنا مهتم بدورة: ${p.name} — ${p.description || ''}`))}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.orderNow)}</a>
+    </div>
+  </article>`;
+}
+
+export function educationPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
+  const copy = EDUCATION[lang];
+  const courses = config.products.filter((p) => p.name);
+  const team = config.team || [];
+  const services = config.services.length ? config.services : copy.fallbackCourses;
+  const heroImage = config.coverUrl
+    ? `<img src="${attr(config.coverUrl)}" alt="${attr(config.siteName)}" width="900" height="1100" fetchpriority="high" decoding="async">`
+    : '';
+  const about = aboutPhoto(config);
+  const heroWa = waHref(config, `${copy.heroMessage} — ${config.siteName}`);
+  const registerWa = waHref(config, `تسجيل في دورة — ${config.siteName}`);
+
+  return `<section class="hero edu-hero" id="top">
+    <div class="container hero-grid">
+      <div class="hero-copy" data-reveal>
+        <span class="badge">${icon('clipboard')}${esc(copy.heroBadge)}</span>
+        <h1 class="h1 mt-3">${esc(config.siteName)}</h1>
+        <p class="lead">${esc(config.description)}</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#courses">${icon('clipboard')}${esc(copy.programsCta)}</a>
+          <a class="btn btn-wa" href="${attr(heroWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(copy.registerCta)}</a>
+        </div>
+        <div class="edu-badges">
+          <span>${icon('shield')}${esc(copy.certified)}</span>
+          <span>${icon('clock')}${esc(copy.openDaily)} · ${esc(config.hours || '08:30 — 19:00')}</span>
+        </div>
+        <div class="hero-stats">
+          ${copy.stats.slice(0, 3).map(([num, label]) => `<div><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="hero-media edu-hero-media${heroImage ? '' : ' no-img'}" data-mark="${attr(initials(config.siteName))}" data-reveal>${heroImage}
+        <div class="float-card"><span class="float-icon">${icon('clipboard')}</span><div><strong>${esc(copy.certified)}</strong><span>${esc(config.city || '')}</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="trust-strip"><div class="container">
+    <span class="trust-item">${icon('shield')}${esc(copy.certified)}</span>
+    <span class="trust-item">${icon('home')}${esc(s.quality)}</span>
+    <span class="trust-item">${icon('award')}${esc(s.satisfaction)}</span>
+    <span class="trust-item">${icon('target')}${esc(s.projects)}</span>
+  </div></div>
+
+  <section class="section" id="programs">
+    <div class="container">
+      ${sectionHead(copy.programsEyebrow, copy.programsTitle, copy.programsLead, true)}
+      <div class="programs-grid">
+        ${copy.programs.map((item, i) => `<article class="program-card" data-reveal>
+          <span class="program-icon">${icon(item.icon as any)}</span>
+          <h3 class="h3">${esc(item.title)}</h3>
+          <p>${esc(item.description)}</p>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="courses">
+    <div class="container">
+      ${sectionHead(copy.coursesEyebrow, copy.coursesTitle, copy.coursesLead)}
+      <div class="course-grid">${courses.length ? courses.map((p) => courseCard(p, config, s, lang)).join('') : `<div class="course-empty">${esc(s.emptyCart)}</div>`}</div>
+    </div>
+  </section>
+
+  <section class="section" id="process">
+    <div class="container">
+      ${sectionHead(copy.processTitle, copy.processLead, undefined, true)}
+      <div class="steps">
+        ${[
+          [copy.step1, copy.step1d],
+          [copy.step2, copy.step2d],
+          [copy.step3, copy.step3d],
+          [copy.step4, copy.step4d],
+        ].map(([title, desc], i) => `<div class="step" data-reveal><div class="n">${i + 1}</div><h3>${esc(title)}</h3><p>${esc(desc)}</p></div>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  ${team.length ? `<section class="section bg-soft" id="team">
+    <div class="container">
+      ${sectionHead(copy.teamEyebrow, copy.teamTitle, copy.teamLead, true)}
+      <div class="edu-team-grid">${team.map((m) => educationCard(m, copy)).join('')}</div>
+    </div>
+  </section>` : ''}
+
+  <section class="section" id="about">
+    <div class="container about-grid edu-about-grid">
+      <div class="edu-about-media" data-reveal>
+        ${about ? `<img class="main" src="${attr(about)}" alt="${attr(config.siteName)}" loading="lazy" decoding="async" width="800" height="760">` : ''}
+        <div class="about-badge">${icon('check')}+6 ${esc(s.years)}</div>
+      </div>
+      <div data-reveal>
+        <span class="eyebrow">${esc(s.about)}</span>
+        <h2 class="h2 mt-2">${esc(config.siteName)}</h2>
+        <p class="lead mt-2">${esc(config.description)}</p>
+        <ul class="checklist">
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat1)} — ${esc(copy.feat1d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat2)} — ${esc(copy.feat2d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat3)} — ${esc(copy.feat3d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat4)} — ${esc(copy.feat4d)}</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="register">
+    <div class="container register-wrap">
+      <div class="register-copy" data-reveal>
+        <span class="eyebrow">${esc(s.appointment)}</span>
+        <h2 class="h2 mt-2">${esc(copy.registerTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.registerLead)}</p>
+        <ul class="checklist">
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat1)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat3)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.note)}</span></li>
+        </ul>
+        <div class="edu-hours">
+          <div class="hours-row"><span>${icon('clock')}${esc(s.hours)}</span><strong>${esc(config.hours || '08:30 — 19:00')}</strong></div>
+          <div class="hours-row"><span>${icon('map')}${esc(s.location)}</span><strong>${esc(config.address || config.city || '')}</strong></div>
+        </div>
+        <div class="edu-contact-actions">
+          <a class="btn btn-light" href="tel:${attr(config.phone)}">${icon('phone')}${esc(s.callNow)}</a>
+          <a class="btn btn-wa" href="${attr(registerWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.whatsapp)}</a>
+        </div>
+      </div>
+      <form class="register-card" data-lead-form data-lead-kind="registration" novalidate>
+        <h3>${esc(copy.formTitle)}</h3>
+        <p class="booking-sub">${esc(copy.formSub)}</p>
+        <div class="form-grid">
+          <div class="field"><label for="reg-name">${esc(s.name)}</label><input id="reg-name" name="name" required maxlength="80" autocomplete="name"><span class="err">${esc(s.required)}</span></div>
+          <div class="field"><label for="reg-phone">${esc(s.phone)}</label><input id="reg-phone" name="phone" type="tel" required maxlength="20" autocomplete="tel" dir="ltr"><span class="err">${esc(s.invalidPhone)}</span></div>
+          <div class="field full"><label for="reg-email">${esc(s.email)}</label><input id="reg-email" name="email" type="email" maxlength="120" autocomplete="email" dir="ltr"></div>
+          <div class="field full"><label for="reg-course">${esc(copy.summaryCourse)}</label><input id="reg-course" name="courseType" maxlength="200"></div>
+          <div class="field full"><label for="reg-msg">${esc(s.message)}</label><textarea id="reg-msg" name="message" required maxlength="1200"></textarea><span class="err">${esc(s.required)}</span></div>
+          <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
+        </div>
+        <button class="btn btn-primary btn-block mt-3" type="submit">${icon('send')}${esc(copy.confirm)}</button>
+        <div class="form-status" role="status"></div>
+        <p class="form-note center mt-2">${esc(copy.note)}</p>
+      </form>
+    </div>
+  </section>
+
+  <section class="stats-band">
+    <div class="container stats-grid">
+      ${copy.stats.map(([num, label]) => `<div class="stat"><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">${sectionHead(s.testimonials, s.testimonials, undefined, true)}
+      <div class="grid g3">${copy.quotes.map((q) => `<div class="quote" data-reveal>
+        <div class="stars" aria-label="5/5">★★★★★</div>
+        <p>“${esc(q.text)}”</p>
+        <div class="who"><span class="avatar">${esc(initialsFor(q.name))}</span><div><strong>${esc(q.name)}</strong><span>${esc(q.role)}</span></div></div>
+      </div>`).join('')}</div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="faq">
+    <div class="container">
+      ${sectionHead(s.faq, copy.faqTitle, undefined, true)}
+      <div class="faq-list">
+        ${copy.faq.map(([q, a]) => `<details class="faq" data-reveal>
+          <summary>${esc(q)}<span class="faq-ic">${icon('plus')}</span></summary>
+          <p>${esc(a)}</p>
+        </details>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  ${contactSection(config, s)}`;
+}
+
+/* -------------------------------------------------------------------------
  * COMPANY
  * ---------------------------------------------------------------------- */
 export function companyPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
@@ -3040,6 +3489,7 @@ export function pageFor(template: string, config: RenderConfig, lang: Lang): str
     case 'realestate':
       return realEstatePage(config, s, lang);
     case 'education':
+      return educationPage(config, s, lang);
     case 'construction':
       return companyPage(config, s, lang);
 
@@ -3221,7 +3671,32 @@ export function jsonLdFor(template: string, config: RenderConfig, siteUrl: strin
         image: member.photoUrl || undefined,
       })),
     };
-    case 'education': return { ...base, '@type': 'EducationalOrganization', image: config.coverUrl || undefined };
+    case 'education': return {
+      ...base,
+      '@type': 'EducationalOrganization',
+      image: config.coverUrl || undefined,
+      priceRange: 'DZD',
+      openingHours: config.hours || undefined,
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: 'Courses',
+        itemListElement: config.products.slice(0, 12).map((p, index) => ({
+          '@type': 'Offer',
+          position: index + 1,
+          name: p.name,
+          description: p.description,
+          price: p.price,
+          priceCurrency: 'DZD',
+          availability: 'https://schema.org/InStock',
+        })),
+      },
+      employee: (config.team || []).map((member) => ({
+        '@type': 'Person',
+        name: member.name,
+        jobTitle: member.role,
+        image: member.photoUrl || undefined,
+      })),
+    };
     case 'fitness': return { ...base, '@type': 'ExerciseGym', image: config.coverUrl || undefined };
     case 'beauty': return { ...base, '@type': 'BeautySalon', image: config.coverUrl || undefined };
     case 'travel': return { ...base, '@type': 'TravelAgency', image: config.coverUrl || undefined };

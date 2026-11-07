@@ -398,6 +398,11 @@ export const DEMO: Record<string, DemoSeed> = {
       ['التصميم الجرافيكي', 22000, 'تصميم', 'Photoshop وIllustrator مع مشروع نهائي.'],
       ['التسويق الرقمي', 20000, 'تسويق', 'إدارة صفحات وحملات إعلانية عملية.'],
     ], 1),
+    team: [
+      { name: 'سارة بن علي', role: 'مدربة برامجية', specialty: 'الإعلام الآلي والمكتبي', experience: '6 سنوات', photoUrl: photo('person', 0, 700, 800) },
+      { name: 'محمد تيركي', role: 'مدرب لغات', specialty: 'الفرنسية والإنجليزية', experience: '5 سنوات', photoUrl: photo('person', 1, 700, 800) },
+      { name: 'نادية خليف', role: 'مدربة محاسبة', specialty: 'التسيير والمحاسبة', experience: '4 سنوات', photoUrl: photo('person', 2, 700, 800) },
+    ],
   },
   fitness: {
     name: 'قاعة القوة الرياضية',

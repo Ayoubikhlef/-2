@@ -720,6 +720,51 @@ body.has-preview .site-header{top:36px}
 .tpl-realestate .hours-row strong{color:var(--ink);font-weight:800}
 .tpl-realestate .estate-contact-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
 .tpl-realestate .estate-contact-actions .btn{flex:1 1 auto}
+/* education */
+.tpl-education .edu-badges{display:flex;gap:12px;margin-top:16px;padding-top:12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.tpl-education .hero-stats{display:flex;gap:30px;margin-top:38px;padding-top:26px;border-top:1px solid var(--line);flex-wrap:wrap}
+.tpl-education .programs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.tpl-education .program-card{padding:26px 22px;border-radius:20px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:10px;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-education .program-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-education .program-icon{width:46px;height:46px;border-radius:14px;background:var(--tint-2);color:var(--p-text);display:grid;place-items:center;flex:0 0 auto;margin-bottom:4px}
+.tpl-education .program-icon .icon{width:22px;height:22px}
+.tpl-education .course-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.tpl-education .course-card{border-radius:20px;overflow:hidden;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-education .course-card:hover{transform:translateY(-5px);box-shadow:var(--shadow);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-education .course-thumb{position:relative;aspect-ratio:4/3;overflow:hidden;background:linear-gradient(145deg,var(--tint),var(--tint-2))}
+.tpl-education .course-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.tpl-education .course-card:hover .course-thumb img{transform:scale(1.06)}
+.tpl-education .course-body{padding:18px 20px 22px;display:flex;flex-direction:column;gap:6px;flex:1}
+.tpl-education .course-body .cat{font-size:.65rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--p-text)}
+.tpl-education .course-body h3{font-size:1rem;line-height:1.4}
+.tpl-education .course-body p{font-size:.82rem;color:var(--muted);line-height:1.65}
+.tpl-education .course-body .price{margin-top:auto;padding-top:10px;color:var(--p-text);font-weight:900}
+.tpl-education .edu-service-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.tpl-education .edu-service{padding:24px;border-radius:18px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:8px;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-education .edu-service:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-education .service-num{font-size:.75rem;font-weight:900;color:color-mix(in srgb,var(--p) 45%,var(--muted))}
+.tpl-education .edu-service h3{font-size:1rem;margin-bottom:4px}
+.tpl-education .edu-service p{font-size:.82rem;color:var(--muted);line-height:1.65}
+.tpl-education .edu-team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.tpl-education .edu-card{border-radius:22px;overflow:hidden;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-education .edu-card:hover{transform:translateY(-5px);box-shadow:var(--shadow);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-education .edu-avatar{position:relative;aspect-ratio:4/4.5;overflow:hidden;background:linear-gradient(150deg,var(--tint-2),var(--p2));display:grid;place-items:center}
+.tpl-education .edu-avatar img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.tpl-education .edu-card:hover .edu-avatar img{transform:scale(1.05)}
+.tpl-education .edu-initials{font-size:2.4rem;font-weight:900;color:rgba(255,255,255,.55);letter-spacing:.08em}
+.tpl-education .edu-body{padding:16px 17px 18px;display:flex;flex-direction:column;gap:5px;flex:1}
+.tpl-education .edu-body h3{font-size:.98rem;line-height:1.35}
+.tpl-education .edu-role{font-size:.76rem;color:var(--p-text);font-weight:800;line-height:1.45}
+.tpl-education .edu-specialty{font-size:.7rem;color:var(--muted);margin-top:4px}
+.tpl-education .edu-exp{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:.7rem;color:var(--muted)}
+.tpl-education .register-wrap{display:grid;grid-template-columns:.9fr 1.1fr;gap:44px;align-items:start}
+.tpl-education .register-card{background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:30px;box-shadow:var(--shadow-sm)}
+.tpl-education .register-card h3{font-size:1.15rem}
+.tpl-education .edu-hours{margin-top:18px}
+.tpl-education .hours-row{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.85rem;margin:6px 0}
+.tpl-education .hours-row strong{color:var(--ink);font-weight:800}
+.tpl-education .edu-contact-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.tpl-education .edu-contact-actions .btn{flex:1 1 auto}
 .theme-toggle{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;flex:0 0 auto;position:relative;transition:transform .2s,border-color .2s,background .2s}
 .theme-toggle:hover{transform:translateY(-2px);border-color:var(--p)}
 .theme-toggle .icon{width:18px;height:18px}
@@ -852,6 +897,11 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-realestate .estate-service-grid{grid-template-columns:repeat(2,1fr);gap:16px}
   .tpl-realestate .estate-team-grid{grid-template-columns:repeat(2,1fr);gap:16px}
   .tpl-realestate .viewing-wrap{grid-template-columns:1fr;gap:34px}
+  .tpl-education .programs-grid{grid-template-columns:1fr;gap:16px}
+  .tpl-education .course-grid{grid-template-columns:repeat(2,1fr);gap:16px}
+  .tpl-education .edu-service-grid{grid-template-columns:repeat(2,1fr);gap:16px}
+  .tpl-education .edu-team-grid{grid-template-columns:repeat(2,1fr);gap:16px}
+  .tpl-education .register-wrap{grid-template-columns:1fr;gap:34px}
 }
 @media (max-width:720px){
   .container{width:min(100% - 28px,1180px)}
@@ -925,6 +975,11 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-realestate .property-grid{grid-template-columns:1fr 1fr}
   .tpl-realestate .estate-service-grid{grid-template-columns:1fr;gap:14px}
   .tpl-realestate .estate-team-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-education .programs-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-education .course-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-education .edu-service-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-education .edu-team-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-education .register-card{padding:22px}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}

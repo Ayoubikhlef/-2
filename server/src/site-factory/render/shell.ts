@@ -179,6 +179,17 @@ function navItems(config: RenderConfig, s: UiStrings): { href: string; label: st
         { href: '#faq', label: s.faq },
         { href: '#contact', label: s.contact },
       ];
+    case 'education':
+      return [
+        { href: '#top', label: s.home },
+        { href: '#programs', label: s.services },
+        { href: '#courses', label: s.work },
+        { href: '#team', label: s.team },
+        { href: '#about', label: s.about },
+        { href: '#register', label: s.appointment },
+        { href: '#faq', label: s.faq },
+        { href: '#contact', label: s.contact },
+      ];
     default:
       if (['electronics', 'fashion', 'agriculture'].includes(config.templateSlug)) {
         return [
@@ -288,7 +299,9 @@ export function renderShell(options: ShellOptions): string {
           ? '#consult'
           : config.templateSlug === 'realestate'
             ? '#viewing'
-            : config.templateSlug === 'pharmacy'
+            : config.templateSlug === 'education'
+              ? '#register'
+              : config.templateSlug === 'pharmacy'
               ? '#products'
               : '#contact';
   const mobileCtaLabel = config.templateSlug === 'carrental'
@@ -299,7 +312,9 @@ export function renderShell(options: ShellOptions): string {
         ? s.appointment
         : config.templateSlug === 'realestate'
           ? s.appointment
-          : config.templateSlug === 'pharmacy'
+          : config.templateSlug === 'education'
+            ? s.appointment
+            : config.templateSlug === 'pharmacy'
             ? s.orderNow
             : s.contact;
   const alternateTags = (['ar', 'fr', 'en'] as const)
@@ -473,7 +488,9 @@ export function baseHeader(config: RenderConfig, lang: 'ar' | 'fr' | 'en', alter
           ? '#consult'
           : config.templateSlug === 'realestate'
             ? '#viewing'
-            : config.templateSlug === 'pharmacy'
+            : config.templateSlug === 'education'
+              ? '#register'
+              : config.templateSlug === 'pharmacy'
               ? '#products'
               : '#contact';
   const mobileCtaLabel = config.templateSlug === 'carrental'
@@ -484,7 +501,9 @@ export function baseHeader(config: RenderConfig, lang: 'ar' | 'fr' | 'en', alter
         ? s.appointment
         : config.templateSlug === 'realestate'
           ? s.appointment
-          : config.templateSlug === 'pharmacy'
+          : config.templateSlug === 'education'
+            ? s.appointment
+            : config.templateSlug === 'pharmacy'
             ? s.orderNow
             : s.contact;
   const logo = config.logoAssetPath
