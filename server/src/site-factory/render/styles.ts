@@ -765,6 +765,35 @@ body.has-preview .site-header{top:36px}
 .tpl-education .hours-row strong{color:var(--ink);font-weight:800}
 .tpl-education .edu-contact-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
 .tpl-education .edu-contact-actions .btn{flex:1 1 auto}
+/* construction */
+.tpl-construction .build-badges{display:flex;gap:12px;margin-top:16px;padding-top:12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.tpl-construction .hero-stats{display:flex;gap:30px;margin-top:38px;padding-top:26px;border-top:1px solid var(--line);flex-wrap:wrap}
+.tpl-construction .build-service-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.tpl-construction .build-service{padding:24px;border-radius:18px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:8px;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-construction .build-service:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-construction .service-num{font-size:.75rem;font-weight:900;color:color-mix(in srgb,var(--p) 45%,var(--muted))}
+.tpl-construction .build-service h3{font-size:1rem;margin-bottom:4px}
+.tpl-construction .build-service p{font-size:.82rem;color:var(--muted);line-height:1.65}
+.tpl-construction .build-team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.tpl-construction .build-card{border-radius:22px;overflow:hidden;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-construction .build-card:hover{transform:translateY(-5px);box-shadow:var(--shadow);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-construction .build-avatar{position:relative;aspect-ratio:4/4.5;overflow:hidden;background:linear-gradient(150deg,var(--tint-2),var(--p2));display:grid;place-items:center}
+.tpl-construction .build-avatar img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.tpl-construction .build-card:hover .build-avatar img{transform:scale(1.05)}
+.tpl-construction .build-initials{font-size:2.4rem;font-weight:900;color:rgba(255,255,255,.55);letter-spacing:.08em}
+.tpl-construction .build-body{padding:16px 17px 18px;display:flex;flex-direction:column;gap:5px;flex:1}
+.tpl-construction .build-body h3{font-size:.98rem;line-height:1.35}
+.tpl-construction .build-role{font-size:.76rem;color:var(--p-text);font-weight:800;line-height:1.45}
+.tpl-construction .build-specialty{font-size:.7rem;color:var(--muted);margin-top:4px}
+.tpl-construction .build-exp{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:.7rem;color:var(--muted)}
+.tpl-construction .quote-wrap{display:grid;grid-template-columns:.9fr 1.1fr;gap:44px;align-items:start}
+.tpl-construction .quote-card{background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:30px;box-shadow:var(--shadow-sm)}
+.tpl-construction .quote-card h3{font-size:1.15rem}
+.tpl-construction .build-hours{margin-top:18px}
+.tpl-construction .hours-row{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:.85rem;margin:6px 0}
+.tpl-construction .hours-row strong{color:var(--ink);font-weight:800}
+.tpl-construction .build-contact-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.tpl-construction .build-contact-actions .btn{flex:1 1 auto}
 .theme-toggle{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;flex:0 0 auto;position:relative;transition:transform .2s,border-color .2s,background .2s}
 .theme-toggle:hover{transform:translateY(-2px);border-color:var(--p)}
 .theme-toggle .icon{width:18px;height:18px}
@@ -902,6 +931,9 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-education .edu-service-grid{grid-template-columns:repeat(2,1fr);gap:16px}
   .tpl-education .edu-team-grid{grid-template-columns:repeat(2,1fr);gap:16px}
   .tpl-education .register-wrap{grid-template-columns:1fr;gap:34px}
+  .tpl-construction .build-service-grid{grid-template-columns:repeat(2,1fr);gap:16px}
+  .tpl-construction .build-team-grid{grid-template-columns:repeat(2,1fr);gap:16px}
+  .tpl-construction .quote-wrap{grid-template-columns:1fr;gap:34px}
 }
 @media (max-width:720px){
   .container{width:min(100% - 28px,1180px)}
@@ -950,6 +982,9 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-realestate .estate-service-grid{grid-template-columns:1fr;gap:14px}
   .tpl-realestate .estate-team-grid{grid-template-columns:1fr;gap:14px}
   .tpl-realestate .viewing-card{padding:22px}
+  .tpl-construction .build-service-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-construction .build-team-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-construction .quote-card{padding:22px}
 }
 @media (max-width:460px){
   .g2,.g3,.g4,.product-grid,.form-grid,.stats-grid{grid-template-columns:1fr}
@@ -980,6 +1015,8 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-education .edu-service-grid{grid-template-columns:1fr;gap:14px}
   .tpl-education .edu-team-grid{grid-template-columns:1fr;gap:14px}
   .tpl-education .register-card{padding:22px}
+  .tpl-construction .build-service-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-construction .build-team-grid{grid-template-columns:1fr;gap:14px}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}

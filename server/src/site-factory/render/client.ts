@@ -455,6 +455,15 @@ export const SITE_JS = String.raw`
           ' | ' + (form.message ? form.message.value : '') +
           '. ' + message;
       }
+      if (form.getAttribute('data-lead-kind') === 'quote') {
+        var quoServiceSelect = form.querySelector('[name="serviceType"]');
+        var quoTypeSelect = form.querySelector('[name="projectType"]');
+        var quoServiceName = quoServiceSelect ? quoServiceSelect.value : '';
+        var quoTypeName = quoTypeSelect ? quoTypeSelect.value : '';
+        message = 'Quote request: ' + quoServiceName + ' | ' + quoTypeName +
+          ' | ' + (form.message ? form.message.value : '') +
+          '. ' + message;
+      }
       post('/public/sites/' + encodeURIComponent(SITE.siteId) + '/leads', {
         name: form.name ? form.name.value : '',
         phone: form.phone ? form.phone.value : '',

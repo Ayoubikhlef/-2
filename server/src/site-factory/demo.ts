@@ -577,6 +577,11 @@ export const DEMO: Record<string, DemoSeed> = {
       ['كهرباء وسباكة', 0, 'تقني', 'تنفيذ الشبكات الداخلية وفق المعايير.', photo('office', 2, 800, 800)],
       ['توسعة محل تجاري', 0, 'تجاري', 'هيكل جديد وواجهة عصرية.', photo('estate', 0, 800, 800)],
     ]),
+    team: [
+      { name: 'أحمد بن علي', role: 'المهندس المسؤول', specialty: 'الإشراف الهندسي', experience: '12 سنة', photoUrl: photo('person', 0, 700, 800) },
+      { name: 'خالد تميمي', role: 'مهندس site', specialty: 'التنفيذ والمتابعة', experience: '8 سنوات', photoUrl: photo('construction', 0, 700, 800) },
+      { name: 'فاطمة زكري', role: 'مهندسة الديكور', specialty: 'التشطيب والديكور', experience: '6 سنوات', photoUrl: photo('person', 1, 700, 800) },
+    ],
   },
   agriculture: {
     name: 'مزرعة البركة',

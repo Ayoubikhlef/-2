@@ -3073,6 +3073,429 @@ export function educationPage(config: RenderConfig, s: UiStrings, lang: Lang): s
 }
 
 /* -------------------------------------------------------------------------
+ * CONSTRUCTION
+ * ---------------------------------------------------------------------- */
+interface ConstructionCopy {
+  heroBadge: string;
+  quoteCta: string;
+  projectsCta: string;
+  openDaily: string;
+  guarantee: string;
+  experience: string;
+  heroMessage: string;
+  servicesEyebrow: string;
+  servicesTitle: string;
+  servicesLead: string;
+  fallbackServices: Array<{ title: string; description: string }>;
+  projectsEyebrow: string;
+  projectsTitle: string;
+  projectsLead: string;
+  processTitle: string;
+  processLead: string;
+  step1: string; step1d: string;
+  step2: string; step2d: string;
+  step3: string; step3d: string;
+  step4: string; step4d: string;
+  teamEyebrow: string;
+  teamTitle: string;
+  teamLead: string;
+  aboutTitle: string;
+  aboutLead: string;
+  feat1: string; feat1d: string;
+  feat2: string; feat2d: string;
+  feat3: string; feat3d: string;
+  feat4: string; feat4d: string;
+  stats: Array<[string, string]>;
+  quotes: Array<{ text: string; name: string; role: string }>;
+  faqTitle: string;
+  faq: Array<[string, string]>;
+  quoteTitle: string;
+  quoteLead: string;
+  formTitle: string;
+  formSub: string;
+  confirm: string;
+  summaryService: string;
+  summaryType: string;
+  summaryWhen: string;
+  note: string;
+}
+
+const CONSTRUCTION: Record<Lang, ConstructionCopy> = {
+  ar: {
+    heroBadge: 'مؤسسة مقاولات مرخصة · ضمان مكتوب',
+    quoteCta: 'اطلب عرض سعر',
+    projectsCta: 'مشاريعنا',
+    openDaily: 'مفتوح يومياً',
+    guarantee: 'ضمان تنفيذ',
+    experience: 'سنوات الخبرة',
+    heroMessage: 'أريد بناء أو ترميم عقار',
+    servicesEyebrow: 'خدمات المقاولات',
+    servicesTitle: 'ننفّذ أشغال البناء والترميم بجودة عالية',
+    servicesLead: 'من الهيكل إلى التشطيب، نقوم بكل أشغال المقاولات بفريق محترف ومواد موثوقة.',
+    fallbackServices: [
+      { title: 'أشغال البناء', description: 'هياكل وجدران وخرسانة وفق معايير الجودة.' },
+      { title: 'الترميم', description: 'تجديد الواجهات والأسطح ومعالجة الرطوبة.' },
+      { title: 'الطلاء والديكور', description: 'لمسات نهائية نظيفة ومتينة.' },
+      { title: 'كهرباء وسباكة', description: 'تنفيذ وصيانة الشبكات الداخلية.' },
+    ],
+    projectsEyebrow: 'مشاريع منجزة',
+    projectsTitle: 'مختارات من أعمالنا',
+    projectsLead: 'مشاريع سكنية وتجارية أنجزناها بدقة ובמקتadre.',
+    processTitle: 'كيف ننجز مشروعك',
+    processLead: 'من الدراسة إلى التسليم، نتابع كل خطوة بشفافية كاملة.',
+    step1: 'الدراسة والتصميم', step1d: 'ندرس موقع البناء ونضع التصميم الهندسي المناسب.',
+    step2: 'التنفيذ', step2d: 'ننفّذ الأشغال وفق المواصفات والجدول الزمني المتفق عليه.',
+    step3: 'المتابعة', step3d: 'نقوم بمتابعة يومية لسير العمل وجودة التنفيذ.',
+    step4: 'التسليم', step4d: 'نسلّم المشروع مع ضمان مكتوب على جودة التنفيذ.',
+    teamEyebrow: 'فريق المؤسسة',
+    teamTitle: 'فريق مقاولات محترف',
+    teamLead: 'فريق من المهندسين والفنيين ذوي الخبرة في الإنشاء والترميم.',
+    aboutTitle: 'مؤسسة البناء المتين',
+    aboutLead: 'مؤسسة مقاولات مرخصة تنفّذ البناء والترميم والطلاء والأشغال المختلفة بفريق محترف وضمان مكتوب، من الدراسة hasta التسليم.',
+    feat1: 'ضمان مكتوب', feat1d: 'ضمان على جودة التنفيذ والمواد المستخدمة.',
+    feat2: 'فريق محترف', feat2d: 'مهندسون وفنيون ذوو خبرة في جميع اشغال المقاولات.',
+    feat3: 'مواد موثوقة', feat3d: 'مواد بناء أصلية ومطابقة للمواصفات.',
+    feat4: 'تسليم في الوقت', feat4d: 'الالتزام بالجدول الزمني وتسليم المشروع في موعده.',
+    stats: [['+10', 'سنة خبرة'], ['+150', 'مشروع'], ['98%', 'رضا العملاء'], ['ضمان', 'تنفيذ']],
+    quotes: [
+      { text: 'أنجزت المؤسسة فيلا سكنية بجودة عالية وفي الوقت المحدد، أنصح بها.', name: 'خالد ب.', role: 'عميل' },
+      { text: 'فريق محترف في الترميم والطلاء، العمل كان ممتازاً والسعر مناسب.', name: 'فاطمة ت.', role: 'عميلة' },
+      { text: 'بناء محل تجاري على أكمل وجه، شكراً على الضمان المكتوب والمتابعة.', name: 'سليم ع.', role: 'تاجر' },
+    ],
+    faqTitle: 'أسئلة شائعة',
+    faq: [
+      ['هل تقدمون ضماناً على الأشغال؟', 'نعم، نقدم ضماناً مكتوباً على جودة التنفيذ والمواد المستخدمة.'],
+      ['كيف أطلب عرض سعر؟', 'املأ النموذج أو تواصل معنا عبر واتساب وسنرد عليك في أقرب وقت.'],
+      ['هل تنفذون أشغال الكهرباء والسباكة؟', 'نعم، نقوم بتنفيذ وصيانة الشبكات الداخلية للكهرباء والسباكة.'],
+      ['ما هي أوقات العمل؟', 'نعمل من السبت إلى الخميس من 07:30 إلى 17:30.'],
+      ['هل تعملون في المناطق النائية؟', 'نعم، ننفذ الأشغال في مختلف الولايات وفق الاتفاق.'],
+    ],
+    quoteTitle: 'اطلب عرض سعر لمشروعك',
+    quoteLead: 'املأ النموذج وسنتصل بك لتقييم المشروع وتقديم عرض سعر تفصيلي.',
+    formTitle: 'طلب عرض سعر',
+    formSub: 'أخبرنا عن نوع الأشغال وسنرد عليك في أقرب وقت.',
+    confirm: 'إرسال طلب عرض السعر',
+    summaryService: 'نوع الخدمة',
+    summaryType: 'نوع المشروع',
+    summaryWhen: 'الموعد المفضل',
+    note: 'جميع بياناتك محمية وسرية وفقاً لسياسة المؤسسة.',
+  },
+  fr: {
+    heroBadge: 'Entreprise BTP agréée · Garantie écrite',
+    quoteCta: 'Demander un devis',
+    projectsCta: 'Nos réalisations',
+    openDaily: 'Ouvert tous les jours',
+    guarantee: 'Garantie d\'exécution',
+    experience: 'ans d’expérience',
+    heroMessage: 'Je souhaite construire ou rénover un bien',
+    servicesEyebrow: 'Services de construction',
+    servicesTitle: 'Nous exécutons tous les travaux de BTP avec qualité',
+    servicesLead: 'Du gros œuvre à la finition, nous réalisons tous les travaux de construction avec une équipe professionnelle et des matériaux fiables.',
+    fallbackServices: [
+      { title: 'Travaux de construction', description: 'Structure, murs et béton selon les normes de qualité.' },
+      { title: 'Rénovation', description: 'Rénovation des façades, toitures et traitement de l\'humidité.' },
+      { title: 'Peinture et décoration', description: 'Finitions propres et durables.' },
+      { title: 'Électricité et plomberie', description: 'Exécution et maintenance des réseaux intérieurs.' },
+    ],
+    projectsEyebrow: 'Réalisations',
+    projectsTitle: 'Sélection de nos projets',
+    projectsLead: 'Projets résidentiels et commerciaux réalisés avec précision et dans les délais.',
+    processTitle: 'Comment nous réalisons votre projet',
+    processLead: 'De l\'étude à la livraison, nous suivons chaque étape avec une transparence totale.',
+    step1: 'Étude et conception', step1d: 'Nous étudions le site et concevons le plan architectural approprié.',
+    step2: 'Exécution', step2d: 'Nous exécutons les travaux selon les spécifications et le calendrier convenu.',
+    step3: 'Suivi', step3d: 'Nous assurons un suivi quotidien de l\'avancement et de la qualité.',
+    step4: 'Livraison', step4d: 'Nous livrons le projet avec une garantie écrite sur la qualité.',
+    teamEyebrow: 'Équipe de l\'entreprise',
+    teamTitle: 'Une équipe de construction professionnelle',
+    teamLead: 'Une équipe d\'ingénieurs et de techniciens expérimentés en construction et rénovation.',
+    aboutTitle: 'Entreprise de construction Al Matin',
+    aboutLead: 'Une entreprise de construction agréée réalisant tous les travaux de bâtiment avec une équipe professionnelle et une garantie écrite, de l\'étude à la livraison.',
+    feat1: 'Garantie écrite', feat1d: 'Garantie sur la qualité de l\'exécution et les matériaux utilisés.',
+    feat2: 'Équipe professionnelle', feat2d: 'Ingénieurs et techniciens expérimentés dans tous les travaux BTP.',
+    feat3: 'Matériaux fiables', feat3d: 'Matériaux de construction authentiques et conformes aux normes.',
+    feat4: 'Livraison dans les délais', feat4d: 'Respect du calendrier et livraison du projet à la date prévue.',
+    stats: [['+10', 'ans d’expérience'], ['+150', 'projets'], ['98%', 'satisfaction client'], ['Garantie', 'd\'exécution']],
+    quotes: [
+      { text: 'L\'entreprise a réalisé une villa résidentielle avec une haute qualité et dans les délais, je la recommande.', name: 'Khalid B.', role: 'Client' },
+      { text: 'Une équipe professionnelle en rénovation et peinture, le travail était excellent et le prix raisonnable.', name: 'Fatima T.', role: 'Cliente' },
+      { text: 'Construction d\'un local commercial parfaite, merci pour la garantie écrite et le suivi.', name: 'Salim A.', role: 'Commerçant' },
+    ],
+    faqTitle: 'Questions fréquentes',
+    faq: [
+      ['Offrez-vous une garantie sur les travaux ?', 'Oui, nous offrons une garantie écrite sur la qualité de l\'exécution et les matériaux utilisés.'],
+      ['Comment demander un devis ?', 'Remplissez le formulaire ou contactez-nous sur WhatsApp et nous vous répondrons dans les plus brefs délais.'],
+      ['Réalisez-vous les travaux d\'électricité et de plomberie ?', 'Oui, nous exécutons et maintenons les réseaux intérieurs d\'électricité et de plomberie.'],
+      ['Quels sont vos horaires ?', 'Nous travaillons du samedi au jeudi de 07:30 à 17:30.'],
+      ['Travaillez-vous dans les zones éloignées ?', 'Oui, nous réalisons les travaux dans différents wilayas selon l\'accord.'],
+    ],
+    quoteTitle: 'Demandez un devis pour votre projet',
+    quoteLead: 'Remplissez le formulaire et nous vous contacterons pour évaluer le projet et vous proposer un devis détaillé.',
+    formTitle: 'Demande de devis',
+    formSub: 'Dites-nous le type de travaux et nous vous répondrons dans les plus brefs délais.',
+    confirm: 'Envoyer la demande de devis',
+    summaryService: 'Type de service',
+    summaryType: 'Type de projet',
+    summaryWhen: 'Rendez-vous préféré',
+    note: 'Toutes vos données sont protégées et confidentielles selon la politique de l\'entreprise.',
+  },
+  en: {
+    heroBadge: 'Licensed construction company · Written guarantee',
+    quoteCta: 'Request a quote',
+    projectsCta: 'Our projects',
+    openDaily: 'Open every day',
+    guarantee: 'Execution guarantee',
+    experience: 'years of experience',
+    heroMessage: 'I want to build or renovate a property',
+    servicesEyebrow: 'Construction services',
+    servicesTitle: 'We execute all construction works with high quality',
+    servicesLead: 'From structure to finishing, we perform all construction works with a professional team and reliable materials.',
+    fallbackServices: [
+      { title: 'Construction works', description: 'Structure, walls and concrete according to quality standards.' },
+      { title: 'Renovation', description: 'Facade, roof renovation and humidity treatment.' },
+      { title: 'Painting and decoration', description: 'Clean and durable finishing touches.' },
+      { title: 'Electricity and plumbing', description: 'Execution and maintenance of internal networks.' },
+    ],
+    projectsEyebrow: 'Completed projects',
+    projectsTitle: 'Selection of our projects',
+    projectsLead: 'Residential and commercial projects we completed with precision and on time.',
+    processTitle: 'How we complete your project',
+    processLead: 'From study to delivery, we follow every step with full transparency.',
+    step1: 'Study and design', step1d: 'We study the construction site and prepare the appropriate architectural design.',
+    step2: 'Execution', step2d: 'We execute the works according to specifications and the agreed schedule.',
+    step3: 'Follow-up', step3d: 'We carry out daily follow-up of work progress and execution quality.',
+    step4: 'Delivery', step4d: 'We deliver the project with a written guarantee on execution quality.',
+    teamEyebrow: 'Company team',
+    teamTitle: 'Professional construction team',
+    teamLead: 'A team of engineers and technicians experienced in construction and renovation.',
+    aboutTitle: 'Al Matin Construction Company',
+    aboutLead: 'A licensed construction company executing construction, renovation, painting and various works with a professional team and written guarantee, from study to delivery.',
+    feat1: 'Written guarantee', feat1d: 'Guarantee on execution quality and materials used.',
+    feat2: 'Professional team', feat2d: 'Engineers and technicians experienced in all construction works.',
+    feat3: 'Reliable materials', feat3d: 'Authentic construction materials compliant with standards.',
+    feat4: 'On-time delivery', feat4d: 'Commitment to the schedule and project delivery on time.',
+    stats: [['+10', 'years of experience'], ['+150', 'projects'], ['98%', 'client satisfaction'], ['Written', 'guarantee']],
+    quotes: [
+      { text: 'The company completed a residential villa with high quality and on time, I recommend it.', name: 'Khalid B.', role: 'Client' },
+      { text: 'A professional team in renovation and painting, the work was excellent and the price reasonable.', name: 'Fatima T.', role: 'Client' },
+      { text: 'Perfect construction of a commercial shop, thank you for the written guarantee and follow-up.', name: 'Salim A.', role: 'Merchant' },
+    ],
+    faqTitle: 'Frequently asked questions',
+    faq: [
+      ['Do you offer a guarantee on the works?', 'Yes, we offer a written guarantee on execution quality and materials used.'],
+      ['How do I request a quote?', 'Fill out the form or contact us on WhatsApp and we will respond as soon as possible.'],
+      ['Do you perform electrical and plumbing works?', 'Yes, we execute and maintain internal electrical and plumbing networks.'],
+      ['What are your hours?', 'We work Saturday to Thursday from 07:30 to 17:30.'],
+      ['Do you work in remote areas?', 'Yes, we perform works in different provinces by agreement.'],
+    ],
+    quoteTitle: 'Request a quote for your project',
+    quoteLead: 'Fill out the form and we will contact you to evaluate the project and provide a detailed quote.',
+    formTitle: 'Quote request',
+    formSub: 'Tell us about the type of works and we will respond as soon as possible.',
+    confirm: 'Send quote request',
+    summaryService: 'Service type',
+    summaryType: 'Project type',
+    summaryWhen: 'Preferred appointment',
+    note: 'All your data is protected and confidential according to the company policy.',
+  },
+};
+
+function constructionCard(member: RenderTeamMember, copy: ConstructionCopy): string {
+  const photo = member.photoUrl
+    ? `<img src="${attr(member.photoUrl)}" alt="${attr(member.name)}" loading="lazy" decoding="async" width="700" height="700">`
+    : `<span class="build-initials">${esc(initialsFor(member.name))}</span>`;
+  return `<article class="build-card" data-reveal>
+    <div class="build-avatar">${photo}</div>
+    <h3>${esc(member.name)}</h3>
+    <p class="build-role">${esc(member.role)}</p>
+    ${member.specialty ? `<span class="build-specialty">${esc(member.specialty)}</span>` : ''}
+    ${member.experience ? `<span class="build-exp">${icon('award')}${esc(member.experience)} ${esc(copy.experience)}</span>` : ''}
+  </article>`;
+}
+
+export function constructionPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
+  const copy = CONSTRUCTION[lang];
+  const services = config.services.length ? config.services : copy.fallbackServices;
+  const projects = config.products.filter((p) => p.name);
+  const team = config.team || [];
+  const heroImage = config.coverUrl
+    ? `<img src="${attr(config.coverUrl)}" alt="${attr(config.siteName)}" width="900" height="1100" fetchpriority="high" decoding="async">`
+    : '';
+  const about = aboutPhoto(config);
+  const heroWa = waHref(config, `${copy.heroMessage} — ${config.siteName}`);
+  const quoteWa = waHref(config, `طلب عرض سعر — ${config.siteName}`);
+
+  return `<section class="hero build-hero" id="top">
+    <div class="container hero-grid">
+      <div class="hero-copy" data-reveal>
+        <span class="badge">${icon('shield')}${esc(copy.heroBadge)}</span>
+        <h1 class="h1 mt-3">${esc(config.siteName)}</h1>
+        <p class="lead">${esc(config.description)}</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#projects">${icon('briefcase')}${esc(copy.projectsCta)}</a>
+          <a class="btn btn-wa" href="${attr(heroWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(copy.quoteCta)}</a>
+        </div>
+        <div class="build-badges">
+          <span>${icon('shield')}${esc(copy.guarantee)}</span>
+          <span>${icon('clock')}${esc(copy.openDaily)} · ${esc(config.hours || '07:30 — 17:30')}</span>
+        </div>
+        <div class="hero-stats">
+          ${copy.stats.slice(0, 3).map(([num, label]) => `<div><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="hero-media build-hero-media${heroImage ? '' : ' no-img'}" data-mark="${attr(initials(config.siteName))}" data-reveal>${heroImage}
+        <div class="float-card"><span class="float-icon">${icon('shield')}</span><div><strong>${esc(copy.guarantee)}</strong><span>${esc(config.city || '')}</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="trust-strip"><div class="container">
+    <span class="trust-item">${icon('shield')}${esc(copy.guarantee)}</span>
+    <span class="trust-item">${icon('home')}${esc(s.quality)}</span>
+    <span class="trust-item">${icon('award')}${esc(s.satisfaction)}</span>
+    <span class="trust-item">${icon('target')}${esc(s.projects)}</span>
+  </div></div>
+
+  <section class="section bg-soft" id="services">
+    <div class="container">
+      ${sectionHead(copy.servicesEyebrow, copy.servicesTitle, copy.servicesLead)}
+      <div class="build-service-grid">
+        ${services.map((service, i) => `<article class="build-service" data-reveal>
+          <span class="service-num">${String(i + 1).padStart(2, '0')}</span>
+          <div><h3 class="h3">${esc(service.title)}</h3><p>${esc(service.description)}</p></div>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="projects">
+    <div class="container">
+      ${sectionHead(copy.projectsEyebrow, copy.projectsTitle, copy.projectsLead)}
+      <div class="showcase-grid">${projects.length ? projects.map((p) => `<article class="showcase-card" data-reveal>
+        <div class="showcase-media">${p.imageUrl
+          ? `<img src="${attr(p.imageUrl)}" alt="${attr(p.name)}" loading="lazy" decoding="async" width="600" height="450">`
+          : productPlaceholder(p.name)}</div>
+        <div class="showcase-body">
+          ${p.category ? `<span class="cat">${esc(p.category)}</span>` : ''}
+          <h3>${esc(p.name)}</h3>
+          ${p.description ? `<p>${esc(p.description)}</p>` : ''}
+        </div>
+      </article>`).join('') : `<div class="project-empty">${esc(s.emptyCart)}</div>`}</div>
+    </div>
+  </section>
+
+  <section class="section" id="process">
+    <div class="container">
+      ${sectionHead(copy.processTitle, copy.processLead, undefined, true)}
+      <div class="steps">
+        ${[
+          [copy.step1, copy.step1d],
+          [copy.step2, copy.step2d],
+          [copy.step3, copy.step3d],
+          [copy.step4, copy.step4d],
+        ].map(([title, desc], i) => `<div class="step" data-reveal><div class="n">${i + 1}</div><h3>${esc(title)}</h3><p>${esc(desc)}</p></div>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  ${team.length ? `<section class="section bg-soft" id="team">
+    <div class="container">
+      ${sectionHead(copy.teamEyebrow, copy.teamTitle, copy.teamLead, true)}
+      <div class="build-team-grid">${team.map((m) => constructionCard(m, copy)).join('')}</div>
+    </div>
+  </section>` : ''}
+
+  <section class="section" id="about">
+    <div class="container about-grid build-about-grid">
+      <div class="build-about-media" data-reveal>
+        ${about ? `<img class="main" src="${attr(about)}" alt="${attr(config.siteName)}" loading="lazy" decoding="async" width="800" height="760">` : ''}
+        <div class="about-badge">${icon('check')}+10 ${esc(s.years)}</div>
+      </div>
+      <div data-reveal>
+        <span class="eyebrow">${esc(s.about)}</span>
+        <h2 class="h2 mt-2">${esc(config.siteName)}</h2>
+        <p class="lead mt-2">${esc(config.description)}</p>
+        <ul class="checklist">
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat1)} — ${esc(copy.feat1d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat2)} — ${esc(copy.feat2d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat3)} — ${esc(copy.feat3d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat4)} — ${esc(copy.feat4d)}</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="quote">
+    <div class="container quote-wrap">
+      <div class="quote-copy" data-reveal>
+        <span class="eyebrow">${esc(s.appointment)}</span>
+        <h2 class="h2 mt-2">${esc(copy.quoteTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.quoteLead)}</p>
+        <ul class="checklist">
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat1)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat3)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.note)}</span></li>
+        </ul>
+        <div class="build-hours">
+          <div class="hours-row"><span>${icon('clock')}${esc(s.hours)}</span><strong>${esc(config.hours || '07:30 — 17:30')}</strong></div>
+          <div class="hours-row"><span>${icon('map')}${esc(s.location)}</span><strong>${esc(config.address || config.city || '')}</strong></div>
+        </div>
+        <div class="build-contact-actions">
+          <a class="btn btn-light" href="tel:${attr(config.phone)}">${icon('phone')}${esc(s.callNow)}</a>
+          <a class="btn btn-wa" href="${attr(quoteWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.whatsapp)}</a>
+        </div>
+      </div>
+      <form class="quote-card" data-lead-form data-lead-kind="quote" novalidate>
+        <h3>${esc(copy.formTitle)}</h3>
+        <p class="booking-sub">${esc(copy.formSub)}</p>
+        <div class="form-grid">
+          <div class="field"><label for="quo-name">${esc(s.name)}</label><input id="quo-name" name="name" required maxlength="80" autocomplete="name"><span class="err">${esc(s.required)}</span></div>
+          <div class="field"><label for="quo-phone">${esc(s.phone)}</label><input id="quo-phone" name="phone" type="tel" required maxlength="20" autocomplete="tel" dir="ltr"><span class="err">${esc(s.invalidPhone)}</span></div>
+          <div class="field full"><label for="quo-email">${esc(s.email)}</label><input id="quo-email" name="email" type="email" maxlength="120" autocomplete="email" dir="ltr"></div>
+          <div class="field full"><label for="quo-service">${esc(copy.summaryService)}</label><input id="quo-service" name="serviceType" maxlength="200"></div>
+          <div class="field full"><label for="quo-type">${esc(copy.summaryType)}</label><input id="quo-type" name="projectType" maxlength="200"></div>
+          <div class="field full"><label for="quo-msg">${esc(s.message)}</label><textarea id="quo-msg" name="message" required maxlength="1200"></textarea><span class="err">${esc(s.required)}</span></div>
+          <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
+        </div>
+        <button class="btn btn-primary btn-block mt-3" type="submit">${icon('send')}${esc(copy.confirm)}</button>
+        <div class="form-status" role="status"></div>
+        <p class="form-note center mt-2">${esc(copy.note)}</p>
+      </form>
+    </div>
+  </section>
+
+  <section class="stats-band">
+    <div class="container stats-grid">
+      ${copy.stats.map(([num, label]) => `<div class="stat"><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">${sectionHead(s.testimonials, s.testimonials, undefined, true)}
+      <div class="grid g3">${copy.quotes.map((q) => `<div class="quote" data-reveal>
+        <div class="stars" aria-label="5/5">★★★★★</div>
+        <p>“${esc(q.text)}”</p>
+        <div class="who"><span class="avatar">${esc(initialsFor(q.name))}</span><div><strong>${esc(q.name)}</strong><span>${esc(q.role)}</span></div></div>
+      </div>`).join('')}</div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="faq">
+    <div class="container">
+      ${sectionHead(s.faq, copy.faqTitle, undefined, true)}
+      <div class="faq-list">
+        ${copy.faq.map(([q, a]) => `<details class="faq" data-reveal>
+          <summary>${esc(q)}<span class="faq-ic">${icon('plus')}</span></summary>
+          <p>${esc(a)}</p>
+        </details>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  ${contactSection(config, s)}`;
+}
+
+/* -------------------------------------------------------------------------
  * COMPANY
  * ---------------------------------------------------------------------- */
 export function companyPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
@@ -3491,7 +3914,7 @@ export function pageFor(template: string, config: RenderConfig, lang: Lang): str
     case 'education':
       return educationPage(config, s, lang);
     case 'construction':
-      return companyPage(config, s, lang);
+      return constructionPage(config, s, lang);
 
     // Landing-style templates
     case 'fitness':
@@ -3700,7 +4123,31 @@ export function jsonLdFor(template: string, config: RenderConfig, siteUrl: strin
     case 'fitness': return { ...base, '@type': 'ExerciseGym', image: config.coverUrl || undefined };
     case 'beauty': return { ...base, '@type': 'BeautySalon', image: config.coverUrl || undefined };
     case 'travel': return { ...base, '@type': 'TravelAgency', image: config.coverUrl || undefined };
-    case 'construction': return { ...base, '@type': 'GeneralContractor', image: config.coverUrl || undefined };
+    case 'construction': return {
+      ...base,
+      '@type': 'GeneralContractor',
+      image: config.coverUrl || undefined,
+      priceRange: 'DZD',
+      openingHours: config.hours || undefined,
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: 'Construction services',
+        itemListElement: config.services.slice(0, 12).map((service, index) => ({
+          '@type': 'Offer',
+          position: index + 1,
+          name: service.title,
+          description: service.description,
+          priceCurrency: 'DZD',
+          availability: 'https://schema.org/InStock',
+        })),
+      },
+      employee: (config.team || []).map((member) => ({
+        '@type': 'Person',
+        name: member.name,
+        jobTitle: member.role,
+        image: member.photoUrl || undefined,
+      })),
+    };
     case 'nonprofit': return { ...base, '@type': 'NGO', image: config.coverUrl || undefined };
     case 'events': return { ...base, '@type': 'EventVenue', image: config.coverUrl || undefined };
     case 'portfolio': return { ...base, '@type': 'Person', jobTitle: config.tagline };
