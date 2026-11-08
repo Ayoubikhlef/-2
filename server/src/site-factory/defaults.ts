@@ -291,6 +291,18 @@ export const TEMPLATES: TemplateSeed[] = [
     },
   },
   {
+    slug: 'gym',
+    category: 'gym',
+    accent: '#a16207',
+    sortOrder: 29,
+    name: { ar: 'صالة رياضية فاخرة', fr: 'Salle de sport de luxe', en: 'Luxury Gym' },
+    description: {
+      ar: 'نادٍ رياضي فاخر: البرامج، جدول الحصص، العضويات، المدربون، المرافق ونموذج اشتراك.',
+      fr: 'Club de sport haut de gamme : programmes, planning, abonnements, coachs, installations et demande d’adhésion.',
+      en: 'Luxury fitness club: programs, class schedule, memberships, coaches, facilities and membership request form.',
+    },
+  },
+  {
     slug: 'agriculture',
     category: 'agriculture',
     accent: '#4d7c0f',

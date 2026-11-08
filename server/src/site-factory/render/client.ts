@@ -228,6 +228,16 @@ export const SITE_JS = String.raw`
     });
   });
 
+  // gym: preselect the membership in the join form
+  $$('[data-pick-plan]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var planSelect = $('[data-join-plan]');
+      if (planSelect) planSelect.value = btn.getAttribute('data-pick-plan') || '';
+      var joinSection = $('#join');
+      if (joinSection) joinSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
   // cart
   function readCart() {
     try {
@@ -502,6 +512,13 @@ export const SITE_JS = String.raw`
         var digitalPayment = form.querySelector('[name="paymentMethod"]');
         message = 'Digital order: ' + (digitalProduct ? digitalProduct.value : '') +
           ' | payment ' + (digitalPayment ? digitalPayment.value : '') +
+          '. ' + message;
+      }
+      if (form.getAttribute('data-lead-kind') === 'gym-join') {
+        var gymPlan = form.querySelector('[name="planName"]');
+        var gymGoal = form.querySelector('[name="goal"]');
+        message = 'Gym membership: ' + (gymPlan ? gymPlan.value : '') +
+          ' | goal ' + (gymGoal ? gymGoal.value : '') +
           '. ' + message;
       }
       post('/public/sites/' + encodeURIComponent(SITE.siteId) + '/leads', {

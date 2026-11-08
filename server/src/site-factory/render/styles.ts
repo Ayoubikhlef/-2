@@ -986,6 +986,67 @@ body.has-preview .site-header{top:36px}
 .tpl-digital .digital-pay-methods .icon{width:14px;height:14px;color:var(--p-text)}
 .tpl-digital .digital-contact-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
 .tpl-digital .digital-contact-actions .btn{flex:1 1 auto}
+
+/* luxury gym template */
+.tpl-gym .gym-hero{position:relative;overflow:hidden;background:radial-gradient(900px 520px at 82% -12%,color-mix(in srgb,var(--p) 20%,transparent),transparent 60%),linear-gradient(180deg,var(--bg),var(--soft))}
+.tpl-gym .gym-badges{display:flex;gap:12px;margin-top:16px;padding-top:12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.tpl-gym .gym-badges span{display:inline-flex;align-items:center;gap:7px;font-size:.78rem;font-weight:700;color:var(--muted)}
+.tpl-gym .gym-badges .icon{width:16px;height:16px;color:var(--p-text)}
+.tpl-gym .hero-stats{display:flex;gap:30px;margin-top:38px;padding-top:26px;border-top:1px solid var(--line);flex-wrap:wrap}
+.tpl-gym .gym-programs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.tpl-gym .gym-program{position:relative;padding:28px 22px;border-radius:20px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:9px;transition:transform .25s,box-shadow .25s,border-color .25s;overflow:hidden}
+.tpl-gym .gym-program:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-gym .gym-program-num{position:absolute;top:14px;inset-inline-end:18px;font-size:2.6rem;font-weight:900;line-height:1;color:color-mix(in srgb,var(--p) 13%,var(--surface))}
+.tpl-gym .gym-program-icon{width:48px;height:48px;border-radius:15px;background:linear-gradient(145deg,var(--tint-2),var(--tint));color:var(--p-text);display:grid;place-items:center;margin-bottom:4px}
+.tpl-gym .gym-program-icon .icon{width:23px;height:23px}
+.tpl-gym .gym-program p{font-size:.84rem;color:var(--muted);line-height:1.65}
+.tpl-gym .gym-class-list{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.tpl-gym .gym-class{display:flex;align-items:center;gap:16px;padding:16px 20px;border-radius:16px;background:var(--surface);border:1px solid var(--line);transition:transform .2s,box-shadow .2s,border-color .2s}
+.tpl-gym .gym-class:hover{transform:translateY(-2px);box-shadow:var(--shadow-sm);border-color:color-mix(in srgb,var(--p) 30%,var(--line))}
+.tpl-gym .gym-class-day{flex:0 0 auto;padding:7px 12px;border-radius:999px;background:var(--tint-2);color:var(--p-text);font-size:.72rem;font-weight:800}
+.tpl-gym .gym-class-main{flex:1;min-width:0}
+.tpl-gym .gym-class-main h3{font-size:.95rem}
+.tpl-gym .gym-class-main span{display:inline-flex;align-items:center;gap:5px;font-size:.72rem;color:var(--muted)}
+.tpl-gym .gym-class-main .icon{width:13px;height:13px}
+.tpl-gym .gym-class-time{display:inline-flex;align-items:center;gap:5px;font-size:.78rem;font-weight:800;color:var(--p-text);white-space:nowrap}
+.tpl-gym .gym-class-time .icon{width:14px;height:14px}
+.tpl-gym .gym-class-level{padding:5px 10px;border-radius:999px;border:1px solid var(--line);font-size:.68rem;font-weight:700;color:var(--muted);white-space:nowrap}
+.tpl-gym .gym-plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch}
+.tpl-gym .gym-plan{position:relative;padding:30px 24px;border-radius:22px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:8px;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-gym .gym-plan:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm)}
+.tpl-gym .gym-plan.is-popular{background:linear-gradient(165deg,var(--p),var(--p2));color:#fff;border-color:transparent;box-shadow:0 28px 60px -28px color-mix(in srgb,var(--p) 60%,transparent)}
+.tpl-gym .gym-plan.is-popular .gym-plan-period,.tpl-gym .gym-plan.is-popular p,.tpl-gym .gym-plan.is-popular .gym-plan-list li{color:rgba(255,255,255,.82)}
+.tpl-gym .gym-plan.is-popular .gym-plan-list .icon{color:#fff}
+.tpl-gym .gym-plan-badge{position:absolute;top:-12px;inset-inline-start:24px;padding:5px 12px;border-radius:999px;background:var(--p);color:var(--p-ink);font-size:.68rem;font-weight:900}
+.tpl-gym .gym-plan.is-popular .gym-plan-badge{background:#fff;color:var(--p2)}
+.tpl-gym .gym-plan-period{font-size:.68rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--p-text)}
+.tpl-gym .gym-plan h3{font-size:1.15rem}
+.tpl-gym .gym-plan-price{font-size:1.9rem;font-weight:900;line-height:1.1;color:inherit}
+.tpl-gym .gym-plan p{font-size:.8rem;color:var(--muted);line-height:1.6}
+.tpl-gym .gym-plan-list{list-style:none;margin:8px 0 18px;padding:0;display:flex;flex-direction:column;gap:8px}
+.tpl-gym .gym-plan-list li{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--muted)}
+.tpl-gym .gym-plan-list .icon{width:15px;height:15px;color:var(--p-text)}
+.tpl-gym .gym-plan .btn{margin-top:auto}
+.tpl-gym .gym-team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.tpl-gym .gym-coach{border-radius:20px;overflow:hidden;background:var(--surface);border:1px solid var(--line);transition:transform .25s,box-shadow .25s}
+.tpl-gym .gym-coach:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm)}
+.tpl-gym .gym-coach-photo{aspect-ratio:4/3.4;overflow:hidden;background:linear-gradient(145deg,var(--tint),var(--tint-2));display:grid;place-items:center}
+.tpl-gym .gym-coach-photo img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.tpl-gym .gym-coach:hover .gym-coach-photo img{transform:scale(1.06)}
+.tpl-gym .gym-initials{font-size:2rem;font-weight:900;color:var(--p-text)}
+.tpl-gym .gym-coach-body{padding:18px 20px 22px;display:flex;flex-direction:column;gap:5px}
+.tpl-gym .gym-coach-body h3{font-size:1rem}
+.tpl-gym .gym-coach-role{font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--p-text)}
+.tpl-gym .gym-coach-body p{font-size:.8rem;color:var(--muted);line-height:1.6}
+.tpl-gym .gym-facilities{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.tpl-gym .gym-facility{display:flex;align-items:center;gap:9px;padding:14px 18px;border-radius:14px;background:var(--surface);border:1px solid var(--line);font-size:.84rem;font-weight:700}
+.tpl-gym .gym-facility .icon{width:16px;height:16px;color:var(--p-text);flex:0 0 auto}
+.tpl-gym .gym-join-wrap{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+.tpl-gym .gym-join-card{padding:30px;border-radius:24px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow-sm)}
+.tpl-gym .gym-join-card h3{font-size:1.25rem;margin-bottom:4px}
+.tpl-gym .gym-hours{margin-top:22px;padding-top:18px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:12px}
+.tpl-gym .gym-contact-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+.tpl-gym .gym-contact-actions .btn{flex:1 1 auto}
 .theme-toggle{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;flex:0 0 auto;position:relative;transition:transform .2s,border-color .2s,background .2s}
 .theme-toggle:hover{transform:translateY(-2px);border-color:var(--p)}
 .theme-toggle .icon{width:18px;height:18px}
@@ -1141,6 +1202,12 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-digital .digital-grid{grid-template-columns:repeat(2,1fr);gap:16px}
   .tpl-digital .digital-feature-grid{grid-template-columns:1fr 1fr;gap:16px}
   .tpl-digital .digital-order-wrap{grid-template-columns:1fr;gap:34px}
+  .tpl-gym .gym-programs-grid{grid-template-columns:1fr 1fr;gap:16px}
+  .tpl-gym .gym-class-list{grid-template-columns:1fr;gap:12px}
+  .tpl-gym .gym-plans-grid{grid-template-columns:1fr 1fr;gap:16px}
+  .tpl-gym .gym-team-grid{grid-template-columns:1fr 1fr;gap:16px}
+  .tpl-gym .gym-facilities{grid-template-columns:1fr 1fr;gap:10px}
+  .tpl-gym .gym-join-wrap{grid-template-columns:1fr;gap:34px}
 }
 @media (max-width:720px){
   .container{width:min(100% - 28px,1180px)}
@@ -1213,6 +1280,11 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-digital .digital-grid{grid-template-columns:1fr;gap:14px}
   .tpl-digital .digital-feature-grid{grid-template-columns:1fr;gap:14px}
   .tpl-digital .digital-order-card{padding:22px}
+  .tpl-gym .gym-programs-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-gym .gym-plans-grid{grid-template-columns:1fr;gap:16px}
+  .tpl-gym .gym-team-grid{grid-template-columns:1fr;gap:16px}
+  .tpl-gym .gym-facilities{grid-template-columns:1fr;gap:10px}
+  .tpl-gym .gym-join-card{padding:22px}
 }
 @media (max-width:460px){
   .g2,.g3,.g4,.product-grid,.form-grid,.stats-grid{grid-template-columns:1fr}
@@ -1258,6 +1330,9 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-construction .build-team-grid{grid-template-columns:1fr;gap:14px}
   .tpl-digital .digital-foot .btn{width:100%}
   .tpl-digital .digital-badges{gap:8px}
+  .tpl-gym .gym-class{flex-wrap:wrap;gap:10px}
+  .tpl-gym .gym-class-level{display:none}
+  .tpl-gym .gym-class-time{margin-inline-start:auto}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}

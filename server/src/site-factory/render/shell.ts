@@ -296,6 +296,19 @@ function navItems(config: RenderConfig, s: UiStrings): { href: string; label: st
           { href: '#contact', label: s.contact },
         ];
       }
+      if (['gym'].includes(config.templateSlug)) {
+        return [
+          { href: '#top', label: s.home },
+          { href: '#programs', label: s.services },
+          { href: '#classes', label: s.packages },
+          { href: '#pricing', label: s.offer },
+          ...(config.team && config.team.length ? [{ href: '#coaches', label: s.team }] : []),
+          { href: '#about', label: s.about },
+          { href: '#join', label: s.getStarted },
+          { href: '#faq', label: s.faq },
+          { href: '#contact', label: s.contact },
+        ];
+      }
       return [];
   }
 }
@@ -326,6 +339,8 @@ function mobileCta(config: RenderConfig, s: UiStrings): { href: string; label: s
       return { href: '#book', label: s.appointment };
     case 'digital':
       return { href: '#order', label: s.orderNow };
+    case 'gym':
+      return { href: '#join', label: s.getStarted };
     case 'pharmacy':
       return { href: '#products', label: s.orderNow };
     default:

@@ -5783,6 +5783,466 @@ export function digitalPage(config: RenderConfig, s: UiStrings, lang: Lang): str
   ${contactSection(config, s)}`;
 }
 
+/* -------------------------------------------------------------------------
+ * LUXURY GYM
+ * ---------------------------------------------------------------------- */
+interface GymCopy {
+  heroBadge: string;
+  joinCta: string;
+  exploreCta: string;
+  heroMessage: string;
+  openDaily: string;
+  premium: string;
+  members: string;
+  programsEyebrow: string;
+  programsTitle: string;
+  programsLead: string;
+  programs: Array<{ icon: string; title: string; description: string }>;
+  classesEyebrow: string;
+  classesTitle: string;
+  classesLead: string;
+  classes: Array<{ day: string; title: string; time: string; coach: string; level: string }>;
+  pricingEyebrow: string;
+  pricingTitle: string;
+  pricingLead: string;
+  popular: string;
+  planIncludes: string[];
+  coachesEyebrow: string;
+  coachesTitle: string;
+  coachesLead: string;
+  aboutTitle: string;
+  aboutLead: string;
+  facilitiesEyebrow: string;
+  facilitiesTitle: string;
+  facilities: string[];
+  feats: Array<{ title: string; description: string }>;
+  stats: Array<[string, string]>;
+  quotes: Array<{ text: string; name: string; role: string }>;
+  faqTitle: string;
+  faq: Array<[string, string]>;
+  joinTitle: string;
+  joinLead: string;
+  formTitle: string;
+  formSub: string;
+  choosePlan: string;
+  goalLabel: string;
+  goals: string[];
+  confirm: string;
+  note: string;
+}
+
+const GYM: Record<Lang, GymCopy> = {
+  ar: {
+    heroBadge: 'نادٍ رياضي فاخر · تدريب احترافي',
+    joinCta: 'اشترك الآن',
+    exploreCta: 'استكشف البرامج',
+    heroMessage: 'أريد الاستفسار عن عضويات النادي',
+    openDaily: 'مفتوح يومياً',
+    premium: 'تجهيزات فاخرة',
+    members: 'عضو نشط',
+    programsEyebrow: 'برامجنا',
+    programsTitle: 'تدريب مصمم لكل هدف',
+    programsLead: 'من القوة واللياقة إلى الاستشفاء والمرونة، اختر البرنامج الذي يناسبك.',
+    programs: [
+      { icon: 'zap', title: 'قوة وتضخيم', description: 'أوزان حرة وأجهزة متكاملة مع برنامج تدريجي.' },
+      { icon: 'heart', title: 'لياقة وكارديو', description: 'حصص عالية الكثافة لحرق الدهون وتقوية القلب.' },
+      { icon: 'target', title: 'يوغا ومرونة', description: 'جلسات هادئة لتحسين التوازن والاسترخاء.' },
+      { icon: 'users', title: 'تدريب شخصي', description: 'متابعة فردية مع مدرب معتمد وخطط مخصصة.' },
+    ],
+    classesEyebrow: 'الحصص الجماعية',
+    classesTitle: 'جدول أسبوعي متنوع',
+    classesLead: 'حصص بقيادة مدربين محترفين ضمن مجموعات صغيرة.',
+    classes: [
+      { day: 'السبت', title: 'HIIT Challenge', time: '18:00', coach: 'ياسين', level: 'متوسط' },
+      { day: 'الأحد', title: 'Power Lift', time: '19:00', coach: 'مراد', level: 'متقدم' },
+      { day: 'الاثنين', title: 'Yoga Flow', time: '17:30', coach: 'ليلى', level: 'مبتدئ' },
+      { day: 'الثلاثاء', title: 'Spin Class', time: '18:30', coach: 'سامي', level: 'متوسط' },
+      { day: 'الأربعاء', title: 'Boxing Fit', time: '19:30', coach: 'ياسين', level: 'متوسط' },
+      { day: 'الخميس', title: 'Stretch & Recover', time: '17:00', coach: 'ليلى', level: 'مبتدئ' },
+    ],
+    pricingEyebrow: 'العضويات',
+    pricingTitle: 'اختر عضويتك',
+    pricingLead: 'أسعار واضحة بدون رسوم خفية، وإمكانية تجميد العضوية عند الحاجة.',
+    popular: 'الأكثر اختياراً',
+    planIncludes: ['دخول غير محدود', 'جميع الحصص الجماعية', 'دعم المدربين', 'خزانة خاصة'],
+    coachesEyebrow: 'فريق التدريب',
+    coachesTitle: 'مدربون معتمدون في خدمتك',
+    coachesLead: 'خبرة عملية وشهادات معترف بها لمساعدتك على التقدم بأمان.',
+    aboutTitle: 'مساحة صُممت لتحقيق أهدافك',
+    aboutLead: 'نادٍ رياضي متكامل يجمع بين تجهيزات عالمية وبرامج تدريبية مدروسة ومساحات استشفاء، مع فريق يتابع تقدمك خطوة بخطوة.',
+    facilitiesEyebrow: 'المرافق',
+    facilitiesTitle: 'كل ما تحتاجه في مكان واحد',
+    facilities: ['صالة أوزان حديثة', 'منطقة كارديو واسعة', 'استوديو حصص جماعية', 'ساونا واستشفاء', 'خزائن آمنة', 'مقهى صحي'],
+    feats: [
+      { title: 'تجهيزات عالمية', description: 'أجهزة حديثة بصيانة دورية.' },
+      { title: 'مدربون معتمدون', description: 'شهادات معترف بها وخبرة عملية.' },
+      { title: 'برامج مرنة', description: 'خطط تناسب جدولك وهدفك.' },
+      { title: 'بيئة محفزة', description: 'مجتمع يدعمك للاستمرار.' },
+    ],
+    stats: [['+800', 'عضو نشط'], ['+40', 'حصة أسبوعياً'], ['+12', 'مدرب معتمد'], ['4.9/5', 'تقييم الأعضاء']],
+    quotes: [
+      { text: 'أفضل نادٍ جربته، التجهيزات نظيفة والمدربون يتابعونك باهتمام حقيقي.', name: 'أمين ب.', role: 'عضو منذ سنتين' },
+      { text: 'حصص اليوغا غيّرت يومي بالكامل، والمساحة هادئة ومريحة.', name: 'سارة م.', role: 'عضو' },
+      { text: 'برنامج القوة ساعدني على تحقيق نتائج لم أحققها من قبل.', name: 'كريم ع.', role: 'عضو' },
+    ],
+    faqTitle: 'أسئلة شائعة',
+    faq: [
+      ['هل يمكنني تجربة النادي قبل الاشتراك؟', 'نعم، نقدّم جلسة تجريبية مجانية واحدة بعد حجز موعد.'],
+      ['هل توجد حصص للنساء؟', 'نعم، لدينا أوقات مخصصة للنساء مع مدربات معتمدات.'],
+      ['ما هي أوقات العمل؟', 'مفتوح يومياً من 06:00 صباحاً حتى 23:00 مساءً.'],
+      ['هل العضوية قابلة للتجميد؟', 'نعم، يمكن تجميد العضوية حتى 30 يوماً سنوياً.'],
+      ['هل التدريب الشخصي مشمول؟', 'التدريب الشخصي متاح كخدمة إضافية أو ضمن العضوية السنوية.'],
+    ],
+    joinTitle: 'ابدأ رحلتك اليوم',
+    joinLead: 'اختر العضوية وسنتواصل معك لتأكيد الاشتراك وجدولة جلسة التقييم.',
+    formTitle: 'طلب اشتراك',
+    formSub: 'املأ البيانات وسيتصل بك فريقنا خلال 24 ساعة.',
+    choosePlan: 'العضوية',
+    goalLabel: 'هدفك',
+    goals: ['فقدان الوزن', 'بناء العضلات', 'تحسين اللياقة', 'الاسترخاء والمرونة'],
+    confirm: 'إرسال طلب الاشتراك',
+    note: 'بدون رسوم تسجيل — جلسة تقييم أولى مجانية.',
+  },
+  fr: {
+    heroBadge: 'Club sportif de luxe · Coaching professionnel',
+    joinCta: 'S’abonner',
+    exploreCta: 'Voir les programmes',
+    heroMessage: 'Je souhaite des informations sur les abonnements du club',
+    openDaily: 'Ouvert tous les jours',
+    premium: 'Équipements haut de gamme',
+    members: 'membres actifs',
+    programsEyebrow: 'Nos programmes',
+    programsTitle: 'Un entraînement pour chaque objectif',
+    programsLead: 'De la force à la récupération, choisissez le programme qui vous convient.',
+    programs: [
+      { icon: 'zap', title: 'Force & musculation', description: 'Poids libres et machines complètes avec progression encadrée.' },
+      { icon: 'heart', title: 'Cardio & fitness', description: 'Séances intensives pour brûler les graisses et renforcer le cœur.' },
+      { icon: 'target', title: 'Yoga & souplesse', description: 'Séances calmes pour l’équilibre et la récupération.' },
+      { icon: 'users', title: 'Coaching personnel', description: 'Suivi individuel avec un coach certifié et un plan sur mesure.' },
+    ],
+    classesEyebrow: 'Cours collectifs',
+    classesTitle: 'Un planning varié chaque semaine',
+    classesLead: 'Des cours animés par des coachs professionnels en petits groupes.',
+    classes: [
+      { day: 'Samedi', title: 'HIIT Challenge', time: '18:00', coach: 'Yacine', level: 'Intermédiaire' },
+      { day: 'Dimanche', title: 'Power Lift', time: '19:00', coach: 'Mourad', level: 'Avancé' },
+      { day: 'Lundi', title: 'Yoga Flow', time: '17:30', coach: 'Leila', level: 'Débutant' },
+      { day: 'Mardi', title: 'Spin Class', time: '18:30', coach: 'Sami', level: 'Intermédiaire' },
+      { day: 'Mercredi', title: 'Boxing Fit', time: '19:30', coach: 'Yacine', level: 'Intermédiaire' },
+      { day: 'Jeudi', title: 'Stretch & Recover', time: '17:00', coach: 'Leila', level: 'Débutant' },
+    ],
+    pricingEyebrow: 'Abonnements',
+    pricingTitle: 'Choisissez votre formule',
+    pricingLead: 'Des tarifs clairs sans frais cachés, avec possibilité de suspension.',
+    popular: 'Le plus choisi',
+    planIncludes: ['Accès illimité', 'Tous les cours collectifs', 'Accompagnement des coachs', 'Vestiaire privé'],
+    coachesEyebrow: 'L’équipe de coaching',
+    coachesTitle: 'Des coachs certifiés à votre service',
+    coachesLead: 'Expérience pratique et certifications reconnues pour progresser en sécurité.',
+    aboutTitle: 'Un espace pensé pour vos objectifs',
+    aboutLead: 'Un club complet qui réunit des équipements de classe mondiale, des programmes étudiés et des espaces de récupération, avec une équipe qui suit vos progrès.',
+    facilitiesEyebrow: 'Les installations',
+    facilitiesTitle: 'Tout ce qu’il faut au même endroit',
+    facilities: ['Salle de musculation moderne', 'Espace cardio', 'Studio de cours collectifs', 'Sauna & récupération', 'Vestiaires sécurisés', 'Café santé'],
+    feats: [
+      { title: 'Équipements premium', description: 'Machines récentes et entretenues régulièrement.' },
+      { title: 'Coachs certifiés', description: 'Certifications reconnues et expérience pratique.' },
+      { title: 'Programmes flexibles', description: 'Des plans adaptés à votre emploi du temps.' },
+      { title: 'Ambiance motivante', description: 'Une communauté qui vous soutient.' },
+    ],
+    stats: [['+800', 'membres actifs'], ['+40', 'cours par semaine'], ['+12', 'coachs certifiés'], ['4,9/5', 'note des membres']],
+    quotes: [
+      { text: 'Le meilleur club que j’ai essayé, les équipements sont propres et les coachs vraiment attentifs.', name: 'Amine B.', role: 'Membre depuis 2 ans' },
+      { text: 'Les cours de yoga ont changé mon quotidien, l’espace est calme et confortable.', name: 'Sarah M.', role: 'Membre' },
+      { text: 'Le programme de force m’a permis d’atteindre des résultats inédits.', name: 'Karim A.', role: 'Membre' },
+    ],
+    faqTitle: 'Questions fréquentes',
+    faq: [
+      ['Puis-je essayer avant de m’abonner ?', 'Oui, une séance d’essai gratuite est offerte sur réservation.'],
+      ['Y a-t-il des créneaux pour les femmes ?', 'Oui, des horaires dédiés avec des coachs certifiées.'],
+      ['Quels sont les horaires ?', 'Ouvert tous les jours de 06:00 à 23:00.'],
+      ['L’abonnement est-il suspendable ?', 'Oui, jusqu’à 30 jours par an.'],
+      ['Le coaching personnel est-il inclus ?', 'Il est disponible en option ou inclus dans l’abonnement annuel.'],
+    ],
+    joinTitle: 'Commencez votre parcours aujourd’hui',
+    joinLead: 'Choisissez votre formule et nous vous contactons pour confirmer et planifier l’évaluation.',
+    formTitle: 'Demande d’abonnement',
+    formSub: 'Renseignez vos données et notre équipe vous appelle sous 24 heures.',
+    choosePlan: 'Formule',
+    goalLabel: 'Votre objectif',
+    goals: ['Perdre du poids', 'Gagner du muscle', 'Améliorer la forme', 'Détente & souplesse'],
+    confirm: 'Envoyer la demande',
+    note: 'Sans frais d’inscription — première évaluation offerte.',
+  },
+  en: {
+    heroBadge: 'Luxury fitness club · Professional coaching',
+    joinCta: 'Join now',
+    exploreCta: 'Explore programs',
+    heroMessage: 'I would like information about club memberships',
+    openDaily: 'Open daily',
+    premium: 'Premium equipment',
+    members: 'active members',
+    programsEyebrow: 'Our programs',
+    programsTitle: 'Training built for every goal',
+    programsLead: 'From strength and cardio to recovery and mobility, pick the program that fits you.',
+    programs: [
+      { icon: 'zap', title: 'Strength & muscle', description: 'Free weights and full machines with structured progression.' },
+      { icon: 'heart', title: 'Cardio & fitness', description: 'High-intensity sessions to burn fat and strengthen the heart.' },
+      { icon: 'target', title: 'Yoga & mobility', description: 'Calm sessions for balance and recovery.' },
+      { icon: 'users', title: 'Personal coaching', description: 'One-on-one follow-up with a certified coach and custom plan.' },
+    ],
+    classesEyebrow: 'Group classes',
+    classesTitle: 'A varied weekly schedule',
+    classesLead: 'Classes led by professional coaches in small groups.',
+    classes: [
+      { day: 'Saturday', title: 'HIIT Challenge', time: '18:00', coach: 'Yacine', level: 'Intermediate' },
+      { day: 'Sunday', title: 'Power Lift', time: '19:00', coach: 'Mourad', level: 'Advanced' },
+      { day: 'Monday', title: 'Yoga Flow', time: '17:30', coach: 'Leila', level: 'Beginner' },
+      { day: 'Tuesday', title: 'Spin Class', time: '18:30', coach: 'Sami', level: 'Intermediate' },
+      { day: 'Wednesday', title: 'Boxing Fit', time: '19:30', coach: 'Yacine', level: 'Intermediate' },
+      { day: 'Thursday', title: 'Stretch & Recover', time: '17:00', coach: 'Leila', level: 'Beginner' },
+    ],
+    pricingEyebrow: 'Memberships',
+    pricingTitle: 'Choose your membership',
+    pricingLead: 'Clear prices with no hidden fees, and the option to freeze when needed.',
+    popular: 'Most popular',
+    planIncludes: ['Unlimited access', 'All group classes', 'Coach support', 'Private locker'],
+    coachesEyebrow: 'Coaching team',
+    coachesTitle: 'Certified coaches at your service',
+    coachesLead: 'Practical experience and recognized certifications to help you progress safely.',
+    aboutTitle: 'A space designed for your goals',
+    aboutLead: 'A complete fitness club combining world-class equipment, smart training programs and recovery spaces, with a team that follows your progress step by step.',
+    facilitiesEyebrow: 'Facilities',
+    facilitiesTitle: 'Everything you need in one place',
+    facilities: ['Modern weight room', 'Large cardio zone', 'Group class studio', 'Sauna & recovery', 'Secure lockers', 'Healthy café'],
+    feats: [
+      { title: 'World-class equipment', description: 'Modern machines with regular maintenance.' },
+      { title: 'Certified coaches', description: 'Recognized certifications and practical experience.' },
+      { title: 'Flexible programs', description: 'Plans that fit your schedule and goal.' },
+      { title: 'Motivating environment', description: 'A community that keeps you going.' },
+    ],
+    stats: [['+800', 'active members'], ['+40', 'weekly classes'], ['+12', 'certified coaches'], ['4.9/5', 'member rating']],
+    quotes: [
+      { text: 'The best club I have tried, clean equipment and coaches who genuinely follow your progress.', name: 'Amine B.', role: 'Member for 2 years' },
+      { text: 'The yoga classes changed my routine completely, the space is calm and comfortable.', name: 'Sarah M.', role: 'Member' },
+      { text: 'The strength program helped me reach results I never achieved before.', name: 'Karim A.', role: 'Member' },
+    ],
+    faqTitle: 'Frequently asked questions',
+    faq: [
+      ['Can I try the club before joining?', 'Yes, one free trial session is available upon booking.'],
+      ['Are there women-only hours?', 'Yes, dedicated hours with certified female coaches.'],
+      ['What are the opening hours?', 'Open daily from 06:00 to 23:00.'],
+      ['Can I freeze my membership?', 'Yes, for up to 30 days per year.'],
+      ['Is personal training included?', 'It is available as an add-on or included in the annual membership.'],
+    ],
+    joinTitle: 'Start your journey today',
+    joinLead: 'Choose your membership and we will contact you to confirm and schedule your assessment.',
+    formTitle: 'Membership request',
+    formSub: 'Fill in your details and our team will call you within 24 hours.',
+    choosePlan: 'Membership',
+    goalLabel: 'Your goal',
+    goals: ['Lose weight', 'Build muscle', 'Improve fitness', 'Relaxation & mobility'],
+    confirm: 'Send membership request',
+    note: 'No registration fee — first assessment session is free.',
+  },
+};
+
+export function gymPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
+  const copy = GYM[lang];
+  const plans = config.products.filter((p) => p.name);
+  const team = config.team || [];
+  const heroImage = config.coverUrl
+    ? `<img src="${attr(config.coverUrl)}" alt="${attr(config.siteName)}" width="900" height="1100" fetchpriority="high" decoding="async">`
+    : '';
+  const about = aboutPhoto(config);
+  const heroWa = waHref(config, `${copy.heroMessage} — ${config.siteName}`);
+  const joinWa = waHref(config, `${copy.joinTitle} — ${config.siteName}`);
+
+  return `<section class="hero gym-hero" id="top">
+    <div class="container hero-grid">
+      <div class="hero-copy" data-reveal>
+        <span class="badge">${icon('zap')}${esc(copy.heroBadge)}</span>
+        <h1 class="h1 mt-3">${esc(config.siteName)}</h1>
+        <p class="lead">${esc(config.description)}</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#join">${icon('zap')}${esc(copy.joinCta)}</a>
+          <a class="btn btn-wa" href="${attr(heroWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.whatsapp)}</a>
+        </div>
+        <div class="gym-badges">
+          <span>${icon('clock')}${esc(copy.openDaily)} · ${esc(config.hours || '06:00 – 23:00')}</span>
+          <span>${icon('award')}${esc(copy.premium)}</span>
+        </div>
+        <div class="hero-stats">
+          ${copy.stats.slice(0, 3).map(([num, label]) => `<div><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="hero-media gym-hero-media${heroImage ? '' : ' no-img'}" data-mark="${attr(initials(config.siteName))}" data-reveal>${heroImage}
+        <div class="float-card"><span class="float-icon">${icon('users')}</span><div><strong>+800</strong><span>${esc(copy.members)}</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="trust-strip"><div class="container">
+    <span class="trust-item">${icon('zap')}${esc(copy.programs[0].title)}</span>
+    <span class="trust-item">${icon('heart')}${esc(copy.programs[1].title)}</span>
+    <span class="trust-item">${icon('award')}${esc(copy.coachesTitle)}</span>
+    <span class="trust-item">${icon('clock')}${esc(copy.openDaily)}</span>
+  </div></div>
+
+  <section class="section bg-soft" id="programs">
+    <div class="container">
+      ${sectionHead(copy.programsEyebrow, copy.programsTitle, copy.programsLead, true)}
+      <div class="gym-programs-grid">
+        ${copy.programs.map((item, i) => `<article class="gym-program" data-reveal>
+          <span class="gym-program-num">${String(i + 1).padStart(2, '0')}</span>
+          <span class="gym-program-icon">${icon(item.icon as any)}</span>
+          <h3 class="h3">${esc(item.title)}</h3>
+          <p>${esc(item.description)}</p>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="classes">
+    <div class="container">
+      ${sectionHead(copy.classesEyebrow, copy.classesTitle, copy.classesLead)}
+      <div class="gym-class-list">
+        ${copy.classes.map((item) => `<article class="gym-class" data-reveal>
+          <span class="gym-class-day">${esc(item.day)}</span>
+          <div class="gym-class-main"><h3>${esc(item.title)}</h3><span>${icon('users')}${esc(item.coach)}</span></div>
+          <span class="gym-class-time">${icon('clock')}${esc(item.time)}</span>
+          <span class="gym-class-level">${esc(item.level)}</span>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="pricing">
+    <div class="container">
+      ${sectionHead(copy.pricingEyebrow, copy.pricingTitle, copy.pricingLead, true)}
+      <div class="gym-plans-grid">
+        ${plans.map((p, i) => `<article class="gym-plan${i === 1 ? ' is-popular' : ''}" data-reveal>
+          ${i === 1 ? `<span class="gym-plan-badge">${esc(copy.popular)}</span>` : ''}
+          <span class="gym-plan-period">${esc(p.category || '')}</span>
+          <h3>${esc(p.name)}</h3>
+          <div class="gym-plan-price">${money(p.price, lang)}</div>
+          ${p.description ? `<p>${esc(p.description)}</p>` : ''}
+          <ul class="gym-plan-list">${copy.planIncludes.map((f) => `<li>${icon('check')}${esc(f)}</li>`).join('')}</ul>
+          <button class="btn btn-primary btn-block" type="button" data-pick-plan="${attr(p.name)}">${icon('zap')}${esc(copy.joinCta)}</button>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  ${team.length ? `<section class="section" id="coaches">
+    <div class="container">
+      ${sectionHead(copy.coachesEyebrow, copy.coachesTitle, copy.coachesLead, true)}
+      <div class="gym-team-grid">${team.map((member) => `<article class="gym-coach" data-reveal>
+        <div class="gym-coach-photo">${member.photoUrl ? `<img src="${attr(member.photoUrl)}" alt="${attr(member.name)}" loading="lazy" decoding="async" width="700" height="800">` : `<span class="gym-initials">${esc(initialsFor(member.name))}</span>`}</div>
+        <div class="gym-coach-body"><h3>${esc(member.name)}</h3><span class="gym-coach-role">${esc(member.role)}</span>${member.specialty ? `<p>${esc(member.specialty)}</p>` : ''}</div>
+      </article>`).join('')}</div>
+    </div>
+  </section>` : ''}
+
+  <section class="section bg-soft" id="about">
+    <div class="container about-grid">
+      <div class="about-media${about ? '' : ' no-img'}" data-reveal>
+        ${about ? `<img src="${attr(about)}" alt="${attr(config.siteName)}" loading="lazy" decoding="async" width="800" height="700">` : ''}
+        <div class="about-badge">${icon('zap')}+800 ${esc(copy.members)}</div>
+      </div>
+      <div data-reveal>
+        <span class="eyebrow">${esc(s.about)}</span>
+        <h2 class="h2 mt-2">${esc(copy.aboutTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.aboutLead)}</p>
+        <ul class="checklist">
+          ${copy.feats.map((f) => `<li><span class="tick">${icon('check')}</span><span>${esc(f.title)} — ${esc(f.description)}</span></li>`).join('')}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="facilities">
+    <div class="container">
+      ${sectionHead(copy.facilitiesEyebrow, copy.facilitiesTitle, undefined, true)}
+      <div class="gym-facilities">
+        ${copy.facilities.map((f) => `<span class="gym-facility" data-reveal>${icon('check')}${esc(f)}</span>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="stats-band">
+    <div class="container stats-grid">
+      ${copy.stats.map(([num, label]) => `<div class="stat"><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">${sectionHead(s.testimonials, s.testimonials, undefined, true)}
+      <div class="grid g3">${copy.quotes.map((q) => `<div class="quote" data-reveal>
+        <div class="stars" aria-label="5/5">★★★★★</div>
+        <p>“${esc(q.text)}”</p>
+        <div class="who"><span class="avatar">${esc(initialsFor(q.name))}</span><div><strong>${esc(q.name)}</strong><span>${esc(q.role)}</span></div></div>
+      </div>`).join('')}</div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="faq">
+    <div class="container">
+      ${sectionHead(s.faq, copy.faqTitle, undefined, true)}
+      <div class="faq-list">
+        ${copy.faq.map(([q, a]) => `<details class="faq" data-reveal>
+          <summary>${esc(q)}<span class="faq-ic">${icon('plus')}</span></summary>
+          <p>${esc(a)}</p>
+        </details>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="join">
+    <div class="container gym-join-wrap">
+      <div data-reveal>
+        <span class="eyebrow">${esc(s.getStarted)}</span>
+        <h2 class="h2 mt-2">${esc(copy.joinTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.joinLead)}</p>
+        <ul class="checklist">
+          ${copy.planIncludes.map((f) => `<li><span class="tick">${icon('check')}</span><span>${esc(f)}</span></li>`).join('')}
+        </ul>
+        <div class="gym-hours">
+          <div class="hours-row"><span>${icon('clock')}${esc(s.hours)}</span><strong>${esc(config.hours || '06:00 – 23:00')}</strong></div>
+          <div class="hours-row"><span>${icon('map')}${esc(s.location)}</span><strong>${esc(config.address || config.city || '')}</strong></div>
+        </div>
+        <div class="gym-contact-actions">
+          <a class="btn btn-light" href="tel:${attr(config.phone)}">${icon('phone')}${esc(s.callNow)}</a>
+          <a class="btn btn-wa" href="${attr(joinWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.whatsapp)}</a>
+        </div>
+      </div>
+      <form class="gym-join-card" data-lead-form data-lead-kind="gym-join" novalidate>
+        <h3>${esc(copy.formTitle)}</h3>
+        <p class="booking-sub">${esc(copy.formSub)}</p>
+        <div class="form-grid">
+          <div class="field"><label for="gym-name">${esc(s.name)}</label><input id="gym-name" name="name" required maxlength="80" autocomplete="name"><span class="err">${esc(s.required)}</span></div>
+          <div class="field"><label for="gym-phone">${esc(s.phone)}</label><input id="gym-phone" name="phone" type="tel" required maxlength="20" autocomplete="tel" dir="ltr"><span class="err">${esc(s.invalidPhone)}</span></div>
+          <div class="field full"><label for="gym-email">${esc(s.email)}</label><input id="gym-email" name="email" type="email" maxlength="120" autocomplete="email" dir="ltr"></div>
+          <div class="field full"><label for="gym-plan">${esc(copy.choosePlan)}</label><select id="gym-plan" name="planName" data-join-plan required>
+            <option value="">${esc(copy.choosePlan)}</option>
+            ${plans.map((p) => `<option value="${attr(p.name)}">${esc(p.name)} — ${money(p.price, lang)}</option>`).join('')}
+          </select><span class="err">${esc(s.required)}</span></div>
+          <div class="field full"><label for="gym-goal">${esc(copy.goalLabel)}</label><select id="gym-goal" name="goal">
+            ${copy.goals.map((g) => `<option value="${attr(g)}">${esc(g)}</option>`).join('')}
+          </select></div>
+          <div class="field full"><label for="gym-msg">${esc(s.message)}</label><textarea id="gym-msg" name="message" maxlength="1200"></textarea></div>
+          <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
+        </div>
+        <button class="btn btn-primary btn-block mt-3" type="submit">${icon('send')}${esc(copy.confirm)}</button>
+        <div class="form-status" role="status"></div>
+        <p class="form-note center mt-2">${esc(copy.note)}</p>
+      </form>
+    </div>
+  </section>
+
+  ${contactSection(config, s)}`;
+}
+
 export function pageFor(template: string, config: RenderConfig, lang: Lang): string {
   const s = ui(lang);
   switch (template) {
@@ -5833,6 +6293,8 @@ export function pageFor(template: string, config: RenderConfig, lang: Lang): str
       return showroomPage(config, s, lang);
     case 'digital':
       return digitalPage(config, s, lang);
+    case 'gym':
+      return gymPage(config, s, lang);
 
     // Landing-style templates
     case 'fitness':
@@ -6115,6 +6577,32 @@ export function jsonLdFor(template: string, config: RenderConfig, siteUrl: strin
           },
         })),
       },
+    };
+    case 'gym': return {
+      ...base,
+      '@type': 'ExerciseGym',
+      image: config.coverUrl || undefined,
+      priceRange: 'DZD',
+      openingHours: config.hours || undefined,
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: 'Memberships',
+        itemListElement: config.products.slice(0, 12).map((p, index) => ({
+          '@type': 'Offer',
+          position: index + 1,
+          name: p.name,
+          description: p.description || undefined,
+          price: p.price,
+          priceCurrency: 'DZD',
+          availability: 'https://schema.org/InStock',
+        })),
+      },
+      employee: (config.team || []).map((member) => ({
+        '@type': 'Person',
+        name: member.name,
+        jobTitle: member.role,
+        image: member.photoUrl || undefined,
+      })),
     };
     case 'clinic': return {
       ...base,
