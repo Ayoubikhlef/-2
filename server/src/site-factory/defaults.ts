@@ -258,7 +258,7 @@ export const TEMPLATES: TemplateSeed[] = [
     slug: 'showroom',
     category: 'showroom',
     accent: '#0f172a',
-    sortOrder: 18,
+    sortOrder: 26,
     name: { ar: 'صالة عرض سيارات', fr: 'Showroom Automobile', en: 'Car Showroom' },
     description: {
       ar: 'صالة عرض سيارات فاخرة مع تشكيلة من السيارات الجديدة والمستعملة، خيارات التقسيط، وطلب عرض سعر عبر واتساب.',
@@ -270,7 +270,7 @@ export const TEMPLATES: TemplateSeed[] = [
     slug: 'clinic',
     category: 'clinic',
     accent: '#059669',
-    sortOrder: 19,
+    sortOrder: 27,
     name: { ar: 'مركز طبي متخصص / عيادات أسنان', fr: 'Centre Médical / Cabinet Dentaire', en: 'Medical Center / Dental Clinic' },
     description: {
       ar: 'مركز طبي متخصص مع عيادات أسنان، تحليلات طبية، باقات كشف دورية، وحجز موعد عبر واتساب.',
@@ -294,10 +294,10 @@ export const TEMPLATES: TemplateSeed[] = [
     slug: 'hotel',
     category: 'hotel',
     accent: '#92400e',
-    sortOrder: 18,
+    sortOrder: 25,
     name: { ar: 'فندق / منتجع سياحي', fr: 'Hôtel / Resort', en: 'Hotel / Resort' },
     description: {
-      ar: 'فندق ومنتجع سياحي مع غرف وأجنحة، خدمات الضيافة، الحجز عبر واتساب ومعرض صورふاخرة.',
+      ar: 'فندق ومنتجع سياحي مع غرف وأجنحة، خدمات الضيافة، الحجز عبر واتساب ومعرض صور فاخرة.',
       fr: 'Hôtel et resort avec chambres et suites, services d\'hospitalité, réservation WhatsApp et galerie photos haut de gamme.',
       en: 'Hotel and resort with rooms and suites, hospitality services, WhatsApp booking and luxury photo gallery.',
     },

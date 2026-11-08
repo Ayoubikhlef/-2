@@ -464,6 +464,29 @@ export const SITE_JS = String.raw`
           ' | ' + (form.message ? form.message.value : '') +
           '. ' + message;
       }
+      if (form.getAttribute('data-lead-kind') === 'hotel-booking') {
+        var hotelRoom = form.querySelector('[name="roomType"]');
+        var hotelNights = form.querySelector('[name="nights"]');
+        var hotelArrival = form.querySelector('[name="arrivalDate"]');
+        message = 'Hotel booking: ' + (hotelRoom ? hotelRoom.value : '') +
+          ' | ' + (hotelNights ? hotelNights.value : '') + ' night(s)' +
+          ' | arrival ' + (hotelArrival ? hotelArrival.value : '') +
+          '. ' + message;
+      }
+      if (form.getAttribute('data-lead-kind') === 'showroom-quote') {
+        var carModel = form.querySelector('[name="carModel"]');
+        var financeType = form.querySelector('[name="financeType"]');
+        message = 'Car quote: ' + (carModel ? carModel.value : '') +
+          ' | finance ' + (financeType ? financeType.value : '') +
+          '. ' + message;
+      }
+      if (form.getAttribute('data-lead-kind') === 'clinic-booking') {
+        var clinicService = form.querySelector('[name="serviceType"]');
+        var clinicDoctor = form.querySelector('[name="doctorName"]');
+        message = 'Clinic appointment: ' + (clinicService ? clinicService.value : '') +
+          ' | doctor ' + (clinicDoctor ? clinicDoctor.value : '') +
+          '. ' + message;
+      }
       post('/public/sites/' + encodeURIComponent(SITE.siteId) + '/leads', {
         name: form.name ? form.name.value : '',
         phone: form.phone ? form.phone.value : '',

@@ -241,10 +241,9 @@ function navItems(config: RenderConfig, s: UiStrings): { href: string; label: st
       if (['hotel'].includes(config.templateSlug)) {
         return [
           { href: '#top', label: s.home },
-          { href: '#rooms', label: s.services },
-          { href: '#listings', label: s.work },
-          { href: '#services', label: s.packages },
-          { href: '#amenities', label: s.services },
+          { href: '#rooms', label: s.rooms },
+          { href: '#services', label: s.services },
+          { href: '#amenities', label: s.amenities },
           { href: '#team', label: s.team },
           { href: '#book', label: s.appointment },
           { href: '#faq', label: s.faq },
@@ -265,7 +264,7 @@ function navItems(config: RenderConfig, s: UiStrings): { href: string; label: st
         return [
           { href: '#top', label: s.home },
           { href: '#categories', label: s.services },
-          { href: '#cars', label: s.work },
+          { href: '#cars', label: s.fleet },
           { href: '#financing', label: s.packages },
           { href: '#team', label: s.team },
           { href: '#quote', label: s.appointment },
@@ -276,8 +275,8 @@ function navItems(config: RenderConfig, s: UiStrings): { href: string; label: st
       if (['clinic'].includes(config.templateSlug)) {
         return [
           { href: '#top', label: s.home },
-          { href: '#departments', label: s.services },
-          { href: '#treatments', label: s.work },
+          { href: '#departments', label: s.specialties },
+          { href: '#treatments', label: s.services },
           { href: '#team', label: s.team },
           { href: '#about', label: s.about },
           { href: '#book', label: s.appointment },
@@ -286,6 +285,37 @@ function navItems(config: RenderConfig, s: UiStrings): { href: string; label: st
         ];
       }
       return [];
+  }
+}
+
+/** Mobile panel CTA: one target per template that actually exists on the page. */
+function mobileCta(config: RenderConfig, s: UiStrings): { href: string; label: string } {
+  switch (config.templateSlug) {
+    case 'restaurant':
+    case 'bakery':
+      return { href: '#reserve', label: s.reservation };
+    case 'carrental':
+      return { href: '#booking', label: s.booking };
+    case 'medical':
+      return { href: '#appointment', label: s.appointment };
+    case 'lawyer':
+      return { href: '#consult', label: s.appointment };
+    case 'realestate':
+      return { href: '#viewing', label: s.appointment };
+    case 'education':
+      return { href: '#register', label: s.appointment };
+    case 'construction':
+      return { href: '#quote', label: s.appointment };
+    case 'hotel':
+      return { href: '#book', label: s.appointment };
+    case 'showroom':
+      return { href: '#quote', label: s.appointment };
+    case 'clinic':
+      return { href: '#book', label: s.appointment };
+    case 'pharmacy':
+      return { href: '#products', label: s.orderNow };
+    default:
+      return { href: '#contact', label: s.contact };
   }
 }
 
@@ -338,48 +368,7 @@ export function renderShell(options: ShellOptions): string {
   const hasHeader = config.templateSlug !== 'card';
   // Restaurant-style pages end with the reservation section, not a `#contact`
   // block, so the mobile CTA must target an anchor that really exists.
-  const mobileCtaHref = config.templateSlug === 'restaurant' || config.templateSlug === 'bakery'
-    ? '#reserve'
-    : config.templateSlug === 'carrental'
-      ? '#booking'
-      : config.templateSlug === 'medical'
-        ? '#appointment'
-        : config.templateSlug === 'lawyer'
-          ? '#consult'
-          : config.templateSlug === 'realestate'
-            ? '#viewing'
-            : config.templateSlug === 'education'
-              ? '#register'
-              : config.templateSlug === 'construction'
-                ? '#quote'
-                : config.templateSlug === 'hotel'
-                  ? '#book'
-                  : config.templateSlug === 'pharmacy'
-              ? '#products'
-              : config.templateSlug === 'showroom'
-                ? '#quote'
-                : '#contact';
-  const mobileCtaLabel = config.templateSlug === 'carrental'
-    ? s.booking
-    : config.templateSlug === 'medical'
-      ? s.appointment
-      : config.templateSlug === 'lawyer'
-        ? s.appointment
-        : config.templateSlug === 'realestate'
-          ? s.appointment
-          : config.templateSlug === 'education'
-            ? s.appointment
-            : config.templateSlug === 'construction'
-              ? s.appointment
-              : config.templateSlug === 'pharmacy'
-            ? s.orderNow
-            : config.templateSlug === 'hotel'
-              ? s.appointment
-            : config.templateSlug === 'showroom'
-              ? s.appointment
-            : config.templateSlug === 'clinic'
-              ? s.appointment
-            : s.contact;
+  const { href: mobileCtaHref, label: mobileCtaLabel } = mobileCta(config, s);
   const alternateTags = (['ar', 'fr', 'en'] as const)
     .filter((code) => alternates[code])
     .map((code) => `<link rel="alternate" hreflang="${code}" href="${attr(absolute(siteUrl, alternates[code]))}">`)
@@ -541,42 +530,7 @@ ${waFloat}
 export function baseHeader(config: RenderConfig, lang: 'ar' | 'fr' | 'en', alternates: Record<string, string>): string {
   const s = ui(lang);
   const nav = navItems(config, s);
-  const mobileCtaHref = config.templateSlug === 'restaurant' || config.templateSlug === 'bakery'
-    ? '#reserve'
-    : config.templateSlug === 'carrental'
-      ? '#booking'
-      : config.templateSlug === 'medical'
-        ? '#appointment'
-        : config.templateSlug === 'lawyer'
-          ? '#consult'
-          : config.templateSlug === 'realestate'
-            ? '#viewing'
-            : config.templateSlug === 'education'
-              ? '#register'
-              : config.templateSlug === 'construction'
-                ? '#quote'
-                : config.templateSlug === 'hotel'
-                  ? '#book'
-                  : config.templateSlug === 'pharmacy'
-              ? '#products'
-              : config.templateSlug === 'showroom'
-                ? '#quote'
-                : '#contact';
-  const mobileCtaLabel = config.templateSlug === 'carrental'
-    ? s.booking
-    : config.templateSlug === 'medical'
-      ? s.appointment
-      : config.templateSlug === 'lawyer'
-        ? s.appointment
-        : config.templateSlug === 'realestate'
-          ? s.appointment
-          : config.templateSlug === 'education'
-            ? s.appointment
-            : config.templateSlug === 'construction'
-              ? s.appointment
-              : config.templateSlug === 'pharmacy'
-            ? s.orderNow
-            : s.contact;
+  const { href: mobileCtaHref, label: mobileCtaLabel } = mobileCta(config, s);
   const logo = config.logoAssetPath
     ? `<img class="brand-logo" src="${attr(config.logoAssetPath)}" alt="${attr(config.siteName)}" width="44" height="44">`
     : `<span class="brand-mark" aria-hidden="true">${esc(initials(config.siteName))}</span>`;

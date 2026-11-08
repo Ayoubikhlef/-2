@@ -1778,7 +1778,7 @@ const LAWYER: Record<Lang, LawyerCopy> = {
     ],
     servicesEyebrow: 'خدمات وأتعاب المكتب',
     servicesTitle: 'خدماتنا وأسعارها التقديرية',
-    servicesLead: 'أسعار transparente تُعرض قبل початку أي إجراء، مع إمكانية الدفع بالتقسيط حسب طبيعة القضية.',
+    servicesLead: 'أسعار واضحة تُعرض قبل بدء أي إجراء، مع إمكانية الدفع بالتقسيط حسب طبيعة القضية.',
     fallbackServices: [
       { title: 'استشارة قانونية أولية', description: 'جلسة تقييم للملف وتوضيح المسار القانوني.', price: '3,000 دج' },
       { title: 'صياغة ومراجعة عقود', description: 'عقود البيع، الإيجار، الشراكة، وعقد قانوني آمن.', price: '8,000 دج' },
@@ -1790,8 +1790,8 @@ const LAWYER: Record<Lang, LawyerCopy> = {
     processLead: 'نتابع ملفّك خطوة بخطوة مع إطلاعك على كل مستجد أولاً بأول.',
     step1: 'الاستماع للقضية', step1d: 'نستمع لرواية موكِّلنا ونحدّد النقاط القانونية الأساسية.',
     step2: 'دراسة الملف', step2d: 'نحلل المستندات والأحكام المماثلة ونضع استراتيجية الدعوة.',
-    step3: 'المتابعة والإجراءات', step3d: 'نُعدّ المذكرات ونُتابِع الجلسات والぶんكة الإجرائية.',
-    step4: 'الحكم والتنفيذ', step4d: 'نستقبل الحكم ونُتابِع تنفيذه حتى استرداد権ك بالكامل.',
+    step3: 'المتابعة والإجراءات', step3d: 'نُعدّ المذكرات ونُتابِع الجلسات والإجراءات.',
+    step4: 'الحكم والتنفيذ', step4d: 'نستقبل الحكم ونُتابِع تنفيذه حتى استرداد حقك بالكامل.',
     teamEyebrow: 'فريق المحاماة',
     teamTitle: 'محامون يدافعون عن حقوقك',
     teamLead: 'فريق يتمتع بخبرة واسعة في التقاضي والاستشارات القانونية، يعمل بسرية تامة.',
@@ -2707,7 +2707,7 @@ const EDUCATION: Record<Lang, EducationCopy> = {
     step4: 'الشهادة', step4d: 'تحصل على شهادة معترف بها بعد إكمال الدورة والتقييم النهائي.',
     teamEyebrow: 'فريق التكوين',
     teamTitle: 'مدربون معتمدون في خدمتك',
-    teamLead: 'فريق من المدربين المؤهلين具有 خبرة عملية في المجالات التقنية والإدارية.',
+    teamLead: 'فريق من المدربين المؤهلين ذوي الخبرة العملية في المجالات التقنية والإدارية.',
     aboutTitle: 'مركز النجاح للتكوين',
     aboutLead: 'مركز تكوين معتمد يقدّم دورات عملية في الإعلام الآلي واللغات والتسيير، بشهادات معترف بها، مع مرافقة المتدرب من التسجيل حتى الحصول على الشهادة.',
     feat1: 'شهادات معتمدة', feat1d: 'شهادة بعد كل دورة معترف بها في سوق العمل.',
@@ -2723,7 +2723,7 @@ const EDUCATION: Record<Lang, EducationCopy> = {
     faqTitle: 'أسئلة شائعة',
     faq: [
       ['هل الشهادات معترف بها؟', 'نعم، جميع الشهادات معترف بها وتمنح بعد إكمال الدورة والتقييم.'],
-      ['كيف أسجل في دورة؟', 'يمكنك التسجيل عبر النموذج أو زيارة المركز 직접اً.'],
+      ['كيف أسجل في دورة؟', 'يمكنك التسجيل عبر النموذج أو زيارة المركز مباشرةً.'],
       ['هل هناك حصص مسائية؟', 'نعم، نقدم حصصاً صباحية ومسائية تناسب جميع الفئات.'],
       ['ما هي أوقات العمل؟', 'نعمل من السبت إلى الخميس من 08:30 إلى 19:00.'],
       ['هل يمكن الدفع بالتقسيط؟', 'نعم، يمكن تقسيط رسوم الدورة على عدة دفعات حسب الاتفاق.'],
@@ -3140,7 +3140,7 @@ const CONSTRUCTION: Record<Lang, ConstructionCopy> = {
     ],
     projectsEyebrow: 'مشاريع منجزة',
     projectsTitle: 'مختارات من أعمالنا',
-    projectsLead: 'مشاريع سكنية وتجارية أنجزناها بدقة ובמקتadre.',
+    projectsLead: 'مشاريع سكنية وتجارية أنجزناها بدقة وبمعايير عالية.',
     processTitle: 'كيف ننجز مشروعك',
     processLead: 'من الدراسة إلى التسليم، نتابع كل خطوة بشفافية كاملة.',
     step1: 'الدراسة والتصميم', step1d: 'ندرس موقع البناء ونضع التصميم الهندسي المناسب.',
@@ -3509,6 +3509,9 @@ interface HotelCopy {
   roomsEyebrow: string;
   roomsTitle: string;
   roomsLead: string;
+  ratesEyebrow: string;
+  ratesTitle: string;
+  ratesLead: string;
   rooms: Array<{ icon: string; title: string; description: string }>;
   servicesEyebrow: string;
   servicesTitle: string;
@@ -3560,6 +3563,9 @@ const HOTEL: Record<Lang, HotelCopy> = {
     roomsEyebrow: 'الإقامة الفاخرة',
     roomsTitle: 'غرف وأجنحة مصممة لراحتك',
     roomsLead: 'من الغرف الكلاسيكية إلى الأجنحة الملكية، كل تفاصيل إقامتك مصممة بعناية.',
+    ratesEyebrow: 'الأسعار والإقامة',
+    ratesTitle: 'اختر غرفتك وأسعارك',
+    ratesLead: 'أسعار واضحة لكل غرفة وجناح، مع إمكانية الحجز المباشر عبر واتساب.',
     rooms: [
       { icon: 'home', title: 'غرفة كلاسيكية', description: 'غرفة مريحة مع سرير مزدوج وإطلالة على المدينة.' },
       { icon: 'home', title: 'غرفة ديلوكس', description: 'غرفة فسيحة مع كرسي استرخاء وإطلالة على البحر.' },
@@ -3587,8 +3593,8 @@ const HOTEL: Record<Lang, HotelCopy> = {
       'خدمة غرف على مدار الساعة',
     ],
     processTitle: 'كيف تحجز إقامتك',
-    processLead: 'من اختيار الغرفة إلى تسجيل الوصول، ن accompagnك في كل خطوة.',
-    step1: 'اختيار الغرفة', step1d: 'ن帮ك في اختيار الغرفة أو الجناح المناسب لاحتياجاتك.',
+    processLead: 'من اختيار الغرفة إلى تسجيل الوصول، نرافقك في كل خطوة.',
+    step1: 'اختيار الغرفة', step1d: 'نساعدك في اختيار الغرفة أو الجناح المناسب لاحتياجاتك.',
     step2: 'الحجز', step2d: 'نحجز إقامتك ونؤكد التواريخ والسعر النهائي.',
     step3: 'الوصول', step3d: 'نستقبلك في الفندق ونقدم لك جولة تعريفية بالمرافق.',
     step4: 'الإقامة', step4d: 'نضمن لك إقامة مريحة مع خدمة على مدار الساعة.',
@@ -3636,6 +3642,9 @@ const HOTEL: Record<Lang, HotelCopy> = {
     roomsEyebrow: 'Hébergement de luxe',
     roomsTitle: 'Chambres et suites conçues pour votre confort',
     roomsLead: 'Des chambres classiques aux suites royales, chaque détail de votre séjour est soigneusement conçu.',
+    ratesEyebrow: 'Tarifs et séjours',
+    ratesTitle: 'Choisissez votre chambre et votre tarif',
+    ratesLead: 'Des tarifs clairs pour chaque chambre et suite, avec réservation directe via WhatsApp.',
     rooms: [
       { icon: 'home', title: 'Chambre classique', description: 'Chambre confortable avec lit double et vue sur la ville.' },
       { icon: 'home', title: 'Chambre deluxe', description: 'Chambre spacieuse avec fauteuil et vue sur la mer.' },
@@ -3712,6 +3721,9 @@ const HOTEL: Record<Lang, HotelCopy> = {
     roomsEyebrow: 'Luxury accommodation',
     roomsTitle: 'Rooms and suites designed for your comfort',
     roomsLead: 'From classic rooms to royal suites, every detail of your stay is carefully designed.',
+    ratesEyebrow: 'Rates & stays',
+    ratesTitle: 'Choose your room and rate',
+    ratesLead: 'Clear rates for every room and suite, with direct booking via WhatsApp.',
     rooms: [
       { icon: 'home', title: 'Classic Room', description: 'Comfortable room with double bed and city view.' },
       { icon: 'home', title: 'Deluxe Room', description: 'Spacious room with lounge chair and sea view.' },
@@ -3818,7 +3830,7 @@ export function hotelPage(config: RenderConfig, s: UiStrings, lang: Lang): strin
     : '';
   const about = aboutPhoto(config);
   const heroWa = waHref(config, `${copy.heroMessage} — ${config.siteName}`);
-  const bookWa = waHref(config, `حجز فندق — ${config.siteName}`);
+  const bookWa = waHref(config, `${copy.bookTitle} — ${config.siteName}`);
 
   return `<section class="hero hotel-hero" id="top">
     <div class="container hero-grid">
@@ -3866,7 +3878,7 @@ export function hotelPage(config: RenderConfig, s: UiStrings, lang: Lang): strin
 
   <section class="section" id="listings">
     <div class="container">
-      ${sectionHead(s.ourWork, copy.roomsTitle, copy.roomsLead)}
+      ${sectionHead(copy.ratesEyebrow, copy.ratesTitle, copy.ratesLead)}
       <div class="room-grid">${rooms.length ? rooms.map((p) => roomCard(p, config, s, lang)).join('') : `<div class="room-empty">${esc(s.emptyCart)}</div>`}</div>
     </div>
   </section>
@@ -4074,7 +4086,7 @@ const SHOWROOM: Record<Lang, ShowroomCopy> = {
     categories: [
       { icon: 'home', title: 'سيارات عائلية', description: 'سيارات مريحة وموفرة للعائلات.' },
       { icon: 'users', title: 'سيارات فاخرة', description: 'سيارات رباعية الدفع وسيارات سيدان فاخرة.' },
-      { icon: 'target', title: 'سيارات رياضية', description: 'سيارات Coupe وスポーツ بأداء عالي.' },
+      { icon: 'target', title: 'سيارات رياضية', description: 'سيارات كوبيه ورياضية بأداء عالٍ.' },
       { icon: 'truck', title: 'شاحنات ومركبات', description: 'شاحنات ومركبات تجارية للعمل الشاق.' },
     ],
     carsEyebrow: 'سيارات متاحة',
@@ -4302,7 +4314,7 @@ export function showroomPage(config: RenderConfig, s: UiStrings, lang: Lang): st
     : '';
   const about = aboutPhoto(config);
   const heroWa = waHref(config, `${copy.heroMessage} — ${config.siteName}`);
-  const quoteWa = waHref(config, `طلب عرض سعر سيارة — ${config.siteName}`);
+  const quoteWa = waHref(config, `${copy.quoteTitle} — ${config.siteName}`);
 
   return `<section class="hero showroom-hero" id="top">
     <div class="container hero-grid">
@@ -4556,7 +4568,7 @@ const CLINIC: Record<Lang, ClinicCopy> = {
     ],
     processTitle: 'كيف تحصل على الرعاية الطبية',
     processLead: 'من الحجز إلى المتابعة، نضمن لك تجربة طبية مريحة وآمنة.',
-    step1: 'الحجز', step1d: 'ن_helpك في حجز الموعد المناسب مع الطبيب المختص.',
+    step1: 'الحجز', step1d: 'نساعدك في حجز الموعد المناسب مع الطبيب المختص.',
     step2: 'الكشف', step2d: 'يقوم الطبيب بالفحص السريري وتشخيص الحالة.',
     step3: 'العلاج', step3d: 'نقدم خطة علاجية مناسبة ومتابعة دورية للحالة.',
     step4: 'المتابعة', step4d: 'نتبع حالتك بعد العلاج ونقدم التوجيهات اللازمة.',
@@ -4573,7 +4585,7 @@ const CLINIC: Record<Lang, ClinicCopy> = {
     quotes: [
       { text: 'مركز طبي ممتاز، الأطباء محترفون والعيادة نظيفة ومجهزة.', name: 'سارة خ.', role: 'مريضة' },
       { text: 'عيادة أسنان رائعة، العلاج كان بدون ألم والنتيجة رائعة.', name: 'محمد ب.', role: 'مريض' },
-      { text: 'فريقempathetic ومهني، أنصح بالمركز لكل من يبحث عن رعاية طبية جيدة.', name: 'نورى ع.', role: 'مريض' },
+      { text: 'فريق متعاطف ومهني، أنصح بالمركز لكل من يبحث عن رعاية طبية جيدة.', name: 'نورى ع.', role: 'مريض' },
     ],
     faqTitle: 'أسئلة شائعة',
     faq: [
@@ -4763,7 +4775,7 @@ export function clinicPage(config: RenderConfig, s: UiStrings, lang: Lang): stri
     : '';
   const about = aboutPhoto(config);
   const heroWa = waHref(config, `${copy.heroMessage} — ${config.siteName}`);
-  const bookWa = waHref(config, `حجز موعد طبي — ${config.siteName}`);
+  const bookWa = waHref(config, `${copy.bookTitle} — ${config.siteName}`);
 
   return `<section class="hero clinic-hero" id="top">
     <div class="container hero-grid">
@@ -5586,7 +5598,7 @@ export function jsonLdFor(template: string, config: RenderConfig, siteUrl: strin
     };
     case 'showroom': return {
       ...base,
-      '@type': 'AutoDealership',
+      '@type': 'AutoDealer',
       image: config.coverUrl || undefined,
       priceRange: 'DZD',
       openingHours: config.hours || undefined,
