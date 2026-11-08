@@ -327,6 +327,18 @@ export const TEMPLATES: TemplateSeed[] = [
     },
   },
   {
+    slug: 'bistro',
+    category: 'bistro',
+    accent: '#9f1239',
+    sortOrder: 32,
+    name: { ar: 'مطعم / كافيه فاخر', fr: 'Restaurant / Café gastronomique', en: 'Luxury Restaurant / Café' },
+    description: {
+      ar: 'مطعم فاخر: قصة المطعم، قائمة موسمية بفلاتر، فريق المطبخ، معرض صور، آراء الزوار ونموذج حجز طاولة.',
+      fr: 'Restaurant gastronomique : histoire, carte de saison filtrable, brigade, galerie, avis et réservation de table.',
+      en: 'Fine dining restaurant: story, filterable seasonal menu, kitchen team, gallery, guest reviews and table reservation form.',
+    },
+  },
+  {
     slug: 'agriculture',
     category: 'agriculture',
     accent: '#4d7c0f',

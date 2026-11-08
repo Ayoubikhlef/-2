@@ -7106,6 +7106,383 @@ export function saasPage(config: RenderConfig, s: UiStrings, lang: Lang): string
   ${contactSection(config, s)}`;
 }
 
+/* -------------------------------------------------------------------------
+ * LUXURY RESTAURANT / CAFE
+ * ---------------------------------------------------------------------- */
+interface BistroCopy {
+  heroBadge: string;
+  menuCta: string;
+  reserveCta: string;
+  heroMessage: string;
+  openDaily: string;
+  seasonal: string;
+  signature: string;
+  storyEyebrow: string;
+  storyTitle: string;
+  storyLead: string;
+  storyQuote: string;
+  storyAuthor: string;
+  menuEyebrow: string;
+  menuTitle: string;
+  menuLead: string;
+  orderDish: string;
+  chefsEyebrow: string;
+  chefsTitle: string;
+  chefsLead: string;
+  galleryEyebrow: string;
+  galleryTitle: string;
+  galleryLead: string;
+  stats: Array<[string, string]>;
+  quotes: Array<{ text: string; name: string; role: string }>;
+  faqTitle: string;
+  faq: Array<[string, string]>;
+  reserveTitle: string;
+  reserveLead: string;
+  formTitle: string;
+  formSub: string;
+  dateLabel: string;
+  timeLabel: string;
+  guestsLabel: string;
+  guests: string[];
+  occasionLabel: string;
+  occasions: string[];
+  confirm: string;
+  note: string;
+}
+
+const BISTRO: Record<Lang, BistroCopy> = {
+  ar: {
+    heroBadge: 'مطعم فاخر · مأكولات متوسطية',
+    menuCta: 'استكشف القائمة',
+    reserveCta: 'احجز طاولة',
+    heroMessage: 'أريد حجز طاولة في المطعم',
+    openDaily: 'مفتوح يومياً',
+    seasonal: 'مكونات موسمية',
+    signature: 'أطباق الشيف',
+    storyEyebrow: 'حكايتنا',
+    storyTitle: 'نكهات تُحكى حول المائدة',
+    storyLead: 'في قلب المدينة، نقدّم مأكولات متوسطية معاصرة تعتمد على مكونات موسمية طازجة، في أجواء دافئة تجمع بين الأناقة والبساطة.',
+    storyQuote: 'الطعام الجيد يجمع الناس، والتفاصيل الصغيرة تصنع الفرق.',
+    storyAuthor: 'الشيف كريم بن علي',
+    menuEyebrow: 'القائمة',
+    menuTitle: 'أطباق هذا الموسم',
+    menuLead: 'قائمة مختصرة تتغيّر مع الموسم، تحضّر يومياً بمكونات طازجة.',
+    orderDish: 'اطلب الطبق',
+    chefsEyebrow: 'فريق المطبخ',
+    chefsTitle: 'أيادٍ تصنع الفرق',
+    chefsLead: 'شيفات بخبرة سنوات في أرقى المطاعم، يجمعون بين التقليد والابتكار.',
+    galleryEyebrow: 'المعرض',
+    galleryTitle: 'لمحات من أجوائنا',
+    galleryLead: 'تفاصيل المكان والأطباق قبل زيارتك.',
+    stats: [['+12', 'سنة خبرة'], ['+1,800', 'طاولة سنوياً'], ['+24', 'طبقاً موسمياً'], ['4.9/5', 'تقييم الزوار']],
+    quotes: [
+      { text: 'أفضل وجبة تناولتها منذ سنوات، النكهات متوازنة والخدمة راقية.', name: 'سمير ب.', role: 'زائر' },
+      { text: 'الجو دافئ جداً والأطباق تُقدّم بعناية، مكان مثالي لمناسبة خاصة.', name: 'لينة م.', role: 'زائرة' },
+      { text: 'المشاوي رائعة والحلويات لا تُنسى، سأعود بالتأكيد.', name: 'عادل ح.', role: 'زائر' },
+    ],
+    faqTitle: 'أسئلة شائعة',
+    faq: [
+      ['هل يلزم الحجز المسبق؟', 'ننصح بالحجز مسبقاً، خاصة في عطلة نهاية الأسبوع.'],
+      ['هل توجد قائمة نباتية؟', 'نعم، لدينا خيارات نباتية وخيارات بدون غلوتين موضحة في القائمة.'],
+      ['هل يمكن حجز المناسبات الخاصة؟', 'نعم، لدينا قاعة خاصة للمناسبات ويمكن تجهيز قائمة مخصصة.'],
+      ['هل يوجد موقف سيارات؟', 'نعم، موقف مجاني للزوار بجوار المطعم.'],
+      ['هل تقدمون خدمة توصيل؟', 'نعم، ضمن المدينة عبر تطبيقات التوصيل أو الاتصال المباشر.'],
+    ],
+    reserveTitle: 'احجز طاولتك',
+    reserveLead: 'اختر التاريخ والوقت وعدد الضيوف، ونؤكد لك الحجز هاتفياً.',
+    formTitle: 'طلب حجز طاولة',
+    formSub: 'نؤكد الحجز خلال دقائق عبر الهاتف.',
+    dateLabel: 'التاريخ',
+    timeLabel: 'الوقت',
+    guestsLabel: 'عدد الضيوف',
+    guests: ['1', '2', '3', '4', '5', '6', '7', '8', '+8'],
+    occasionLabel: 'المناسبة (اختياري)',
+    occasions: ['بدون مناسبة', 'عيد ميلاد', 'ذكرى زواج', 'اجتماع عمل', 'عشاء عائلي'],
+    confirm: 'تأكيد طلب الحجز',
+    note: 'الحجز مؤكد بعد اتصالنا بك. إلغاء مجاني قبل 3 ساعات.',
+  },
+  fr: {
+    heroBadge: 'Restaurant gastronomique · Cuisine méditerranéenne',
+    menuCta: 'Découvrir la carte',
+    reserveCta: 'Réserver une table',
+    heroMessage: 'Je souhaite réserver une table au restaurant',
+    openDaily: 'Ouvert tous les jours',
+    seasonal: 'Produits de saison',
+    signature: 'Créations du chef',
+    storyEyebrow: 'Notre histoire',
+    storyTitle: 'Des saveurs qui se racontent à table',
+    storyLead: 'Au cœur de la ville, nous servons une cuisine méditerranéenne contemporaine à base de produits de saison, dans une ambiance chaleureuse qui allie élégance et simplicité.',
+    storyQuote: 'La bonne cuisine rassemble, et les petits détails font la différence.',
+    storyAuthor: 'Chef Karim Benali',
+    menuEyebrow: 'La carte',
+    menuTitle: 'Les plats de la saison',
+    menuLead: 'Une carte courte qui change avec les saisons, préparée chaque jour avec des produits frais.',
+    orderDish: 'Commander',
+    chefsEyebrow: 'La brigade',
+    chefsTitle: 'Des mains qui font la différence',
+    chefsLead: 'Des chefs avec des années d’expérience dans les plus belles maisons, entre tradition et créativité.',
+    galleryEyebrow: 'Galerie',
+    galleryTitle: 'Un aperçu de notre univers',
+    galleryLead: 'Les détails du lieu et des assiettes avant votre visite.',
+    stats: [['+12', 'ans d’expérience'], ['+1 800', 'tables par an'], ['+24', 'plats de saison'], ['4,9/5', 'note des visiteurs']],
+    quotes: [
+      { text: 'Le meilleur repas depuis des années, des saveurs équilibrées et un service raffiné.', name: 'Samir B.', role: 'Visiteur' },
+      { text: 'L’ambiance est chaleureuse et les assiettes soignées, parfait pour une occasion spéciale.', name: 'Lina M.', role: 'Visiteuse' },
+      { text: 'Les grillades sont excellentes et les desserts inoubliables, je reviendrai.', name: 'Adel H.', role: 'Visiteur' },
+    ],
+    faqTitle: 'Questions fréquentes',
+    faq: [
+      ['Faut-il réserver ?', 'La réservation est conseillée, surtout le week-end.'],
+      ['Avez-vous des plats végétariens ?', 'Oui, des options végétariennes et sans gluten sont indiquées sur la carte.'],
+      ['Peut-on privatiser pour un événement ?', 'Oui, une salle privée est disponible avec un menu sur mesure.'],
+      ['Y a-t-il un parking ?', 'Oui, un parking gratuit pour les clients à côté du restaurant.'],
+      ['Proposez-vous la livraison ?', 'Oui, en ville via les applications de livraison ou par téléphone.'],
+    ],
+    reserveTitle: 'Réservez votre table',
+    reserveLead: 'Choisissez la date, l’heure et le nombre de convives, nous confirmons par téléphone.',
+    formTitle: 'Demande de réservation',
+    formSub: 'Nous confirmons la réservation en quelques minutes par téléphone.',
+    dateLabel: 'Date',
+    timeLabel: 'Heure',
+    guestsLabel: 'Convives',
+    guests: ['1', '2', '3', '4', '5', '6', '7', '8', '+8'],
+    occasionLabel: 'Occasion (facultatif)',
+    occasions: ['Aucune', 'Anniversaire', 'Anniversaire de mariage', 'Déjeuner d’affaires', 'Dîner en famille'],
+    confirm: 'Confirmer la demande',
+    note: 'Réservation confirmée après notre appel. Annulation gratuite 3 heures avant.',
+  },
+  en: {
+    heroBadge: 'Fine dining · Mediterranean cuisine',
+    menuCta: 'Explore the menu',
+    reserveCta: 'Reserve a table',
+    heroMessage: 'I would like to reserve a table at the restaurant',
+    openDaily: 'Open daily',
+    seasonal: 'Seasonal ingredients',
+    signature: 'Chef’s creations',
+    storyEyebrow: 'Our story',
+    storyTitle: 'Flavors told around the table',
+    storyLead: 'In the heart of the city we serve contemporary Mediterranean cuisine built on fresh seasonal ingredients, in a warm atmosphere that blends elegance and simplicity.',
+    storyQuote: 'Good food brings people together, and small details make the difference.',
+    storyAuthor: 'Chef Karim Benali',
+    menuEyebrow: 'The menu',
+    menuTitle: 'This season’s dishes',
+    menuLead: 'A short menu that changes with the season, prepared daily with fresh ingredients.',
+    orderDish: 'Order dish',
+    chefsEyebrow: 'The kitchen team',
+    chefsTitle: 'Hands that make the difference',
+    chefsLead: 'Chefs with years of experience in leading restaurants, blending tradition and creativity.',
+    galleryEyebrow: 'Gallery',
+    galleryTitle: 'Glimpses of our atmosphere',
+    galleryLead: 'Details of the place and the plates before your visit.',
+    stats: [['+12', 'years of experience'], ['+1,800', 'tables a year'], ['+24', 'seasonal dishes'], ['4.9/5', 'guest rating']],
+    quotes: [
+      { text: 'The best meal I have had in years, balanced flavors and refined service.', name: 'Samir B.', role: 'Guest' },
+      { text: 'The atmosphere is warm and the plates are beautiful, perfect for a special occasion.', name: 'Lina M.', role: 'Guest' },
+      { text: 'The grills are excellent and the desserts unforgettable, I will be back.', name: 'Adel H.', role: 'Guest' },
+    ],
+    faqTitle: 'Frequently asked questions',
+    faq: [
+      ['Do I need to book?', 'Reservations are recommended, especially at weekends.'],
+      ['Do you have vegetarian dishes?', 'Yes, vegetarian and gluten-free options are marked on the menu.'],
+      ['Can I book for a private event?', 'Yes, a private room is available with a custom menu.'],
+      ['Is there parking?', 'Yes, free parking for guests next to the restaurant.'],
+      ['Do you offer delivery?', 'Yes, in the city through delivery apps or by phone.'],
+    ],
+    reserveTitle: 'Reserve your table',
+    reserveLead: 'Choose the date, time and number of guests, and we will confirm by phone.',
+    formTitle: 'Table reservation request',
+    formSub: 'We confirm the reservation within minutes by phone.',
+    dateLabel: 'Date',
+    timeLabel: 'Time',
+    guestsLabel: 'Guests',
+    guests: ['1', '2', '3', '4', '5', '6', '7', '8', '+8'],
+    occasionLabel: 'Occasion (optional)',
+    occasions: ['None', 'Birthday', 'Wedding anniversary', 'Business lunch', 'Family dinner'],
+    confirm: 'Confirm request',
+    note: 'Reservation confirmed after our call. Free cancellation up to 3 hours before.',
+  },
+};
+
+export function bistroPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
+  const copy = BISTRO[lang];
+  const dishes = config.products.filter((p) => p.name);
+  const categories = Array.from(new Set(dishes.map((p) => p.category).filter(Boolean))) as string[];
+  const team = config.team || [];
+  const heroImage = config.coverUrl
+    ? `<img src="${attr(config.coverUrl)}" alt="${attr(config.siteName)}" width="900" height="1100" fetchpriority="high" decoding="async">`
+    : '';
+  const storyImage = aboutPhoto(config);
+  const gallery = (config.gallery || []).slice(0, 6);
+  const heroWa = waHref(config, `${copy.heroMessage} — ${config.siteName}`);
+  const reserveWa = waHref(config, `${copy.reserveTitle} — ${config.siteName}`);
+
+  return `<section class="hero bistro-hero" id="top">
+    <div class="container hero-grid">
+      <div class="hero-copy" data-reveal>
+        <span class="badge">${icon('award')}${esc(copy.heroBadge)}</span>
+        <h1 class="h1 mt-3">${esc(config.siteName)}</h1>
+        <p class="lead">${esc(config.description)}</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#reserve">${icon('calendar')}${esc(copy.reserveCta)}</a>
+          <a class="btn btn-wa" href="${attr(heroWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.whatsapp)}</a>
+        </div>
+        <div class="bistro-badges">
+          <span>${icon('clock')}${esc(copy.openDaily)} · ${esc(config.hours || '')}</span>
+          <span>${icon('spark')}${esc(copy.seasonal)}</span>
+          <span>${icon('award')}${esc(copy.signature)}</span>
+        </div>
+        <div class="hero-stats">
+          ${copy.stats.slice(0, 3).map(([num, label]) => `<div><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="hero-media bistro-hero-media${heroImage ? '' : ' no-img'}" data-mark="${attr(initials(config.siteName))}" data-reveal>${heroImage}
+        <div class="float-card"><span class="float-icon">${icon('star')}</span><div><strong>4.9/5</strong><span>${esc(copy.stats[3][1])}</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="trust-strip"><div class="container">
+    <span class="trust-item">${icon('clock')}${esc(copy.openDaily)}</span>
+    <span class="trust-item">${icon('spark')}${esc(copy.seasonal)}</span>
+    <span class="trust-item">${icon('award')}${esc(copy.signature)}</span>
+    <span class="trust-item">${icon('star')}4.9/5</span>
+  </div></div>
+
+  <section class="section" id="about">
+    <div class="container about-grid">
+      <div class="about-media bistro-story-media${storyImage ? '' : ' no-img'}" data-reveal>
+        ${storyImage ? `<img src="${attr(storyImage)}" alt="${attr(config.siteName)}" loading="lazy" decoding="async" width="800" height="700">` : ''}
+        <div class="about-badge">${icon('award')}+12 ${esc(copy.stats[0][1])}</div>
+      </div>
+      <div data-reveal>
+        <span class="eyebrow">${esc(copy.storyEyebrow)}</span>
+        <h2 class="h2 mt-2">${esc(copy.storyTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.storyLead)}</p>
+        <blockquote class="bistro-quote">“${esc(copy.storyQuote)}”<cite>${esc(copy.storyAuthor)}</cite></blockquote>
+        <div class="bistro-story-actions">
+          <a class="btn btn-primary" href="#menu">${icon('menu')}${esc(copy.menuCta)}</a>
+          <a class="btn btn-ghost" href="#reserve">${icon('calendar')}${esc(copy.reserveCta)}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="menu">
+    <div class="container">
+      ${sectionHead(copy.menuEyebrow, copy.menuTitle, copy.menuLead)}
+      <div class="shop-toolbar">
+        <button class="chip active" type="button" data-filter="all">${esc(s.all)}</button>
+        ${categories.map((cat) => `<button class="chip" type="button" data-filter="${attr(cat)}">${esc(cat)}</button>`).join('')}
+        <div class="search-box">${icon('search')}<input id="product-search" type="search" placeholder="${attr(s.search)}" aria-label="${attr(s.search)}"></div>
+      </div>
+      <div class="bistro-dishes">
+        ${dishes.length ? dishes.map((p) => `<article class="bistro-dish" data-reveal data-product-card data-category="${attr(p.category || '')}" data-name="${attr(p.name)}" data-desc="${attr(p.description || '')}">
+          <div class="bistro-dish-thumb">${p.imageUrl ? `<img src="${attr(p.imageUrl)}" alt="${attr(p.name)}" loading="lazy" decoding="async" width="700" height="525">` : productPlaceholder(p.name)}</div>
+          <div class="bistro-dish-body">
+            ${p.category ? `<span class="cat">${esc(p.category)}</span>` : ''}
+            <h3>${esc(p.name)}</h3>
+            ${p.description ? `<p>${esc(p.description)}</p>` : ''}
+            <div class="bistro-dish-foot">
+              ${p.price > 0 ? `<span class="price">${money(p.price, lang)}</span>` : ''}
+              <a class="btn btn-primary btn-sm" href="${attr(waHref(config, `${copy.orderDish}: ${p.name} — ${p.description || ''}`))}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(copy.orderDish)}</a>
+            </div>
+          </div>
+        </article>`).join('') : `<div class="product-empty">${esc(s.emptyCart)}</div>`}
+        <div class="product-empty hide" id="product-empty">${esc(s.emptyCart)}</div>
+      </div>
+    </div>
+  </section>
+
+  ${team.length ? `<section class="section" id="chefs">
+    <div class="container">
+      ${sectionHead(copy.chefsEyebrow, copy.chefsTitle, copy.chefsLead, true)}
+      <div class="bistro-chefs">${team.map((member) => `<article class="bistro-chef" data-reveal>
+        <div class="bistro-chef-photo">${member.photoUrl ? `<img src="${attr(member.photoUrl)}" alt="${attr(member.name)}" loading="lazy" decoding="async" width="700" height="800">` : `<span class="bistro-initials">${esc(initialsFor(member.name))}</span>`}</div>
+        <div class="bistro-chef-body"><h3>${esc(member.name)}</h3><span class="bistro-chef-role">${esc(member.role)}</span>${member.specialty ? `<p>${esc(member.specialty)}</p>` : ''}</div>
+      </article>`).join('')}</div>
+    </div>
+  </section>` : ''}
+
+  ${gallery.length ? `<section class="section bg-soft" id="gallery">
+    <div class="container">
+      ${sectionHead(copy.galleryEyebrow, copy.galleryTitle, copy.galleryLead, true)}
+      <div class="bistro-gallery">${gallery.map((src, i) => `<figure class="bistro-shot" data-reveal><img src="${attr(src)}" alt="${attr(config.siteName)} — ${i + 1}" loading="lazy" decoding="async" width="700" height="700"></figure>`).join('')}</div>
+    </div>
+  </section>` : ''}
+
+  <section class="stats-band">
+    <div class="container stats-grid">
+      ${copy.stats.map(([num, label]) => `<div class="stat"><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">${sectionHead(s.testimonials, s.testimonials, undefined, true)}
+      <div class="grid g3">${copy.quotes.map((q) => `<div class="quote" data-reveal>
+        <div class="stars" aria-label="5/5">★★★★★</div>
+        <p>“${esc(q.text)}”</p>
+        <div class="who"><span class="avatar">${esc(initialsFor(q.name))}</span><div><strong>${esc(q.name)}</strong><span>${esc(q.role)}</span></div></div>
+      </div>`).join('')}</div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="faq">
+    <div class="container">
+      ${sectionHead(s.faq, copy.faqTitle, undefined, true)}
+      <div class="faq-list">
+        ${copy.faq.map(([q, a]) => `<details class="faq" data-reveal>
+          <summary>${esc(q)}<span class="faq-ic">${icon('plus')}</span></summary>
+          <p>${esc(a)}</p>
+        </details>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="reserve">
+    <div class="container bistro-reserve-wrap">
+      <div data-reveal>
+        <span class="eyebrow">${esc(s.reservation)}</span>
+        <h2 class="h2 mt-2">${esc(copy.reserveTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.reserveLead)}</p>
+        <ul class="checklist">
+          <li><span class="tick">${icon('clock')}</span><span>${esc(copy.openDaily)} · ${esc(config.hours || '')}</span></li>
+          <li><span class="tick">${icon('map')}</span><span>${esc(config.address || config.city || '')}</span></li>
+          <li><span class="tick">${icon('star')}</span><span>${esc(copy.signature)}</span></li>
+        </ul>
+        <div class="bistro-contact-actions">
+          <a class="btn btn-light" href="tel:${attr(config.phone)}">${icon('phone')}${esc(s.callNow)}</a>
+          <a class="btn btn-wa" href="${attr(reserveWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.whatsapp)}</a>
+        </div>
+      </div>
+      <form class="bistro-form-card" data-lead-form data-lead-kind="dining-reservation" novalidate>
+        <h3>${esc(copy.formTitle)}</h3>
+        <p class="booking-sub">${esc(copy.formSub)}</p>
+        <div class="form-grid">
+          <div class="field"><label for="btr-name">${esc(s.name)}</label><input id="btr-name" name="name" required maxlength="80" autocomplete="name"><span class="err">${esc(s.required)}</span></div>
+          <div class="field"><label for="btr-phone">${esc(s.phone)}</label><input id="btr-phone" name="phone" type="tel" required maxlength="20" autocomplete="tel" dir="ltr"><span class="err">${esc(s.invalidPhone)}</span></div>
+          <div class="field"><label for="btr-date">${esc(copy.dateLabel)}</label><input id="btr-date" name="date" type="date" required dir="ltr"><span class="err">${esc(s.required)}</span></div>
+          <div class="field"><label for="btr-time">${esc(copy.timeLabel)}</label><select id="btr-time" name="time" required>
+            ${['12:00','12:30','13:00','13:30','14:00','18:00','18:30','19:00','19:30','20:00','20:30','21:00','21:30','22:00'].map((t) => `<option value="${t}">${t}</option>`).join('')}
+          </select></div>
+          <div class="field"><label for="btr-guests">${esc(copy.guestsLabel)}</label><select id="btr-guests" name="guests" required>
+            ${copy.guests.map((g) => `<option value="${attr(g)}">${esc(g)}</option>`).join('')}
+          </select></div>
+          <div class="field"><label for="btr-occasion">${esc(copy.occasionLabel)}</label><select id="btr-occasion" name="occasion">
+            ${copy.occasions.map((o) => `<option value="${attr(o)}">${esc(o)}</option>`).join('')}
+          </select></div>
+          <div class="field full"><label for="btr-msg">${esc(s.message)}</label><textarea id="btr-msg" name="message" maxlength="1200"></textarea></div>
+          <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
+        </div>
+        <button class="btn btn-primary btn-block mt-3" type="submit">${icon('send')}${esc(copy.confirm)}</button>
+        <div class="form-status" role="status"></div>
+        <p class="form-note center mt-2">${esc(copy.note)}</p>
+      </form>
+    </div>
+  </section>
+
+  ${contactSection(config, s)}`;
+}
+
 export function pageFor(template: string, config: RenderConfig, lang: Lang): string {
   const s = ui(lang);
   switch (template) {
@@ -7162,6 +7539,8 @@ export function pageFor(template: string, config: RenderConfig, lang: Lang): str
       return boutiquePage(config, s, lang);
     case 'saas':
       return saasPage(config, s, lang);
+    case 'bistro':
+      return bistroPage(config, s, lang);
 
     // Landing-style templates
     case 'fitness':
@@ -7463,6 +7842,40 @@ export function jsonLdFor(template: string, config: RenderConfig, siteUrl: strin
           priceCurrency: 'DZD',
           availability: 'https://schema.org/InStock',
         })),
+      },
+      employee: (config.team || []).map((member) => ({
+        '@type': 'Person',
+        name: member.name,
+        jobTitle: member.role,
+        image: member.photoUrl || undefined,
+      })),
+    };
+    case 'bistro': return {
+      ...base,
+      '@type': 'Restaurant',
+      image: config.coverUrl || undefined,
+      servesCuisine: 'Mediterranean',
+      priceRange: 'DZD',
+      openingHours: config.hours || undefined,
+      acceptsReservations: true,
+      hasMenu: {
+        '@type': 'Menu',
+        name: 'Seasonal menu',
+        hasMenuSection: {
+          '@type': 'MenuSection',
+          name: 'Dishes',
+          hasMenuItem: config.products.slice(0, 12).map((p) => ({
+            '@type': 'MenuItem',
+            name: p.name,
+            description: p.description || undefined,
+            image: p.imageUrl || undefined,
+            offers: {
+              '@type': 'Offer',
+              price: p.price,
+              priceCurrency: 'DZD',
+            },
+          })),
+        },
       },
       employee: (config.team || []).map((member) => ({
         '@type': 'Person',

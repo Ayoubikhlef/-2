@@ -1138,6 +1138,54 @@ body.has-preview .site-header{top:36px}
 .tpl-saas .saas-hours{margin-top:22px;padding-top:18px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:12px}
 .tpl-saas .saas-contact-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
 .tpl-saas .saas-contact-actions .btn{flex:1 1 auto}
+
+/* luxury restaurant template */
+.tpl-bistro .bistro-hero{position:relative;overflow:hidden;background:radial-gradient(900px 520px at 86% -12%,color-mix(in srgb,var(--p) 20%,transparent),transparent 62%),radial-gradient(600px 380px at 0% 108%,color-mix(in srgb,var(--p2) 16%,transparent),transparent 58%),var(--bg)}
+.tpl-bistro .bistro-badges{display:flex;gap:14px;margin-top:16px;padding-top:12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.tpl-bistro .bistro-badges span{display:inline-flex;align-items:center;gap:7px;font-size:.78rem;font-weight:700;color:var(--muted)}
+.tpl-bistro .bistro-badges .icon{width:16px;height:16px;color:var(--p-text)}
+.tpl-bistro .hero-stats{display:flex;gap:30px;margin-top:38px;padding-top:26px;border-top:1px solid var(--line);flex-wrap:wrap}
+.tpl-bistro .bistro-hero-media{aspect-ratio:4/4.6}
+.tpl-bistro .bistro-story-media{aspect-ratio:4/4.2}
+.tpl-bistro .bistro-quote{margin:22px 0 0;padding:18px 22px;border-inline-start:3px solid var(--p);background:var(--surface);border-radius:0 16px 16px 0;font-size:.95rem;line-height:1.75;color:var(--muted);font-style:italic}
+.tpl-bistro .bistro-quote cite{display:block;margin-top:8px;font-size:.75rem;font-style:normal;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--p-text)}
+.tpl-bistro .bistro-story-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+.tpl-bistro .bistro-dishes{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.tpl-bistro .bistro-dish{border-radius:20px;overflow:hidden;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-bistro .bistro-dish:hover{transform:translateY(-5px);box-shadow:var(--shadow);border-color:color-mix(in srgb,var(--p) 38%,var(--line))}
+.tpl-bistro .bistro-dish-thumb{aspect-ratio:4/3;overflow:hidden;background:linear-gradient(145deg,var(--tint),var(--tint-2))}
+.tpl-bistro .bistro-dish-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .7s cubic-bezier(.2,.7,.2,1)}
+.tpl-bistro .bistro-dish:hover .bistro-dish-thumb img{transform:scale(1.06)}
+.tpl-bistro .bistro-dish-body{padding:18px 20px 22px;display:flex;flex-direction:column;gap:6px;flex:1}
+.tpl-bistro .bistro-dish-body .cat{font-size:.64rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--p-text)}
+.tpl-bistro .bistro-dish-body h3{font-size:1.02rem;line-height:1.4}
+.tpl-bistro .bistro-dish-body p{font-size:.82rem;color:var(--muted);line-height:1.65}
+.tpl-bistro .bistro-dish-foot{margin-top:auto;padding-top:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.tpl-bistro .bistro-dish-foot .price{font-size:1.02rem;font-weight:900;color:var(--p-text)}
+.tpl-bistro .bistro-dish-foot .btn{white-space:nowrap}
+.tpl-bistro .bistro-chefs{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;max-width:760px;margin-inline:auto}
+.tpl-bistro .bistro-chef{border-radius:20px;overflow:hidden;background:var(--surface);border:1px solid var(--line);transition:transform .25s,box-shadow .25s}
+.tpl-bistro .bistro-chef:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm)}
+.tpl-bistro .bistro-chef-photo{aspect-ratio:4/3.4;overflow:hidden;background:linear-gradient(145deg,var(--tint),var(--tint-2));display:grid;place-items:center}
+.tpl-bistro .bistro-chef-photo img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.tpl-bistro .bistro-chef:hover .bistro-chef-photo img{transform:scale(1.05)}
+.tpl-bistro .bistro-initials{font-size:2rem;font-weight:900;color:var(--p-text)}
+.tpl-bistro .bistro-chef-body{padding:18px 20px 22px;display:flex;flex-direction:column;gap:5px}
+.tpl-bistro .bistro-chef-body h3{font-size:1rem}
+.tpl-bistro .bistro-chef-role{font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--p-text)}
+.tpl-bistro .bistro-chef-body p{font-size:.8rem;color:var(--muted);line-height:1.6}
+.tpl-bistro .bistro-gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.tpl-bistro .bistro-shot{margin:0;border-radius:16px;overflow:hidden;background:var(--tint);border:1px solid var(--line)}
+.tpl-bistro .bistro-shot img{width:100%;height:100%;aspect-ratio:1/1;object-fit:cover;display:block;transition:transform .7s cubic-bezier(.2,.7,.2,1)}
+.tpl-bistro .bistro-shot:hover img{transform:scale(1.06)}
+.tpl-bistro .bistro-reserve-wrap{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+.tpl-bistro .bistro-form-card{padding:30px;border-radius:24px;background:linear-gradient(160deg,color-mix(in srgb,var(--p) 8%,var(--surface)),var(--surface) 55%);border:1px solid color-mix(in srgb,var(--p) 24%,var(--line));box-shadow:var(--shadow-sm)}
+.tpl-bistro .bistro-form-card h3{font-size:1.25rem;margin-bottom:4px}
+.tpl-bistro .bistro-form-card .booking-sub{font-size:.84rem;color:var(--muted);line-height:1.6;margin-bottom:18px}
+.tpl-bistro .bistro-form-card .field label{font-size:.72rem;font-weight:800;letter-spacing:.04em;color:var(--muted)}
+.tpl-bistro .bistro-form-card .form-note{font-size:.72rem;color:var(--muted)}
+.tpl-bistro .bistro-contact-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+.tpl-bistro .bistro-contact-actions .btn{flex:1 1 auto}
 .theme-toggle{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;flex:0 0 auto;position:relative;transition:transform .2s,border-color .2s,background .2s}
 .theme-toggle:hover{transform:translateY(-2px);border-color:var(--p)}
 .theme-toggle .icon{width:18px;height:18px}
@@ -1307,6 +1355,8 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-saas .saas-plans{grid-template-columns:1fr 1fr;gap:16px}
   .tpl-saas .saas-showcase{grid-template-columns:1fr;gap:34px}
   .tpl-saas .saas-join-wrap{grid-template-columns:1fr;gap:34px}
+  .tpl-bistro .bistro-dishes{grid-template-columns:1fr 1fr;gap:16px}
+  .tpl-bistro .bistro-reserve-wrap{grid-template-columns:1fr;gap:34px}
 }
 @media (max-width:720px){
   .container{width:min(100% - 28px,1180px)}
@@ -1390,6 +1440,9 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-saas .saas-features{grid-template-columns:1fr;gap:14px}
   .tpl-saas .saas-plans{grid-template-columns:1fr;gap:16px}
   .tpl-saas .saas-form-card{padding:22px}
+  .tpl-bistro .bistro-gallery{grid-template-columns:1fr 1fr;gap:12px}
+  .tpl-bistro .bistro-form-card{padding:22px}
+  .tpl-bistro .bistro-chefs{grid-template-columns:1fr;gap:16px}
 }
 @media (max-width:460px){
   .g2,.g3,.g4,.product-grid,.form-grid,.stats-grid{grid-template-columns:1fr}
@@ -1444,6 +1497,10 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-saas .saas-showcase-actions .btn{width:100%}
   .tpl-saas .saas-plan-price{font-size:1.7rem}
   .tpl-saas .saas-badges{gap:8px}
+  .tpl-bistro .bistro-dishes{grid-template-columns:1fr;gap:14px}
+  .tpl-bistro .bistro-dish-foot .btn{width:100%}
+  .tpl-bistro .bistro-story-actions .btn{width:100%}
+  .tpl-bistro .bistro-badges{gap:8px}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}

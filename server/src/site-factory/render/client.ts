@@ -537,6 +537,17 @@ export const SITE_JS = String.raw`
           ' | company ' + (saasCompany ? saasCompany.value : '') +
           '. ' + message;
       }
+      if (form.getAttribute('data-lead-kind') === 'dining-reservation') {
+        var diningDate = form.querySelector('[name="date"]');
+        var diningTime = form.querySelector('[name="time"]');
+        var diningGuests = form.querySelector('[name="guests"]');
+        var diningOccasion = form.querySelector('[name="occasion"]');
+        message = 'Table reservation: ' + (diningDate ? diningDate.value : '') +
+          ' | ' + (diningTime ? diningTime.value : '') +
+          ' | ' + (diningGuests ? diningGuests.value : '') + ' guest(s)' +
+          ' | ' + (diningOccasion ? diningOccasion.value : '') +
+          '. ' + message;
+      }
       post('/public/sites/' + encodeURIComponent(SITE.siteId) + '/leads', {
         name: form.name ? form.name.value : '',
         phone: form.phone ? form.phone.value : '',

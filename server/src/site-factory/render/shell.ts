@@ -333,6 +333,18 @@ function navItems(config: RenderConfig, s: UiStrings): { href: string; label: st
           { href: '#contact', label: s.contact },
         ];
       }
+      if (['bistro'].includes(config.templateSlug)) {
+        return [
+          { href: '#top', label: s.home },
+          { href: '#menu', label: s.menu },
+          { href: '#about', label: s.about },
+          ...(config.team && config.team.length ? [{ href: '#chefs', label: s.team }] : []),
+          { href: '#gallery', label: s.gallery },
+          { href: '#reserve', label: s.reservation },
+          { href: '#faq', label: s.faq },
+          { href: '#contact', label: s.contact },
+        ];
+      }
       return [];
   }
 }
@@ -369,6 +381,8 @@ function mobileCta(config: RenderConfig, s: UiStrings): { href: string; label: s
       return { href: '#appointment', label: s.appointment };
     case 'saas':
       return { href: '#join', label: s.getStarted };
+    case 'bistro':
+      return { href: '#reserve', label: s.reservation };
     case 'pharmacy':
       return { href: '#products', label: s.orderNow };
     default:
