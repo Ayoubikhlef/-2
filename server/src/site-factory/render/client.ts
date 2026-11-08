@@ -528,6 +528,15 @@ export const SITE_JS = String.raw`
           ' | date ' + (boutiqueDate ? boutiqueDate.value : '') +
           '. ' + message;
       }
+      if (form.getAttribute('data-lead-kind') === 'saas-trial') {
+        var saasPlan = form.querySelector('[name="planName"]');
+        var saasTeam = form.querySelector('[name="teamSize"]');
+        var saasCompany = form.querySelector('[name="company"]');
+        message = 'SaaS trial: ' + (saasPlan ? saasPlan.value : '') +
+          ' | team ' + (saasTeam ? saasTeam.value : '') +
+          ' | company ' + (saasCompany ? saasCompany.value : '') +
+          '. ' + message;
+      }
       post('/public/sites/' + encodeURIComponent(SITE.siteId) + '/leads', {
         name: form.name ? form.name.value : '',
         phone: form.phone ? form.phone.value : '',

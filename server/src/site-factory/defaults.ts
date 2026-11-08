@@ -315,6 +315,18 @@ export const TEMPLATES: TemplateSeed[] = [
     },
   },
   {
+    slug: 'saas',
+    category: 'saas',
+    accent: '#2563eb',
+    sortOrder: 31,
+    name: { ar: 'شركة SaaS / منصة سحابية', fr: 'SaaS / Plateforme cloud', en: 'SaaS / Cloud Platform' },
+    description: {
+      ar: 'موقع منصة SaaS: مزايا المنتج، لوحة التحكم، خطط الأسعار، خطوات البدء، نموذج تجربة مجانية وأسئلة شائعة.',
+      fr: 'Site SaaS : fonctionnalités, tableau de bord, tarifs, étapes de démarrage, essai gratuit et FAQ.',
+      en: 'SaaS platform site: product features, dashboard showcase, pricing plans, onboarding steps, free trial form and FAQ.',
+    },
+  },
+  {
     slug: 'agriculture',
     category: 'agriculture',
     accent: '#4d7c0f',

@@ -6645,6 +6645,467 @@ export function boutiquePage(config: RenderConfig, s: UiStrings, lang: Lang): st
   ${contactSection(config, s)}`;
 }
 
+/* -------------------------------------------------------------------------
+ * SAAS PLATFORM
+ * ---------------------------------------------------------------------- */
+interface SaasCopy {
+  heroBadge: string;
+  trialCta: string;
+  demoCta: string;
+  heroMessage: string;
+  freeTrial: string;
+  noCard: string;
+  support: string;
+  featuresEyebrow: string;
+  featuresTitle: string;
+  featuresLead: string;
+  features: Array<{ icon: string; title: string; description: string }>;
+  showcaseEyebrow: string;
+  showcaseTitle: string;
+  showcaseLead: string;
+  showcasePoints: string[];
+  pricingEyebrow: string;
+  pricingTitle: string;
+  pricingLead: string;
+  popular: string;
+  perMonth: string;
+  planFeatures: string[];
+  startPlan: string;
+  howTitle: string;
+  howLead: string;
+  step1: string; step1d: string;
+  step2: string; step2d: string;
+  step3: string; step3d: string;
+  step4: string; step4d: string;
+  aboutTitle: string;
+  aboutLead: string;
+  feat1: string; feat1d: string;
+  feat2: string; feat2d: string;
+  feat3: string; feat3d: string;
+  feat4: string; feat4d: string;
+  stats: Array<[string, string]>;
+  quotes: Array<{ text: string; name: string; role: string }>;
+  faqTitle: string;
+  faq: Array<[string, string]>;
+  joinTitle: string;
+  joinLead: string;
+  formTitle: string;
+  formSub: string;
+  choosePlan: string;
+  companyLabel: string;
+  teamLabel: string;
+  teamSizes: string[];
+  confirm: string;
+  note: string;
+}
+
+const SAAS: Record<Lang, SaasCopy> = {
+  ar: {
+    heroBadge: 'منصة سحابية · تجربة مجانية 14 يوماً',
+    trialCta: 'ابدأ التجربة المجانية',
+    demoCta: 'اطلب عرضاً توضيحياً',
+    heroMessage: 'أريد تجربة المنصة ومعرفة المزيد',
+    freeTrial: '14 يوماً مجاناً',
+    noCard: 'بدون بطاقة بنكية',
+    support: 'دعم فني 24/7',
+    featuresEyebrow: 'المزايا',
+    featuresTitle: 'كل أدواتك في منصة واحدة',
+    featuresLead: 'إدارة المشاريع، الفريق، الفواتير والتقارير من لوحة واحدة سريعة وآمنة.',
+    features: [
+      { icon: 'layers', title: 'إدارة المشاريع', description: 'خطط، مهام ومواعيد نهائية مع متابعة مباشرة للتقدم.' },
+      { icon: 'users', title: 'تعاون الفريق', description: 'أدوار وصلاحيات وتعليقات في مكان واحد.' },
+      { icon: 'clipboard', title: 'الفواتير والمدفوعات', description: 'فواتير احترافية وتذكير تلقائي بالدفع.' },
+      { icon: 'target', title: 'تقارير ذكية', description: 'مؤشرات أداء ولوحات قابلة للتخصيص.' },
+      { icon: 'shield', title: 'أمان متقدم', description: 'تشفير كامل ونسخ احتياطي يومي.' },
+      { icon: 'zap', title: 'أتمتة المهام', description: 'قواعد تلقائية تختصر العمل المتكرر.' },
+    ],
+    showcaseEyebrow: 'لوحة التحكم',
+    showcaseTitle: 'رؤية واضحة لكل ما يحدث',
+    showcaseLead: 'لوحة تحكم واحدة تجمع مشاريعك وفريقك وأرقامك، مع تحديث فوري لكل التغييرات.',
+    showcasePoints: ['مؤشرات أداء مباشرة', 'تنبيهات ذكية', 'تصدير تقارير PDF و Excel', 'تطبيقات موبايل وسطح مكتب'],
+    pricingEyebrow: 'الأسعار',
+    pricingTitle: 'خطة تناسب كل فريق',
+    pricingLead: 'ابدأ صغيراً وتوسّع عندما تحتاج. تغيير الخطة ممكن في أي وقت.',
+    popular: 'الأكثر اختياراً',
+    perMonth: '/ شهرياً',
+    planFeatures: ['مستخدمون غير محدودين', 'مساحة تخزين 100GB', 'تقارير متقدمة', 'دعم أولوية'],
+    startPlan: 'ابدأ الآن',
+    howTitle: 'انطلق في أربع خطوات',
+    howLead: 'من التسجيل إلى إدارة أول مشروع في أقل من 10 دقائق.',
+    step1: 'أنشئ حسابك', step1d: 'سجّل ببريدك الإلكتروني بدون بطاقة بنكية.',
+    step2: 'أضف فريقك', step2d: 'ادعُ أعضاء الفريق وحدد الأدوار والصلاحيات.',
+    step3: 'أنشئ مشروعك', step3d: 'ابدأ من قالب جاهز أو مشروع فارغ.',
+    step4: 'تابع النتائج', step4d: 'راقب التقدم والتقارير واتخذ قرارات أسرع.',
+    aboutTitle: 'بُني للمؤسسات التي تنمو',
+    aboutLead: 'منصة مطوّرة في الجزائر للشركات والفرق التي تريد تنظيماً حقيقياً، بسرعة عالية وواجهة عربية كاملة ودعم محلي.',
+    feat1: 'واجهة عربية كاملة', feat1d: 'مصممة من اليمين إلى اليسار بعناية.',
+    feat2: 'سرعة عالية', feat2d: 'استجابة فورية حتى مع بيانات كبيرة.',
+    feat3: 'تكاملات مفتوحة', feat3d: 'ربط مع الأدوات التي تستخدمها بالفعل.',
+    feat4: 'دعم محلي', feat4d: 'فريق جزائري يجيبك بلغتك.',
+    stats: [['+1,200', 'شركة تستخدمنا'], ['+48,000', 'مستخدم نشط'], ['99.9%', 'وقت التشغيل'], ['4.8/5', 'تقييم العملاء']],
+    quotes: [
+      { text: 'وفّرت علينا ساعات أسبوعياً في المتابعة والتقارير، الفريق كله يعمل الآن من مكان واحد.', name: 'رياض ب.', role: 'مدير عمليات' },
+      { text: 'الواجهة العربية ممتازة والدعم يجيب بسرعة حقيقية، شيء نادر.', name: 'نادية م.', role: 'مديرة مشاريع' },
+      { text: 'انتقلنا من جداول متفرقة إلى لوحة واحدة واضحة، الفرق كان كبيراً.', name: 'سليم ع.', role: 'مؤسس شركة' },
+    ],
+    faqTitle: 'أسئلة شائعة',
+    faq: [
+      ['هل التجربة مجانية فعلاً؟', 'نعم، 14 يوماً كاملة بدون بطاقة بنكية وبدون التزام.'],
+      ['هل يمكنني تغيير الخطة لاحقاً؟', 'نعم، الترقية أو التخفيض متاح في أي وقت من لوحة التحكم.'],
+      ['هل بياناتي آمنة؟', 'نستخدم تشفيراً كاملاً ونسخاً احتياطية يومية مع خوادم آمنة.'],
+      ['هل يوجد دعم بالعربية؟', 'نعم، فريق الدعم يجيب بالعربية والفرنسية والإنجليزية.'],
+      ['هل توفرون فواتير رسمية؟', 'نعم، فواتير رسمية بصيغة PDF لكل عملية دفع.'],
+    ],
+    joinTitle: 'ابدأ تجربتك المجانية',
+    joinLead: 'اختر الخطة واملأ بياناتك، وسنرسل لك رابط الدخول خلال دقائق.',
+    formTitle: 'طلب تجربة مجانية',
+    formSub: 'بدون بطاقة بنكية · إلغاء في أي وقت.',
+    choosePlan: 'الخطة',
+    companyLabel: 'اسم الشركة',
+    teamLabel: 'حجم الفريق',
+    teamSizes: ['1 – 5', '6 – 20', '21 – 50', '+50'],
+    confirm: 'ابدأ التجربة المجانية',
+    note: 'سنتواصل معك لتأكيد الحساب وتقديم جلسة تعريفية.',
+  },
+  fr: {
+    heroBadge: 'Plateforme SaaS · Essai gratuit de 14 jours',
+    trialCta: 'Commencer l’essai gratuit',
+    demoCta: 'Demander une démo',
+    heroMessage: 'Je souhaite essayer la plateforme et en savoir plus',
+    freeTrial: '14 jours offerts',
+    noCard: 'Sans carte bancaire',
+    support: 'Support 24/7',
+    featuresEyebrow: 'Fonctionnalités',
+    featuresTitle: 'Tous vos outils sur une seule plateforme',
+    featuresLead: 'Projets, équipe, facturation et rapports depuis un tableau de bord rapide et sécurisé.',
+    features: [
+      { icon: 'layers', title: 'Gestion de projets', description: 'Plans, tâches et échéances avec suivi en temps réel.' },
+      { icon: 'users', title: 'Collaboration d’équipe', description: 'Rôles, permissions et commentaires au même endroit.' },
+      { icon: 'clipboard', title: 'Facturation & paiements', description: 'Factures professionnelles et relances automatiques.' },
+      { icon: 'target', title: 'Rapports intelligents', description: 'KPI et tableaux de bord personnalisables.' },
+      { icon: 'shield', title: 'Sécurité avancée', description: 'Chiffrement complet et sauvegarde quotidienne.' },
+      { icon: 'zap', title: 'Automatisation', description: 'Des règles automatiques qui suppriment les tâches répétitives.' },
+    ],
+    showcaseEyebrow: 'Tableau de bord',
+    showcaseTitle: 'Une vision claire de tout',
+    showcaseLead: 'Un seul tableau de bord réunit vos projets, votre équipe et vos chiffres, avec mise à jour instantanée.',
+    showcasePoints: ['KPI en direct', 'Alertes intelligentes', 'Export PDF et Excel', 'Applications mobile et desktop'],
+    pricingEyebrow: 'Tarifs',
+    pricingTitle: 'Une formule pour chaque équipe',
+    pricingLead: 'Commencez petit et évoluez selon vos besoins. Changement possible à tout moment.',
+    popular: 'Le plus choisi',
+    perMonth: '/ mois',
+    planFeatures: ['Utilisateurs illimités', '100 Go de stockage', 'Rapports avancés', 'Support prioritaire'],
+    startPlan: 'Commencer',
+    howTitle: 'Lancez-vous en quatre étapes',
+    howLead: 'De l’inscription à votre premier projet en moins de 10 minutes.',
+    step1: 'Créez votre compte', step1d: 'Inscription par e-mail sans carte bancaire.',
+    step2: 'Invitez votre équipe', step2d: 'Ajoutez les membres et définissez les rôles.',
+    step3: 'Créez un projet', step3d: 'Partez d’un modèle ou d’un projet vide.',
+    step4: 'Suivez les résultats', step4d: 'Analysez la progression et décidez plus vite.',
+    aboutTitle: 'Conçue pour les entreprises qui grandissent',
+    aboutLead: 'Une plateforme développée en Algérie pour les entreprises et équipes qui veulent une vraie organisation, rapide, entièrement en arabe et avec un support local.',
+    feat1: 'Interface arabe complète', feat1d: 'Pensée de droite à gauche avec soin.',
+    feat2: 'Grande performance', feat2d: 'Réactivité immédiate même avec beaucoup de données.',
+    feat3: 'Intégrations ouvertes', feat3d: 'Connexion aux outils que vous utilisez déjà.',
+    feat4: 'Support local', feat4d: 'Une équipe algérienne qui répond dans votre langue.',
+    stats: [['+1 200', 'entreprises'], ['+48 000', 'utilisateurs actifs'], ['99,9 %', 'disponibilité'], ['4,8/5', 'note clients']],
+    quotes: [
+      { text: 'Nous avons gagné des heures chaque semaine, toute l’équipe travaille désormais au même endroit.', name: 'Riad B.', role: 'Directeur des opérations' },
+      { text: 'L’interface arabe est excellente et le support répond vraiment vite, c’est rare.', name: 'Nadia M.', role: 'Cheffe de projet' },
+      { text: 'Nous sommes passés de tableurs dispersés à un tableau de bord clair, la différence est énorme.', name: 'Salim A.', role: 'Fondateur' },
+    ],
+    faqTitle: 'Questions fréquentes',
+    faq: [
+      ['L’essai est-il vraiment gratuit ?', 'Oui, 14 jours complets sans carte bancaire ni engagement.'],
+      ['Puis-je changer de formule ?', 'Oui, mise à niveau ou réduction possible à tout moment.'],
+      ['Mes données sont-elles sécurisées ?', 'Chiffrement complet, sauvegardes quotidiennes et serveurs sécurisés.'],
+      ['Le support est-il en arabe ?', 'Oui, l’équipe répond en arabe, français et anglais.'],
+      ['Fournissez-vous des factures ?', 'Oui, des factures PDF officielles pour chaque paiement.'],
+    ],
+    joinTitle: 'Commencez votre essai gratuit',
+    joinLead: 'Choisissez votre formule et remplissez vos informations, nous envoyons l’accès en quelques minutes.',
+    formTitle: 'Demande d’essai gratuit',
+    formSub: 'Sans carte bancaire · Annulation à tout moment.',
+    choosePlan: 'Formule',
+    companyLabel: 'Nom de l’entreprise',
+    teamLabel: 'Taille de l’équipe',
+    teamSizes: ['1 – 5', '6 – 20', '21 – 50', '+50'],
+    confirm: 'Démarrer l’essai',
+    note: 'Nous vous contactons pour confirmer le compte et planifier une présentation.',
+  },
+  en: {
+    heroBadge: 'Cloud platform · 14-day free trial',
+    trialCta: 'Start free trial',
+    demoCta: 'Request a demo',
+    heroMessage: 'I would like to try the platform and learn more',
+    freeTrial: '14 days free',
+    noCard: 'No credit card',
+    support: '24/7 support',
+    featuresEyebrow: 'Features',
+    featuresTitle: 'All your tools in one platform',
+    featuresLead: 'Projects, team, invoicing and reports from one fast, secure dashboard.',
+    features: [
+      { icon: 'layers', title: 'Project management', description: 'Plans, tasks and deadlines with live progress tracking.' },
+      { icon: 'users', title: 'Team collaboration', description: 'Roles, permissions and comments in one place.' },
+      { icon: 'clipboard', title: 'Invoicing & payments', description: 'Professional invoices with automatic reminders.' },
+      { icon: 'target', title: 'Smart reports', description: 'KPIs and dashboards you can customize.' },
+      { icon: 'shield', title: 'Advanced security', description: 'Full encryption and daily backups.' },
+      { icon: 'zap', title: 'Task automation', description: 'Automatic rules that remove repetitive work.' },
+    ],
+    showcaseEyebrow: 'Dashboard',
+    showcaseTitle: 'A clear view of everything',
+    showcaseLead: 'One dashboard brings your projects, team and numbers together, updated instantly.',
+    showcasePoints: ['Live KPIs', 'Smart alerts', 'PDF and Excel export', 'Mobile and desktop apps'],
+    pricingEyebrow: 'Pricing',
+    pricingTitle: 'A plan for every team',
+    pricingLead: 'Start small and scale when you need. Change plans at any time.',
+    popular: 'Most popular',
+    perMonth: '/ month',
+    planFeatures: ['Unlimited users', '100GB storage', 'Advanced reports', 'Priority support'],
+    startPlan: 'Get started',
+    howTitle: 'Launch in four steps',
+    howLead: 'From sign-up to your first project in under 10 minutes.',
+    step1: 'Create your account', step1d: 'Sign up with your email, no credit card required.',
+    step2: 'Invite your team', step2d: 'Add members and set roles and permissions.',
+    step3: 'Create a project', step3d: 'Start from a template or a blank project.',
+    step4: 'Track results', step4d: 'Monitor progress and reports and decide faster.',
+    aboutTitle: 'Built for businesses that grow',
+    aboutLead: 'A platform developed in Algeria for companies and teams that want real organization: fast, fully Arabic and with local support.',
+    feat1: 'Full Arabic interface', feat1d: 'Carefully designed right-to-left.',
+    feat2: 'High performance', feat2d: 'Instant response even with large data.',
+    feat3: 'Open integrations', feat3d: 'Connect the tools you already use.',
+    feat4: 'Local support', feat4d: 'An Algerian team answering in your language.',
+    stats: [['+1,200', 'companies'], ['+48,000', 'active users'], ['99.9%', 'uptime'], ['4.8/5', 'client rating']],
+    quotes: [
+      { text: 'It saves us hours every week, the whole team now works from one place.', name: 'Riad B.', role: 'Operations manager' },
+      { text: 'The Arabic interface is excellent and support actually answers fast, which is rare.', name: 'Nadia M.', role: 'Project manager' },
+      { text: 'We moved from scattered spreadsheets to one clear dashboard, a huge difference.', name: 'Salim A.', role: 'Founder' },
+    ],
+    faqTitle: 'Frequently asked questions',
+    faq: [
+      ['Is the trial really free?', 'Yes, 14 full days with no credit card and no commitment.'],
+      ['Can I change plans later?', 'Yes, upgrade or downgrade at any time from the dashboard.'],
+      ['Is my data secure?', 'We use full encryption, daily backups and secure servers.'],
+      ['Is support available in Arabic?', 'Yes, the team answers in Arabic, French and English.'],
+      ['Do you provide invoices?', 'Yes, official PDF invoices for every payment.'],
+    ],
+    joinTitle: 'Start your free trial',
+    joinLead: 'Choose a plan and fill in your details, and we will send access within minutes.',
+    formTitle: 'Free trial request',
+    formSub: 'No credit card · Cancel anytime.',
+    choosePlan: 'Plan',
+    companyLabel: 'Company name',
+    teamLabel: 'Team size',
+    teamSizes: ['1 – 5', '6 – 20', '21 – 50', '+50'],
+    confirm: 'Start free trial',
+    note: 'We will contact you to confirm the account and schedule an onboarding session.',
+  },
+};
+
+export function saasPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
+  const copy = SAAS[lang];
+  const plans = config.products.filter((p) => p.name);
+  const heroImage = config.coverUrl
+    ? `<img src="${attr(config.coverUrl)}" alt="${attr(config.siteName)}" width="900" height="1100" fetchpriority="high" decoding="async">`
+    : '';
+  const about = aboutPhoto(config);
+  const heroWa = waHref(config, `${copy.heroMessage} — ${config.siteName}`);
+  const demoWa = waHref(config, `${copy.demoCta} — ${config.siteName}`);
+
+  return `<section class="hero saas-hero" id="top">
+    <div class="container hero-grid">
+      <div class="hero-copy" data-reveal>
+        <span class="badge">${icon('zap')}${esc(copy.heroBadge)}</span>
+        <h1 class="h1 mt-3">${esc(config.siteName)}</h1>
+        <p class="lead">${esc(config.description)}</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#join">${icon('zap')}${esc(copy.trialCta)}</a>
+          <a class="btn btn-wa" href="${attr(heroWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.whatsapp)}</a>
+        </div>
+        <div class="saas-badges">
+          <span>${icon('clock')}${esc(copy.freeTrial)}</span>
+          <span>${icon('shield')}${esc(copy.noCard)}</span>
+          <span>${icon('users')}${esc(copy.support)}</span>
+        </div>
+        <div class="hero-stats">
+          ${copy.stats.slice(0, 3).map(([num, label]) => `<div><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="hero-media saas-hero-media${heroImage ? '' : ' no-img'}" data-mark="${attr(initials(config.siteName))}" data-reveal>${heroImage}
+        <div class="float-card"><span class="float-icon">${icon('zap')}</span><div><strong>${esc(copy.freeTrial)}</strong><span>${esc(copy.noCard)}</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="trust-strip"><div class="container">
+    <span class="trust-item">${icon('clock')}${esc(copy.freeTrial)}</span>
+    <span class="trust-item">${icon('shield')}${esc(copy.noCard)}</span>
+    <span class="trust-item">${icon('users')}${esc(copy.support)}</span>
+    <span class="trust-item">${icon('award')}${esc(copy.stats[2][0])} ${esc(copy.stats[2][1])}</span>
+  </div></div>
+
+  <section class="section bg-soft" id="features">
+    <div class="container">
+      ${sectionHead(copy.featuresEyebrow, copy.featuresTitle, copy.featuresLead, true)}
+      <div class="saas-features">
+        ${copy.features.map((item) => `<article class="saas-feature" data-reveal>
+          <span class="saas-feature-icon">${icon(item.icon as any)}</span>
+          <h3 class="h3">${esc(item.title)}</h3>
+          <p>${esc(item.description)}</p>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="showcase">
+    <div class="container saas-showcase">
+      <div class="saas-showcase-media${about ? '' : ' no-img'}" data-reveal>
+        ${about ? `<img src="${attr(about)}" alt="${attr(config.siteName)}" loading="lazy" decoding="async" width="900" height="700">` : ''}
+        <div class="float-card"><span class="float-icon">${icon('target')}</span><div><strong>+48,000</strong><span>${esc(copy.stats[1][1])}</span></div></div>
+      </div>
+      <div data-reveal>
+        <span class="eyebrow">${esc(copy.showcaseEyebrow)}</span>
+        <h2 class="h2 mt-2">${esc(copy.showcaseTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.showcaseLead)}</p>
+        <ul class="checklist">
+          ${copy.showcasePoints.map((point) => `<li><span class="tick">${icon('check')}</span><span>${esc(point)}</span></li>`).join('')}
+        </ul>
+        <div class="saas-showcase-actions">
+          <a class="btn btn-primary" href="#join">${icon('zap')}${esc(copy.trialCta)}</a>
+          <a class="btn btn-ghost" href="${attr(demoWa)}" target="_blank" rel="noopener">${icon('calendar')}${esc(copy.demoCta)}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="pricing">
+    <div class="container">
+      ${sectionHead(copy.pricingEyebrow, copy.pricingTitle, copy.pricingLead, true)}
+      <div class="saas-plans">
+        ${plans.map((p, i) => `<article class="saas-plan${i === 1 ? ' is-popular' : ''}" data-reveal>
+          ${i === 1 ? `<span class="saas-plan-badge">${esc(copy.popular)}</span>` : ''}
+          <span class="saas-plan-period">${esc(p.category || '')}</span>
+          <h3>${esc(p.name)}</h3>
+          <div class="saas-plan-price">${money(p.price, lang)}<small>${esc(copy.perMonth)}</small></div>
+          ${p.description ? `<p>${esc(p.description)}</p>` : ''}
+          <ul class="saas-plan-list">${copy.planFeatures.map((f) => `<li>${icon('check')}${esc(f)}</li>`).join('')}</ul>
+          <button class="btn btn-primary btn-block" type="button" data-pick-plan="${attr(p.name)}">${icon('zap')}${esc(copy.startPlan)}</button>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="how">
+    <div class="container">
+      ${sectionHead(s.process, copy.howTitle, copy.howLead, true)}
+      <div class="steps">
+        ${[
+          [copy.step1, copy.step1d],
+          [copy.step2, copy.step2d],
+          [copy.step3, copy.step3d],
+          [copy.step4, copy.step4d],
+        ].map(([title, desc], i) => `<div class="step" data-reveal><div class="n">${i + 1}</div><h3>${esc(title)}</h3><p>${esc(desc)}</p></div>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="about">
+    <div class="container about-grid">
+      <div class="about-media${about ? '' : ' no-img'}" data-reveal>
+        ${about ? `<img src="${attr(about)}" alt="${attr(config.siteName)}" loading="lazy" decoding="async" width="800" height="700">` : ''}
+        <div class="about-badge">${icon('award')}+1,200 ${esc(copy.stats[0][1])}</div>
+      </div>
+      <div data-reveal>
+        <span class="eyebrow">${esc(s.about)}</span>
+        <h2 class="h2 mt-2">${esc(copy.aboutTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.aboutLead)}</p>
+        <ul class="checklist">
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat1)} — ${esc(copy.feat1d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat2)} — ${esc(copy.feat2d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat3)} — ${esc(copy.feat3d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat4)} — ${esc(copy.feat4d)}</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="stats-band">
+    <div class="container stats-grid">
+      ${copy.stats.map(([num, label]) => `<div class="stat"><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">${sectionHead(s.testimonials, s.testimonials, undefined, true)}
+      <div class="grid g3">${copy.quotes.map((q) => `<div class="quote" data-reveal>
+        <div class="stars" aria-label="5/5">★★★★★</div>
+        <p>“${esc(q.text)}”</p>
+        <div class="who"><span class="avatar">${esc(initialsFor(q.name))}</span><div><strong>${esc(q.name)}</strong><span>${esc(q.role)}</span></div></div>
+      </div>`).join('')}</div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="faq">
+    <div class="container">
+      ${sectionHead(s.faq, copy.faqTitle, undefined, true)}
+      <div class="faq-list">
+        ${copy.faq.map(([q, a]) => `<details class="faq" data-reveal>
+          <summary>${esc(q)}<span class="faq-ic">${icon('plus')}</span></summary>
+          <p>${esc(a)}</p>
+        </details>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="join">
+    <div class="container saas-join-wrap">
+      <div data-reveal>
+        <span class="eyebrow">${esc(s.getStarted)}</span>
+        <h2 class="h2 mt-2">${esc(copy.joinTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.joinLead)}</p>
+        <ul class="checklist">
+          <li><span class="tick">${icon('clock')}</span><span>${esc(copy.freeTrial)}</span></li>
+          <li><span class="tick">${icon('shield')}</span><span>${esc(copy.noCard)}</span></li>
+          <li><span class="tick">${icon('users')}</span><span>${esc(copy.support)}</span></li>
+        </ul>
+        <div class="saas-hours">
+          <div class="hours-row"><span>${icon('clock')}${esc(s.hours)}</span><strong>${esc(config.hours || '')}</strong></div>
+          <div class="hours-row"><span>${icon('map')}${esc(s.location)}</span><strong>${esc(config.address || config.city || '')}</strong></div>
+        </div>
+        <div class="saas-contact-actions">
+          <a class="btn btn-light" href="tel:${attr(config.phone)}">${icon('phone')}${esc(s.callNow)}</a>
+          <a class="btn btn-wa" href="${attr(demoWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.whatsapp)}</a>
+        </div>
+      </div>
+      <form class="saas-form-card" data-lead-form data-lead-kind="saas-trial" novalidate>
+        <h3>${esc(copy.formTitle)}</h3>
+        <p class="booking-sub">${esc(copy.formSub)}</p>
+        <div class="form-grid">
+          <div class="field"><label for="saas-name">${esc(s.name)}</label><input id="saas-name" name="name" required maxlength="80" autocomplete="name"><span class="err">${esc(s.required)}</span></div>
+          <div class="field"><label for="saas-phone">${esc(s.phone)}</label><input id="saas-phone" name="phone" type="tel" required maxlength="20" autocomplete="tel" dir="ltr"><span class="err">${esc(s.invalidPhone)}</span></div>
+          <div class="field full"><label for="saas-email">${esc(s.email)}</label><input id="saas-email" name="email" type="email" required maxlength="120" autocomplete="email" dir="ltr"><span class="err">${esc(s.required)}</span></div>
+          <div class="field full"><label for="saas-company">${esc(copy.companyLabel)}</label><input id="saas-company" name="company" maxlength="80" autocomplete="organization"></div>
+          <div class="field full"><label for="saas-plan">${esc(copy.choosePlan)}</label><select id="saas-plan" name="planName" data-join-plan required>
+            <option value="">${esc(copy.choosePlan)}</option>
+            ${plans.map((p) => `<option value="${attr(p.name)}">${esc(p.name)} — ${money(p.price, lang)}</option>`).join('')}
+          </select><span class="err">${esc(s.required)}</span></div>
+          <div class="field full"><label for="saas-team">${esc(copy.teamLabel)}</label><select id="saas-team" name="teamSize">
+            ${copy.teamSizes.map((size) => `<option value="${attr(size)}">${esc(size)}</option>`).join('')}
+          </select></div>
+          <div class="field full"><label for="saas-msg">${esc(s.message)}</label><textarea id="saas-msg" name="message" maxlength="1200"></textarea></div>
+          <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
+        </div>
+        <button class="btn btn-primary btn-block mt-3" type="submit">${icon('send')}${esc(copy.confirm)}</button>
+        <div class="form-status" role="status"></div>
+        <p class="form-note center mt-2">${esc(copy.note)}</p>
+      </form>
+    </div>
+  </section>
+
+  ${contactSection(config, s)}`;
+}
+
 export function pageFor(template: string, config: RenderConfig, lang: Lang): string {
   const s = ui(lang);
   switch (template) {
@@ -6699,6 +7160,8 @@ export function pageFor(template: string, config: RenderConfig, lang: Lang): str
       return gymPage(config, s, lang);
     case 'boutique':
       return boutiquePage(config, s, lang);
+    case 'saas':
+      return saasPage(config, s, lang);
 
     // Landing-style templates
     case 'fitness':
@@ -7006,6 +7469,21 @@ export function jsonLdFor(template: string, config: RenderConfig, siteUrl: strin
         name: member.name,
         jobTitle: member.role,
         image: member.photoUrl || undefined,
+      })),
+    };
+    case 'saas': return {
+      ...base,
+      '@type': 'SoftwareApplication',
+      applicationCategory: 'BusinessApplication',
+      operatingSystem: 'Web, iOS, Android',
+      image: config.coverUrl || undefined,
+      offers: config.products.slice(0, 6).map((p) => ({
+        '@type': 'Offer',
+        name: p.name,
+        description: p.description || undefined,
+        price: p.price,
+        priceCurrency: 'DZD',
+        availability: 'https://schema.org/InStock',
       })),
     };
     case 'boutique': return {

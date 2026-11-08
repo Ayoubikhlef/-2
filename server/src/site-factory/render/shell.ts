@@ -321,6 +321,18 @@ function navItems(config: RenderConfig, s: UiStrings): { href: string; label: st
           { href: '#contact', label: s.contact },
         ];
       }
+      if (['saas'].includes(config.templateSlug)) {
+        return [
+          { href: '#top', label: s.home },
+          { href: '#features', label: s.services },
+          { href: '#pricing', label: s.offer },
+          { href: '#how', label: s.process },
+          { href: '#about', label: s.about },
+          { href: '#join', label: s.getStarted },
+          { href: '#faq', label: s.faq },
+          { href: '#contact', label: s.contact },
+        ];
+      }
       return [];
   }
 }
@@ -355,6 +367,8 @@ function mobileCta(config: RenderConfig, s: UiStrings): { href: string; label: s
       return { href: '#join', label: s.getStarted };
     case 'boutique':
       return { href: '#appointment', label: s.appointment };
+    case 'saas':
+      return { href: '#join', label: s.getStarted };
     case 'pharmacy':
       return { href: '#products', label: s.orderNow };
     default:

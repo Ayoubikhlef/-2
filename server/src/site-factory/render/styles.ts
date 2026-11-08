@@ -1091,6 +1091,53 @@ body.has-preview .site-header{top:36px}
 .tpl-boutique .boutique-hours{margin-top:22px;padding-top:18px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:12px}
 .tpl-boutique .boutique-contact-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
 .tpl-boutique .boutique-contact-actions .btn{flex:1 1 auto}
+
+/* saas platform template */
+.tpl-saas .saas-hero{position:relative;overflow:hidden;background:radial-gradient(900px 520px at 84% -12%,color-mix(in srgb,var(--p) 20%,transparent),transparent 62%),radial-gradient(600px 380px at 0% 108%,color-mix(in srgb,var(--p2) 14%,transparent),transparent 58%),var(--bg)}
+.tpl-saas .saas-badges{display:flex;gap:14px;margin-top:16px;padding-top:12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.tpl-saas .saas-badges span{display:inline-flex;align-items:center;gap:7px;font-size:.78rem;font-weight:700;color:var(--muted)}
+.tpl-saas .saas-badges .icon{width:16px;height:16px;color:var(--p-text)}
+.tpl-saas .hero-stats{display:flex;gap:30px;margin-top:38px;padding-top:26px;border-top:1px solid var(--line);flex-wrap:wrap}
+.tpl-saas .saas-features{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.tpl-saas .saas-feature{padding:28px 24px;border-radius:20px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:9px;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-saas .saas-feature:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm);border-color:color-mix(in srgb,var(--p) 34%,var(--line))}
+.tpl-saas .saas-feature-icon{width:48px;height:48px;border-radius:14px;background:linear-gradient(145deg,var(--tint-2),var(--tint));color:var(--p-text);display:grid;place-items:center;margin-bottom:4px}
+.tpl-saas .saas-feature-icon .icon{width:23px;height:23px}
+.tpl-saas .saas-feature p{font-size:.85rem;color:var(--muted);line-height:1.68}
+.tpl-saas .saas-showcase{display:grid;grid-template-columns:1.05fr .95fr;gap:52px;align-items:center}
+.tpl-saas .saas-showcase-media{position:relative;border-radius:24px;overflow:hidden;border:1px solid var(--line);background:linear-gradient(150deg,var(--tint),var(--tint-2));box-shadow:var(--shadow)}
+.tpl-saas .saas-showcase-media img{width:100%;aspect-ratio:4/3.2;object-fit:cover;display:block}
+.tpl-saas .saas-showcase-media.no-img{aspect-ratio:4/3.2}
+.tpl-saas .saas-showcase-media .float-card{position:absolute;bottom:18px;inset-inline-start:18px;margin:0}
+.tpl-saas .saas-showcase-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+.tpl-saas .saas-showcase-actions .btn{flex:0 1 auto}
+.tpl-saas .saas-plans{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch}
+.tpl-saas .saas-plan{position:relative;padding:30px 24px;border-radius:22px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:8px;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-saas .saas-plan:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm)}
+.tpl-saas .saas-plan.is-popular{background:linear-gradient(165deg,var(--p),var(--p2));color:#fff;border-color:transparent;box-shadow:0 28px 60px -28px color-mix(in srgb,var(--p) 60%,transparent)}
+.tpl-saas .saas-plan.is-popular .saas-plan-period,.tpl-saas .saas-plan.is-popular p,.tpl-saas .saas-plan.is-popular .saas-plan-list li{color:rgba(255,255,255,.82)}
+.tpl-saas .saas-plan.is-popular .saas-plan-list .icon{color:#fff}
+.tpl-saas .saas-plan.is-popular .saas-plan-price small{color:rgba(255,255,255,.72)}
+.tpl-saas .saas-plan-badge{position:absolute;top:-12px;inset-inline-start:24px;padding:5px 12px;border-radius:999px;background:var(--p);color:var(--p-ink);font-size:.68rem;font-weight:900}
+.tpl-saas .saas-plan.is-popular .saas-plan-badge{background:#fff;color:var(--p2)}
+.tpl-saas .saas-plan-period{font-size:.68rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--p-text)}
+.tpl-saas .saas-plan h3{font-size:1.2rem}
+.tpl-saas .saas-plan-price{font-size:2rem;font-weight:900;line-height:1.05;display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.tpl-saas .saas-plan-price small{font-size:.72rem;font-weight:700;color:var(--muted);letter-spacing:.02em}
+.tpl-saas .saas-plan p{font-size:.8rem;color:var(--muted);line-height:1.6}
+.tpl-saas .saas-plan-list{list-style:none;margin:8px 0 18px;padding:0;display:flex;flex-direction:column;gap:8px}
+.tpl-saas .saas-plan-list li{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--muted)}
+.tpl-saas .saas-plan-list .icon{width:15px;height:15px;color:var(--p-text)}
+.tpl-saas .saas-plan .btn{margin-top:auto}
+.tpl-saas .saas-join-wrap{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+.tpl-saas .saas-form-card{padding:30px;border-radius:24px;background:linear-gradient(160deg,color-mix(in srgb,var(--p) 8%,var(--surface)),var(--surface) 55%);border:1px solid color-mix(in srgb,var(--p) 24%,var(--line));box-shadow:var(--shadow-sm)}
+.tpl-saas .saas-form-card h3{font-size:1.25rem;margin-bottom:4px}
+.tpl-saas .saas-form-card .booking-sub{font-size:.84rem;color:var(--muted);line-height:1.6;margin-bottom:18px}
+.tpl-saas .saas-form-card .field label{font-size:.72rem;font-weight:800;letter-spacing:.04em;color:var(--muted)}
+.tpl-saas .saas-form-card .form-note{font-size:.72rem;color:var(--muted)}
+.tpl-saas .saas-hours{margin-top:22px;padding-top:18px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:12px}
+.tpl-saas .saas-contact-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+.tpl-saas .saas-contact-actions .btn{flex:1 1 auto}
 .theme-toggle{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;flex:0 0 auto;position:relative;transition:transform .2s,border-color .2s,background .2s}
 .theme-toggle:hover{transform:translateY(-2px);border-color:var(--p)}
 .theme-toggle .icon{width:18px;height:18px}
@@ -1256,6 +1303,10 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-boutique .boutique-grid{grid-template-columns:repeat(2,1fr);gap:16px}
   .tpl-boutique .boutique-lookbook{grid-template-columns:1fr 1fr;gap:12px}
   .tpl-boutique .boutique-appointment-wrap{grid-template-columns:1fr;gap:34px}
+  .tpl-saas .saas-features{grid-template-columns:1fr 1fr;gap:16px}
+  .tpl-saas .saas-plans{grid-template-columns:1fr 1fr;gap:16px}
+  .tpl-saas .saas-showcase{grid-template-columns:1fr;gap:34px}
+  .tpl-saas .saas-join-wrap{grid-template-columns:1fr;gap:34px}
 }
 @media (max-width:720px){
   .container{width:min(100% - 28px,1180px)}
@@ -1336,6 +1387,9 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-boutique .boutique-collections{grid-template-columns:1fr;gap:14px}
   .tpl-boutique .boutique-grid{grid-template-columns:1fr 1fr;gap:14px}
   .tpl-boutique .boutique-form-card{padding:22px}
+  .tpl-saas .saas-features{grid-template-columns:1fr;gap:14px}
+  .tpl-saas .saas-plans{grid-template-columns:1fr;gap:16px}
+  .tpl-saas .saas-form-card{padding:22px}
 }
 @media (max-width:460px){
   .g2,.g3,.g4,.product-grid,.form-grid,.stats-grid{grid-template-columns:1fr}
@@ -1387,6 +1441,9 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-boutique .boutique-grid{grid-template-columns:1fr;gap:14px}
   .tpl-boutique .boutique-foot .btn{width:100%}
   .tpl-boutique .boutique-lookbook{grid-template-columns:1fr 1fr;gap:10px}
+  .tpl-saas .saas-showcase-actions .btn{width:100%}
+  .tpl-saas .saas-plan-price{font-size:1.7rem}
+  .tpl-saas .saas-badges{gap:8px}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
