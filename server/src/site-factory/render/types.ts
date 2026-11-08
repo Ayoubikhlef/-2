@@ -93,6 +93,7 @@ export interface UiStrings {
   langName: string;
   home: string;
   products: string;
+  categories: string;
   services: string;
   about: string;
   contact: string;
@@ -205,7 +206,7 @@ export interface UiStrings {
 
 const AR: UiStrings = {
   dir: 'rtl', langName: 'العربية',
-  home: 'الرئيسية', products: 'المنتجات', services: 'الخدمات', about: 'من نحن',
+  home: 'الرئيسية', products: 'المنتجات', categories: 'الفئات', services: 'الخدمات', about: 'من نحن',
   contact: 'اتصل بنا', menu: 'القائمة', gallery: 'الصور', reservation: 'حجز طاولة',
   work: 'أعمالنا', faq: 'الأسئلة الشائعة', order: 'اطلب', orderNow: 'اطلب الآن',
   call: 'اتصل', whatsapp: 'واتساب', email: 'البريد', location: 'الموقع',
@@ -240,7 +241,7 @@ const AR: UiStrings = {
 
 const FR: UiStrings = {
   dir: 'ltr', langName: 'Français',
-  home: 'Accueil', products: 'Produits', services: 'Services', about: 'À propos',
+  home: 'Accueil', products: 'Produits', categories: 'Catégories', services: 'Services', about: 'À propos',
   contact: 'Contact', menu: 'Menu', gallery: 'Galerie', reservation: 'Réservation',
   work: 'Réalisations', faq: 'FAQ', order: 'Commander', orderNow: 'Commander',
   call: 'Appeler', whatsapp: 'WhatsApp', email: 'E-mail', location: 'Adresse',
@@ -275,7 +276,7 @@ const FR: UiStrings = {
 
 const EN: UiStrings = {
   dir: 'ltr', langName: 'English',
-  home: 'Home', products: 'Products', services: 'Services', about: 'About',
+  home: 'Home', products: 'Products', categories: 'Categories', services: 'Services', about: 'About',
   contact: 'Contact', menu: 'Menu', gallery: 'Gallery', reservation: 'Reservation',
   work: 'Work', faq: 'FAQ', order: 'Order', orderNow: 'Order now',
   call: 'Call', whatsapp: 'WhatsApp', email: 'Email', location: 'Location',

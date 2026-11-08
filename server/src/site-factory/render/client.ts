@@ -218,6 +218,16 @@ export const SITE_JS = String.raw`
   });
   if (search) search.addEventListener('input', filterProducts);
 
+  // digital products: preselect the product in the order form
+  $$('[data-pick-product]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var orderSelect = $('[data-order-product]');
+      if (orderSelect) orderSelect.value = btn.getAttribute('data-pick-product') || '';
+      var orderSection = $('#order');
+      if (orderSection) orderSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
   // cart
   function readCart() {
     try {
@@ -485,6 +495,13 @@ export const SITE_JS = String.raw`
         var clinicDoctor = form.querySelector('[name="doctorName"]');
         message = 'Clinic appointment: ' + (clinicService ? clinicService.value : '') +
           ' | doctor ' + (clinicDoctor ? clinicDoctor.value : '') +
+          '. ' + message;
+      }
+      if (form.getAttribute('data-lead-kind') === 'digital-order') {
+        var digitalProduct = form.querySelector('[name="productName"]');
+        var digitalPayment = form.querySelector('[name="paymentMethod"]');
+        message = 'Digital order: ' + (digitalProduct ? digitalProduct.value : '') +
+          ' | payment ' + (digitalPayment ? digitalPayment.value : '') +
           '. ' + message;
       }
       post('/public/sites/' + encodeURIComponent(SITE.siteId) + '/leads', {

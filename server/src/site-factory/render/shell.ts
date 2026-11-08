@@ -284,6 +284,18 @@ function navItems(config: RenderConfig, s: UiStrings): { href: string; label: st
           { href: '#contact', label: s.contact },
         ];
       }
+      if (['digital'].includes(config.templateSlug)) {
+        return [
+          { href: '#top', label: s.home },
+          { href: '#categories', label: s.categories },
+          { href: '#products', label: s.products },
+          { href: '#why', label: s.benefits },
+          { href: '#process', label: s.process },
+          { href: '#order', label: s.orderNow },
+          { href: '#faq', label: s.faq },
+          { href: '#contact', label: s.contact },
+        ];
+      }
       return [];
   }
 }
@@ -312,6 +324,8 @@ function mobileCta(config: RenderConfig, s: UiStrings): { href: string; label: s
       return { href: '#quote', label: s.appointment };
     case 'clinic':
       return { href: '#book', label: s.appointment };
+    case 'digital':
+      return { href: '#order', label: s.orderNow };
     case 'pharmacy':
       return { href: '#products', label: s.orderNow };
     default:

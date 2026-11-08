@@ -279,6 +279,18 @@ export const TEMPLATES: TemplateSeed[] = [
     },
   },
   {
+    slug: 'digital',
+    category: 'digital',
+    accent: '#6d28d9',
+    sortOrder: 28,
+    name: { ar: 'منتجات رقمية', fr: 'Produits numériques', en: 'Digital Products' },
+    description: {
+      ar: 'متجر منتجات رقمية احترافي: قوالب، كتب إلكترونية، دورات وأدوات مع تحميل فوري، ترخيص واضح وتجربة شراء سهلة.',
+      fr: 'Boutique de produits numériques : modèles, e-books, formations et outils avec téléchargement instantané, licence claire et parcours d’achat fluide.',
+      en: 'Professional digital product store: templates, e-books, courses and tools with instant download, clear licensing and a smooth buying experience.',
+    },
+  },
+  {
     slug: 'agriculture',
     category: 'agriculture',
     accent: '#4d7c0f',

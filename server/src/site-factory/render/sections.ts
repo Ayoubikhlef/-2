@@ -5317,6 +5317,472 @@ export function landingPage(config: RenderConfig, s: UiStrings, lang: Lang): str
   ${contactSection(config, s, s.sendMessage)}`;
 }
 
+/* -------------------------------------------------------------------------
+ * DIGITAL PRODUCTS
+ * ---------------------------------------------------------------------- */
+interface DigitalCopy {
+  heroBadge: string;
+  shopCta: string;
+  browseCta: string;
+  heroMessage: string;
+  instant: string;
+  instantShort: string;
+  updates: string;
+  lifetime: string;
+  categoriesEyebrow: string;
+  categoriesTitle: string;
+  categoriesLead: string;
+  categories: Array<{ icon: string; title: string; description: string }>;
+  productsEyebrow: string;
+  productsTitle: string;
+  productsLead: string;
+  buy: string;
+  whyEyebrow: string;
+  whyTitle: string;
+  whyLead: string;
+  features: Array<{ icon: string; title: string; description: string }>;
+  processTitle: string;
+  processLead: string;
+  step1: string; step1d: string;
+  step2: string; step2d: string;
+  step3: string; step3d: string;
+  step4: string; step4d: string;
+  aboutTitle: string;
+  aboutLead: string;
+  feat1: string; feat1d: string;
+  feat2: string; feat2d: string;
+  feat3: string; feat3d: string;
+  feat4: string; feat4d: string;
+  stats: Array<[string, string]>;
+  quotes: Array<{ text: string; name: string; role: string }>;
+  faqTitle: string;
+  faq: Array<[string, string]>;
+  orderTitle: string;
+  orderLead: string;
+  formTitle: string;
+  formSub: string;
+  chooseProduct: string;
+  payment: string;
+  paymentMethods: string[];
+  confirm: string;
+  note: string;
+}
+
+const DIGITAL: Record<Lang, DigitalCopy> = {
+  ar: {
+    heroBadge: 'منتجات رقمية · تحميل فوري',
+    shopCta: 'تسوق المنتجات',
+    browseCta: 'تصفح الفئات',
+    heroMessage: 'أريد الاستفسار عن المنتجات الرقمية',
+    instant: 'تحميل فوري بعد الدفع',
+    instantShort: 'تحميل فوري',
+    updates: 'تحديثات مجانية مدى الحياة',
+    lifetime: 'ترخيص استخدام مدى الحياة',
+    categoriesEyebrow: 'فئات المنتجات',
+    categoriesTitle: 'كل ما تحتاجه لتنطلق رقمياً',
+    categoriesLead: 'قوالب، كتب، دورات وأدوات مختارة بعناية لاختصار وقتك.',
+    categories: [
+      { icon: 'layers', title: 'قوالب جاهزة', description: 'قوالب مواقع وعروض وهوية بصرية قابلة للتعديل.' },
+      { icon: 'clipboard', title: 'كتب إلكترونية', description: 'أدلة عملية في التسويق والتصميم وإدارة الأعمال.' },
+      { icon: 'award', title: 'دورات تدريبية', description: 'دروس مسجلة بجودة عالية مع ملفات تطبيقية.' },
+      { icon: 'zap', title: 'أدوات وبرمجيات', description: 'أدوات وإضافات تسرّع عملك اليومي.' },
+    ],
+    productsEyebrow: 'الأكثر مبيعاً',
+    productsTitle: 'أصول رقمية جاهزة للاستخدام',
+    productsLead: 'حمّل المنتج مباشرة بعد الدفع، مع دعم كامل عند الحاجة.',
+    buy: 'اطلب الآن',
+    whyEyebrow: 'لماذا تختارنا؟',
+    whyTitle: 'قيمة حقيقية من أول تحميل',
+    whyLead: 'جودة، ترخيص واضح ودعم مستمر في كل منتج.',
+    features: [
+      { icon: 'download', title: 'تحميل فوري', description: 'رابط التحميل يصل مباشرة بعد تأكيد الدفع.' },
+      { icon: 'shield', title: 'ترخيص واضح', description: 'استخدام شخصي أو تجاري موضح مع كل منتج.' },
+      { icon: 'spark', title: 'تحديثات مجانية', description: 'نسخ محدثة من المنتجات التي اشتريتها.' },
+      { icon: 'users', title: 'دعم حقيقي', description: 'فريق يجيبك عن أي سؤال قبل وبعد الشراء.' },
+    ],
+    processTitle: 'كيف تحصل على منتجك',
+    processLead: 'من الاختيار إلى التحميل في دقائق.',
+    step1: 'اختر المنتج', step1d: 'تصفح الفئات واختر ما يناسب مشروعك.',
+    step2: 'أكمل الطلب', step2d: 'أدخل بياناتك واختر طريقة الدفع المناسبة.',
+    step3: 'أكد الدفع', step3d: 'نؤكد الدفع ونرسل لك رابط التحميل.',
+    step4: 'حمّل واستخدم', step4d: 'حمّل الملفات مباشرة وابدأ العمل فوراً.',
+    aboutTitle: 'نصنع أصولاً رقمية تُختصر بها الطريق',
+    aboutLead: 'استوديو رقمي متخصص في تصميم القوالب والأدلة والدورات التي تساعد أصحاب المشاريع على الانطلاق بسرعة وبجودة احترافية.',
+    feat1: 'جودة احترافية', feat1d: 'ملفات منظمة وقابلة للتعديل بسهولة.',
+    feat2: 'تسليم سريع', feat2d: 'لا انتظار ولا شحن، كل شيء رقمي.',
+    feat3: 'أسعار عادلة', feat3d: 'قيمة كبيرة مقابل سعر مناسب.',
+    feat4: 'تحديث مستمر', feat4d: 'نضيف منتجات جديدة كل شهر.',
+    stats: [['+120', 'منتج رقمي'], ['+3,500', 'تحميل'], ['4.9/5', 'تقييم العملاء'], ['24/7', 'دعم فني']],
+    quotes: [
+      { text: 'قالب احترافي وفّر عليّ أسابيع من العمل، والتعديل عليه كان سهلاً جداً.', name: 'أمين ب.', role: 'مصمم جرافيك' },
+      { text: 'اشتريت الدليل وحمّلته مباشرة، المحتوى عملي وواضح خطوة بخطوة.', name: 'سارة م.', role: 'صاحبة مشروع' },
+      { text: 'الدورة تستحق كل دينار، والدعم أجابني عن كل الأسئلة بسرعة.', name: 'كريم ع.', role: 'مطور ويب' },
+    ],
+    faqTitle: 'أسئلة شائعة',
+    faq: [
+      ['كيف أستلم المنتج؟', 'بعد تأكيد الدفع نرسل رابط التحميل عبر البريد أو واتساب.'],
+      ['هل يمكنني استرجاع المبلغ؟', 'المنتجات الرقمية غير قابلة للاسترجاع بعد التحميل، إلا في حال وجود خلل تقني.'],
+      ['هل التحديثات مجانية؟', 'نعم، تحصل على التحديثات المجانية للمنتج الذي اشتريته.'],
+      ['هل يمكن استخدام المنتج تجارياً؟', 'يعتمد على ترخيص كل منتج، وهو موضح في وصف المنتج.'],
+      ['ما طرق الدفع المتاحة؟', 'بريدي موب، CCP أو تحويل بنكي.'],
+    ],
+    orderTitle: 'اطلب منتجك الرقمي',
+    orderLead: 'اختر المنتج وطريقة الدفع، وسنرسل لك رابط التحميل مباشرة.',
+    formTitle: 'طلب منتج رقمي',
+    formSub: 'نرسل رابط التحميل عبر البريد أو واتساب بعد تأكيد الدفع.',
+    chooseProduct: 'المنتج',
+    payment: 'طريقة الدفع',
+    paymentMethods: ['بريدي موب', 'CCP', 'تحويل بنكي'],
+    confirm: 'إرسال الطلب',
+    note: 'المنتجات رقمية وتُسلّم عبر رابط تحميل بعد تأكيد الدفع.',
+  },
+  fr: {
+    heroBadge: 'Produits numériques · Téléchargement instantané',
+    shopCta: 'Voir les produits',
+    browseCta: 'Explorer les catégories',
+    heroMessage: 'Je souhaite des informations sur vos produits numériques',
+    instant: 'Téléchargement instantané après paiement',
+    instantShort: 'Téléchargement instantané',
+    updates: 'Mises à jour gratuites à vie',
+    lifetime: 'Licence d’utilisation à vie',
+    categoriesEyebrow: 'Catégories de produits',
+    categoriesTitle: 'Tout ce qu’il faut pour démarrer en digital',
+    categoriesLead: 'Modèles, e-books, formations et outils sélectionnés pour vous faire gagner du temps.',
+    categories: [
+      { icon: 'layers', title: 'Modèles prêts', description: 'Modèles de sites, présentations et identité visuelle modifiables.' },
+      { icon: 'clipboard', title: 'E-books', description: 'Guides pratiques en marketing, design et gestion.' },
+      { icon: 'award', title: 'Formations', description: 'Cours enregistrés de qualité avec fichiers d’application.' },
+      { icon: 'zap', title: 'Outils & logiciels', description: 'Outils et extensions pour accélérer votre quotidien.' },
+    ],
+    productsEyebrow: 'Meilleures ventes',
+    productsTitle: 'Ressources numériques prêtes à l’emploi',
+    productsLead: 'Téléchargez après paiement, avec un accompagnement complet si besoin.',
+    buy: 'Commander',
+    whyEyebrow: 'Pourquoi nous choisir ?',
+    whyTitle: 'Une vraie valeur dès le premier téléchargement',
+    whyLead: 'Qualité, licence claire et support continu sur chaque produit.',
+    features: [
+      { icon: 'download', title: 'Téléchargement instantané', description: 'Le lien arrive dès la confirmation du paiement.' },
+      { icon: 'shield', title: 'Licence claire', description: 'Usage personnel ou commercial précisé pour chaque produit.' },
+      { icon: 'spark', title: 'Mises à jour gratuites', description: 'Nouvelles versions des produits déjà achetés.' },
+      { icon: 'users', title: 'Un vrai support', description: 'Une équipe qui répond avant et après l’achat.' },
+    ],
+    processTitle: 'Comment obtenir votre produit',
+    processLead: 'Du choix au téléchargement en quelques minutes.',
+    step1: 'Choisir le produit', step1d: 'Parcourez les catégories et trouvez ce qui convient à votre projet.',
+    step2: 'Passer la demande', step2d: 'Renseignez vos coordonnées et choisissez le mode de paiement.',
+    step3: 'Confirmer le paiement', step3d: 'Nous confirmons le paiement et envoyons le lien de téléchargement.',
+    step4: 'Télécharger et utiliser', step4d: 'Récupérez les fichiers et commencez immédiatement.',
+    aboutTitle: 'Des ressources numériques qui font gagner du temps',
+    aboutLead: 'Un studio numérique spécialisé dans les modèles, guides et formations qui aident les entrepreneurs à démarrer vite et avec un rendu professionnel.',
+    feat1: 'Qualité professionnelle', feat1d: 'Des fichiers organisés et faciles à modifier.',
+    feat2: 'Livraison rapide', feat2d: 'Pas d’attente ni d’expédition, tout est numérique.',
+    feat3: 'Prix justes', feat3d: 'Un excellent rapport qualité-prix.',
+    feat4: 'Mises à jour continues', feat4d: 'De nouveaux produits chaque mois.',
+    stats: [['+120', 'produits numériques'], ['+3 500', 'téléchargements'], ['4,9/5', 'note clients'], ['24/7', 'support technique']],
+    quotes: [
+      { text: 'Un modèle professionnel qui m’a fait gagner des semaines de travail, et très facile à modifier.', name: 'Amine B.', role: 'Graphiste' },
+      { text: 'J’ai acheté le guide et l’ai téléchargé directement. Un contenu clair et pratique.', name: 'Sarah M.', role: 'Entrepreneure' },
+      { text: 'La formation vaut chaque dinar, et le support a répondu rapidement à toutes mes questions.', name: 'Karim A.', role: 'Développeur web' },
+    ],
+    faqTitle: 'Questions fréquentes',
+    faq: [
+      ['Comment recevoir le produit ?', 'Après confirmation du paiement, nous envoyons le lien par e-mail ou WhatsApp.'],
+      ['Puis-je être remboursé ?', 'Les produits numériques ne sont pas remboursables après téléchargement, sauf problème technique.'],
+      ['Les mises à jour sont-elles gratuites ?', 'Oui, vous recevez les mises à jour du produit acheté.'],
+      ['Puis-je l’utiliser à des fins commerciales ?', 'Cela dépend de la licence de chaque produit, précisée dans sa description.'],
+      ['Quels sont les modes de paiement ?', 'BaridiMob, CCP ou virement bancaire.'],
+    ],
+    orderTitle: 'Commandez votre produit numérique',
+    orderLead: 'Choisissez le produit et le mode de paiement, nous envoyons le lien de téléchargement.',
+    formTitle: 'Demande de produit numérique',
+    formSub: 'Le lien est envoyé par e-mail ou WhatsApp après confirmation du paiement.',
+    chooseProduct: 'Produit',
+    payment: 'Mode de paiement',
+    paymentMethods: ['BaridiMob', 'CCP', 'Virement bancaire'],
+    confirm: 'Envoyer la demande',
+    note: 'Les produits sont numériques et livrés par lien de téléchargement après paiement.',
+  },
+  en: {
+    heroBadge: 'Digital products · Instant download',
+    shopCta: 'Shop products',
+    browseCta: 'Browse categories',
+    heroMessage: 'I would like to know more about your digital products',
+    instant: 'Instant download after payment',
+    instantShort: 'Instant download',
+    updates: 'Free lifetime updates',
+    lifetime: 'Lifetime license',
+    categoriesEyebrow: 'Product categories',
+    categoriesTitle: 'Everything you need to launch digitally',
+    categoriesLead: 'Templates, e-books, courses and tools curated to save you time.',
+    categories: [
+      { icon: 'layers', title: 'Ready templates', description: 'Editable website, presentation and brand templates.' },
+      { icon: 'clipboard', title: 'E-books', description: 'Practical guides on marketing, design and management.' },
+      { icon: 'award', title: 'Courses', description: 'High-quality recorded lessons with practical files.' },
+      { icon: 'zap', title: 'Tools & software', description: 'Tools and add-ons that speed up your daily work.' },
+    ],
+    productsEyebrow: 'Best sellers',
+    productsTitle: 'Digital resources ready to use',
+    productsLead: 'Download instantly after payment, with full support when needed.',
+    buy: 'Order now',
+    whyEyebrow: 'Why choose us?',
+    whyTitle: 'Real value from the first download',
+    whyLead: 'Quality, a clear license and ongoing support on every product.',
+    features: [
+      { icon: 'download', title: 'Instant download', description: 'The link arrives right after payment confirmation.' },
+      { icon: 'shield', title: 'Clear license', description: 'Personal or commercial use stated for each product.' },
+      { icon: 'spark', title: 'Free updates', description: 'Updated versions of the products you bought.' },
+      { icon: 'users', title: 'Real support', description: 'A team that answers before and after your purchase.' },
+    ],
+    processTitle: 'How to get your product',
+    processLead: 'From choice to download in minutes.',
+    step1: 'Choose a product', step1d: 'Browse the categories and find what fits your project.',
+    step2: 'Send your request', step2d: 'Enter your details and pick a payment method.',
+    step3: 'Confirm payment', step3d: 'We confirm the payment and send your download link.',
+    step4: 'Download & use', step4d: 'Get the files and start working immediately.',
+    aboutTitle: 'Digital assets that shorten the journey',
+    aboutLead: 'A digital studio specialized in templates, guides and courses that help business owners launch fast with a professional finish.',
+    feat1: 'Professional quality', feat1d: 'Well-organized files that are easy to edit.',
+    feat2: 'Fast delivery', feat2d: 'No waiting or shipping, everything is digital.',
+    feat3: 'Fair prices', feat3d: 'Great value for a reasonable price.',
+    feat4: 'Continuous updates', feat4d: 'New products every month.',
+    stats: [['+120', 'digital products'], ['+3,500', 'downloads'], ['4.9/5', 'client rating'], ['24/7', 'technical support']],
+    quotes: [
+      { text: 'A professional template that saved me weeks of work, and it was very easy to customize.', name: 'Amine B.', role: 'Graphic designer' },
+      { text: 'I bought the guide and downloaded it instantly. Clear, practical content step by step.', name: 'Sarah M.', role: 'Business owner' },
+      { text: 'The course is worth every dinar, and support answered all my questions quickly.', name: 'Karim A.', role: 'Web developer' },
+    ],
+    faqTitle: 'Frequently asked questions',
+    faq: [
+      ['How do I receive the product?', 'After payment confirmation we send the download link by email or WhatsApp.'],
+      ['Can I get a refund?', 'Digital products are non-refundable after download, except in case of a technical issue.'],
+      ['Are updates free?', 'Yes, you receive free updates for the product you purchased.'],
+      ['Can I use it commercially?', 'It depends on each product license, stated in the product description.'],
+      ['What payment methods are available?', 'BaridiMob, CCP or bank transfer.'],
+    ],
+    orderTitle: 'Order your digital product',
+    orderLead: 'Choose the product and payment method, and we will send the download link.',
+    formTitle: 'Digital product request',
+    formSub: 'The link is sent by email or WhatsApp after payment confirmation.',
+    chooseProduct: 'Product',
+    payment: 'Payment method',
+    paymentMethods: ['BaridiMob', 'CCP', 'Bank transfer'],
+    confirm: 'Send request',
+    note: 'Products are digital and delivered via a download link after payment.',
+  },
+};
+
+function digitalCard(p: RenderProduct, copy: DigitalCopy, s: UiStrings, lang: Lang): string {
+  const image = p.imageUrl
+    ? `<img src="${attr(p.imageUrl)}" alt="${attr(p.name)}" loading="lazy" decoding="async" width="600" height="450">`
+    : productPlaceholder(p.name);
+  return `<article class="digital-card" data-reveal data-product-card data-category="${attr(p.category || '')}" data-name="${attr(p.name)}" data-desc="${attr(p.description || '')}">
+    <div class="digital-thumb">${image}<span class="digital-ribbon">${icon('download')}${esc(copy.instantShort)}</span></div>
+    <div class="digital-body">
+      ${p.category ? `<span class="cat">${esc(p.category)}</span>` : ''}
+      <h3>${esc(p.name)}</h3>
+      ${p.description ? `<p>${esc(p.description)}</p>` : ''}
+      <div class="digital-foot">
+        ${p.price > 0 ? `<span class="price">${money(p.price, lang)}</span>` : ''}
+        <button class="btn btn-primary btn-sm" type="button" data-pick-product="${attr(p.name)}">${icon('download')}${esc(copy.buy)}</button>
+      </div>
+    </div>
+  </article>`;
+}
+
+export function digitalPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
+  const copy = DIGITAL[lang];
+  const products = config.products.filter((p) => p.name);
+  const categories = Array.from(new Set(products.map((p) => p.category).filter(Boolean))) as string[];
+  const heroImage = config.coverUrl
+    ? `<img src="${attr(config.coverUrl)}" alt="${attr(config.siteName)}" width="900" height="1100" fetchpriority="high" decoding="async">`
+    : '';
+  const about = aboutPhoto(config);
+  const heroWa = waHref(config, `${copy.heroMessage} — ${config.siteName}`);
+  const orderWa = waHref(config, `${copy.orderTitle} — ${config.siteName}`);
+
+  return `<section class="hero digital-hero" id="top">
+    <div class="container hero-grid">
+      <div class="hero-copy" data-reveal>
+        <span class="badge">${icon('spark')}${esc(copy.heroBadge)}</span>
+        <h1 class="h1 mt-3">${esc(config.siteName)}</h1>
+        <p class="lead">${esc(config.description)}</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#products">${icon('download')}${esc(copy.shopCta)}</a>
+          <a class="btn btn-wa" href="${attr(heroWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.whatsapp)}</a>
+        </div>
+        <div class="digital-badges">
+          <span>${icon('download')}${esc(copy.instant)}</span>
+          <span>${icon('shield')}${esc(copy.lifetime)}</span>
+        </div>
+        <div class="hero-stats">
+          ${copy.stats.slice(0, 3).map(([num, label]) => `<div><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="hero-media digital-hero-media${heroImage ? '' : ' no-img'}" data-mark="${attr(initials(config.siteName))}" data-reveal>${heroImage}
+        <div class="float-card"><span class="float-icon">${icon('download')}</span><div><strong>${esc(copy.instantShort)}</strong><span>${esc(copy.updates)}</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="trust-strip"><div class="container">
+    <span class="trust-item">${icon('download')}${esc(copy.instant)}</span>
+    <span class="trust-item">${icon('spark')}${esc(copy.updates)}</span>
+    <span class="trust-item">${icon('shield')}${esc(copy.lifetime)}</span>
+    <span class="trust-item">${icon('users')}${esc(s.support)}</span>
+  </div></div>
+
+  <section class="section bg-soft" id="categories">
+    <div class="container">
+      ${sectionHead(copy.categoriesEyebrow, copy.categoriesTitle, copy.categoriesLead, true)}
+      <div class="digital-cats-grid">
+        ${copy.categories.map((item) => `<article class="digital-cat" data-reveal>
+          <span class="digital-cat-icon">${icon(item.icon as any)}</span>
+          <h3 class="h3">${esc(item.title)}</h3>
+          <p>${esc(item.description)}</p>
+          <a class="digital-cat-link" href="#products">${esc(copy.shopCta)}${icon('arrow')}</a>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="products">
+    <div class="container">
+      ${sectionHead(copy.productsEyebrow, copy.productsTitle, copy.productsLead)}
+      <div class="shop-toolbar">
+        <button class="chip active" type="button" data-filter="all">${esc(s.all)}</button>
+        ${categories.map((cat) => `<button class="chip" type="button" data-filter="${attr(cat)}">${esc(cat)}</button>`).join('')}
+        <div class="search-box">${icon('search')}<input id="product-search" type="search" placeholder="${attr(s.search)}" aria-label="${attr(s.search)}"></div>
+      </div>
+      <div class="digital-grid">
+        ${products.length ? products.map((p) => digitalCard(p, copy, s, lang)).join('') : `<div class="product-empty">${esc(s.emptyCart)}</div>`}
+        <div class="product-empty hide" id="product-empty">${esc(s.emptyCart)}</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="why">
+    <div class="container">
+      ${sectionHead(copy.whyEyebrow, copy.whyTitle, copy.whyLead, true)}
+      <div class="digital-feature-grid">
+        ${copy.features.map((item) => `<article class="digital-feature" data-reveal>
+          <span class="digital-feature-icon">${icon(item.icon as any)}</span>
+          <h3 class="h3">${esc(item.title)}</h3>
+          <p>${esc(item.description)}</p>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="process">
+    <div class="container">
+      ${sectionHead(s.process, copy.processTitle, copy.processLead, true)}
+      <div class="steps">
+        ${[
+          [copy.step1, copy.step1d],
+          [copy.step2, copy.step2d],
+          [copy.step3, copy.step3d],
+          [copy.step4, copy.step4d],
+        ].map(([title, desc], i) => `<div class="step" data-reveal><div class="n">${i + 1}</div><h3>${esc(title)}</h3><p>${esc(desc)}</p></div>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="about">
+    <div class="container about-grid">
+      <div class="about-media${about ? '' : ' no-img'}" data-reveal>
+        ${about ? `<img src="${attr(about)}" alt="${attr(config.siteName)}" loading="lazy" decoding="async" width="800" height="700">` : ''}
+        <div class="about-badge">${icon('spark')}+120 ${esc(s.products)}</div>
+      </div>
+      <div data-reveal>
+        <span class="eyebrow">${esc(s.about)}</span>
+        <h2 class="h2 mt-2">${esc(copy.aboutTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.aboutLead)}</p>
+        <ul class="checklist">
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat1)} — ${esc(copy.feat1d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat2)} — ${esc(copy.feat2d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat3)} — ${esc(copy.feat3d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat4)} — ${esc(copy.feat4d)}</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="stats-band">
+    <div class="container stats-grid">
+      ${copy.stats.map(([num, label]) => `<div class="stat"><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">${sectionHead(s.testimonials, s.testimonials, undefined, true)}
+      <div class="grid g3">${copy.quotes.map((q) => `<div class="quote" data-reveal>
+        <div class="stars" aria-label="5/5">★★★★★</div>
+        <p>“${esc(q.text)}”</p>
+        <div class="who"><span class="avatar">${esc(initialsFor(q.name))}</span><div><strong>${esc(q.name)}</strong><span>${esc(q.role)}</span></div></div>
+      </div>`).join('')}</div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="faq">
+    <div class="container">
+      ${sectionHead(s.faq, copy.faqTitle, undefined, true)}
+      <div class="faq-list">
+        ${copy.faq.map(([q, a]) => `<details class="faq" data-reveal>
+          <summary>${esc(q)}<span class="faq-ic">${icon('plus')}</span></summary>
+          <p>${esc(a)}</p>
+        </details>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="order">
+    <div class="container digital-order-wrap">
+      <div data-reveal>
+        <span class="eyebrow">${esc(s.orderNow)}</span>
+        <h2 class="h2 mt-2">${esc(copy.orderTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.orderLead)}</p>
+        <ul class="checklist">
+          <li><span class="tick">${icon('download')}</span><span>${esc(copy.instant)}</span></li>
+          <li><span class="tick">${icon('spark')}</span><span>${esc(copy.updates)}</span></li>
+          <li><span class="tick">${icon('shield')}</span><span>${esc(copy.lifetime)}</span></li>
+        </ul>
+        <div class="digital-pay-methods">
+          ${copy.paymentMethods.map((method) => `<span>${icon('check')}${esc(method)}</span>`).join('')}
+        </div>
+        <div class="digital-contact-actions">
+          <a class="btn btn-light" href="tel:${attr(config.phone)}">${icon('phone')}${esc(s.callNow)}</a>
+          <a class="btn btn-wa" href="${attr(orderWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.orderWhatsapp)}</a>
+        </div>
+      </div>
+      <form class="digital-order-card" data-lead-form data-lead-kind="digital-order" novalidate>
+        <h3>${esc(copy.formTitle)}</h3>
+        <p class="booking-sub">${esc(copy.formSub)}</p>
+        <div class="form-grid">
+          <div class="field"><label for="dig-name">${esc(s.name)}</label><input id="dig-name" name="name" required maxlength="80" autocomplete="name"><span class="err">${esc(s.required)}</span></div>
+          <div class="field"><label for="dig-phone">${esc(s.phone)}</label><input id="dig-phone" name="phone" type="tel" required maxlength="20" autocomplete="tel" dir="ltr"><span class="err">${esc(s.invalidPhone)}</span></div>
+          <div class="field full"><label for="dig-email">${esc(s.email)}</label><input id="dig-email" name="email" type="email" required maxlength="120" autocomplete="email" dir="ltr"><span class="err">${esc(s.required)}</span></div>
+          <div class="field full"><label for="dig-product">${esc(copy.chooseProduct)}</label><select id="dig-product" name="productName" data-order-product required>
+            <option value="">${esc(copy.chooseProduct)}</option>
+            ${products.map((p) => `<option value="${attr(p.name)}">${esc(p.name)}${p.price > 0 ? ` — ${money(p.price, lang)}` : ''}</option>`).join('')}
+          </select><span class="err">${esc(s.required)}</span></div>
+          <div class="field full"><label for="dig-payment">${esc(copy.payment)}</label><select id="dig-payment" name="paymentMethod" required>
+            <option value="">${esc(copy.payment)}</option>
+            ${copy.paymentMethods.map((method) => `<option value="${attr(method)}">${esc(method)}</option>`).join('')}
+          </select><span class="err">${esc(s.required)}</span></div>
+          <div class="field full"><label for="dig-msg">${esc(s.message)}</label><textarea id="dig-msg" name="message" maxlength="1200"></textarea></div>
+          <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
+        </div>
+        <button class="btn btn-primary btn-block mt-3" type="submit">${icon('send')}${esc(copy.confirm)}</button>
+        <div class="form-status" role="status"></div>
+        <p class="form-note center mt-2">${esc(copy.note)}</p>
+      </form>
+    </div>
+  </section>
+
+  ${contactSection(config, s)}`;
+}
+
 export function pageFor(template: string, config: RenderConfig, lang: Lang): string {
   const s = ui(lang);
   switch (template) {
@@ -5365,6 +5831,8 @@ export function pageFor(template: string, config: RenderConfig, lang: Lang): str
       return hotelPage(config, s, lang);
     case 'showroom':
       return showroomPage(config, s, lang);
+    case 'digital':
+      return digitalPage(config, s, lang);
 
     // Landing-style templates
     case 'fitness':
@@ -5621,6 +6089,32 @@ export function jsonLdFor(template: string, config: RenderConfig, siteUrl: strin
         jobTitle: member.role,
         image: member.photoUrl || undefined,
       })),
+    };
+    case 'digital': return {
+      ...base,
+      '@type': 'OnlineStore',
+      image: config.coverUrl || undefined,
+      priceRange: 'DZD',
+      paymentAccepted: 'BaridiMob, CCP, Bank transfer',
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: 'Digital products',
+        itemListElement: config.products.slice(0, 12).map((p, index) => ({
+          '@type': 'Offer',
+          position: index + 1,
+          price: p.price,
+          priceCurrency: 'DZD',
+          availability: 'https://schema.org/InStock',
+          itemOffered: {
+            '@type': 'Product',
+            name: p.name,
+            description: p.description || undefined,
+            image: p.imageUrl || undefined,
+            category: p.category || undefined,
+            additionalType: 'https://schema.org/DigitalDocument',
+          },
+        })),
+      },
     };
     case 'clinic': return {
       ...base,

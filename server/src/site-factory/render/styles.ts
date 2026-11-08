@@ -938,6 +938,54 @@ body.has-preview .site-header{top:36px}
 .tpl-construction .hours-row strong{color:var(--ink);font-weight:800}
 .tpl-construction .build-contact-actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
 .tpl-construction .build-contact-actions .btn{flex:1 1 auto}
+
+/* digital products template */
+.tpl-digital .digital-hero{position:relative;overflow:hidden;background:radial-gradient(820px 460px at 88% -8%,color-mix(in srgb,var(--p) 16%,transparent),transparent 62%),radial-gradient(620px 380px at 0% 105%,color-mix(in srgb,var(--p2) 12%,transparent),transparent 60%),var(--bg)}
+.tpl-digital .digital-badges{display:flex;gap:12px;margin-top:16px;padding-top:12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.tpl-digital .digital-badges span{display:inline-flex;align-items:center;gap:7px;font-size:.78rem;font-weight:700;color:var(--muted)}
+.tpl-digital .digital-badges .icon{width:16px;height:16px;color:var(--p-text)}
+.tpl-digital .hero-stats{display:flex;gap:30px;margin-top:38px;padding-top:26px;border-top:1px solid var(--line);flex-wrap:wrap}
+.tpl-digital .digital-cats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.tpl-digital .digital-cat{padding:26px 22px;border-radius:20px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:9px;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-digital .digital-cat:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-digital .digital-cat-icon{width:48px;height:48px;border-radius:15px;background:linear-gradient(145deg,var(--tint-2),var(--tint));color:var(--p-text);display:grid;place-items:center;margin-bottom:4px}
+.tpl-digital .digital-cat-icon .icon{width:23px;height:23px}
+.tpl-digital .digital-cat p{font-size:.84rem;color:var(--muted);line-height:1.65}
+.tpl-digital .digital-cat-link{margin-top:auto;padding-top:10px;display:inline-flex;align-items:center;gap:6px;font-size:.78rem;font-weight:800;color:var(--p-text)}
+.tpl-digital .digital-cat-link .icon{width:15px;height:15px;transition:transform .2s}
+.tpl-digital .digital-cat:hover .digital-cat-link .icon{transform:translateX(3px)}
+.tpl-digital .digital-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.tpl-digital .digital-card{border-radius:20px;overflow:hidden;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-digital .digital-card:hover{transform:translateY(-5px);box-shadow:var(--shadow);border-color:color-mix(in srgb,var(--p) 35%,var(--line))}
+.tpl-digital .digital-thumb{position:relative;aspect-ratio:4/3;overflow:hidden;background:linear-gradient(145deg,var(--tint),var(--tint-2))}
+.tpl-digital .digital-thumb img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.tpl-digital .digital-card:hover .digital-thumb img{transform:scale(1.06)}
+.tpl-digital .digital-ribbon{position:absolute;top:12px;inset-inline-start:12px;display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:999px;background:rgba(8,15,30,.72);color:#fff;font-size:.64rem;font-weight:800;letter-spacing:.02em;backdrop-filter:blur(6px)}
+.tpl-digital .digital-ribbon .icon{width:13px;height:13px}
+.tpl-digital .digital-body{padding:18px 20px 22px;display:flex;flex-direction:column;gap:6px;flex:1}
+.tpl-digital .digital-body .cat{font-size:.65rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--p-text)}
+.tpl-digital .digital-body h3{font-size:1.02rem;line-height:1.4}
+.tpl-digital .digital-body p{font-size:.82rem;color:var(--muted);line-height:1.65}
+.tpl-digital .digital-foot{margin-top:auto;padding-top:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.tpl-digital .digital-foot .price{font-size:1.02rem;font-weight:900;color:var(--p-text)}
+.tpl-digital .digital-foot .btn{white-space:nowrap}
+.tpl-digital .digital-feature-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+.tpl-digital .digital-feature{padding:26px 22px;border-radius:20px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:9px;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-digital .digital-feature:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm);border-color:color-mix(in srgb,var(--p) 32%,var(--line))}
+.tpl-digital .digital-feature-icon{width:46px;height:46px;border-radius:14px;background:var(--tint-2);color:var(--p-text);display:grid;place-items:center;margin-bottom:4px}
+.tpl-digital .digital-feature-icon .icon{width:22px;height:22px}
+.tpl-digital .digital-feature p{font-size:.83rem;color:var(--muted);line-height:1.65}
+.tpl-digital .digital-order-wrap{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+.tpl-digital .digital-order-card{padding:30px;border-radius:24px;background:linear-gradient(155deg,color-mix(in srgb,var(--p) 8%,var(--surface)),var(--surface) 55%);border:1px solid color-mix(in srgb,var(--p) 22%,var(--line));box-shadow:var(--shadow-sm)}
+.tpl-digital .digital-order-card h3{font-size:1.25rem;margin-bottom:4px}
+.tpl-digital .digital-order-card .booking-sub{font-size:.84rem;color:var(--muted);line-height:1.6;margin-bottom:18px}
+.tpl-digital .digital-order-card .field label{font-size:.72rem;font-weight:800;letter-spacing:.04em;color:var(--muted)}
+.tpl-digital .digital-order-card .form-note{font-size:.72rem;color:var(--muted)}
+.tpl-digital .digital-pay-methods{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.tpl-digital .digital-pay-methods span{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:.76rem;font-weight:700;color:var(--muted)}
+.tpl-digital .digital-pay-methods .icon{width:14px;height:14px;color:var(--p-text)}
+.tpl-digital .digital-contact-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+.tpl-digital .digital-contact-actions .btn{flex:1 1 auto}
 .theme-toggle{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;flex:0 0 auto;position:relative;transition:transform .2s,border-color .2s,background .2s}
 .theme-toggle:hover{transform:translateY(-2px);border-color:var(--p)}
 .theme-toggle .icon{width:18px;height:18px}
@@ -1089,6 +1137,10 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-construction .build-service-grid{grid-template-columns:repeat(2,1fr);gap:16px}
   .tpl-construction .build-team-grid{grid-template-columns:repeat(2,1fr);gap:16px}
   .tpl-construction .quote-wrap{grid-template-columns:1fr;gap:34px}
+  .tpl-digital .digital-cats-grid{grid-template-columns:1fr 1fr;gap:16px}
+  .tpl-digital .digital-grid{grid-template-columns:repeat(2,1fr);gap:16px}
+  .tpl-digital .digital-feature-grid{grid-template-columns:1fr 1fr;gap:16px}
+  .tpl-digital .digital-order-wrap{grid-template-columns:1fr;gap:34px}
 }
 @media (max-width:720px){
   .container{width:min(100% - 28px,1180px)}
@@ -1157,6 +1209,10 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-construction .build-service-grid{grid-template-columns:1fr;gap:14px}
   .tpl-construction .build-team-grid{grid-template-columns:1fr;gap:14px}
   .tpl-construction .quote-card{padding:22px}
+  .tpl-digital .digital-cats-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-digital .digital-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-digital .digital-feature-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-digital .digital-order-card{padding:22px}
 }
 @media (max-width:460px){
   .g2,.g3,.g4,.product-grid,.form-grid,.stats-grid{grid-template-columns:1fr}
@@ -1200,6 +1256,8 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-clinic .book-card{padding:22px}
   .tpl-construction .build-service-grid{grid-template-columns:1fr;gap:14px}
   .tpl-construction .build-team-grid{grid-template-columns:1fr;gap:14px}
+  .tpl-digital .digital-foot .btn{width:100%}
+  .tpl-digital .digital-badges{gap:8px}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
