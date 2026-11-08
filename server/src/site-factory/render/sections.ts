@@ -7483,6 +7483,453 @@ export function bistroPage(config: RenderConfig, s: UiStrings, lang: Lang): stri
   ${contactSection(config, s)}`;
 }
 
+/* -------------------------------------------------------------------------
+ * DIGITAL MARKETING AGENCY
+ * ---------------------------------------------------------------------- */
+interface AgencyCopy {
+  heroBadge: string;
+  quoteCta: string;
+  workCta: string;
+  heroMessage: string;
+  dataDriven: string;
+  creative: string;
+  results: string;
+  servicesEyebrow: string;
+  servicesTitle: string;
+  servicesLead: string;
+  services: Array<{ icon: string; title: string; description: string }>;
+  workEyebrow: string;
+  workTitle: string;
+  workLead: string;
+  cases: Array<{ tag: string; title: string; result: string }>;
+  processTitle: string;
+  processLead: string;
+  step1: string; step1d: string;
+  step2: string; step2d: string;
+  step3: string; step3d: string;
+  step4: string; step4d: string;
+  aboutTitle: string;
+  aboutLead: string;
+  feat1: string; feat1d: string;
+  feat2: string; feat2d: string;
+  feat3: string; feat3d: string;
+  feat4: string; feat4d: string;
+  teamEyebrow: string;
+  teamTitle: string;
+  teamLead: string;
+  stats: Array<[string, string]>;
+  quotes: Array<{ text: string; name: string; role: string }>;
+  faqTitle: string;
+  faq: Array<[string, string]>;
+  quoteTitle: string;
+  quoteLead: string;
+  formTitle: string;
+  formSub: string;
+  serviceLabel: string;
+  budgetLabel: string;
+  budgets: string[];
+  timelineLabel: string;
+  timelines: string[];
+  confirm: string;
+  note: string;
+}
+
+const AGENCY: Record<Lang, AgencyCopy> = {
+  ar: {
+    heroBadge: 'وكالة تسويق رقمي · نتائج قابلة للقياس',
+    quoteCta: 'احصل على عرض سعر',
+    workCta: 'شاهد أعمالنا',
+    heroMessage: 'أريد عرض سعر لخدمات التسويق الرقمي',
+    dataDriven: 'قرارات مبنية على البيانات',
+    creative: 'محتوى إبداعي',
+    results: 'نتائج ملموسة',
+    servicesEyebrow: 'خدماتنا',
+    servicesTitle: 'تسويق متكامل من الاستراتيجية إلى النتيجة',
+    servicesLead: 'نبني خطة واضحة تناسب ميزانيتك وأهدافك، وننفذها معك خطوة بخطوة.',
+    services: [
+      { icon: 'target', title: 'استراتيجية تسويقية', description: 'تحليل السوق والجمهور وبناء خطة قابلة للقياس.' },
+      { icon: 'instagram', title: 'إدارة السوشيال ميديا', description: 'محتوى يومي وتفاعل حقيقي مع جمهورك.' },
+      { icon: 'zap', title: 'إعلانات مدفوعة', description: 'حملات Meta وGoogle محسّنة لأفضل عائد.' },
+      { icon: 'search', title: 'تحسين محركات البحث', description: 'SEO تقني ومحتوى يجذب زيارات مستهدفة.' },
+      { icon: 'spark', title: 'هوية بصرية', description: 'شعار ودليل ألوان وتصاميم متسقة.' },
+      { icon: 'clipboard', title: 'تحليلات وتقارير', description: 'تقارير شهرية واضحة بمؤشرات حقيقية.' },
+    ],
+    workEyebrow: 'أعمالنا',
+    workTitle: 'حملات صنعت فرقاً',
+    workLead: 'نماذج من مشاريعنا، بأرقام تعكس أثر العمل لا مجرد تصاميم جميلة.',
+    cases: [
+      { tag: 'مطاعم', title: 'إطلاق علامة مطاعم جديدة', result: '+180% طلبات' },
+      { tag: 'تجزئة', title: 'حملة موسمية لمتجر أزياء', result: '4.8x عائد إعلاني' },
+      { tag: 'خدمات', title: 'نمو منصة SaaS محلياً', result: '+320% تسجيلات' },
+    ],
+    processTitle: 'كيف نعمل',
+    processLead: 'منهجية واضحة من أول اجتماع إلى تقرير النتائج.',
+    step1: 'الاستكشاف', step1d: 'نفهم نشاطك وجمهورك وأهدافك.',
+    step2: 'الاستراتيجية', step2d: 'نبني خطة والقنوات والميزانية.',
+    step3: 'التنفيذ', step3d: 'ننتج المحتوى ونطلق الحملات.',
+    step4: 'التحسين', step4d: 'نقيس النتائج ونحسّن باستمرار.',
+    aboutTitle: 'شريك ينمو معك',
+    aboutLead: 'فريق صغير من الخبراء يجمع بين الإبداع والتحليل. نعمل مع عدد محدود من العملاء لنضمن الاهتمام الحقيقي بكل مشروع.',
+    feat1: 'فريق متخصص', feat1d: 'استراتيجي، مصمم، كاتب ومحلل بيانات.',
+    feat2: 'شفافية كاملة', feat2d: 'تقارير واضحة وتواصل مباشر بلا تعقيد.',
+    feat3: 'التزام بالمواعيد', feat3d: 'خطة زمنية واضحة من اليوم الأول.',
+    feat4: 'تسعير مرن', feat4d: 'باقات تناسب الميزانيات الصغيرة والمتوسطة.',
+    teamEyebrow: 'الفريق',
+    teamTitle: 'العقول وراء النتائج',
+    teamLead: 'خبرة عملية في مجالات التسويق والتصميم والمحتوى.',
+    stats: [['+140', 'مشروع منجز'], ['+85', 'عميل'], ['4.9x', 'متوسط العائد الإعلاني'], ['96%', 'رضا العملاء']],
+    quotes: [
+      { text: 'أول وكالة تفهمت مجالنا فعلاً، النتائج تجاوزت التوقعات في ثلاثة أشهر.', name: 'ياسمين ب.', role: 'صاحبة متجر' },
+      { text: 'تقارير واضحة كل شهر وتعامل احترافي، أنصح بهم بقوة.', name: 'وليد س.', role: 'مدير تسويق' },
+      { text: 'الحملة التي أعدوها ضاعفت طلباتنا، والإبداع في المحتوى واضح.', name: 'هدى ر.', role: 'مؤسسة مطعم' },
+    ],
+    faqTitle: 'أسئلة شائعة',
+    faq: [
+      ['ما الحد الأدنى للميزانية؟', 'نعمل مع ميزانيات تبدأ من 30,000 دج شهرياً حسب الخدمة.'],
+      ['متى تظهر النتائج؟', 'الإعلانات تبدأ بالظهور مباشرة، بينما تحتاج SEO من 3 إلى 6 أشهر.'],
+      ['هل يوجد عقد طويل الأمد؟', 'نقدم عقوداً شهرية مرنة، مع خصم للاشتراك لثلاثة أشهر أو أكثر.'],
+      ['هل تنتجون المحتوى بأنفسكم؟', 'نعم، التصوير والكتابة والتصميم ضمن الفريق.'],
+      ['كيف يتم الدفع؟', 'دفعة أولى 50% عند البدء والباقي عند تسليم التقرير الشهري.'],
+    ],
+    quoteTitle: 'لنبنِ حملتك القادمة',
+    quoteLead: 'أخبرنا عن مشروعك وميزانيتك، ونرسل لك عرضاً واضحاً خلال 24 ساعة.',
+    formTitle: 'طلب عرض سعر',
+    formSub: 'بدون التزام · رد خلال يوم عمل واحد.',
+    serviceLabel: 'الخدمة المطلوبة',
+    budgetLabel: 'الميزانية الشهرية',
+    budgets: ['أقل من 30,000 دج', '30,000 – 60,000 دج', '60,000 – 120,000 دج', 'أكثر من 120,000 دج'],
+    timelineLabel: 'موعد الإطلاق',
+    timelines: ['فوراً', 'خلال أسبوع', 'خلال شهر', 'غير محدد'],
+    confirm: 'إرسال طلب العرض',
+    note: 'سنتواصل معك عبر الهاتف أو واتساب لتأكيد التفاصيل.',
+  },
+  fr: {
+    heroBadge: 'Agence marketing digital · Résultats mesurables',
+    quoteCta: 'Demander un devis',
+    workCta: 'Voir nos projets',
+    heroMessage: 'Je souhaite un devis pour vos services de marketing digital',
+    dataDriven: 'Décisions basées sur les données',
+    creative: 'Contenu créatif',
+    results: 'Résultats concrets',
+    servicesEyebrow: 'Nos services',
+    servicesTitle: 'Un marketing complet, de la stratégie au résultat',
+    servicesLead: 'Nous construisons un plan clair adapté à votre budget et vos objectifs, et le déployons avec vous étape par étape.',
+    services: [
+      { icon: 'target', title: 'Stratégie marketing', description: 'Analyse du marché et de l’audience, plan mesurable.' },
+      { icon: 'instagram', title: 'Gestion des réseaux', description: 'Contenu quotidien et vraie interaction avec votre communauté.' },
+      { icon: 'zap', title: 'Publicité payante', description: 'Campagnes Meta et Google optimisées pour le meilleur retour.' },
+      { icon: 'search', title: 'Référencement SEO', description: 'SEO technique et contenu qui attire un trafic qualifié.' },
+      { icon: 'spark', title: 'Identité visuelle', description: 'Logo, charte graphique et supports cohérents.' },
+      { icon: 'clipboard', title: 'Analytics & rapports', description: 'Rapports mensuels clairs avec de vrais indicateurs.' },
+    ],
+    workEyebrow: 'Nos projets',
+    workTitle: 'Des campagnes qui ont fait la différence',
+    workLead: 'Des exemples de projets, avec des chiffres qui reflètent l’impact réel.',
+    cases: [
+      { tag: 'Restauration', title: 'Lancement d’une nouvelle enseigne', result: '+180 % de commandes' },
+      { tag: 'Retail', title: 'Campagne de saison pour une boutique', result: 'ROAS 4,8x' },
+      { tag: 'Services', title: 'Croissance d’un SaaS local', result: '+320 % d’inscriptions' },
+    ],
+    processTitle: 'Notre méthode',
+    processLead: 'Une méthodologie claire, de la première réunion au rapport final.',
+    step1: 'Découverte', step1d: 'Nous comprenons votre activité, votre audience et vos objectifs.',
+    step2: 'Stratégie', step2d: 'Nous définissons le plan, les canaux et le budget.',
+    step3: 'Exécution', step3d: 'Nous produisons le contenu et lançons les campagnes.',
+    step4: 'Optimisation', step4d: 'Nous mesurons et améliorons en continu.',
+    aboutTitle: 'Un partenaire qui grandit avec vous',
+    aboutLead: 'Une petite équipe d’experts qui allie créativité et analyse. Nous travaillons avec un nombre limité de clients pour garantir une vraie attention à chaque projet.',
+    feat1: 'Équipe spécialisée', feat1d: 'Stratège, designer, rédacteur et analyste data.',
+    feat2: 'Transparence totale', feat2d: 'Rapports clairs et communication directe.',
+    feat3: 'Respect des délais', feat3d: 'Un planning clair dès le premier jour.',
+    feat4: 'Tarifs flexibles', feat4d: 'Des formules adaptées aux budgets de toutes tailles.',
+    teamEyebrow: 'L’équipe',
+    teamTitle: 'Les esprits derrière les résultats',
+    teamLead: 'Une expérience concrète en marketing, design et contenu.',
+    stats: [['+140', 'projets livrés'], ['+85', 'clients'], ['4,9x', 'ROAS moyen'], ['96 %', 'satisfaction client']],
+    quotes: [
+      { text: 'La première agence qui a vraiment compris notre secteur, les résultats ont dépassé nos attentes en trois mois.', name: 'Yasmine B.', role: 'Fondatrice de boutique' },
+      { text: 'Des rapports clairs chaque mois et un vrai professionnalisme, je recommande vivement.', name: 'Walide S.', role: 'Responsable marketing' },
+      { text: 'Leur campagne a doublé nos commandes, et la créativité du contenu est évidente.', name: 'Houda R.', role: 'Fondatrice de restaurant' },
+    ],
+    faqTitle: 'Questions fréquentes',
+    faq: [
+      ['Quel budget minimum ?', 'Nous travaillons à partir de 30 000 DA par mois selon le service.'],
+      ['Quand voit-on les résultats ?', 'Les annonces démarrent immédiatement, le SEO prend 3 à 6 mois.'],
+      ['Y a-t-il un engagement long ?', 'Des contrats mensuels flexibles, avec remise pour trois mois ou plus.'],
+      ['Produisez-vous le contenu ?', 'Oui, la photo, la rédaction et le design sont assurés en interne.'],
+      ['Comment se passe le paiement ?', '50 % au démarrage, le reste à la livraison du rapport mensuel.'],
+    ],
+    quoteTitle: 'Construisons votre prochaine campagne',
+    quoteLead: 'Parlez-nous de votre projet et de votre budget, nous envoyons une proposition claire sous 24 h.',
+    formTitle: 'Demande de devis',
+    formSub: 'Sans engagement · Réponse sous un jour ouvré.',
+    serviceLabel: 'Service souhaité',
+    budgetLabel: 'Budget mensuel',
+    budgets: ['Moins de 30 000 DA', '30 000 – 60 000 DA', '60 000 – 120 000 DA', 'Plus de 120 000 DA'],
+    timelineLabel: 'Lancement souhaité',
+    timelines: ['Immédiat', 'Sous une semaine', 'Sous un mois', 'À définir'],
+    confirm: 'Envoyer la demande',
+    note: 'Nous vous contactons par téléphone ou WhatsApp pour confirmer les détails.',
+  },
+  en: {
+    heroBadge: 'Digital marketing agency · Measurable results',
+    quoteCta: 'Get a quote',
+    workCta: 'See our work',
+    heroMessage: 'I would like a quote for digital marketing services',
+    dataDriven: 'Data-driven decisions',
+    creative: 'Creative content',
+    results: 'Tangible results',
+    servicesEyebrow: 'Our services',
+    servicesTitle: 'Full marketing, from strategy to result',
+    servicesLead: 'We build a clear plan that fits your budget and goals, then deliver it with you step by step.',
+    services: [
+      { icon: 'target', title: 'Marketing strategy', description: 'Market and audience analysis with a measurable plan.' },
+      { icon: 'instagram', title: 'Social media management', description: 'Daily content and real engagement with your audience.' },
+      { icon: 'zap', title: 'Paid advertising', description: 'Meta and Google campaigns optimized for the best return.' },
+      { icon: 'search', title: 'SEO', description: 'Technical SEO and content that attracts qualified traffic.' },
+      { icon: 'spark', title: 'Visual identity', description: 'Logo, brand guidelines and consistent designs.' },
+      { icon: 'clipboard', title: 'Analytics & reports', description: 'Clear monthly reports with real indicators.' },
+    ],
+    workEyebrow: 'Our work',
+    workTitle: 'Campaigns that made a difference',
+    workLead: 'Selected projects with numbers that reflect real impact.',
+    cases: [
+      { tag: 'Restaurants', title: 'Launching a new restaurant brand', result: '+180% orders' },
+      { tag: 'Retail', title: 'Seasonal campaign for a fashion store', result: '4.8x ROAS' },
+      { tag: 'Services', title: 'Growing a local SaaS platform', result: '+320% sign-ups' },
+    ],
+    processTitle: 'How we work',
+    processLead: 'A clear method from the first meeting to the results report.',
+    step1: 'Discovery', step1d: 'We understand your business, audience and goals.',
+    step2: 'Strategy', step2d: 'We define the plan, channels and budget.',
+    step3: 'Execution', step3d: 'We produce content and launch the campaigns.',
+    step4: 'Optimization', step4d: 'We measure results and improve continuously.',
+    aboutTitle: 'A partner that grows with you',
+    aboutLead: 'A small team of experts blending creativity and analysis. We work with a limited number of clients to give every project real attention.',
+    feat1: 'Specialized team', feat1d: 'Strategist, designer, copywriter and data analyst.',
+    feat2: 'Full transparency', feat2d: 'Clear reports and direct communication.',
+    feat3: 'On-time delivery', feat3d: 'A clear timeline from day one.',
+    feat4: 'Flexible pricing', feat4d: 'Packages for small and medium budgets.',
+    teamEyebrow: 'The team',
+    teamTitle: 'The minds behind the results',
+    teamLead: 'Hands-on experience in marketing, design and content.',
+    stats: [['+140', 'projects delivered'], ['+85', 'clients'], ['4.9x', 'average ROAS'], ['96%', 'client satisfaction']],
+    quotes: [
+      { text: 'The first agency that truly understood our field, results exceeded expectations within three months.', name: 'Yasmine B.', role: 'Store owner' },
+      { text: 'Clear monthly reports and a genuinely professional approach, highly recommended.', name: 'Walid S.', role: 'Marketing manager' },
+      { text: 'Their campaign doubled our orders, and the creative content speaks for itself.', name: 'Houda R.', role: 'Restaurant founder' },
+    ],
+    faqTitle: 'Frequently asked questions',
+    faq: [
+      ['What is the minimum budget?', 'We work with budgets starting at 30,000 DZD per month depending on the service.'],
+      ['When do results show?', 'Ads start immediately, while SEO takes 3 to 6 months.'],
+      ['Is there a long-term contract?', 'Flexible monthly contracts, with a discount for three months or more.'],
+      ['Do you produce the content?', 'Yes, photography, copywriting and design are handled in-house.'],
+      ['How does payment work?', '50% upfront and the rest on delivery of the monthly report.'],
+    ],
+    quoteTitle: 'Let’s build your next campaign',
+    quoteLead: 'Tell us about your project and budget, and we will send a clear proposal within 24 hours.',
+    formTitle: 'Quote request',
+    formSub: 'No commitment · Reply within one business day.',
+    serviceLabel: 'Service needed',
+    budgetLabel: 'Monthly budget',
+    budgets: ['Under 30,000 DZD', '30,000 – 60,000 DZD', '60,000 – 120,000 DZD', 'Over 120,000 DZD'],
+    timelineLabel: 'Preferred launch',
+    timelines: ['Immediately', 'Within a week', 'Within a month', 'Not sure yet'],
+    confirm: 'Send request',
+    note: 'We will contact you by phone or WhatsApp to confirm the details.',
+  },
+};
+
+export function agencyPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
+  const copy = AGENCY[lang];
+  const team = config.team || [];
+  const shots = (config.gallery || []).slice(0, 3);
+  const heroImage = config.coverUrl
+    ? `<img src="${attr(config.coverUrl)}" alt="${attr(config.siteName)}" width="900" height="1100" fetchpriority="high" decoding="async">`
+    : '';
+  const about = aboutPhoto(config);
+  const heroWa = waHref(config, `${copy.heroMessage} — ${config.siteName}`);
+  const quoteWa = waHref(config, `${copy.quoteTitle} — ${config.siteName}`);
+
+  return `<section class="hero agency-hero" id="top">
+    <div class="container hero-grid">
+      <div class="hero-copy" data-reveal>
+        <span class="badge">${icon('target')}${esc(copy.heroBadge)}</span>
+        <h1 class="h1 mt-3">${esc(config.siteName)}</h1>
+        <p class="lead">${esc(config.description)}</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#quote">${icon('send')}${esc(copy.quoteCta)}</a>
+          <a class="btn btn-ghost" href="#work">${icon('arrow')}${esc(copy.workCta)}</a>
+        </div>
+        <div class="agency-badges">
+          <span>${icon('target')}${esc(copy.dataDriven)}</span>
+          <span>${icon('spark')}${esc(copy.creative)}</span>
+          <span>${icon('award')}${esc(copy.results)}</span>
+        </div>
+        <div class="hero-stats">
+          ${copy.stats.slice(0, 3).map(([num, label]) => `<div><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="hero-media agency-hero-media${heroImage ? '' : ' no-img'}" data-mark="${attr(initials(config.siteName))}" data-reveal>${heroImage}
+        <div class="float-card"><span class="float-icon">${icon('award')}</span><div><strong>4.9x</strong><span>${esc(copy.stats[2][1])}</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="trust-strip"><div class="container">
+    <span class="trust-item">${icon('target')}${esc(copy.dataDriven)}</span>
+    <span class="trust-item">${icon('spark')}${esc(copy.creative)}</span>
+    <span class="trust-item">${icon('award')}${esc(copy.results)}</span>
+    <span class="trust-item">${icon('users')}+85 ${esc(copy.stats[1][1])}</span>
+  </div></div>
+
+  <section class="section" id="services">
+    <div class="container">
+      ${sectionHead(copy.servicesEyebrow, copy.servicesTitle, copy.servicesLead, true)}
+      <div class="agency-services">
+        ${copy.services.map((item) => `<article class="agency-service" data-reveal>
+          <span class="agency-service-icon">${icon(item.icon as any)}</span>
+          <h3 class="h3">${esc(item.title)}</h3>
+          <p>${esc(item.description)}</p>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="work">
+    <div class="container">
+      ${sectionHead(copy.workEyebrow, copy.workTitle, copy.workLead)}
+      <div class="agency-cases">
+        ${copy.cases.map((item, i) => `<article class="agency-case" data-reveal>
+          <div class="agency-case-media">${shots[i] ? `<img src="${attr(shots[i])}" alt="${attr(item.title)}" loading="lazy" decoding="async" width="900" height="700">` : productPlaceholder(item.title)}</div>
+          <div class="agency-case-body">
+            <span class="agency-case-tag">${esc(item.tag)}</span>
+            <h3>${esc(item.title)}</h3>
+            <span class="agency-case-result">${icon('target')}${esc(item.result)}</span>
+          </div>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="process">
+    <div class="container">
+      ${sectionHead(s.process, copy.processTitle, copy.processLead, true)}
+      <div class="steps">
+        ${[
+          [copy.step1, copy.step1d],
+          [copy.step2, copy.step2d],
+          [copy.step3, copy.step3d],
+          [copy.step4, copy.step4d],
+        ].map(([title, desc], i) => `<div class="step" data-reveal><div class="n">${i + 1}</div><h3>${esc(title)}</h3><p>${esc(desc)}</p></div>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="about">
+    <div class="container about-grid">
+      <div class="about-media agency-about-media${about ? '' : ' no-img'}" data-reveal>
+        ${about ? `<img src="${attr(about)}" alt="${attr(config.siteName)}" loading="lazy" decoding="async" width="800" height="700">` : ''}
+        <div class="about-badge">${icon('award')}+140 ${esc(copy.stats[0][1])}</div>
+      </div>
+      <div data-reveal>
+        <span class="eyebrow">${esc(s.about)}</span>
+        <h2 class="h2 mt-2">${esc(copy.aboutTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.aboutLead)}</p>
+        <ul class="checklist">
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat1)} — ${esc(copy.feat1d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat2)} — ${esc(copy.feat2d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat3)} — ${esc(copy.feat3d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat4)} — ${esc(copy.feat4d)}</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  ${team.length ? `<section class="section" id="team">
+    <div class="container">
+      ${sectionHead(copy.teamEyebrow, copy.teamTitle, copy.teamLead, true)}
+      <div class="agency-team">${team.map((member) => `<article class="agency-member" data-reveal>
+        <div class="agency-member-photo">${member.photoUrl ? `<img src="${attr(member.photoUrl)}" alt="${attr(member.name)}" loading="lazy" decoding="async" width="700" height="800">` : `<span class="agency-initials">${esc(initialsFor(member.name))}</span>`}</div>
+        <div class="agency-member-body"><h3>${esc(member.name)}</h3><span class="agency-member-role">${esc(member.role)}</span>${member.specialty ? `<p>${esc(member.specialty)}</p>` : ''}</div>
+      </article>`).join('')}</div>
+    </div>
+  </section>` : ''}
+
+  <section class="stats-band">
+    <div class="container stats-grid">
+      ${copy.stats.map(([num, label]) => `<div class="stat"><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">${sectionHead(s.testimonials, s.testimonials, undefined, true)}
+      <div class="grid g3">${copy.quotes.map((q) => `<div class="quote" data-reveal>
+        <div class="stars" aria-label="5/5">★★★★★</div>
+        <p>“${esc(q.text)}”</p>
+        <div class="who"><span class="avatar">${esc(initialsFor(q.name))}</span><div><strong>${esc(q.name)}</strong><span>${esc(q.role)}</span></div></div>
+      </div>`).join('')}</div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="faq">
+    <div class="container">
+      ${sectionHead(s.faq, copy.faqTitle, undefined, true)}
+      <div class="faq-list">
+        ${copy.faq.map(([q, a]) => `<details class="faq" data-reveal>
+          <summary>${esc(q)}<span class="faq-ic">${icon('plus')}</span></summary>
+          <p>${esc(a)}</p>
+        </details>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="quote">
+    <div class="container agency-quote-wrap">
+      <div data-reveal>
+        <span class="eyebrow">${esc(s.getStarted)}</span>
+        <h2 class="h2 mt-2">${esc(copy.quoteTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.quoteLead)}</p>
+        <ul class="checklist">
+          <li><span class="tick">${icon('clock')}</span><span>${esc(copy.feat3)} — ${esc(copy.feat3d)}</span></li>
+          <li><span class="tick">${icon('shield')}</span><span>${esc(copy.feat2)} — ${esc(copy.feat2d)}</span></li>
+          <li><span class="tick">${icon('target')}</span><span>${esc(copy.results)}</span></li>
+        </ul>
+        <div class="agency-contact-actions">
+          <a class="btn btn-light" href="tel:${attr(config.phone)}">${icon('phone')}${esc(s.callNow)}</a>
+          <a class="btn btn-wa" href="${attr(quoteWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.whatsapp)}</a>
+        </div>
+      </div>
+      <form class="agency-form-card" data-lead-form data-lead-kind="agency-quote" novalidate>
+        <h3>${esc(copy.formTitle)}</h3>
+        <p class="booking-sub">${esc(copy.formSub)}</p>
+        <div class="form-grid">
+          <div class="field"><label for="agc-name">${esc(s.name)}</label><input id="agc-name" name="name" required maxlength="80" autocomplete="name"><span class="err">${esc(s.required)}</span></div>
+          <div class="field"><label for="agc-phone">${esc(s.phone)}</label><input id="agc-phone" name="phone" type="tel" required maxlength="20" autocomplete="tel" dir="ltr"><span class="err">${esc(s.invalidPhone)}</span></div>
+          <div class="field full"><label for="agc-email">${esc(s.email)}</label><input id="agc-email" name="email" type="email" maxlength="120" autocomplete="email" dir="ltr"></div>
+          <div class="field full"><label for="agc-service">${esc(copy.serviceLabel)}</label><select id="agc-service" name="serviceType" required>
+            ${copy.services.map((item) => `<option value="${attr(item.title)}">${esc(item.title)}</option>`).join('')}
+          </select></div>
+          <div class="field full"><label for="agc-budget">${esc(copy.budgetLabel)}</label><select id="agc-budget" name="budget">
+            ${copy.budgets.map((b) => `<option value="${attr(b)}">${esc(b)}</option>`).join('')}
+          </select></div>
+          <div class="field full"><label for="agc-timeline">${esc(copy.timelineLabel)}</label><select id="agc-timeline" name="timeline">
+            ${copy.timelines.map((t) => `<option value="${attr(t)}">${esc(t)}</option>`).join('')}
+          </select></div>
+          <div class="field full"><label for="agc-msg">${esc(s.message)}</label><textarea id="agc-msg" name="message" maxlength="1200"></textarea></div>
+          <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
+        </div>
+        <button class="btn btn-primary btn-block mt-3" type="submit">${icon('send')}${esc(copy.confirm)}</button>
+        <div class="form-status" role="status"></div>
+        <p class="form-note center mt-2">${esc(copy.note)}</p>
+      </form>
+    </div>
+  </section>
+
+  ${contactSection(config, s)}`;
+}
+
 export function pageFor(template: string, config: RenderConfig, lang: Lang): string {
   const s = ui(lang);
   switch (template) {
@@ -7541,6 +7988,8 @@ export function pageFor(template: string, config: RenderConfig, lang: Lang): str
       return saasPage(config, s, lang);
     case 'bistro':
       return bistroPage(config, s, lang);
+    case 'agency':
+      return agencyPage(config, s, lang);
 
     // Landing-style templates
     case 'fitness':
@@ -7841,6 +8290,35 @@ export function jsonLdFor(template: string, config: RenderConfig, siteUrl: strin
           price: p.price,
           priceCurrency: 'DZD',
           availability: 'https://schema.org/InStock',
+        })),
+      },
+      employee: (config.team || []).map((member) => ({
+        '@type': 'Person',
+        name: member.name,
+        jobTitle: member.role,
+        image: member.photoUrl || undefined,
+      })),
+    };
+    case 'agency': return {
+      ...base,
+      '@type': 'ProfessionalService',
+      image: config.coverUrl || undefined,
+      priceRange: 'DZD',
+      serviceType: 'Digital marketing',
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: 'Digital marketing services',
+        itemListElement: [
+          'Marketing strategy',
+          'Social media management',
+          'Paid advertising',
+          'SEO',
+          'Visual identity',
+          'Analytics and reporting',
+        ].map((name, index) => ({
+          '@type': 'Offer',
+          position: index + 1,
+          itemOffered: { '@type': 'Service', name },
         })),
       },
       employee: (config.team || []).map((member) => ({

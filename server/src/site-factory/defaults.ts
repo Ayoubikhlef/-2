@@ -339,6 +339,18 @@ export const TEMPLATES: TemplateSeed[] = [
     },
   },
   {
+    slug: 'agency',
+    category: 'agency',
+    accent: '#f43f5e',
+    sortOrder: 33,
+    name: { ar: 'وكالة تسويق رقمي', fr: 'Agence marketing digital', en: 'Digital Marketing Agency' },
+    description: {
+      ar: 'موقع وكالة تسويق: الخدمات، دراسات حالة بأرقام، منهجية العمل، الفريق، آراء العملاء ونموذج طلب عرض سعر.',
+      fr: 'Site d’agence marketing : services, études de cas chiffrées, méthode, équipe, avis clients et demande de devis.',
+      en: 'Marketing agency site: services, case studies with numbers, process, team, client reviews and quote request form.',
+    },
+  },
+  {
     slug: 'agriculture',
     category: 'agriculture',
     accent: '#4d7c0f',

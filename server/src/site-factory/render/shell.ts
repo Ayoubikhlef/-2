@@ -345,6 +345,19 @@ function navItems(config: RenderConfig, s: UiStrings): { href: string; label: st
           { href: '#contact', label: s.contact },
         ];
       }
+      if (['agency'].includes(config.templateSlug)) {
+        return [
+          { href: '#top', label: s.home },
+          { href: '#services', label: s.services },
+          { href: '#work', label: s.work },
+          { href: '#process', label: s.process },
+          { href: '#about', label: s.about },
+          ...(config.team && config.team.length ? [{ href: '#team', label: s.team }] : []),
+          { href: '#quote', label: s.getStarted },
+          { href: '#faq', label: s.faq },
+          { href: '#contact', label: s.contact },
+        ];
+      }
       return [];
   }
 }
@@ -383,6 +396,8 @@ function mobileCta(config: RenderConfig, s: UiStrings): { href: string; label: s
       return { href: '#join', label: s.getStarted };
     case 'bistro':
       return { href: '#reserve', label: s.reservation };
+    case 'agency':
+      return { href: '#quote', label: s.getStarted };
     case 'pharmacy':
       return { href: '#products', label: s.orderNow };
     default:

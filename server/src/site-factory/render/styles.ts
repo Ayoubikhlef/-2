@@ -1186,6 +1186,50 @@ body.has-preview .site-header{top:36px}
 .tpl-bistro .bistro-form-card .form-note{font-size:.72rem;color:var(--muted)}
 .tpl-bistro .bistro-contact-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
 .tpl-bistro .bistro-contact-actions .btn{flex:1 1 auto}
+
+/* digital marketing agency template */
+.tpl-agency .agency-hero{position:relative;overflow:hidden;background:radial-gradient(900px 520px at 86% -12%,color-mix(in srgb,var(--p) 20%,transparent),transparent 62%),radial-gradient(600px 380px at 0% 108%,color-mix(in srgb,var(--p2) 14%,transparent),transparent 58%),var(--bg)}
+.tpl-agency .agency-badges{display:flex;gap:14px;margin-top:16px;padding-top:12px;border-top:1px solid var(--line);flex-wrap:wrap}
+.tpl-agency .agency-badges span{display:inline-flex;align-items:center;gap:7px;font-size:.78rem;font-weight:700;color:var(--muted)}
+.tpl-agency .agency-badges .icon{width:16px;height:16px;color:var(--p-text)}
+.tpl-agency .hero-stats{display:flex;gap:30px;margin-top:38px;padding-top:26px;border-top:1px solid var(--line);flex-wrap:wrap}
+.tpl-agency .agency-services{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.tpl-agency .agency-service{padding:28px 24px;border-radius:20px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:9px;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-agency .agency-service:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm);border-color:color-mix(in srgb,var(--p) 34%,var(--line))}
+.tpl-agency .agency-service-icon{width:48px;height:48px;border-radius:15px;background:linear-gradient(145deg,var(--tint-2),var(--tint));color:var(--p-text);display:grid;place-items:center;margin-bottom:4px}
+.tpl-agency .agency-service-icon .icon{width:23px;height:23px}
+.tpl-agency .agency-service p{font-size:.85rem;color:var(--muted);line-height:1.68}
+.tpl-agency .agency-cases{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.tpl-agency .agency-case{border-radius:20px;overflow:hidden;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;transition:transform .25s,box-shadow .25s,border-color .25s}
+.tpl-agency .agency-case:hover{transform:translateY(-5px);box-shadow:var(--shadow);border-color:color-mix(in srgb,var(--p) 36%,var(--line))}
+.tpl-agency .agency-case-media{aspect-ratio:4/3;overflow:hidden;background:linear-gradient(145deg,var(--tint),var(--tint-2))}
+.tpl-agency .agency-case-media img{width:100%;height:100%;object-fit:cover;transition:transform .7s cubic-bezier(.2,.7,.2,1)}
+.tpl-agency .agency-case:hover .agency-case-media img{transform:scale(1.06)}
+.tpl-agency .agency-case-body{padding:18px 20px 22px;display:flex;flex-direction:column;gap:7px}
+.tpl-agency .agency-case-tag{font-size:.64rem;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:var(--p-text)}
+.tpl-agency .agency-case-body h3{font-size:1rem;line-height:1.45}
+.tpl-agency .agency-case-result{display:inline-flex;align-items:center;gap:6px;margin-top:2px;padding:7px 12px;border-radius:999px;background:var(--tint-2);color:var(--p-text);font-size:.76rem;font-weight:900;align-self:flex-start}
+.tpl-agency .agency-case-result .icon{width:14px;height:14px}
+.tpl-agency .agency-about-media{aspect-ratio:4/4.2}
+.tpl-agency .agency-team{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.tpl-agency .agency-member{border-radius:20px;overflow:hidden;background:var(--surface);border:1px solid var(--line);transition:transform .25s,box-shadow .25s}
+.tpl-agency .agency-member:hover{transform:translateY(-4px);box-shadow:var(--shadow-sm)}
+.tpl-agency .agency-member-photo{aspect-ratio:4/3.4;overflow:hidden;background:linear-gradient(145deg,var(--tint),var(--tint-2));display:grid;place-items:center}
+.tpl-agency .agency-member-photo img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.tpl-agency .agency-member:hover .agency-member-photo img{transform:scale(1.05)}
+.tpl-agency .agency-initials{font-size:2rem;font-weight:900;color:var(--p-text)}
+.tpl-agency .agency-member-body{padding:18px 20px 22px;display:flex;flex-direction:column;gap:5px}
+.tpl-agency .agency-member-body h3{font-size:1rem}
+.tpl-agency .agency-member-role{font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--p-text)}
+.tpl-agency .agency-member-body p{font-size:.8rem;color:var(--muted);line-height:1.6}
+.tpl-agency .agency-quote-wrap{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+.tpl-agency .agency-form-card{padding:30px;border-radius:24px;background:linear-gradient(160deg,color-mix(in srgb,var(--p) 8%,var(--surface)),var(--surface) 55%);border:1px solid color-mix(in srgb,var(--p) 24%,var(--line));box-shadow:var(--shadow-sm)}
+.tpl-agency .agency-form-card h3{font-size:1.25rem;margin-bottom:4px}
+.tpl-agency .agency-form-card .booking-sub{font-size:.84rem;color:var(--muted);line-height:1.6;margin-bottom:18px}
+.tpl-agency .agency-form-card .field label{font-size:.72rem;font-weight:800;letter-spacing:.04em;color:var(--muted)}
+.tpl-agency .agency-form-card .form-note{font-size:.72rem;color:var(--muted)}
+.tpl-agency .agency-contact-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+.tpl-agency .agency-contact-actions .btn{flex:1 1 auto}
 .theme-toggle{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;flex:0 0 auto;position:relative;transition:transform .2s,border-color .2s,background .2s}
 .theme-toggle:hover{transform:translateY(-2px);border-color:var(--p)}
 .theme-toggle .icon{width:18px;height:18px}
@@ -1357,6 +1401,10 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-saas .saas-join-wrap{grid-template-columns:1fr;gap:34px}
   .tpl-bistro .bistro-dishes{grid-template-columns:1fr 1fr;gap:16px}
   .tpl-bistro .bistro-reserve-wrap{grid-template-columns:1fr;gap:34px}
+  .tpl-agency .agency-services{grid-template-columns:1fr 1fr;gap:16px}
+  .tpl-agency .agency-cases{grid-template-columns:1fr 1fr;gap:16px}
+  .tpl-agency .agency-team{grid-template-columns:1fr 1fr;gap:16px}
+  .tpl-agency .agency-quote-wrap{grid-template-columns:1fr;gap:34px}
 }
 @media (max-width:720px){
   .container{width:min(100% - 28px,1180px)}
@@ -1443,6 +1491,10 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-bistro .bistro-gallery{grid-template-columns:1fr 1fr;gap:12px}
   .tpl-bistro .bistro-form-card{padding:22px}
   .tpl-bistro .bistro-chefs{grid-template-columns:1fr;gap:16px}
+  .tpl-agency .agency-services{grid-template-columns:1fr;gap:14px}
+  .tpl-agency .agency-cases{grid-template-columns:1fr;gap:16px}
+  .tpl-agency .agency-team{grid-template-columns:1fr;gap:16px}
+  .tpl-agency .agency-form-card{padding:22px}
 }
 @media (max-width:460px){
   .g2,.g3,.g4,.product-grid,.form-grid,.stats-grid{grid-template-columns:1fr}
@@ -1501,6 +1553,9 @@ html[data-theme="dark"] .company-hero .badge{background:rgba(255,255,255,.1);col
   .tpl-bistro .bistro-dish-foot .btn{width:100%}
   .tpl-bistro .bistro-story-actions .btn{width:100%}
   .tpl-bistro .bistro-badges{gap:8px}
+  .tpl-agency .agency-hero .hero-actions .btn{width:100%}
+  .tpl-agency .agency-badges{gap:8px}
+  .tpl-agency .agency-case-result{align-self:stretch;justify-content:center}
 }
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}

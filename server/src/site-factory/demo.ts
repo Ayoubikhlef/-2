@@ -1034,6 +1034,35 @@ export const DEMO: Record<string, DemoSeed> = {
       { name: 'سلمى بوزيد', role: 'شيف الحلويات', specialty: 'الحلويات الفرنسية', experience: '9 سنوات', photoUrl: photo('person', 1, 700, 800) },
     ],
   },
+  agency: {
+    name: 'وكالة نبض الإبداع',
+    tagline: 'استراتيجيات تسويق تصنع الفرق',
+    description: 'وكالة تسويق رقمي متخصصة في بناء العلامات التجارية، إدارة الحملات الإعلانية وصناعة المحتوى الذي يحقق نتائج قابلة للقياس.',
+    category: 'وكالة تسويق رقمي',
+    hours: 'الأحد – الخميس: 09:00 – 18:00',
+    cover: photo('design', 0, 1600, 1000),
+    gallery: [
+      photo('design', 1, 900, 700),
+      photo('design', 2, 900, 700),
+      photo('design', 3, 900, 700),
+      photo('office', 0, 900, 700),
+      photo('office', 1, 900, 700),
+      photo('design', 4, 900, 700),
+    ],
+    services: services([
+      ['استراتيجية تسويقية', 'تحليل السوق والجمهور وبناء خطة قابلة للقياس.'],
+      ['إدارة السوشيال ميديا', 'محتوى يومي وتفاعل حقيقي مع جمهورك.'],
+      ['إعلانات مدفوعة', 'حملات Meta وGoogle محسّنة لأفضل عائد.'],
+      ['تحسين محركات البحث', 'SEO تقني ومحتوى يجذب زيارات مستهدفة.'],
+      ['هوية بصرية', 'شعار ودليل ألوان وتصاميم متسقة.'],
+      ['تحليلات وتقارير', 'تقارير شهرية واضحة بمؤشرات حقيقية.'],
+    ]),
+    team: [
+      { name: 'ياسمين بلقاسم', role: 'مديرة الاستراتيجية', specialty: 'التخطيط التسويقي', experience: '10 سنوات', photoUrl: photo('person', 0, 700, 800) },
+      { name: 'وليد سعدي', role: 'مدير الإعلانات', specialty: 'Meta & Google Ads', experience: '8 سنوات', photoUrl: photo('person', 3, 700, 800) },
+      { name: 'هدى رحماني', role: 'مديرة الإبداع', specialty: 'المحتوى والهوية البصرية', experience: '7 سنوات', photoUrl: photo('person', 1, 700, 800) },
+    ],
+  },
 };
 
 const ACCENTS: Record<string, [string, string]> = {
@@ -1066,6 +1095,7 @@ const ACCENTS: Record<string, [string, string]> = {
   boutique: ['#a87b3f', '#111010'],
   saas: ['#2563eb', '#0f172a'],
   bistro: ['#9f1239', '#1c1917'],
+  agency: ['#f43f5e', '#111827'],
 };
 
 const cache = new Map<string, RenderedSite>();

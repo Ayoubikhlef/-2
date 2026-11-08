@@ -548,6 +548,15 @@ export const SITE_JS = String.raw`
           ' | ' + (diningOccasion ? diningOccasion.value : '') +
           '. ' + message;
       }
+      if (form.getAttribute('data-lead-kind') === 'agency-quote') {
+        var agencyService = form.querySelector('[name="serviceType"]');
+        var agencyBudget = form.querySelector('[name="budget"]');
+        var agencyTimeline = form.querySelector('[name="timeline"]');
+        message = 'Agency quote: ' + (agencyService ? agencyService.value : '') +
+          ' | budget ' + (agencyBudget ? agencyBudget.value : '') +
+          ' | launch ' + (agencyTimeline ? agencyTimeline.value : '') +
+          '. ' + message;
+      }
       post('/public/sites/' + encodeURIComponent(SITE.siteId) + '/leads', {
         name: form.name ? form.name.value : '',
         phone: form.phone ? form.phone.value : '',
