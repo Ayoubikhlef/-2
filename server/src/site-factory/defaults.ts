@@ -303,6 +303,18 @@ export const TEMPLATES: TemplateSeed[] = [
     },
   },
   {
+    slug: 'boutique',
+    category: 'boutique',
+    accent: '#a87b3f',
+    sortOrder: 30,
+    name: { ar: 'بوتيك أزياء ومجوهرات فاخرة', fr: 'Boutique mode & joaillerie', en: 'Luxury Fashion & Jewelry Boutique' },
+    description: {
+      ar: 'بوتيك فاخر للأزياء والمجوهرات: مجموعات، قطع محدودة، لوك بوك، نموذج حجز موعد تسوق خاص وطلب عبر واتساب.',
+      fr: 'Boutique de luxe mode et joaillerie : collections, pièces limitées, lookbook, rendez-vous privé et commande WhatsApp.',
+      en: 'Luxury fashion and jewelry boutique: collections, limited pieces, lookbook, private appointment form and WhatsApp ordering.',
+    },
+  },
+  {
     slug: 'agriculture',
     category: 'agriculture',
     accent: '#4d7c0f',

@@ -6243,6 +6243,408 @@ export function gymPage(config: RenderConfig, s: UiStrings, lang: Lang): string 
   ${contactSection(config, s)}`;
 }
 
+/* -------------------------------------------------------------------------
+ * LUXURY BOUTIQUE (fashion & jewelry)
+ * ---------------------------------------------------------------------- */
+interface BoutiqueCopy {
+  heroBadge: string;
+  shopCta: string;
+  bookCta: string;
+  heroMessage: string;
+  authentic: string;
+  shipping: string;
+  exclusive: string;
+  collectionsEyebrow: string;
+  collectionsTitle: string;
+  collectionsLead: string;
+  collections: Array<{ icon: string; title: string; description: string }>;
+  collectionEyebrow: string;
+  collectionTitle: string;
+  collectionLead: string;
+  order: string;
+  editorialEyebrow: string;
+  editorialTitle: string;
+  editorialLead: string;
+  feat1: string; feat1d: string;
+  feat2: string; feat2d: string;
+  feat3: string; feat3d: string;
+  feat4: string; feat4d: string;
+  lookbookEyebrow: string;
+  lookbookTitle: string;
+  lookbookLead: string;
+  stats: Array<[string, string]>;
+  quotes: Array<{ text: string; name: string; role: string }>;
+  faqTitle: string;
+  faq: Array<[string, string]>;
+  appointmentTitle: string;
+  appointmentLead: string;
+  formTitle: string;
+  formSub: string;
+  chooseItem: string;
+  dateLabel: string;
+  confirm: string;
+  note: string;
+}
+
+const BOUTIQUE: Record<Lang, BoutiqueCopy> = {
+  ar: {
+    heroBadge: 'دار أزياء ومجوهرات · مجموعة حصرية',
+    shopCta: 'تسوق المجموعة',
+    bookCta: 'احجز موعداً خاصاً',
+    heroMessage: 'أريد الاستفسار عن مجموعة الأزياء والمجوهرات',
+    authentic: 'أصالة مضمونة',
+    shipping: 'توصيل فاخر مجاني',
+    exclusive: 'قطع محدودة',
+    collectionsEyebrow: 'المجموعات',
+    collectionsTitle: 'عوالم من الأناقة',
+    collectionsLead: 'أزياء راقية، مجوهرات مصنوعة يدوياً، حقائب وعطور مختارة بعناية.',
+    collections: [
+      { icon: 'heart', title: 'أزياء راقية', description: 'فساتين وأطقم بأقمشة فاخرة وقصّات خالدة.' },
+      { icon: 'award', title: 'مجوهرات', description: 'قطع مصنوعة يدوياً من الذهب والأحجار الكريمة.' },
+      { icon: 'briefcase', title: 'حقائب وإكسسوارات', description: 'حقائب جلدية وأحزمة بتصاميم محدودة.' },
+      { icon: 'spark', title: 'عطور', description: 'عطور شرقية وفرنسية بتركيبات حصرية.' },
+    ],
+    collectionEyebrow: 'القطع المميزة',
+    collectionTitle: 'اختيارات هذا الموسم',
+    collectionLead: 'كل قطعة تحمل تفاصيلها الخاصة، والكميات محدودة.',
+    order: 'اطلب القطعة',
+    editorialEyebrow: 'حكايتنا',
+    editorialTitle: 'أناقة تُروى في التفاصيل',
+    editorialLead: 'منذ أكثر من عقد، نختار قطعاً تجمع بين الحرفية اليدوية والتصميم المعاصر. نعمل مع حرفيين وصنّاع محليين لإنتاج إصدارات محدودة تحتفظ بقيمتها عبر الزمن.',
+    feat1: 'حرفية يدوية', feat1d: 'تفاصيل منجزة بعناية على يد حرفيين.',
+    feat2: 'مواد فاخرة', feat2d: 'جلود وأقمشة وأحجار مختارة بعناية.',
+    feat3: 'إصدارات محدودة', feat3d: 'قطع لا تتكرر بكميات كبيرة.',
+    feat4: 'خدمة شخصية', feat4d: 'مستشار أناقة يرافقك في الاختيار.',
+    lookbookEyebrow: 'اللوك بوك',
+    lookbookTitle: 'لمحات من مجموعتنا',
+    lookbookLead: 'صور من أحدث إصداراتنا.',
+    stats: [['+15', 'سنة خبرة'], ['+2,400', 'عميل'], ['+120', 'قطعة حصرية'], ['4.9/5', 'تقييم العملاء']],
+    quotes: [
+      { text: 'الجودة والتفاصيل مذهلة، شعرت أن القطعة صُنعت خصيصاً لي.', name: 'ليلى ب.', role: 'عميلة' },
+      { text: 'خدمة راقية ومستشارة أناقة ساعدتني في اختيار إطلالة العرس.', name: 'أمينة ح.', role: 'عميلة' },
+      { text: 'التغليف وحده تجربة فاخرة، والقطعة أجمل مما توقعت.', name: 'سفيان م.', role: 'عميل' },
+    ],
+    faqTitle: 'أسئلة شائعة',
+    faq: [
+      ['هل القطع أصلية؟', 'نعم، جميع القطع أصلية ومرفقة بشهادة أصالة.'],
+      ['هل يمكن تفصيل قطعة على المقاس؟', 'نعم، نقدم خدمة تفصيل حسب الطلب خلال 2 إلى 3 أسابيع.'],
+      ['ما مدة التوصيل؟', 'من 24 إلى 72 ساعة داخل الوطن، والتوصيل مجاني للطلبات فوق 20,000 دج.'],
+      ['هل يمكن الاستبدال؟', 'نعم، خلال 7 أيام مع الحفاظ على تغليف القطعة.'],
+      ['هل توجد خدمة تغليف هدايا؟', 'نعم، تغليف فاخر مجاني مع بطاقة إهداء.'],
+    ],
+    appointmentTitle: 'موعد تسوق خاص',
+    appointmentLead: 'احجز جلسة شخصية مع مستشار الأناقة، في المتجر أو عبر مكالمة فيديو.',
+    formTitle: 'طلب موعد',
+    formSub: 'نؤكد الموعد هاتفياً خلال ساعات العمل.',
+    chooseItem: 'القطعة المهتم بها',
+    dateLabel: 'التاريخ المفضل',
+    confirm: 'إرسال طلب الموعد',
+    note: 'الحجز مجاني وبدون التزام بالشراء.',
+  },
+  fr: {
+    heroBadge: 'Maison de mode & joaillerie · Collection exclusive',
+    shopCta: 'Voir la collection',
+    bookCta: 'Prendre rendez-vous',
+    heroMessage: 'Je souhaite des informations sur la collection mode et joaillerie',
+    authentic: 'Authenticité garantie',
+    shipping: 'Livraison premium offerte',
+    exclusive: 'Pièces limitées',
+    collectionsEyebrow: 'Les collections',
+    collectionsTitle: 'Des univers d’élégance',
+    collectionsLead: 'Prêt-à-porter, bijoux faits main, sacs et parfums sélectionnés avec soin.',
+    collections: [
+      { icon: 'heart', title: 'Prêt-à-porter', description: 'Robes et ensembles en tissus nobles aux coupes intemporelles.' },
+      { icon: 'award', title: 'Joaillerie', description: 'Pièces faites main en or et pierres précieuses.' },
+      { icon: 'briefcase', title: 'Sacs & accessoires', description: 'Sacs en cuir et ceintures en éditions limitées.' },
+      { icon: 'spark', title: 'Parfums', description: 'Fragrances orientales et françaises aux compositions exclusives.' },
+    ],
+    collectionEyebrow: 'Pièces signatures',
+    collectionTitle: 'La sélection de la saison',
+    collectionLead: 'Chaque pièce raconte ses propres détails, en quantités limitées.',
+    order: 'Commander',
+    editorialEyebrow: 'Notre histoire',
+    editorialTitle: 'Une élégance qui se lit dans les détails',
+    editorialLead: 'Depuis plus d’une décennie, nous choisissons des pièces qui allient artisanat et design contemporain. Nous travaillons avec des artisans locaux pour des éditions limitées qui traversent le temps.',
+    feat1: 'Artisanat', feat1d: 'Des détails réalisés avec soin par des artisans.',
+    feat2: 'Matières nobles', feat2d: 'Cuirs, tissus et pierres sélectionnés avec exigence.',
+    feat3: 'Éditions limitées', feat3d: 'Des pièces jamais produites en grande série.',
+    feat4: 'Service personnel', feat4d: 'Un conseiller en style vous accompagne.',
+    lookbookEyebrow: 'Lookbook',
+    lookbookTitle: 'Aperçus de notre collection',
+    lookbookLead: 'Des images de nos dernières éditions.',
+    stats: [['+15', 'ans d’expérience'], ['+2 400', 'clients'], ['+120', 'pièces exclusives'], ['4,9/5', 'note clients']],
+    quotes: [
+      { text: 'La qualité et les détails sont impressionnants, j’ai eu l’impression que la pièce était faite pour moi.', name: 'Leila B.', role: 'Cliente' },
+      { text: 'Un service raffiné et une conseillère qui m’a aidée à choisir ma tenue de mariage.', name: 'Amina H.', role: 'Cliente' },
+      { text: 'L’emballage seul est une expérience de luxe, et la pièce est encore plus belle que prévu.', name: 'Sofiane M.', role: 'Client' },
+    ],
+    faqTitle: 'Questions fréquentes',
+    faq: [
+      ['Les pièces sont-elles authentiques ?', 'Oui, toutes les pièces sont authentiques et accompagnées d’un certificat.'],
+      ['Peut-on personnaliser une pièce ?', 'Oui, un service sur mesure est disponible sous 2 à 3 semaines.'],
+      ['Quels sont les délais de livraison ?', 'De 24 à 72 heures sur le territoire, livraison offerte dès 20 000 DA.'],
+      ['Puis-je échanger un article ?', 'Oui, sous 7 jours en conservant l’emballage d’origine.'],
+      ['Proposez-vous un emballage cadeau ?', 'Oui, un emballage premium offert avec carte personnalisée.'],
+    ],
+    appointmentTitle: 'Rendez-vous privé',
+    appointmentLead: 'Réservez une séance personnelle avec un conseiller, en boutique ou en visio.',
+    formTitle: 'Demande de rendez-vous',
+    formSub: 'Nous confirmons par téléphone pendant les heures d’ouverture.',
+    chooseItem: 'La pièce qui vous intéresse',
+    dateLabel: 'Date souhaitée',
+    confirm: 'Envoyer la demande',
+    note: 'Réservation gratuite et sans engagement d’achat.',
+  },
+  en: {
+    heroBadge: 'Fashion & jewelry house · Exclusive collection',
+    shopCta: 'Shop the collection',
+    bookCta: 'Book a private visit',
+    heroMessage: 'I would like information about the fashion and jewelry collection',
+    authentic: 'Guaranteed authenticity',
+    shipping: 'Free premium delivery',
+    exclusive: 'Limited pieces',
+    collectionsEyebrow: 'Collections',
+    collectionsTitle: 'Worlds of elegance',
+    collectionsLead: 'Fine ready-to-wear, handmade jewelry, bags and curated fragrances.',
+    collections: [
+      { icon: 'heart', title: 'Ready-to-wear', description: 'Dresses and sets in noble fabrics with timeless cuts.' },
+      { icon: 'award', title: 'Fine jewelry', description: 'Handmade pieces in gold and precious stones.' },
+      { icon: 'briefcase', title: 'Bags & accessories', description: 'Leather bags and belts in limited editions.' },
+      { icon: 'spark', title: 'Fragrances', description: 'Oriental and French perfumes with exclusive compositions.' },
+    ],
+    collectionEyebrow: 'Signature pieces',
+    collectionTitle: 'This season’s selection',
+    collectionLead: 'Every piece carries its own details, in limited quantities.',
+    order: 'Order piece',
+    editorialEyebrow: 'Our story',
+    editorialTitle: 'Elegance told in the details',
+    editorialLead: 'For over a decade we have selected pieces that blend craftsmanship with contemporary design. We work with local artisans on limited editions that hold their value over time.',
+    feat1: 'Handcrafted', feat1d: 'Details carefully finished by artisans.',
+    feat2: 'Fine materials', feat2d: 'Leathers, fabrics and stones chosen with care.',
+    feat3: 'Limited editions', feat3d: 'Pieces never produced in large volumes.',
+    feat4: 'Personal service', feat4d: 'A style advisor guides your choice.',
+    lookbookEyebrow: 'Lookbook',
+    lookbookTitle: 'Glimpses of our collection',
+    lookbookLead: 'Images from our latest editions.',
+    stats: [['+15', 'years of craft'], ['+2,400', 'clients'], ['+120', 'exclusive pieces'], ['4.9/5', 'client rating']],
+    quotes: [
+      { text: 'The quality and details are stunning, it felt like the piece was made for me.', name: 'Leila B.', role: 'Client' },
+      { text: 'Refined service and a style advisor who helped me choose my wedding look.', name: 'Amina H.', role: 'Client' },
+      { text: 'The packaging alone is a luxury experience, and the piece is even better than expected.', name: 'Sofiane M.', role: 'Client' },
+    ],
+    faqTitle: 'Frequently asked questions',
+    faq: [
+      ['Are the pieces authentic?', 'Yes, all pieces are authentic and come with a certificate.'],
+      ['Can a piece be made to measure?', 'Yes, our made-to-measure service takes 2 to 3 weeks.'],
+      ['What are the delivery times?', '24 to 72 hours nationwide, free delivery on orders above 20,000 DZD.'],
+      ['Can I exchange an item?', 'Yes, within 7 days with the original packaging.'],
+      ['Do you offer gift wrapping?', 'Yes, complimentary premium wrapping with a personal card.'],
+    ],
+    appointmentTitle: 'Private shopping appointment',
+    appointmentLead: 'Book a personal session with a style advisor, in store or by video call.',
+    formTitle: 'Appointment request',
+    formSub: 'We confirm by phone during opening hours.',
+    chooseItem: 'The piece you are interested in',
+    dateLabel: 'Preferred date',
+    confirm: 'Send request',
+    note: 'Free booking with no obligation to buy.',
+  },
+};
+
+function boutiqueCard(p: RenderProduct, copy: BoutiqueCopy, config: RenderConfig, s: UiStrings, lang: Lang): string {
+  const image = p.imageUrl
+    ? `<img src="${attr(p.imageUrl)}" alt="${attr(p.name)}" loading="lazy" decoding="async" width="600" height="750">`
+    : productPlaceholder(p.name);
+  const wa = waHref(config, `${copy.order}: ${p.name} — ${p.description || ''}`);
+  return `<article class="boutique-card" data-reveal data-product-card data-category="${attr(p.category || '')}" data-name="${attr(p.name)}" data-desc="${attr(p.description || '')}">
+    <div class="boutique-thumb">${image}${p.category ? `<span class="boutique-tag">${esc(p.category)}</span>` : ''}</div>
+    <div class="boutique-body">
+      <h3>${esc(p.name)}</h3>
+      ${p.description ? `<p>${esc(p.description)}</p>` : ''}
+      <div class="boutique-foot">
+        ${p.price > 0 ? `<span class="price">${money(p.price, lang)}</span>` : ''}
+        <a class="btn btn-primary btn-sm" href="${attr(wa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(copy.order)}</a>
+      </div>
+    </div>
+  </article>`;
+}
+
+export function boutiquePage(config: RenderConfig, s: UiStrings, lang: Lang): string {
+  const copy = BOUTIQUE[lang];
+  const products = config.products.filter((p) => p.name);
+  const categories = Array.from(new Set(products.map((p) => p.category).filter(Boolean))) as string[];
+  const lookbook = (config.gallery || []).slice(0, 6);
+  const heroImage = config.coverUrl
+    ? `<img src="${attr(config.coverUrl)}" alt="${attr(config.siteName)}" width="900" height="1100" fetchpriority="high" decoding="async">`
+    : '';
+  const about = aboutPhoto(config);
+  const heroWa = waHref(config, `${copy.heroMessage} — ${config.siteName}`);
+  const bookWa = waHref(config, `${copy.appointmentTitle} — ${config.siteName}`);
+
+  return `<section class="hero boutique-hero" id="top">
+    <div class="container hero-grid">
+      <div class="hero-copy" data-reveal>
+        <span class="badge">${icon('award')}${esc(copy.heroBadge)}</span>
+        <h1 class="h1 mt-3">${esc(config.siteName)}</h1>
+        <p class="lead">${esc(config.description)}</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#collection">${icon('spark')}${esc(copy.shopCta)}</a>
+          <a class="btn btn-wa" href="${attr(heroWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.whatsapp)}</a>
+        </div>
+        <div class="boutique-badges">
+          <span>${icon('shield')}${esc(copy.authentic)}</span>
+          <span>${icon('truck')}${esc(copy.shipping)}</span>
+          <span>${icon('spark')}${esc(copy.exclusive)}</span>
+        </div>
+        <div class="hero-stats">
+          ${copy.stats.slice(0, 3).map(([num, label]) => `<div><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="hero-media boutique-hero-media${heroImage ? '' : ' no-img'}" data-mark="${attr(initials(config.siteName))}" data-reveal>${heroImage}
+        <div class="float-card"><span class="float-icon">${icon('award')}</span><div><strong>${esc(copy.authentic)}</strong><span>${esc(copy.exclusive)}</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="trust-strip"><div class="container">
+    <span class="trust-item">${icon('shield')}${esc(copy.authentic)}</span>
+    <span class="trust-item">${icon('truck')}${esc(copy.shipping)}</span>
+    <span class="trust-item">${icon('spark')}${esc(copy.exclusive)}</span>
+    <span class="trust-item">${icon('heart')}${esc(copy.feat1)}</span>
+  </div></div>
+
+  <section class="section bg-soft" id="collections">
+    <div class="container">
+      ${sectionHead(copy.collectionsEyebrow, copy.collectionsTitle, copy.collectionsLead, true)}
+      <div class="boutique-collections">
+        ${copy.collections.map((item) => `<article class="boutique-collection" data-reveal>
+          <span class="boutique-collection-icon">${icon(item.icon as any)}</span>
+          <h3 class="h3">${esc(item.title)}</h3>
+          <p>${esc(item.description)}</p>
+          <a class="boutique-link" href="#collection">${esc(copy.shopCta)}${icon('arrow')}</a>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="collection">
+    <div class="container">
+      ${sectionHead(copy.collectionEyebrow, copy.collectionTitle, copy.collectionLead)}
+      <div class="shop-toolbar">
+        <button class="chip active" type="button" data-filter="all">${esc(s.all)}</button>
+        ${categories.map((cat) => `<button class="chip" type="button" data-filter="${attr(cat)}">${esc(cat)}</button>`).join('')}
+        <div class="search-box">${icon('search')}<input id="product-search" type="search" placeholder="${attr(s.search)}" aria-label="${attr(s.search)}"></div>
+      </div>
+      <div class="boutique-grid">
+        ${products.length ? products.map((p) => boutiqueCard(p, copy, config, s, lang)).join('') : `<div class="product-empty">${esc(s.emptyCart)}</div>`}
+        <div class="product-empty hide" id="product-empty">${esc(s.emptyCart)}</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="about">
+    <div class="container about-grid">
+      <div class="about-media boutique-about-media${about ? '' : ' no-img'}" data-reveal>
+        ${about ? `<img src="${attr(about)}" alt="${attr(config.siteName)}" loading="lazy" decoding="async" width="800" height="700">` : ''}
+        <div class="about-badge">${icon('award')}+15 ${esc(copy.stats[0][1])}</div>
+      </div>
+      <div data-reveal>
+        <span class="eyebrow">${esc(copy.editorialEyebrow)}</span>
+        <h2 class="h2 mt-2">${esc(copy.editorialTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.editorialLead)}</p>
+        <ul class="checklist">
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat1)} — ${esc(copy.feat1d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat2)} — ${esc(copy.feat2d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat3)} — ${esc(copy.feat3d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat4)} — ${esc(copy.feat4d)}</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  ${lookbook.length ? `<section class="section" id="lookbook">
+    <div class="container">
+      ${sectionHead(copy.lookbookEyebrow, copy.lookbookTitle, copy.lookbookLead, true)}
+      <div class="boutique-lookbook">
+        ${lookbook.map((src, i) => `<figure class="boutique-look${i === 0 ? ' is-wide' : ''}" data-reveal>
+          <img src="${attr(src)}" alt="${attr(config.siteName)} — ${i + 1}" loading="lazy" decoding="async" width="800" height="800">
+        </figure>`).join('')}
+      </div>
+    </div>
+  </section>` : ''}
+
+  <section class="stats-band">
+    <div class="container stats-grid">
+      ${copy.stats.map(([num, label]) => `<div class="stat"><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+    </div>
+  </section>
+
+  <section class="section bg-soft">
+    <div class="container">${sectionHead(s.testimonials, s.testimonials, undefined, true)}
+      <div class="grid g3">${copy.quotes.map((q) => `<div class="quote" data-reveal>
+        <div class="stars" aria-label="5/5">★★★★★</div>
+        <p>“${esc(q.text)}”</p>
+        <div class="who"><span class="avatar">${esc(initialsFor(q.name))}</span><div><strong>${esc(q.name)}</strong><span>${esc(q.role)}</span></div></div>
+      </div>`).join('')}</div>
+    </div>
+  </section>
+
+  <section class="section" id="faq">
+    <div class="container">
+      ${sectionHead(s.faq, copy.faqTitle, undefined, true)}
+      <div class="faq-list">
+        ${copy.faq.map(([q, a]) => `<details class="faq" data-reveal>
+          <summary>${esc(q)}<span class="faq-ic">${icon('plus')}</span></summary>
+          <p>${esc(a)}</p>
+        </details>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="appointment">
+    <div class="container boutique-appointment-wrap">
+      <div data-reveal>
+        <span class="eyebrow">${esc(s.appointment)}</span>
+        <h2 class="h2 mt-2">${esc(copy.appointmentTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.appointmentLead)}</p>
+        <ul class="checklist">
+          <li><span class="tick">${icon('award')}</span><span>${esc(copy.feat4)} — ${esc(copy.feat4d)}</span></li>
+          <li><span class="tick">${icon('shield')}</span><span>${esc(copy.authentic)}</span></li>
+          <li><span class="tick">${icon('truck')}</span><span>${esc(copy.shipping)}</span></li>
+        </ul>
+        <div class="boutique-hours">
+          <div class="hours-row"><span>${icon('clock')}${esc(s.hours)}</span><strong>${esc(config.hours || '')}</strong></div>
+          <div class="hours-row"><span>${icon('map')}${esc(s.location)}</span><strong>${esc(config.address || config.city || '')}</strong></div>
+        </div>
+        <div class="boutique-contact-actions">
+          <a class="btn btn-light" href="tel:${attr(config.phone)}">${icon('phone')}${esc(s.callNow)}</a>
+          <a class="btn btn-wa" href="${attr(bookWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.whatsapp)}</a>
+        </div>
+      </div>
+      <form class="boutique-form-card" data-lead-form data-lead-kind="boutique-appointment" novalidate>
+        <h3>${esc(copy.formTitle)}</h3>
+        <p class="booking-sub">${esc(copy.formSub)}</p>
+        <div class="form-grid">
+          <div class="field"><label for="btq-name">${esc(s.name)}</label><input id="btq-name" name="name" required maxlength="80" autocomplete="name"><span class="err">${esc(s.required)}</span></div>
+          <div class="field"><label for="btq-phone">${esc(s.phone)}</label><input id="btq-phone" name="phone" type="tel" required maxlength="20" autocomplete="tel" dir="ltr"><span class="err">${esc(s.invalidPhone)}</span></div>
+          <div class="field full"><label for="btq-item">${esc(copy.chooseItem)}</label><select id="btq-item" name="itemName">
+            <option value="">${esc(copy.chooseItem)}</option>
+            ${products.map((p) => `<option value="${attr(p.name)}">${esc(p.name)}${p.price > 0 ? ` — ${money(p.price, lang)}` : ''}</option>`).join('')}
+          </select></div>
+          <div class="field full"><label for="btq-date">${esc(copy.dateLabel)}</label><input id="btq-date" name="visitDate" type="date" dir="ltr"></div>
+          <div class="field full"><label for="btq-msg">${esc(s.message)}</label><textarea id="btq-msg" name="message" maxlength="1200"></textarea></div>
+          <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
+        </div>
+        <button class="btn btn-primary btn-block mt-3" type="submit">${icon('send')}${esc(copy.confirm)}</button>
+        <div class="form-status" role="status"></div>
+        <p class="form-note center mt-2">${esc(copy.note)}</p>
+      </form>
+    </div>
+  </section>
+
+  ${contactSection(config, s)}`;
+}
+
 export function pageFor(template: string, config: RenderConfig, lang: Lang): string {
   const s = ui(lang);
   switch (template) {
@@ -6295,6 +6697,8 @@ export function pageFor(template: string, config: RenderConfig, lang: Lang): str
       return digitalPage(config, s, lang);
     case 'gym':
       return gymPage(config, s, lang);
+    case 'boutique':
+      return boutiquePage(config, s, lang);
 
     // Landing-style templates
     case 'fitness':
@@ -6603,6 +7007,33 @@ export function jsonLdFor(template: string, config: RenderConfig, siteUrl: strin
         jobTitle: member.role,
         image: member.photoUrl || undefined,
       })),
+    };
+    case 'boutique': return {
+      ...base,
+      '@type': 'ClothingStore',
+      image: config.coverUrl || undefined,
+      priceRange: 'DZD',
+      openingHours: config.hours || undefined,
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: 'Collections',
+        itemListElement: config.products.slice(0, 12).map((p, index) => ({
+          '@type': 'Offer',
+          position: index + 1,
+          name: p.name,
+          description: p.description || undefined,
+          price: p.price,
+          priceCurrency: 'DZD',
+          availability: 'https://schema.org/InStock',
+          itemOffered: {
+            '@type': 'Product',
+            name: p.name,
+            image: p.imageUrl || undefined,
+            category: p.category || undefined,
+            brand: { '@type': 'Brand', name: config.siteName },
+          },
+        })),
+      },
     };
     case 'clinic': return {
       ...base,

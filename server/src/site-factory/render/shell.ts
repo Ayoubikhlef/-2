@@ -309,6 +309,18 @@ function navItems(config: RenderConfig, s: UiStrings): { href: string; label: st
           { href: '#contact', label: s.contact },
         ];
       }
+      if (['boutique'].includes(config.templateSlug)) {
+        return [
+          { href: '#top', label: s.home },
+          { href: '#collections', label: s.categories },
+          { href: '#collection', label: s.products },
+          { href: '#about', label: s.about },
+          { href: '#lookbook', label: s.gallery },
+          { href: '#appointment', label: s.appointment },
+          { href: '#faq', label: s.faq },
+          { href: '#contact', label: s.contact },
+        ];
+      }
       return [];
   }
 }
@@ -341,6 +353,8 @@ function mobileCta(config: RenderConfig, s: UiStrings): { href: string; label: s
       return { href: '#order', label: s.orderNow };
     case 'gym':
       return { href: '#join', label: s.getStarted };
+    case 'boutique':
+      return { href: '#appointment', label: s.appointment };
     case 'pharmacy':
       return { href: '#products', label: s.orderNow };
     default:

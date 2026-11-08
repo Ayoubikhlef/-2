@@ -521,6 +521,13 @@ export const SITE_JS = String.raw`
           ' | goal ' + (gymGoal ? gymGoal.value : '') +
           '. ' + message;
       }
+      if (form.getAttribute('data-lead-kind') === 'boutique-appointment') {
+        var boutiqueItem = form.querySelector('[name="itemName"]');
+        var boutiqueDate = form.querySelector('[name="visitDate"]');
+        message = 'Boutique appointment: ' + (boutiqueItem ? boutiqueItem.value : '') +
+          ' | date ' + (boutiqueDate ? boutiqueDate.value : '') +
+          '. ' + message;
+      }
       post('/public/sites/' + encodeURIComponent(SITE.siteId) + '/leads', {
         name: form.name ? form.name.value : '',
         phone: form.phone ? form.phone.value : '',
