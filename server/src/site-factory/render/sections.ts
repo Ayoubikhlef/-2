@@ -8347,6 +8347,440 @@ export function cleaningPage(config: RenderConfig, s: UiStrings, lang: Lang): st
   ${contactSection(config, s)}`;
 }
 
+/* -------------------------------------------------------------------------
+ * LUXURY BEAUTY SALON
+ * ---------------------------------------------------------------------- */
+interface SalonCopy {
+  heroBadge: string;
+  bookCta: string;
+  servicesCta: string;
+  heroMessage: string;
+  masterStylists: string;
+  premiumProducts: string;
+  privateSuites: string;
+  servicesEyebrow: string;
+  servicesTitle: string;
+  servicesLead: string;
+  services: Array<{ icon: string; title: string; description: string }>;
+  packagesEyebrow: string;
+  packagesTitle: string;
+  packagesLead: string;
+  popular: string;
+  packageIncludes: string[];
+  bookPackage: string;
+  galleryEyebrow: string;
+  galleryTitle: string;
+  galleryLead: string;
+  teamEyebrow: string;
+  teamTitle: string;
+  teamLead: string;
+  aboutEyebrow: string;
+  aboutTitle: string;
+  aboutLead: string;
+  feat1: string; feat1d: string;
+  feat2: string; feat2d: string;
+  feat3: string; feat3d: string;
+  feat4: string; feat4d: string;
+  stats: Array<[string, string]>;
+  quotes: Array<{ text: string; name: string; role: string }>;
+  faqTitle: string;
+  faq: Array<[string, string]>;
+  bookingTitle: string;
+  bookingLead: string;
+  formTitle: string;
+  formSub: string;
+  serviceLabel: string;
+  stylistLabel: string;
+  dateLabel: string;
+  timeLabel: string;
+  timeSlots: string[];
+  confirm: string;
+  note: string;
+}
+
+const SALON: Record<Lang, SalonCopy> = {
+  ar: {
+    heroBadge: 'صالون تجميل فاخر · تجربة خاصة',
+    bookCta: 'احجز موعدك',
+    servicesCta: 'خدماتنا',
+    heroMessage: 'أريد حجز موعد في صالون التجميل',
+    masterStylists: 'خبيرات تجميل محترفات',
+    premiumProducts: 'منتجات فاخرة',
+    privateSuites: 'أجنحة خاصة',
+    servicesEyebrow: 'الخدمات',
+    servicesTitle: 'عناية تليق بك',
+    servicesLead: 'من قص الشعر إلى العناية بالبشرة والأظافر، كل خدمة تُقدّم باحترافية وهدوء.',
+    services: [
+      { icon: 'spark', title: 'قص وتصفيف الشعر', description: 'قصّات عصرية وتصفيف يدوم، مع استشارة مجانية.' },
+      { icon: 'droplet', title: 'صباغة وعلاج الشعر', description: 'ألوان احترافية وعلاجات عميقة للشعر التالف.' },
+      { icon: 'heart', title: 'العناية بالبشرة', description: 'تنظيف عميق، ترطيب وعلاجات مخصصة لنوع بشرتك.' },
+      { icon: 'star', title: 'مكياج مناسبات', description: 'مكياج ناعم أو سهرة، يبرز ملامحك الطبيعية.' },
+      { icon: 'award', title: 'العناية بالأظافر', description: 'مانيكير وباديكير وتركيب أظافر بلمسة راقية.' },
+      { icon: 'sun', title: 'استرخاء وسبا', description: 'تدليك وعلاجات استرخاء في أجواء هادئة.' },
+    ],
+    packagesEyebrow: 'الباقات',
+    packagesTitle: 'باقات مختارة بعناية',
+    packagesLead: 'باقات تجمع أكثر من خدمة بسعر أفضل، مصممة لمناسباتك.',
+    popular: 'الأكثر طلباً',
+    packageIncludes: ['استشارة مجانية', 'منتجات فاخرة', 'أجواء خاصة هادئة', 'مشروب ترحيبي'],
+    bookPackage: 'احجز الباقة',
+    galleryEyebrow: 'المعرض',
+    galleryTitle: 'لمحات من عالمنا',
+    galleryLead: 'تفاصيل المكان والنتائج قبل زيارتك.',
+    teamEyebrow: 'الفريق',
+    teamTitle: 'خبيرات تصنع الفرق',
+    teamLead: 'تجميليّات بخبرة سنوات في أرقى الصالونات، يهتممن بكل تفصيل.',
+    aboutEyebrow: 'قصتنا',
+    aboutTitle: 'مساحة للعناية والهدوء',
+    aboutLead: 'في قلب المدينة، صالون تجميل فاخر صُمّم ليكون ملاذك بعيداً عن الزحام. نستخدم منتجات فاخرة، ونمنح كل عميلة وقتها الكامل في أجواء تحترم خصوصيتها.',
+    feat1: 'خبيرات معتمدات', feat1d: 'تدريب مستمر على أحدث التقنيات.',
+    feat2: 'منتجات فاخرة', feat2d: 'علامات عالمية مختارة بعناية.',
+    feat3: 'جلسات خاصة', feat3d: 'أجنحة منفصلة لراحة تامة.',
+    feat4: 'حجز مرن', feat4d: 'مواعيد تناسب جدولك مع تذكير مسبق.',
+    stats: [['+10', 'سنوات خبرة'], ['+3,200', 'عميلة'], ['+18', 'خبيرة تجميل'], ['4.9/5', 'تقييم العميلات']],
+    quotes: [
+      { text: 'تجربة راقية من الاستقبال حتى النتيجة، شعرت بأنني في مكان يهتم فعلاً بي.', name: 'أمينة ب.', role: 'عميلة' },
+      { text: 'المكياج كان طبيعياً وأنيقاً، ووصلت للمناسبة في الموعد بالضبط.', name: 'سارة ح.', role: 'عميلة' },
+      { text: 'جلسة العناية بالبشرة غيّرت روتيني بالكامل، والنصيحة كانت صادقة.', name: 'نور الهدى م.', role: 'عميلة' },
+    ],
+    faqTitle: 'أسئلة شائعة',
+    faq: [
+      ['هل يلزم الحجز مسبقاً؟', 'نوصي بالحجز مسبقاً، خاصة لنهاية الأسبوع والمناسبات.'],
+      ['هل تقدمون استشارة مجانية؟', 'نعم، استشارة قصيرة قبل أي خدمة، واختيار الباقة الأنسب.'],
+      ['ما المنتجات المستخدمة؟', 'نستخدم علامات فاخرة معتمدة وآمنة على البشرة والشعر.'],
+      ['هل توجد جلسات خاصة؟', 'نعم، أجنحة خاصة متاحة عند الحجز المسبق.'],
+      ['هل يمكن إلغاء الموعد؟', 'نعم، إلغاء مجاني قبل 24 ساعة من الموعد مع إمكانية إعادة الجدولة.'],
+    ],
+    bookingTitle: 'احجزي موعدك',
+    bookingLead: 'اختاري الخدمة والخبيرة والوقت المناسب، ونؤكد لك الموعد هاتفياً.',
+    formTitle: 'طلب حجز موعد',
+    formSub: 'نؤكد الموعد خلال ساعات العمل عبر الهاتف.',
+    serviceLabel: 'الخدمة أو الباقة',
+    stylistLabel: 'الخبيرة المفضلة',
+    dateLabel: 'التاريخ',
+    timeLabel: 'الوقت',
+    timeSlots: ['09:00','10:00','11:00','12:00','14:00','15:00','16:00','17:00','18:00'],
+    confirm: 'إرسال طلب الحجز',
+    note: 'الحجز مجاني · إلغاء أو تعديل قبل 24 ساعة.',
+  },
+  fr: {
+    heroBadge: 'Salon de beauté de luxe · Expérience privée',
+    bookCta: 'Réserver',
+    servicesCta: 'Nos services',
+    heroMessage: 'Je souhaite réserver un rendez-vous au salon de beauté',
+    masterStylists: 'Stylistes expertes',
+    premiumProducts: 'Produits premium',
+    privateSuites: 'Suites privées',
+    servicesEyebrow: 'Les services',
+    servicesTitle: 'Des soins à votre hauteur',
+    servicesLead: 'De la coupe au soin de la peau et des ongles, chaque prestation est réalisée avec professionnalisme et douceur.',
+    services: [
+      { icon: 'spark', title: 'Coupe & coiffage', description: 'Coupes actuelles et coiffage durable, avec consultation offerte.' },
+      { icon: 'droplet', title: 'Coloration & soins', description: 'Couleurs professionnelles et soins profonds pour cheveux abîmés.' },
+      { icon: 'heart', title: 'Soins du visage', description: 'Nettoyage profond, hydratation et soins adaptés à votre peau.' },
+      { icon: 'star', title: 'Maquillage événement', description: 'Maquillage naturel ou soirée, qui sublime vos traits.' },
+      { icon: 'award', title: 'Soins des ongles', description: 'Manucure, pédicure et poses d’ongles avec une touche raffinée.' },
+      { icon: 'sun', title: 'Détente & spa', description: 'Massages et soins relaxants dans une ambiance calme.' },
+    ],
+    packagesEyebrow: 'Les formules',
+    packagesTitle: 'Des formules choisies avec soin',
+    packagesLead: 'Des formules qui réunissent plusieurs services à meilleur prix, pensées pour vos occasions.',
+    popular: 'La plus demandée',
+    packageIncludes: ['Consultation offerte', 'Produits premium', 'Cadre privé et calme', 'Boisson de bienvenue'],
+    bookPackage: 'Réserver la formule',
+    galleryEyebrow: 'Galerie',
+    galleryTitle: 'Un aperçu de notre univers',
+    galleryLead: 'Les détails du lieu et des résultats avant votre visite.',
+    teamEyebrow: 'L’équipe',
+    teamTitle: 'Des expertes qui font la différence',
+    teamLead: 'Des esthéticiennes et stylistes expérimentées, attentives à chaque détail.',
+    aboutEyebrow: 'Notre histoire',
+    aboutTitle: 'Un espace de soin et de calme',
+    aboutLead: 'Au cœur de la ville, un salon de beauté de luxe pensé comme un refuge loin du bruit. Nous utilisons des produits premium et offrons à chaque cliente tout son temps, dans un cadre qui respecte son intimité.',
+    feat1: 'Expertes certifiées', feat1d: 'Formation continue aux dernières techniques.',
+    feat2: 'Produits premium', feat2d: 'Des marques internationales sélectionnées avec soin.',
+    feat3: 'Séances privées', feat3d: 'Des suites séparées pour un confort total.',
+    feat4: 'Réservation flexible', feat4d: 'Des horaires adaptés à votre agenda avec rappel.',
+    stats: [['+10', 'ans d’expérience'], ['+3 200', 'clientes'], ['+18', 'expertes beauté'], ['4,9/5', 'note des clientes']],
+    quotes: [
+      { text: 'Une expérience raffinée de l’accueil au résultat, j’ai senti qu’on s’occupait vraiment de moi.', name: 'Amina B.', role: 'Cliente' },
+      { text: 'Le maquillage était naturel et élégant, et je suis arrivée à l’événement pile à l’heure.', name: 'Sara H.', role: 'Cliente' },
+      { text: 'Le soin du visage a changé toute ma routine, et le conseil était sincère.', name: 'Nour El Houda M.', role: 'Cliente' },
+    ],
+    faqTitle: 'Questions fréquentes',
+    faq: [
+      ['Faut-il réserver ?', 'La réservation est conseillée, surtout le week-end et pour les événements.'],
+      ['Proposez-vous une consultation gratuite ?', 'Oui, une courte consultation avant chaque service, pour choisir la formule adaptée.'],
+      ['Quels produits utilisez-vous ?', 'Des marques premium certifiées, sûres pour la peau et les cheveux.'],
+      ['Y a-t-il des séances privées ?', 'Oui, des suites privées sont disponibles sur réservation.'],
+      ['Peut-on annuler ?', 'Oui, annulation gratuite jusqu’à 24 h avant, avec possibilité de reporter.'],
+    ],
+    bookingTitle: 'Réservez votre rendez-vous',
+    bookingLead: 'Choisissez le service, l’experte et l’horaire, nous confirmons par téléphone.',
+    formTitle: 'Demande de rendez-vous',
+    formSub: 'Nous confirmons pendant les heures d’ouverture par téléphone.',
+    serviceLabel: 'Service ou formule',
+    stylistLabel: 'Experte préférée',
+    dateLabel: 'Date',
+    timeLabel: 'Heure',
+    timeSlots: ['09:00','10:00','11:00','12:00','14:00','15:00','16:00','17:00','18:00'],
+    confirm: 'Envoyer la demande',
+    note: 'Réservation gratuite · Annulation ou modification 24 h avant.',
+  },
+  en: {
+    heroBadge: 'Luxury beauty salon · Private experience',
+    bookCta: 'Book your visit',
+    servicesCta: 'Our services',
+    heroMessage: 'I would like to book an appointment at the beauty salon',
+    masterStylists: 'Expert stylists',
+    premiumProducts: 'Premium products',
+    privateSuites: 'Private suites',
+    servicesEyebrow: 'Services',
+    servicesTitle: 'Care worthy of you',
+    servicesLead: 'From haircuts to skin and nail care, every service is delivered with professionalism and calm.',
+    services: [
+      { icon: 'spark', title: 'Cut & styling', description: 'Modern cuts and long-lasting styling, with a free consultation.' },
+      { icon: 'droplet', title: 'Color & hair treatment', description: 'Professional color and deep treatments for damaged hair.' },
+      { icon: 'heart', title: 'Skin care', description: 'Deep cleansing, hydration and treatments tailored to your skin.' },
+      { icon: 'star', title: 'Event makeup', description: 'Soft or evening makeup that highlights your natural features.' },
+      { icon: 'award', title: 'Nail care', description: 'Manicure, pedicure and nail extensions with a refined touch.' },
+      { icon: 'sun', title: 'Relaxation & spa', description: 'Massages and relaxing treatments in a calm setting.' },
+    ],
+    packagesEyebrow: 'Packages',
+    packagesTitle: 'Carefully curated packages',
+    packagesLead: 'Packages that combine several services at a better price, designed for your occasions.',
+    popular: 'Most popular',
+    packageIncludes: ['Free consultation', 'Premium products', 'Calm private setting', 'Welcome drink'],
+    bookPackage: 'Book package',
+    galleryEyebrow: 'Gallery',
+    galleryTitle: 'Glimpses of our world',
+    galleryLead: 'Details of the place and the results before your visit.',
+    teamEyebrow: 'The team',
+    teamTitle: 'Experts who make the difference',
+    teamLead: 'Beauticians and stylists with years of experience, attentive to every detail.',
+    aboutEyebrow: 'Our story',
+    aboutTitle: 'A space for care and calm',
+    aboutLead: 'In the heart of the city, a luxury beauty salon designed as your refuge from the noise. We use premium products and give every client her full time, in a setting that respects her privacy.',
+    feat1: 'Certified experts', feat1d: 'Continuous training in the latest techniques.',
+    feat2: 'Premium products', feat2d: 'International brands selected with care.',
+    feat3: 'Private sessions', feat3d: 'Separate suites for complete comfort.',
+    feat4: 'Flexible booking', feat4d: 'Times that fit your schedule with a reminder.',
+    stats: [['+10', 'years of experience'], ['+3,200', 'clients'], ['+18', 'beauty experts'], ['4.9/5', 'client rating']],
+    quotes: [
+      { text: 'A refined experience from reception to result, I felt truly looked after.', name: 'Amina B.', role: 'Client' },
+      { text: 'The makeup was natural and elegant, and I arrived at the event right on time.', name: 'Sara H.', role: 'Client' },
+      { text: 'The facial changed my whole routine, and the advice was honest.', name: 'Nour El Houda M.', role: 'Client' },
+    ],
+    faqTitle: 'Frequently asked questions',
+    faq: [
+      ['Do I need to book?', 'Booking is recommended, especially at weekends and for events.'],
+      ['Do you offer a free consultation?', 'Yes, a short consultation before every service to choose the right package.'],
+      ['Which products do you use?', 'Certified premium brands, safe for skin and hair.'],
+      ['Are private sessions available?', 'Yes, private suites are available on request.'],
+      ['Can I cancel?', 'Yes, free cancellation up to 24 hours before, with rescheduling.'],
+    ],
+    bookingTitle: 'Book your appointment',
+    bookingLead: 'Choose the service, expert and time, and we will confirm by phone.',
+    formTitle: 'Appointment request',
+    formSub: 'We confirm by phone during opening hours.',
+    serviceLabel: 'Service or package',
+    stylistLabel: 'Preferred expert',
+    dateLabel: 'Date',
+    timeLabel: 'Time',
+    timeSlots: ['09:00','10:00','11:00','12:00','14:00','15:00','16:00','17:00','18:00'],
+    confirm: 'Send request',
+    note: 'Free booking · Free cancellation or change 24 hours before.',
+  },
+};
+
+export function salonPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
+  const copy = SALON[lang];
+  const packages = config.products.filter((p) => p.name);
+  const team = config.team || [];
+  const gallery = (config.gallery || []).slice(0, 6);
+  const heroImage = config.coverUrl
+    ? `<img src="${attr(config.coverUrl)}" alt="${attr(config.siteName)}" width="900" height="1100" fetchpriority="high" decoding="async">`
+    : '';
+  const about = aboutPhoto(config);
+  const heroWa = waHref(config, `${copy.heroMessage} — ${config.siteName}`);
+  const bookWa = waHref(config, `${copy.bookingTitle} — ${config.siteName}`);
+
+  return `<section class="hero salon-hero" id="top">
+    <div class="container hero-grid">
+      <div class="hero-copy" data-reveal>
+        <span class="badge">${icon('spark')}${esc(copy.heroBadge)}</span>
+        <h1 class="h1 mt-3">${esc(config.siteName)}</h1>
+        <p class="lead">${esc(config.description)}</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#booking">${icon('calendar')}${esc(copy.bookCta)}</a>
+          <a class="btn btn-ghost" href="#services">${icon('heart')}${esc(copy.servicesCta)}</a>
+        </div>
+        <div class="salon-badges">
+          <span>${icon('award')}${esc(copy.masterStylists)}</span>
+          <span>${icon('spark')}${esc(copy.premiumProducts)}</span>
+          <span>${icon('shield')}${esc(copy.privateSuites)}</span>
+        </div>
+        <div class="hero-stats">
+          ${copy.stats.slice(0, 3).map(([num, label]) => `<div><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="hero-media salon-hero-media${heroImage ? '' : ' no-img'}" data-mark="${attr(initials(config.siteName))}" data-reveal>${heroImage}
+        <div class="float-card"><span class="float-icon">${icon('heart')}</span><div><strong>${esc(copy.privateSuites)}</strong><span>${esc(copy.premiumProducts)}</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="trust-strip"><div class="container">
+    <span class="trust-item">${icon('award')}${esc(copy.masterStylists)}</span>
+    <span class="trust-item">${icon('spark')}${esc(copy.premiumProducts)}</span>
+    <span class="trust-item">${icon('shield')}${esc(copy.privateSuites)}</span>
+    <span class="trust-item">${icon('star')}4.9/5</span>
+  </div></div>
+
+  <section class="section bg-soft" id="services">
+    <div class="container">
+      ${sectionHead(copy.servicesEyebrow, copy.servicesTitle, copy.servicesLead, true)}
+      <div class="salon-services">
+        ${copy.services.map((item) => `<article class="salon-service" data-reveal>
+          <span class="salon-service-icon">${icon(item.icon as any)}</span>
+          <h3 class="h3">${esc(item.title)}</h3>
+          <p>${esc(item.description)}</p>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="packages">
+    <div class="container">
+      ${sectionHead(copy.packagesEyebrow, copy.packagesTitle, copy.packagesLead, true)}
+      <div class="salon-packages">
+        ${packages.map((p, i) => `<article class="salon-package${i === 1 ? ' is-popular' : ''}" data-reveal>
+          ${i === 1 ? `<span class="salon-package-badge">${esc(copy.popular)}</span>` : ''}
+          <span class="salon-package-period">${esc(p.category || '')}</span>
+          <h3>${esc(p.name)}</h3>
+          <div class="salon-package-price">${money(p.price, lang)}</div>
+          ${p.description ? `<p>${esc(p.description)}</p>` : ''}
+          <ul class="salon-package-list">${copy.packageIncludes.map((f) => `<li>${icon('check')}${esc(f)}</li>`).join('')}</ul>
+          <button class="btn btn-primary btn-block" type="button" data-pick-plan="${attr(p.name)}">${icon('calendar')}${esc(copy.bookPackage)}</button>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  ${gallery.length ? `<section class="section bg-soft" id="gallery">
+    <div class="container">
+      ${sectionHead(copy.galleryEyebrow, copy.galleryTitle, copy.galleryLead, true)}
+      <div class="salon-gallery">${gallery.map((src, i) => `<figure class="salon-shot${i === 0 ? ' is-wide' : ''}" data-reveal><img src="${attr(src)}" alt="${attr(config.siteName)} — ${i + 1}" loading="lazy" decoding="async" width="800" height="800"></figure>`).join('')}</div>
+    </div>
+  </section>` : ''}
+
+  ${team.length ? `<section class="section" id="team">
+    <div class="container">
+      ${sectionHead(copy.teamEyebrow, copy.teamTitle, copy.teamLead, true)}
+      <div class="salon-team">${team.map((member) => `<article class="salon-member" data-reveal>
+        <div class="salon-member-photo">${member.photoUrl ? `<img src="${attr(member.photoUrl)}" alt="${attr(member.name)}" loading="lazy" decoding="async" width="700" height="800">` : `<span class="salon-initials">${esc(initialsFor(member.name))}</span>`}</div>
+        <div class="salon-member-body"><h3>${esc(member.name)}</h3><span class="salon-member-role">${esc(member.role)}</span>${member.specialty ? `<p>${esc(member.specialty)}</p>` : ''}</div>
+      </article>`).join('')}</div>
+    </div>
+  </section>` : ''}
+
+  <section class="section bg-soft" id="about">
+    <div class="container about-grid">
+      <div class="about-media salon-about-media${about ? '' : ' no-img'}" data-reveal>
+        ${about ? `<img src="${attr(about)}" alt="${attr(config.siteName)}" loading="lazy" decoding="async" width="800" height="700">` : ''}
+        <div class="about-badge">${icon('award')}+10 ${esc(copy.stats[0][1])}</div>
+      </div>
+      <div data-reveal>
+        <span class="eyebrow">${esc(copy.aboutEyebrow)}</span>
+        <h2 class="h2 mt-2">${esc(copy.aboutTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.aboutLead)}</p>
+        <ul class="checklist">
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat1)} — ${esc(copy.feat1d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat2)} — ${esc(copy.feat2d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat3)} — ${esc(copy.feat3d)}</span></li>
+          <li><span class="tick">${icon('check')}</span><span>${esc(copy.feat4)} — ${esc(copy.feat4d)}</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="stats-band">
+    <div class="container stats-grid">
+      ${copy.stats.map(([num, label]) => `<div class="stat"><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">${sectionHead(s.testimonials, s.testimonials, undefined, true)}
+      <div class="grid g3">${copy.quotes.map((q) => `<div class="quote" data-reveal>
+        <div class="stars" aria-label="5/5">★★★★★</div>
+        <p>“${esc(q.text)}”</p>
+        <div class="who"><span class="avatar">${esc(initialsFor(q.name))}</span><div><strong>${esc(q.name)}</strong><span>${esc(q.role)}</span></div></div>
+      </div>`).join('')}</div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="faq">
+    <div class="container">
+      ${sectionHead(s.faq, copy.faqTitle, undefined, true)}
+      <div class="faq-list">
+        ${copy.faq.map(([q, a]) => `<details class="faq" data-reveal>
+          <summary>${esc(q)}<span class="faq-ic">${icon('plus')}</span></summary>
+          <p>${esc(a)}</p>
+        </details>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="booking">
+    <div class="container salon-booking-wrap">
+      <div data-reveal>
+        <span class="eyebrow">${esc(s.reservation)}</span>
+        <h2 class="h2 mt-2">${esc(copy.bookingTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.bookingLead)}</p>
+        <ul class="checklist">
+          ${copy.packageIncludes.map((f) => `<li><span class="tick">${icon('check')}</span><span>${esc(f)}</span></li>`).join('')}
+        </ul>
+        <div class="salon-hours">
+          <div class="hours-row"><span>${icon('clock')}${esc(s.hours)}</span><strong>${esc(config.hours || '')}</strong></div>
+          <div class="hours-row"><span>${icon('map')}${esc(s.location)}</span><strong>${esc(config.address || config.city || '')}</strong></div>
+        </div>
+        <div class="salon-contact-actions">
+          <a class="btn btn-light" href="tel:${attr(config.phone)}">${icon('phone')}${esc(s.callNow)}</a>
+          <a class="btn btn-wa" href="${attr(bookWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.whatsapp)}</a>
+        </div>
+      </div>
+      <form class="salon-form-card" data-lead-form data-lead-kind="salon-booking" novalidate>
+        <h3>${esc(copy.formTitle)}</h3>
+        <p class="booking-sub">${esc(copy.formSub)}</p>
+        <div class="form-grid">
+          <div class="field"><label for="sln-name">${esc(s.name)}</label><input id="sln-name" name="name" required maxlength="80" autocomplete="name"><span class="err">${esc(s.required)}</span></div>
+          <div class="field"><label for="sln-phone">${esc(s.phone)}</label><input id="sln-phone" name="phone" type="tel" required maxlength="20" autocomplete="tel" dir="ltr"><span class="err">${esc(s.invalidPhone)}</span></div>
+          <div class="field full"><label for="sln-service">${esc(copy.serviceLabel)}</label><select id="sln-service" name="serviceName" data-join-plan required>
+            <option value="">${esc(copy.serviceLabel)}</option>
+            ${packages.map((p) => `<option value="${attr(p.name)}">${esc(p.name)} — ${money(p.price, lang)}</option>`).join('')}
+          </select><span class="err">${esc(s.required)}</span></div>
+          <div class="field full"><label for="sln-stylist">${esc(copy.stylistLabel)}</label><select id="sln-stylist" name="stylist">
+            <option value="">${esc(copy.stylistLabel)}</option>
+            ${team.map((m) => `<option value="${attr(m.name)}">${esc(m.name)} — ${esc(m.role)}</option>`).join('')}
+          </select></div>
+          <div class="field"><label for="sln-date">${esc(copy.dateLabel)}</label><input id="sln-date" name="date" type="date" required dir="ltr"><span class="err">${esc(s.required)}</span></div>
+          <div class="field"><label for="sln-time">${esc(copy.timeLabel)}</label><select id="sln-time" name="time" required>
+            ${copy.timeSlots.map((t) => `<option value="${t}">${t}</option>`).join('')}
+          </select></div>
+          <div class="field full"><label for="sln-msg">${esc(s.message)}</label><textarea id="sln-msg" name="message" maxlength="1200"></textarea></div>
+          <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
+        </div>
+        <button class="btn btn-primary btn-block mt-3" type="submit">${icon('send')}${esc(copy.confirm)}</button>
+        <div class="form-status" role="status"></div>
+        <p class="form-note center mt-2">${esc(copy.note)}</p>
+      </form>
+    </div>
+  </section>
+
+  ${contactSection(config, s)}`;
+}
+
 export function pageFor(template: string, config: RenderConfig, lang: Lang): string {
   const s = ui(lang);
   switch (template) {
@@ -8409,6 +8843,8 @@ export function pageFor(template: string, config: RenderConfig, lang: Lang): str
       return agencyPage(config, s, lang);
     case 'cleaning':
       return cleaningPage(config, s, lang);
+    case 'salon':
+      return salonPage(config, s, lang);
 
     // Landing-style templates
     case 'fitness':
@@ -8738,6 +9174,32 @@ export function jsonLdFor(template: string, config: RenderConfig, siteUrl: strin
           availability: 'https://schema.org/InStock',
         })),
       },
+    };
+    case 'salon': return {
+      ...base,
+      '@type': 'BeautySalon',
+      image: config.coverUrl || undefined,
+      priceRange: 'DZD',
+      openingHours: config.hours || undefined,
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: 'Beauty packages',
+        itemListElement: config.products.slice(0, 12).map((p, index) => ({
+          '@type': 'Offer',
+          position: index + 1,
+          name: p.name,
+          description: p.description || undefined,
+          price: p.price,
+          priceCurrency: 'DZD',
+          availability: 'https://schema.org/InStock',
+        })),
+      },
+      employee: (config.team || []).map((member) => ({
+        '@type': 'Person',
+        name: member.name,
+        jobTitle: member.role,
+        image: member.photoUrl || undefined,
+      })),
     };
     case 'agency': return {
       ...base,

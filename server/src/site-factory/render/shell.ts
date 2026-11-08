@@ -370,6 +370,19 @@ function navItems(config: RenderConfig, s: UiStrings): { href: string; label: st
           { href: '#contact', label: s.contact },
         ];
       }
+      if (['salon'].includes(config.templateSlug)) {
+        return [
+          { href: '#top', label: s.home },
+          { href: '#services', label: s.services },
+          { href: '#packages', label: s.offer },
+          { href: '#gallery', label: s.gallery },
+          ...(config.team && config.team.length ? [{ href: '#team', label: s.team }] : []),
+          { href: '#about', label: s.about },
+          { href: '#booking', label: s.reservation },
+          { href: '#faq', label: s.faq },
+          { href: '#contact', label: s.contact },
+        ];
+      }
       return [];
   }
 }
@@ -412,6 +425,8 @@ function mobileCta(config: RenderConfig, s: UiStrings): { href: string; label: s
       return { href: '#quote', label: s.getStarted };
     case 'cleaning':
       return { href: '#join', label: s.getStarted };
+    case 'salon':
+      return { href: '#booking', label: s.reservation };
     case 'pharmacy':
       return { href: '#products', label: s.orderNow };
     default:
