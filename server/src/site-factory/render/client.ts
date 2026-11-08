@@ -557,6 +557,15 @@ export const SITE_JS = String.raw`
           ' | launch ' + (agencyTimeline ? agencyTimeline.value : '') +
           '. ' + message;
       }
+      if (form.getAttribute('data-lead-kind') === 'cleaning-booking') {
+        var cleaningPlan = form.querySelector('[name="planName"]');
+        var cleaningDate = form.querySelector('[name="date"]');
+        var cleaningSize = form.querySelector('[name="homeSize"]');
+        message = 'Cleaning booking: ' + (cleaningPlan ? cleaningPlan.value : '') +
+          ' | date ' + (cleaningDate ? cleaningDate.value : '') +
+          ' | size ' + (cleaningSize ? cleaningSize.value : '') +
+          '. ' + message;
+      }
       post('/public/sites/' + encodeURIComponent(SITE.siteId) + '/leads', {
         name: form.name ? form.name.value : '',
         phone: form.phone ? form.phone.value : '',

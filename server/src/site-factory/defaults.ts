@@ -351,6 +351,18 @@ export const TEMPLATES: TemplateSeed[] = [
     },
   },
   {
+    slug: 'cleaning',
+    category: 'cleaning',
+    accent: '#0ea5e9',
+    sortOrder: 34,
+    name: { ar: 'شركة تنظيف وصيانة منازل', fr: 'Nettoyage & entretien à domicile', en: 'Home Cleaning & Maintenance' },
+    description: {
+      ar: 'موقع شركة تنظيف: الخدمات، الباقات، خطوات الحجز، الضمانات، آراء العملاء ونموذج حجز موعد.',
+      fr: 'Site de nettoyage : services, formules, étapes de réservation, garanties, avis clients et demande de rendez-vous.',
+      en: 'Home cleaning company site: services, packages, booking steps, guarantees, client reviews and appointment form.',
+    },
+  },
+  {
     slug: 'agriculture',
     category: 'agriculture',
     accent: '#4d7c0f',

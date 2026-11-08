@@ -7930,6 +7930,423 @@ export function agencyPage(config: RenderConfig, s: UiStrings, lang: Lang): stri
   ${contactSection(config, s)}`;
 }
 
+/* -------------------------------------------------------------------------
+ * HOME CLEANING & MAINTENANCE
+ * ---------------------------------------------------------------------- */
+interface CleaningCopy {
+  heroBadge: string;
+  bookCta: string;
+  servicesCta: string;
+  heroMessage: string;
+  trusted: string;
+  eco: string;
+  guaranteed: string;
+  servicesEyebrow: string;
+  servicesTitle: string;
+  servicesLead: string;
+  services: Array<{ icon: string; title: string; description: string }>;
+  plansEyebrow: string;
+  plansTitle: string;
+  plansLead: string;
+  popular: string;
+  planIncludes: string[];
+  bookPlan: string;
+  processTitle: string;
+  processLead: string;
+  step1: string; step1d: string;
+  step2: string; step2d: string;
+  step3: string; step3d: string;
+  step4: string; step4d: string;
+  aboutTitle: string;
+  aboutLead: string;
+  guarantees: Array<{ icon: string; title: string; description: string }>;
+  stats: Array<[string, string]>;
+  quotes: Array<{ text: string; name: string; role: string }>;
+  faqTitle: string;
+  faq: Array<[string, string]>;
+  bookTitle: string;
+  bookLead: string;
+  formTitle: string;
+  formSub: string;
+  choosePlan: string;
+  dateLabel: string;
+  sizeLabel: string;
+  sizes: string[];
+  confirm: string;
+  note: string;
+}
+
+const CLEANING: Record<Lang, CleaningCopy> = {
+  ar: {
+    heroBadge: 'خدمات منزلية · فريق موثوق ومؤمّن',
+    bookCta: 'احجز الآن',
+    servicesCta: 'خدماتنا',
+    heroMessage: 'أريد حجز خدمة تنظيف منزلي',
+    trusted: 'فريق موثوق',
+    eco: 'مواد صديقة للبيئة',
+    guaranteed: 'ضمان الرضا',
+    servicesEyebrow: 'خدماتنا',
+    servicesTitle: 'منزل نظيف من الأرض إلى السقف',
+    servicesLead: 'خدمات تنظيف وصيانة شاملة بفريق مدرب ومواد آمنة على العائلة.',
+    services: [
+      { icon: 'home', title: 'تنظيف المنازل', description: 'تنظيف دوري كامل للغرف والمطبخ والحمامات.' },
+      { icon: 'spark', title: 'تنظيف عميق', description: 'تنظيف تفصيلي للزوايا والأجهزة والأسطح.' },
+      { icon: 'briefcase', title: 'تنظيف المكاتب', description: 'عقود تنظيف يومية أو أسبوعية للشركات.' },
+      { icon: 'layers', title: 'تنظيف السجاد', description: 'غسيل وتجفيف السجاد والموكيت بأجهزة حديثة.' },
+      { icon: 'zap', title: 'صيانة منزلية', description: 'إصلاحات كهربائية وسباكة بسيطة.' },
+      { icon: 'shield', title: 'تعقيم', description: 'تعقيم شامل بالبخار للمساحات والأسطح.' },
+    ],
+    plansEyebrow: 'الباقات',
+    plansTitle: 'باقة تناسب منزلك',
+    plansLead: 'أسعار واضحة حسب المساحة، بدون رسوم مفاجئة.',
+    popular: 'الأكثر طلباً',
+    planIncludes: ['فريق مدرب ومؤمّن', 'مواد وتجهيزات كاملة', 'ضمان الرضا', 'إعادة مجانية عند الحاجة'],
+    bookPlan: 'احجز الباقة',
+    processTitle: 'كيف نحجز',
+    processLead: 'أربع خطوات بسيطة ويصبح منزلك جاهزاً.',
+    step1: 'اختر الخدمة', step1d: 'حدد نوع التنظيف والمساحة المناسبة.',
+    step2: 'حدد الموعد', step2d: 'اختر اليوم والوقت الذي يناسبك.',
+    step3: 'نصل إليك', step3d: 'فريقنا يصل في الموعد مع كل التجهيزات.',
+    step4: 'استمتع بالنتيجة', step4d: 'تفقّد العمل، وضمان الرضا يشمل أي ملاحظة.',
+    aboutTitle: 'فريق تعرفه ويثق به بيتك',
+    aboutLead: 'شركة تنظيف وصيانة محلية تعمل منذ سنوات بفريق ثابت ومدرب. نحرص على التفاصيل، ونحترم مواعيدنا وخصوصية منازل عملائنا.',
+    guarantees: [
+      { icon: 'shield', title: 'فريق موثوق', description: 'جميع العاملين مدربون ومؤمّنون.' },
+      { icon: 'droplet', title: 'مواد آمنة', description: 'منتجات صديقة للبيئة وآمنة على الأطفال.' },
+      { icon: 'award', title: 'ضمان الرضا', description: 'إعادة تنظيف مجانية إن لم تكن راضياً.' },
+      { icon: 'clock', title: 'التزام بالمواعيد', description: 'نصل في الوقت المحدد أو نعتذر.' },
+    ],
+    stats: [['+1,500', 'منزل نُظّف'], ['+8', 'سنوات خبرة'], ['+30', 'عامل مدرب'], ['98%', 'رضا العملاء']],
+    quotes: [
+      { text: 'وصلوا في الموعد بالضبط، والنتيجة كانت أفضل مما توقعت. أنصح بهم بشدة.', name: 'فاطمة ب.', role: 'عميلة' },
+      { text: 'فريق مهذب ومنظم، واهتموا بتفاصيل لم ألاحظها أنا نفسي.', name: 'سمية م.', role: 'عميلة' },
+      { text: 'خدمة تنظيف المكاتب ممتازة، ومكتبنا أصبح مكاناً أفضل للعمل.', name: 'عمر ح.', role: 'مدير مكتب' },
+    ],
+    faqTitle: 'أسئلة شائعة',
+    faq: [
+      ['هل تجلبون المواد والتجهيزات؟', 'نعم، فريقنا يأتي بكل المواد والأجهزة اللازمة.'],
+      ['كم يستغرق تنظيف شقة؟', 'من 2 إلى 4 ساعات حسب المساحة ونوع الخدمة.'],
+      ['هل يمكن الحجز في نفس اليوم؟', 'حسب التوفر، ويفضل الحجز قبل 24 ساعة على الأقل.'],
+      ['هل المواد آمنة للأطفال والحيوانات؟', 'نعم، نستخدم مواد صديقة للبيئة وآمنة على العائلة.'],
+      ['هل توجد خدمة صيانة؟', 'نعم، إصلاحات كهربائية وسباكة بسيطة ضمن الخدمات.'],
+    ],
+    bookTitle: 'احجز تنظيفك اليوم',
+    bookLead: 'اختر الباقة والتاريخ، وسنتكفل بالباقي.',
+    formTitle: 'طلب حجز',
+    formSub: 'نؤكد الموعد هاتفياً خلال ساعات العمل.',
+    choosePlan: 'الباقة',
+    dateLabel: 'تاريخ الزيارة',
+    sizeLabel: 'حجم المنزل',
+    sizes: ['غرفة وصالة', 'شقة 2 غرف', 'شقة 3 غرف', 'فيلا'],
+    confirm: 'إرسال طلب الحجز',
+    note: 'الدفع بعد إتمام الخدمة · إلغاء مجاني قبل 24 ساعة.',
+  },
+  fr: {
+    heroBadge: 'Services à domicile · Équipe fiable et assurée',
+    bookCta: 'Réserver',
+    servicesCta: 'Nos services',
+    heroMessage: 'Je souhaite réserver un service de nettoyage à domicile',
+    trusted: 'Équipe de confiance',
+    eco: 'Produits écologiques',
+    guaranteed: 'Satisfaction garantie',
+    servicesEyebrow: 'Nos services',
+    servicesTitle: 'Un intérieur propre du sol au plafond',
+    servicesLead: 'Nettoyage et entretien complets par une équipe formée, avec des produits sûrs pour la famille.',
+    services: [
+      { icon: 'home', title: 'Nettoyage maison', description: 'Nettoyage complet régulier des pièces, cuisine et salles de bain.' },
+      { icon: 'spark', title: 'Nettoyage en profondeur', description: 'Nettoyage détaillé des recoins, appareils et surfaces.' },
+      { icon: 'briefcase', title: 'Nettoyage bureaux', description: 'Contrats quotidiens ou hebdomadaires pour les entreprises.' },
+      { icon: 'layers', title: 'Nettoyage moquettes', description: 'Lavage et séchage des tapis et moquettes avec du matériel récent.' },
+      { icon: 'zap', title: 'Petite maintenance', description: 'Petites réparations électriques et de plomberie.' },
+      { icon: 'shield', title: 'Désinfection', description: 'Désinfection complète à la vapeur des espaces et surfaces.' },
+    ],
+    plansEyebrow: 'Formules',
+    plansTitle: 'Une formule adaptée à votre logement',
+    plansLead: 'Des prix clairs selon la surface, sans frais cachés.',
+    popular: 'Le plus demandé',
+    planIncludes: ['Équipe formée et assurée', 'Produits et matériel inclus', 'Satisfaction garantie', 'Retouche gratuite si besoin'],
+    bookPlan: 'Réserver la formule',
+    processTitle: 'Comment réserver',
+    processLead: 'Quatre étapes simples et votre intérieur est prêt.',
+    step1: 'Choisir le service', step1d: 'Sélectionnez le type de nettoyage et la surface.',
+    step2: 'Choisir le créneau', step2d: 'Choisissez le jour et l’heure qui vous conviennent.',
+    step3: 'Nous arrivons', step3d: 'Notre équipe arrive à l’heure avec tout le matériel.',
+    step4: 'Profitez du résultat', step4d: 'Vérifiez le travail, la garantie couvre toute remarque.',
+    aboutTitle: 'Une équipe que votre maison peut accueillir',
+    aboutLead: 'Une entreprise locale de nettoyage et d’entretien, avec une équipe fixe et formée depuis des années. Nous soignons les détails et respectons vos horaires et votre intimité.',
+    guarantees: [
+      { icon: 'shield', title: 'Équipe fiable', description: 'Tous les intervenants sont formés et assurés.' },
+      { icon: 'droplet', title: 'Produits sûrs', description: 'Des produits écologiques et sûrs pour les enfants.' },
+      { icon: 'award', title: 'Satisfaction garantie', description: 'Nettoyage gratuit à refaire si nécessaire.' },
+      { icon: 'clock', title: 'Ponctualité', description: 'Nous arrivons à l’heure convenue.' },
+    ],
+    stats: [['+1 500', 'logements nettoyés'], ['+8', 'ans d’expérience'], ['+30', 'agents formés'], ['98 %', 'satisfaction client']],
+    quotes: [
+      { text: 'Ils sont arrivés pile à l’heure et le résultat a dépassé mes attentes. Je recommande fortement.', name: 'Fatima B.', role: 'Cliente' },
+      { text: 'Une équipe polie et organisée, qui a soigné des détails que je n’avais même pas remarqués.', name: 'Soumia M.', role: 'Cliente' },
+      { text: 'Le nettoyage de bureaux est excellent, notre espace de travail est bien meilleur.', name: 'Omar H.', role: 'Responsable de bureau' },
+    ],
+    faqTitle: 'Questions fréquentes',
+    faq: [
+      ['Apportez-vous les produits et le matériel ?', 'Oui, notre équipe vient avec tous les produits et appareils nécessaires.'],
+      ['Combien de temps pour nettoyer un appartement ?', 'De 2 à 4 heures selon la surface et le type de service.'],
+      ['Peut-on réserver le jour même ?', 'Selon disponibilité, une réservation 24 h à l’avance est préférable.'],
+      ['Les produits sont-ils sûrs pour enfants et animaux ?', 'Oui, nous utilisons des produits écologiques et sûrs pour la famille.'],
+      ['Proposez-vous la maintenance ?', 'Oui, les petites réparations électriques et de plomberie font partie des services.'],
+    ],
+    bookTitle: 'Réservez votre nettoyage',
+    bookLead: 'Choisissez la formule et la date, nous nous occupons du reste.',
+    formTitle: 'Demande de réservation',
+    formSub: 'Nous confirmons le rendez-vous par téléphone pendant les heures d’ouverture.',
+    choosePlan: 'Formule',
+    dateLabel: 'Date de visite',
+    sizeLabel: 'Taille du logement',
+    sizes: ['Pièce et salon', 'Appartement 2 pièces', 'Appartement 3 pièces', 'Villa'],
+    confirm: 'Envoyer la demande',
+    note: 'Paiement après la prestation · Annulation gratuite 24 h avant.',
+  },
+  en: {
+    heroBadge: 'Home services · Reliable, insured team',
+    bookCta: 'Book now',
+    servicesCta: 'Our services',
+    heroMessage: 'I would like to book a home cleaning service',
+    trusted: 'Trusted team',
+    eco: 'Eco-friendly products',
+    guaranteed: 'Satisfaction guarantee',
+    servicesEyebrow: 'Our services',
+    servicesTitle: 'A clean home from floor to ceiling',
+    servicesLead: 'Complete cleaning and maintenance by a trained team, with products safe for the family.',
+    services: [
+      { icon: 'home', title: 'Home cleaning', description: 'Regular full cleaning of rooms, kitchen and bathrooms.' },
+      { icon: 'spark', title: 'Deep cleaning', description: 'Detailed cleaning of corners, appliances and surfaces.' },
+      { icon: 'briefcase', title: 'Office cleaning', description: 'Daily or weekly cleaning contracts for businesses.' },
+      { icon: 'layers', title: 'Carpet cleaning', description: 'Washing and drying of rugs and carpets with modern equipment.' },
+      { icon: 'zap', title: 'Home maintenance', description: 'Simple electrical and plumbing repairs.' },
+      { icon: 'shield', title: 'Disinfection', description: 'Full steam disinfection of spaces and surfaces.' },
+    ],
+    plansEyebrow: 'Packages',
+    plansTitle: 'A package for your home',
+    plansLead: 'Clear prices based on size, with no surprise fees.',
+    popular: 'Most popular',
+    planIncludes: ['Trained, insured team', 'Products and equipment included', 'Satisfaction guarantee', 'Free re-clean if needed'],
+    bookPlan: 'Book package',
+    processTitle: 'How to book',
+    processLead: 'Four simple steps and your home is ready.',
+    step1: 'Choose the service', step1d: 'Select the cleaning type and size.',
+    step2: 'Pick a slot', step2d: 'Choose the day and time that suits you.',
+    step3: 'We arrive', step3d: 'Our team arrives on time with all equipment.',
+    step4: 'Enjoy the result', step4d: 'Check the work, the guarantee covers any remark.',
+    aboutTitle: 'A team your home can trust',
+    aboutLead: 'A local cleaning and maintenance company with a stable, trained team built over years. We care about details and respect your schedule and privacy.',
+    guarantees: [
+      { icon: 'shield', title: 'Trusted team', description: 'All staff are trained and insured.' },
+      { icon: 'droplet', title: 'Safe products', description: 'Eco-friendly products safe for children.' },
+      { icon: 'award', title: 'Satisfaction guarantee', description: 'Free re-clean if you are not satisfied.' },
+      { icon: 'clock', title: 'On time', description: 'We arrive at the agreed time.' },
+    ],
+    stats: [['+1,500', 'homes cleaned'], ['+8', 'years of experience'], ['+30', 'trained staff'], ['98%', 'client satisfaction']],
+    quotes: [
+      { text: 'They arrived right on time and the result exceeded my expectations. Highly recommended.', name: 'Fatima B.', role: 'Client' },
+      { text: 'A polite and organized team that took care of details I had not even noticed.', name: 'Soumia M.', role: 'Client' },
+      { text: 'The office cleaning service is excellent, our workplace is much better now.', name: 'Omar H.', role: 'Office manager' },
+    ],
+    faqTitle: 'Frequently asked questions',
+    faq: [
+      ['Do you bring products and equipment?', 'Yes, our team arrives with all necessary products and equipment.'],
+      ['How long does an apartment take?', '2 to 4 hours depending on size and service type.'],
+      ['Can I book the same day?', 'Depending on availability, booking 24 hours ahead is best.'],
+      ['Are products safe for children and pets?', 'Yes, we use eco-friendly products safe for the family.'],
+      ['Do you offer maintenance?', 'Yes, simple electrical and plumbing repairs are part of our services.'],
+    ],
+    bookTitle: 'Book your cleaning today',
+    bookLead: 'Choose the package and date, and we will handle the rest.',
+    formTitle: 'Booking request',
+    formSub: 'We confirm by phone during opening hours.',
+    choosePlan: 'Package',
+    dateLabel: 'Visit date',
+    sizeLabel: 'Home size',
+    sizes: ['Room and living room', '2-bedroom apartment', '3-bedroom apartment', 'Villa'],
+    confirm: 'Send request',
+    note: 'Payment after the service · Free cancellation 24 hours before.',
+  },
+};
+
+export function cleaningPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
+  const copy = CLEANING[lang];
+  const plans = config.products.filter((p) => p.name);
+  const heroImage = config.coverUrl
+    ? `<img src="${attr(config.coverUrl)}" alt="${attr(config.siteName)}" width="900" height="1100" fetchpriority="high" decoding="async">`
+    : '';
+  const about = aboutPhoto(config);
+  const heroWa = waHref(config, `${copy.heroMessage} — ${config.siteName}`);
+  const bookWa = waHref(config, `${copy.bookTitle} — ${config.siteName}`);
+
+  return `<section class="hero cleaning-hero" id="top">
+    <div class="container hero-grid">
+      <div class="hero-copy" data-reveal>
+        <span class="badge">${icon('spark')}${esc(copy.heroBadge)}</span>
+        <h1 class="h1 mt-3">${esc(config.siteName)}</h1>
+        <p class="lead">${esc(config.description)}</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#join">${icon('calendar')}${esc(copy.bookCta)}</a>
+          <a class="btn btn-ghost" href="#services">${icon('arrow')}${esc(copy.servicesCta)}</a>
+        </div>
+        <div class="cleaning-badges">
+          <span>${icon('shield')}${esc(copy.trusted)}</span>
+          <span>${icon('droplet')}${esc(copy.eco)}</span>
+          <span>${icon('award')}${esc(copy.guaranteed)}</span>
+        </div>
+        <div class="hero-stats">
+          ${copy.stats.slice(0, 3).map(([num, label]) => `<div><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="hero-media cleaning-hero-media${heroImage ? '' : ' no-img'}" data-mark="${attr(initials(config.siteName))}" data-reveal>${heroImage}
+        <div class="float-card"><span class="float-icon">${icon('award')}</span><div><strong>${esc(copy.guaranteed)}</strong><span>${esc(copy.eco)}</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="trust-strip"><div class="container">
+    <span class="trust-item">${icon('shield')}${esc(copy.trusted)}</span>
+    <span class="trust-item">${icon('droplet')}${esc(copy.eco)}</span>
+    <span class="trust-item">${icon('award')}${esc(copy.guaranteed)}</span>
+    <span class="trust-item">${icon('clock')}${esc(copy.guarantees[3].title)}</span>
+  </div></div>
+
+  <section class="section bg-soft" id="services">
+    <div class="container">
+      ${sectionHead(copy.servicesEyebrow, copy.servicesTitle, copy.servicesLead, true)}
+      <div class="cleaning-services">
+        ${copy.services.map((item) => `<article class="cleaning-service" data-reveal>
+          <span class="cleaning-service-icon">${icon(item.icon as any)}</span>
+          <h3 class="h3">${esc(item.title)}</h3>
+          <p>${esc(item.description)}</p>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="plans">
+    <div class="container">
+      ${sectionHead(copy.plansEyebrow, copy.plansTitle, copy.plansLead, true)}
+      <div class="cleaning-plans">
+        ${plans.map((p, i) => `<article class="cleaning-plan${i === 1 ? ' is-popular' : ''}" data-reveal>
+          ${i === 1 ? `<span class="cleaning-plan-badge">${esc(copy.popular)}</span>` : ''}
+          <span class="cleaning-plan-period">${esc(p.category || '')}</span>
+          <h3>${esc(p.name)}</h3>
+          <div class="cleaning-plan-price">${money(p.price, lang)}</div>
+          ${p.description ? `<p>${esc(p.description)}</p>` : ''}
+          <ul class="cleaning-plan-list">${copy.planIncludes.map((f) => `<li>${icon('check')}${esc(f)}</li>`).join('')}</ul>
+          <button class="btn btn-primary btn-block" type="button" data-pick-plan="${attr(p.name)}">${icon('calendar')}${esc(copy.bookPlan)}</button>
+        </article>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="process">
+    <div class="container">
+      ${sectionHead(s.process, copy.processTitle, copy.processLead, true)}
+      <div class="steps">
+        ${[
+          [copy.step1, copy.step1d],
+          [copy.step2, copy.step2d],
+          [copy.step3, copy.step3d],
+          [copy.step4, copy.step4d],
+        ].map(([title, desc], i) => `<div class="step" data-reveal><div class="n">${i + 1}</div><h3>${esc(title)}</h3><p>${esc(desc)}</p></div>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="about">
+    <div class="container about-grid">
+      <div class="about-media cleaning-about-media${about ? '' : ' no-img'}" data-reveal>
+        ${about ? `<img src="${attr(about)}" alt="${attr(config.siteName)}" loading="lazy" decoding="async" width="800" height="700">` : ''}
+        <div class="about-badge">${icon('award')}+1,500 ${esc(copy.stats[0][1])}</div>
+      </div>
+      <div data-reveal>
+        <span class="eyebrow">${esc(s.about)}</span>
+        <h2 class="h2 mt-2">${esc(copy.aboutTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.aboutLead)}</p>
+        <div class="cleaning-guarantees">
+          ${copy.guarantees.map((g) => `<div class="cleaning-guarantee"><span class="cleaning-guarantee-icon">${icon(g.icon as any)}</span><div><strong>${esc(g.title)}</strong><span>${esc(g.description)}</span></div></div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stats-band">
+    <div class="container stats-grid">
+      ${copy.stats.map(([num, label]) => `<div class="stat"><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
+    </div>
+  </section>
+
+  <section class="section bg-soft">
+    <div class="container">${sectionHead(s.testimonials, s.testimonials, undefined, true)}
+      <div class="grid g3">${copy.quotes.map((q) => `<div class="quote" data-reveal>
+        <div class="stars" aria-label="5/5">★★★★★</div>
+        <p>“${esc(q.text)}”</p>
+        <div class="who"><span class="avatar">${esc(initialsFor(q.name))}</span><div><strong>${esc(q.name)}</strong><span>${esc(q.role)}</span></div></div>
+      </div>`).join('')}</div>
+    </div>
+  </section>
+
+  <section class="section" id="faq">
+    <div class="container">
+      ${sectionHead(s.faq, copy.faqTitle, undefined, true)}
+      <div class="faq-list">
+        ${copy.faq.map(([q, a]) => `<details class="faq" data-reveal>
+          <summary>${esc(q)}<span class="faq-ic">${icon('plus')}</span></summary>
+          <p>${esc(a)}</p>
+        </details>`).join('')}
+      </div>
+    </div>
+  </section>
+
+  <section class="section bg-soft" id="join">
+    <div class="container cleaning-join-wrap">
+      <div data-reveal>
+        <span class="eyebrow">${esc(s.reservation)}</span>
+        <h2 class="h2 mt-2">${esc(copy.bookTitle)}</h2>
+        <p class="lead mt-2">${esc(copy.bookLead)}</p>
+        <ul class="checklist">
+          ${copy.planIncludes.map((f) => `<li><span class="tick">${icon('check')}</span><span>${esc(f)}</span></li>`).join('')}
+        </ul>
+        <div class="cleaning-hours">
+          <div class="hours-row"><span>${icon('clock')}${esc(s.hours)}</span><strong>${esc(config.hours || '')}</strong></div>
+          <div class="hours-row"><span>${icon('map')}${esc(s.location)}</span><strong>${esc(config.address || config.city || '')}</strong></div>
+        </div>
+        <div class="cleaning-contact-actions">
+          <a class="btn btn-light" href="tel:${attr(config.phone)}">${icon('phone')}${esc(s.callNow)}</a>
+          <a class="btn btn-wa" href="${attr(bookWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.whatsapp)}</a>
+        </div>
+      </div>
+      <form class="cleaning-form-card" data-lead-form data-lead-kind="cleaning-booking" novalidate>
+        <h3>${esc(copy.formTitle)}</h3>
+        <p class="booking-sub">${esc(copy.formSub)}</p>
+        <div class="form-grid">
+          <div class="field"><label for="cln-name">${esc(s.name)}</label><input id="cln-name" name="name" required maxlength="80" autocomplete="name"><span class="err">${esc(s.required)}</span></div>
+          <div class="field"><label for="cln-phone">${esc(s.phone)}</label><input id="cln-phone" name="phone" type="tel" required maxlength="20" autocomplete="tel" dir="ltr"><span class="err">${esc(s.invalidPhone)}</span></div>
+          <div class="field full"><label for="cln-plan">${esc(copy.choosePlan)}</label><select id="cln-plan" name="planName" data-join-plan required>
+            <option value="">${esc(copy.choosePlan)}</option>
+            ${plans.map((p) => `<option value="${attr(p.name)}">${esc(p.name)} — ${money(p.price, lang)}</option>`).join('')}
+          </select><span class="err">${esc(s.required)}</span></div>
+          <div class="field full"><label for="cln-date">${esc(copy.dateLabel)}</label><input id="cln-date" name="date" type="date" required dir="ltr"><span class="err">${esc(s.required)}</span></div>
+          <div class="field full"><label for="cln-size">${esc(copy.sizeLabel)}</label><select id="cln-size" name="homeSize">
+            ${copy.sizes.map((size) => `<option value="${attr(size)}">${esc(size)}</option>`).join('')}
+          </select></div>
+          <div class="field full"><label for="cln-msg">${esc(s.message)}</label><textarea id="cln-msg" name="message" maxlength="1200"></textarea></div>
+          <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
+        </div>
+        <button class="btn btn-primary btn-block mt-3" type="submit">${icon('send')}${esc(copy.confirm)}</button>
+        <div class="form-status" role="status"></div>
+        <p class="form-note center mt-2">${esc(copy.note)}</p>
+      </form>
+    </div>
+  </section>
+
+  ${contactSection(config, s)}`;
+}
+
 export function pageFor(template: string, config: RenderConfig, lang: Lang): string {
   const s = ui(lang);
   switch (template) {
@@ -7990,6 +8407,8 @@ export function pageFor(template: string, config: RenderConfig, lang: Lang): str
       return bistroPage(config, s, lang);
     case 'agency':
       return agencyPage(config, s, lang);
+    case 'cleaning':
+      return cleaningPage(config, s, lang);
 
     // Landing-style templates
     case 'fitness':
@@ -8298,6 +8717,27 @@ export function jsonLdFor(template: string, config: RenderConfig, siteUrl: strin
         jobTitle: member.role,
         image: member.photoUrl || undefined,
       })),
+    };
+    case 'cleaning': return {
+      ...base,
+      '@type': 'ProfessionalService',
+      image: config.coverUrl || undefined,
+      priceRange: 'DZD',
+      serviceType: 'Home cleaning and maintenance',
+      openingHours: config.hours || undefined,
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: 'Cleaning packages',
+        itemListElement: config.products.slice(0, 12).map((p, index) => ({
+          '@type': 'Offer',
+          position: index + 1,
+          name: p.name,
+          description: p.description || undefined,
+          price: p.price,
+          priceCurrency: 'DZD',
+          availability: 'https://schema.org/InStock',
+        })),
+      },
     };
     case 'agency': return {
       ...base,
