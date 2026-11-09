@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowRight,
   CheckCircle2,
@@ -42,16 +42,34 @@ export function SiteFactoryPage() {
   const [trackSeed, setTrackSeed] = useState({ ref: '', contact: '' });
   const [result, setResult] = useState<FactoryResult | null>(null);
   const [submittedDraft, setSubmittedDraft] = useState<Draft | null>(null);
+  // Render free-tier API instances can take ~30-60s to wake up. Keep retrying
+  // quietly in the background so the banner disappears without user action.
+  const retryTimer = useRef<number | null>(null);
+  const retryCount = useRef(0);
+
+  const retryNow = useCallback(() => {
+    retryCount.current = 0;
+    if (retryTimer.current !== null) {
+      window.clearTimeout(retryTimer.current);
+      retryTimer.current = null;
+    }
+    setReloadKey((key) => key + 1);
+  }, []);
 
   useEffect(() => {
     let active = true;
-    setConfigError('');
     loadFactoryConfig()
       .then((next) => {
         if (!active) return;
         setConfig(next);
+        setConfigError('');
+        retryCount.current = 0;
+        if (retryTimer.current !== null) {
+          window.clearTimeout(retryTimer.current);
+          retryTimer.current = null;
+        }
       })
-      .catch(() => {
+      .catch((error: any) => {
         if (!active) return;
         setConfigError(
           t({
@@ -60,11 +78,36 @@ export function SiteFactoryPage() {
             en: 'Could not refresh prices — showing a saved copy. Check your connection and retry.',
           }),
         );
+        // A 4xx is a configuration problem; waking the server again will not help.
+        const retryable = !(typeof error?.status === 'number' && error.status >= 400 && error.status < 500);
+        const delays = [5000, 15000, 30000, 60000];
+        if (retryable && retryCount.current < delays.length) {
+          const delay = delays[retryCount.current];
+          retryCount.current += 1;
+          if (retryTimer.current !== null) window.clearTimeout(retryTimer.current);
+          retryTimer.current = window.setTimeout(() => {
+            retryTimer.current = null;
+            setReloadKey((key) => key + 1);
+          }, delay);
+        }
       });
     return () => {
       active = false;
     };
   }, [reloadKey, t]);
+
+  // Retry as soon as the device reports that the connection is back.
+  useEffect(() => {
+    const onOnline = () => retryNow();
+    window.addEventListener('online', onOnline);
+    return () => window.removeEventListener('online', onOnline);
+  }, [retryNow]);
+
+  useEffect(() => {
+    return () => {
+      if (retryTimer.current !== null) window.clearTimeout(retryTimer.current);
+    };
+  }, []);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -293,7 +336,7 @@ export function SiteFactoryPage() {
               </div>
               <button
                 type="button"
-                onClick={() => setReloadKey((key) => key + 1)}
+                onClick={retryNow}
                 className="rounded-xl border border-rose-500/30 bg-background px-4 py-2 text-xs font-bold text-rose-600 hover:bg-rose-500/10"
               >
                 {t({ ar: 'إعادة المحاولة', fr: 'Réessayer', en: 'Retry' })}

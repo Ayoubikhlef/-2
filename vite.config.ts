@@ -78,6 +78,20 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  // `vite preview` serves the production bundle on another port; without this
+  // proxy its `/api` calls fall back to index.html and break the catalog.
+  server: {
+    proxy: {
+      '/api': { target: 'http://localhost:3001', changeOrigin: true },
+      '/socket.io': { target: 'http://localhost:3001', ws: true },
+    },
+  },
+  preview: {
+    proxy: {
+      '/api': { target: 'http://localhost:3001', changeOrigin: true },
+      '/socket.io': { target: 'http://localhost:3001', ws: true },
+    },
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),

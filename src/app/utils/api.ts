@@ -1,6 +1,6 @@
 const isDev = import.meta.env.DEV;
 
-const PRIMARY_URL: string = typeof window !== 'undefined' && window.location.hostname === 'localhost'
+const PRIMARY_URL: string = isDev && typeof window !== 'undefined' && window.location.hostname === 'localhost'
   ? (import.meta.env.VITE_API_URL || 'http://localhost:3001/api')
   : '/api';
 const FALLBACK_URLS: string[] = [];
@@ -85,6 +85,14 @@ async function request<T>(
             return request<T>(path, options, false);
           }
         }
+        throw error;
+      }
+      const contentType = res.headers.get('content-type') || '';
+      if (!contentType.includes('json')) {
+        // A dev/preview server without an API proxy can answer /api with the
+        // SPA HTML. Treat that as a server error instead of a JSON parse crash.
+        const error: any = new Error(`Unexpected response (${res.status})`);
+        error.status = res.status >= 500 ? res.status : 502;
         throw error;
       }
       return res.json();
