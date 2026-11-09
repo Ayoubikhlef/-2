@@ -428,7 +428,9 @@ export const SITE_JS = String.raw`
       if (btn) { btn.disabled = true; btn.textContent = SITE.strings.sending; }
       var message = form.message ? form.message.value : '';
       if (form.getAttribute('data-lead-kind') === 'reservation') {
-        message = 'Reservation: ' + (form.date ? form.date.value : '') + ' ' + (form.time ? form.time.value : '') + ' — ' + (form.guests ? form.guests.value : '') + ' guests. ' + message;
+        var reservationTable = form.querySelector('[name="table"]');
+        message = 'Reservation: ' + (form.date ? form.date.value : '') + ' ' + (form.time ? form.time.value : '') + ' — ' + (form.guests ? form.guests.value : '') + ' guests' +
+          (reservationTable && reservationTable.value ? ' | table ' + reservationTable.value : '') + '. ' + message;
       }
       if (form.getAttribute('data-lead-kind') === 'rental') {
         var carSelect = form.car;
@@ -478,9 +480,15 @@ export const SITE_JS = String.raw`
       if (form.getAttribute('data-lead-kind') === 'quote') {
         var quoServiceSelect = form.querySelector('[name="serviceType"]');
         var quoTypeSelect = form.querySelector('[name="projectType"]');
+        var quoSurface = form.querySelector('[name="surface"]');
+        var quoEstimate = form.querySelector('[name="estimate"]');
+        var quoExtras = $$('input[name="extra"]:checked', form).map(function (x) { return x.value; }).join(', ');
         var quoServiceName = quoServiceSelect ? quoServiceSelect.value : '';
         var quoTypeName = quoTypeSelect ? quoTypeSelect.value : '';
         message = 'Quote request: ' + quoServiceName + ' | ' + quoTypeName +
+          (quoSurface ? ' | area ' + quoSurface.value + ' m2' : '') +
+          (quoExtras ? ' | extras ' + quoExtras : '') +
+          (quoEstimate && quoEstimate.value ? ' | estimate ' + money(quoEstimate.value) : '') +
           ' | ' + (form.message ? form.message.value : '') +
           '. ' + message;
       }
@@ -488,9 +496,11 @@ export const SITE_JS = String.raw`
         var hotelRoom = form.querySelector('[name="roomType"]');
         var hotelNights = form.querySelector('[name="nights"]');
         var hotelArrival = form.querySelector('[name="arrivalDate"]');
+        var hotelTime = form.querySelector('[name="time"]');
         message = 'Hotel booking: ' + (hotelRoom ? hotelRoom.value : '') +
           ' | ' + (hotelNights ? hotelNights.value : '') + ' night(s)' +
           ' | arrival ' + (hotelArrival ? hotelArrival.value : '') +
+          (hotelTime && hotelTime.value ? ' at ' + hotelTime.value : '') +
           '. ' + message;
       }
       if (form.getAttribute('data-lead-kind') === 'showroom-quote') {
@@ -503,8 +513,11 @@ export const SITE_JS = String.raw`
       if (form.getAttribute('data-lead-kind') === 'clinic-booking') {
         var clinicService = form.querySelector('[name="serviceType"]');
         var clinicDoctor = form.querySelector('[name="doctorName"]');
+        var clinicDate = form.querySelector('[name="date"]');
+        var clinicTime = form.querySelector('[name="time"]');
         message = 'Clinic appointment: ' + (clinicService ? clinicService.value : '') +
           ' | doctor ' + (clinicDoctor ? clinicDoctor.value : '') +
+          ' | ' + (clinicDate ? clinicDate.value : '') + ' ' + (clinicTime ? clinicTime.value : '') +
           '. ' + message;
       }
       if (form.getAttribute('data-lead-kind') === 'digital-order') {
@@ -542,28 +555,50 @@ export const SITE_JS = String.raw`
         var diningTime = form.querySelector('[name="time"]');
         var diningGuests = form.querySelector('[name="guests"]');
         var diningOccasion = form.querySelector('[name="occasion"]');
+        var diningTable = form.querySelector('[name="table"]');
         message = 'Table reservation: ' + (diningDate ? diningDate.value : '') +
           ' | ' + (diningTime ? diningTime.value : '') +
           ' | ' + (diningGuests ? diningGuests.value : '') + ' guest(s)' +
           ' | ' + (diningOccasion ? diningOccasion.value : '') +
+          (diningTable && diningTable.value ? ' | table ' + diningTable.value : '') +
           '. ' + message;
       }
       if (form.getAttribute('data-lead-kind') === 'agency-quote') {
         var agencyService = form.querySelector('[name="serviceType"]');
         var agencyBudget = form.querySelector('[name="budget"]');
         var agencyTimeline = form.querySelector('[name="timeline"]');
+        var agencyEstimate = form.querySelector('[name="estimate"]');
+        var agencyExtras = $$('input[name="extra"]:checked', form).map(function (x) { return x.value; }).join(', ');
         message = 'Agency quote: ' + (agencyService ? agencyService.value : '') +
           ' | budget ' + (agencyBudget ? agencyBudget.value : '') +
           ' | launch ' + (agencyTimeline ? agencyTimeline.value : '') +
+          (agencyExtras ? ' | extras ' + agencyExtras : '') +
+          (agencyEstimate && agencyEstimate.value ? ' | estimate ' + money(agencyEstimate.value) : '') +
+          '. ' + message;
+      }
+      if (form.getAttribute('data-lead-kind') === 'salon-booking') {
+        var salonService = form.querySelector('[name="serviceName"]');
+        var salonStylist = form.querySelector('[name="stylist"]');
+        var salonDate = form.querySelector('[name="date"]');
+        var salonTime = form.querySelector('[name="time"]');
+        message = 'Salon booking: ' + (salonService ? salonService.value : '') +
+          ' | stylist ' + (salonStylist ? salonStylist.value : '') +
+          ' | ' + (salonDate ? salonDate.value : '') + ' ' + (salonTime ? salonTime.value : '') +
           '. ' + message;
       }
       if (form.getAttribute('data-lead-kind') === 'cleaning-booking') {
         var cleaningPlan = form.querySelector('[name="planName"]');
         var cleaningDate = form.querySelector('[name="date"]');
+        var cleaningTime = form.querySelector('[name="time"]');
         var cleaningSize = form.querySelector('[name="homeSize"]');
+        var cleaningEstimate = form.querySelector('[name="estimate"]');
+        var cleaningExtras = $$('input[name="extra"]:checked', form).map(function (x) { return x.value; }).join(', ');
         message = 'Cleaning booking: ' + (cleaningPlan ? cleaningPlan.value : '') +
           ' | date ' + (cleaningDate ? cleaningDate.value : '') +
+          (cleaningTime && cleaningTime.value ? ' at ' + cleaningTime.value : '') +
           ' | size ' + (cleaningSize ? cleaningSize.value : '') +
+          (cleaningExtras ? ' | extras ' + cleaningExtras : '') +
+          (cleaningEstimate && cleaningEstimate.value ? ' | estimate ' + money(cleaningEstimate.value) : '') +
           '. ' + message;
       }
       post('/public/sites/' + encodeURIComponent(SITE.siteId) + '/leads', {
@@ -573,7 +608,20 @@ export const SITE_JS = String.raw`
         message: message,
         website: form.website ? form.website.value : ''
       }).then(function () {
-        if (status) { status.className = 'form-status ok'; status.textContent = SITE.strings.messageSuccess; }
+        var calendar = buildIcs(form);
+        if (status) {
+          status.className = 'form-status ok';
+          status.textContent = SITE.strings.messageSuccess;
+          if (calendar) {
+            var calendarLink = document.createElement('a');
+            calendarLink.className = 'form-ics';
+            calendarLink.href = URL.createObjectURL(new Blob([calendar], { type: 'text/calendar;charset=utf-8' }));
+            calendarLink.download = (SITE.siteName || 'booking').replace(/[^\w\u0600-\u06FF-]+/g, '-') + '.ics';
+            calendarLink.textContent = SITE.strings.addToCalendar || 'ICS';
+            status.appendChild(document.createTextNode(' '));
+            status.appendChild(calendarLink);
+          }
+        }
         form.reset();
         toast(SITE.strings.messageSuccess);
       }).catch(function (err) {
@@ -767,6 +815,504 @@ export const SITE_JS = String.raw`
         navigator.clipboard.writeText(url).then(function () { toast('✓'); }).catch(function () {});
       }
     });
+  }
+
+  // ---- optional interactive features --------------------------------------
+  var locale = SITE.lang === 'ar' ? 'ar-DZ' : SITE.lang === 'fr' ? 'fr-DZ' : 'en-GB';
+  function fmtDay(date, options) {
+    try { return new Intl.DateTimeFormat(locale, options).format(date); } catch (e) { return ''; }
+  }
+  function minutesOf(value) {
+    var bits = String(value || '').split(':');
+    return bits.length > 1 ? Number(bits[0]) * 60 + Number(bits[1]) : -1;
+  }
+  function icsEscape(value) {
+    return String(value == null ? '' : value)
+      .replace(/\\/g, '\\\\')
+      .replace(/\n/g, '\\n')
+      .replace(/,/g, '\\,')
+      .replace(/;/g, '\\;');
+  }
+  function buildIcs(form) {
+    var dateInput = form.querySelector('[name="date"]') || form.querySelector('[name="arrivalDate"]');
+    if (!dateInput || !dateInput.value) return '';
+    var day = rentalDate(dateInput.value);
+    if (!day || isNaN(day.getTime())) return '';
+    var timeInput = form.querySelector('[name="time"]');
+    var time = timeInput && timeInput.value ? timeInput.value : '09:00';
+    var bits = time.split(':');
+    day.setHours(Number(bits[0]) || 9, Number(bits[1]) || 0, 0, 0);
+    var nights = form.querySelector('[name="nights"]');
+    var length = nights && Number(nights.value) > 0 ? Number(nights.value) * 24 * 60 : 60;
+    var end = new Date(day.getTime() + length * 60 * 1000);
+    var stamp = function (date) {
+      var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+      return date.getFullYear() + pad(date.getMonth() + 1) + pad(date.getDate()) + 'T' + pad(date.getHours()) + pad(date.getMinutes()) + '00';
+    };
+    var contact = SITE.contact || {};
+    var details = [];
+    var kind = form.querySelector('[name="serviceName"],[name="serviceType"],[name="planName"],[name="roomType"]');
+    if (kind && kind.value) details.push(kind.value);
+    var table = form.querySelector('[name="table"]');
+    if (table && table.value) details.push(table.value);
+    var guests = form.querySelector('[name="guests"]');
+    if (guests && guests.value) details.push(guests.value + ' ' + (SITE.strings.guests || ''));
+    if (form.message && form.message.value) details.push(form.message.value);
+    var lines = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//AOS Site Factory//EN',
+      'CALSCALE:GREGORIAN',
+      'BEGIN:VEVENT',
+      'UID:' + Date.now() + '-' + Math.random().toString(36).slice(2) + '@' + (SITE.domain || 'aos'),
+      'DTSTAMP:' + stamp(new Date()),
+      'DTSTART:' + stamp(day),
+      'DTEND:' + stamp(end),
+      'SUMMARY:' + icsEscape(SITE.siteName || ''),
+      'LOCATION:' + icsEscape([contact.address, contact.city].filter(Boolean).join(', ')),
+      'DESCRIPTION:' + icsEscape(details.join(' — ')),
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ];
+    return lines.join('\r\n');
+  }
+
+  // before/after comparison slider
+  $$('[data-before-after]').forEach(function (slider) {
+    var range = $('.ba-range', slider);
+    if (!range) return;
+    var sync = function () {
+      var value = Math.max(0, Math.min(100, Number(range.value) || 0));
+      slider.style.setProperty('--pos', value + '%');
+      range.setAttribute('aria-valuenow', String(value));
+    };
+    var move = function (clientX) {
+      var rect = slider.getBoundingClientRect();
+      if (!rect.width) return;
+      range.value = String(Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100)));
+      sync();
+    };
+    var dragging = false;
+    range.addEventListener('input', sync);
+    slider.addEventListener('pointerdown', function (e) {
+      if (e.target === range) return;
+      dragging = true;
+      if (slider.setPointerCapture) slider.setPointerCapture(e.pointerId);
+      move(e.clientX);
+    });
+    slider.addEventListener('pointermove', function (e) { if (dragging) move(e.clientX); });
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (type) {
+      slider.addEventListener(type, function () { dragging = false; });
+    });
+    sync();
+  });
+
+  // smart booking: 14-day strip + time chips + live summary
+  $$('[data-smart-booking]').forEach(function (form) {
+    var f = SITE.features || {};
+    var dateInput = form.querySelector('[name="date"]') || form.querySelector('[name="arrivalDate"]');
+    var timeInput = form.querySelector('[name="time"]');
+    if (!dateInput && !timeInput) return;
+    var holder = form.querySelector('[data-smart-booking-slot]');
+    var grid = form.querySelector('.form-grid');
+    var anchor = holder || grid;
+    if (!anchor) return;
+    var box = document.createElement('div');
+    box.className = 'smart-booking';
+    var head = document.createElement('div');
+    head.className = 'sb-head';
+    var headTitle = document.createElement('span');
+    headTitle.textContent = f.smartBooking || '';
+    head.appendChild(headTitle);
+    var dayWrap = document.createElement('div');
+    dayWrap.className = 'sb-days';
+    dayWrap.setAttribute('role', 'group');
+    dayWrap.setAttribute('aria-label', f.pickDay || '');
+    var slotWrap = document.createElement('div');
+    slotWrap.className = 'sb-slots';
+    slotWrap.setAttribute('role', 'group');
+    slotWrap.setAttribute('aria-label', f.pickTime || '');
+    box.appendChild(head);
+    box.appendChild(dayWrap);
+    box.appendChild(slotWrap);
+    var summaryEl = null;
+    if (!form.hasAttribute('data-appointment')) {
+      var summary = document.createElement('div');
+      summary.className = 'sb-summary';
+      summary.setAttribute('aria-live', 'polite');
+      var summaryLabel = document.createElement('span');
+      summaryLabel.textContent = f.bookingSummary || '';
+      summaryEl = document.createElement('strong');
+      summaryEl.setAttribute('data-sb-summary', '');
+      summaryEl.textContent = f.notChosen || '—';
+      summary.appendChild(summaryLabel);
+      summary.appendChild(summaryEl);
+      box.appendChild(summary);
+    }
+    if (holder) holder.appendChild(box);
+    else anchor.parentNode.insertBefore(box, anchor);
+
+    var hideNative = function (input) {
+      if (!input) return;
+      var field = input.closest('.field');
+      if (field) field.classList.add('sb-native');
+    };
+    hideNative(dateInput);
+    hideNative(timeInput);
+
+    var slots = String(form.getAttribute('data-slots') || '').split(',').map(function (slot) {
+      return slot.trim();
+    }).filter(Boolean);
+    if (!slots.length && timeInput && timeInput.tagName === 'SELECT') {
+      slots = $$('option', timeInput).map(function (option) { return option.value; }).filter(Boolean);
+    }
+
+    var openDays = Array.isArray(SITE.openDays) && SITE.openDays.length ? SITE.openDays : [0, 1, 2, 3, 4, 5, 6];
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+    var days = [];
+    for (var dayIndex = 0; dayIndex < 14; dayIndex++) {
+      var cursor = new Date(today.getTime());
+      cursor.setDate(cursor.getDate() + dayIndex);
+      days.push(cursor);
+    }
+
+    var isToday = function (date) { return isoDate(date) === isoDate(new Date()); };
+    var dayHasSlot = function (date) {
+      if (!isToday(date)) return true;
+      var nowMinutes = new Date().getHours() * 60 + new Date().getMinutes();
+      return slots.some(function (slot) { return minutesOf(slot) > nowMinutes + 30; });
+    };
+    var pickable = function (date) {
+      return date.getTime() >= today.getTime() && openDays.indexOf(date.getDay()) !== -1 && dayHasSlot(date);
+    };
+    var firstOpenDay = function () {
+      for (var i = 0; i < days.length; i++) if (pickable(days[i])) return days[i];
+      return null;
+    };
+    var firstOpenSlot = function () {
+      var buttons = $$('.sb-slot', slotWrap);
+      for (var i = 0; i < buttons.length; i++) if (!buttons[i].disabled) return buttons[i].getAttribute('data-time');
+      return '';
+    };
+
+    var syncSummary = function () {
+      if (!summaryEl) return;
+      var date = rentalDate(dateInput ? dateInput.value : '');
+      var parts = [];
+      if (date) parts.push(fmtDay(date, { weekday: 'long', day: 'numeric', month: 'long' }));
+      if (timeInput && timeInput.value) parts.push(timeInput.value);
+      var guests = form.querySelector('[name="guests"]');
+      if (guests && guests.value) parts.push(guests.value + ' ' + (SITE.strings.guests || ''));
+      summaryEl.textContent = parts.length ? parts.join(' · ') : (f.notChosen || '—');
+    };
+
+    var renderSlots = function () {
+      slotWrap.innerHTML = '';
+      var date = rentalDate(dateInput ? dateInput.value : '');
+      var nowMinutes = new Date().getHours() * 60 + new Date().getMinutes();
+      slots.forEach(function (slot) {
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'sb-slot';
+        button.setAttribute('data-time', slot);
+        button.textContent = slot;
+        if (date && isToday(date) && minutesOf(slot) <= nowMinutes + 30) button.disabled = true;
+        var active = timeInput && timeInput.value === slot;
+        if (active) button.classList.add('is-active');
+        button.setAttribute('aria-pressed', active ? 'true' : 'false');
+        button.addEventListener('click', function () { selectTime(slot); });
+        slotWrap.appendChild(button);
+      });
+    };
+
+    var selectTime = function (time) {
+      if (!timeInput) return;
+      timeInput.value = time;
+      timeInput.dispatchEvent(new Event('change', { bubbles: true }));
+      $$('.sb-slot', slotWrap).forEach(function (button) {
+        var active = button.getAttribute('data-time') === time;
+        button.classList.toggle('is-active', active);
+        button.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+      syncSummary();
+    };
+
+    var selectDay = function (iso) {
+      if (!dateInput) return;
+      dateInput.value = iso;
+      dateInput.dispatchEvent(new Event('change', { bubbles: true }));
+      $$('.sb-day', dayWrap).forEach(function (button) {
+        var active = button.getAttribute('data-date') === iso;
+        button.classList.toggle('is-active', active);
+        button.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+      renderSlots();
+      if (timeInput) {
+        var stillOpen = $$('.sb-slot', slotWrap).filter(function (button) {
+          return button.getAttribute('data-time') === timeInput.value && !button.disabled;
+        }).length > 0;
+        if (!stillOpen) {
+          var next = firstOpenSlot();
+          if (next) selectTime(next);
+        }
+      }
+      syncSummary();
+    };
+
+    var renderDays = function () {
+      dayWrap.innerHTML = '';
+      days.forEach(function (date, index) {
+        var closed = openDays.indexOf(date.getDay()) === -1;
+        var button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'sb-day' + (closed ? ' is-closed' : '') + (isToday(date) ? ' is-today' : '');
+        button.disabled = closed;
+        button.setAttribute('data-date', isoDate(date));
+        var active = dateInput && dateInput.value === isoDate(date);
+        if (active) button.classList.add('is-active');
+        button.setAttribute('aria-pressed', active ? 'true' : 'false');
+        var small = document.createElement('small');
+        small.textContent = index === 0 ? (f.today || '') : index === 1 ? (f.tomorrow || '') : fmtDay(date, { weekday: 'short' });
+        var number = document.createElement('b');
+        number.textContent = String(date.getDate());
+        var month = document.createElement('span');
+        month.textContent = fmtDay(date, { month: 'short' });
+        button.appendChild(small);
+        button.appendChild(number);
+        button.appendChild(month);
+        if (closed) {
+          var tag = document.createElement('em');
+          tag.textContent = f.closed || '';
+          button.appendChild(tag);
+        }
+        button.addEventListener('click', function () { selectDay(isoDate(date)); });
+        dayWrap.appendChild(button);
+      });
+    };
+
+    var applyDefaults = function () {
+      var chosen = dateInput && dateInput.value ? rentalDate(dateInput.value) : null;
+      if (!chosen || !pickable(chosen)) chosen = firstOpenDay();
+      if (chosen && dateInput) dateInput.value = isoDate(chosen);
+      renderDays();
+      if (timeInput) {
+        var nowMinutes = new Date().getHours() * 60 + new Date().getMinutes();
+        var usable = slots.filter(function (slot) {
+          return !(chosen && isToday(chosen) && minutesOf(slot) <= nowMinutes + 30);
+        });
+        if (timeInput.value && usable.indexOf(timeInput.value) !== -1) {
+          // keep the current selection
+        } else {
+          timeInput.value = usable[0] || '';
+        }
+      }
+      renderSlots();
+      syncSummary();
+    };
+
+    form.addEventListener('reset', function () { setTimeout(applyDefaults, 0); });
+    if (dateInput) dateInput.addEventListener('change', syncSummary);
+    if (timeInput) timeInput.addEventListener('change', syncSummary);
+    var guestsInput = form.querySelector('[name="guests"]');
+    if (guestsInput) guestsInput.addEventListener('input', syncSummary);
+    applyDefaults();
+  });
+
+  // floor plan picker: dim tables smaller than the party
+  $$('[data-floor-plan]').forEach(function (plan) {
+    var f = SITE.features || {};
+    var form = plan.closest('form');
+    var input = $('[data-table-input]', plan);
+    var status = $('[data-table-status]', plan);
+    var guests = form ? form.querySelector('[name="guests"]') : null;
+    var tables = $$('[data-table]', plan);
+    var selected = null;
+
+    var clearSelection = function () {
+      selected = null;
+      if (input) input.value = '';
+      tables.forEach(function (table) {
+        table.classList.remove('is-active');
+        table.setAttribute('aria-pressed', 'false');
+      });
+      if (status) status.textContent = f.noTable || '';
+    };
+    var chooseTable = function (table) {
+      selected = table;
+      tables.forEach(function (item) {
+        var on = item === table;
+        item.classList.toggle('is-active', on);
+        item.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      if (input) input.value = table.getAttribute('data-table') || '';
+      if (status) status.textContent = (f.tableSelected || '') + ': ' + (table.getAttribute('data-table') || '');
+    };
+    var syncSizes = function () {
+      var count = guests ? Number(guests.value) || 0 : 0;
+      tables.forEach(function (table) {
+        var small = count > 0 && (Number(table.getAttribute('data-seats')) || 0) < count;
+        table.classList.toggle('is-small', small);
+        table.disabled = small;
+        if (small && selected === table) clearSelection();
+      });
+    };
+
+    tables.forEach(function (table) {
+      table.addEventListener('click', function () { chooseTable(table); });
+    });
+    if (guests) {
+      guests.addEventListener('input', syncSizes);
+      guests.addEventListener('change', syncSizes);
+    }
+    form && form.addEventListener('reset', function () { setTimeout(clearSelection, 0); });
+    if (status) status.textContent = f.noTable || '';
+    syncSizes();
+  });
+
+  // quote builder: three steps with a live estimate
+  $$('[data-quote-builder]').forEach(function (form) {
+    var f = SITE.features || {};
+    var steps = $$('[data-q-step]', form);
+    if (!steps.length) return;
+    var bar = $('[data-q-bar]', form);
+    var progress = $('[data-q-progress]', form);
+    var estimateEl = $('[data-q-estimate]', form);
+    var estimateInput = $('[data-q-estimate-input]', form);
+    var summaryEl = $('[data-q-summary]', form);
+    var current = 1;
+    var total = steps.length;
+
+    var syncEstimate = function () {
+      var baseEl = form.querySelector('[data-q-base]:checked');
+      var rateEl = form.querySelector('[data-q-rate]:checked');
+      var surfaceEl = form.querySelector('[data-q-surface]');
+      var detailEl = form.querySelector('[data-q-detail]');
+      var base = baseEl ? Number(baseEl.getAttribute('data-q-base')) || 0 : 0;
+      var rate = rateEl ? Number(rateEl.getAttribute('data-q-rate')) || 0 : 0;
+      var surface = surfaceEl ? Number(surfaceEl.value) || 0 : 0;
+      var factor = 1;
+      if (detailEl && detailEl.options[detailEl.selectedIndex]) {
+        factor = Number(detailEl.options[detailEl.selectedIndex].getAttribute('data-q-factor')) || 1;
+      }
+      var addons = 0;
+      $$('[data-q-add]:checked', form).forEach(function (box) {
+        addons += Number(box.getAttribute('data-q-add')) || 0;
+      });
+      var value = (base + surface * rate) * factor + addons;
+      if (estimateEl) estimateEl.textContent = value ? money(value) : '—';
+      if (estimateInput) estimateInput.value = value ? String(Math.round(value)) : '';
+      if (!summaryEl) return;
+      summaryEl.innerHTML = '';
+      var row = document.createElement('div');
+      var label = document.createElement('span');
+      label.textContent = f.yourEstimate || f.estimate || '';
+      var amount = document.createElement('strong');
+      amount.textContent = value ? money(value) : (f.notChosen || '—');
+      row.appendChild(label);
+      row.appendChild(amount);
+      summaryEl.appendChild(row);
+      var chosen = [];
+      var main = form.querySelector('input[type="radio"]:checked');
+      if (main) chosen.push(main.value);
+      if (detailEl && detailEl.value) chosen.push(detailEl.value);
+      if (surfaceEl && surfaceEl.value) chosen.push(surfaceEl.value + ' m²');
+      var extras = $$('[data-q-add]:checked', form).map(function (box) { return box.value; });
+      if (extras.length) chosen.push(extras.join(', '));
+      if (chosen.length) {
+        var note = document.createElement('small');
+        note.textContent = chosen.join(' · ');
+        summaryEl.appendChild(note);
+      }
+    };
+
+    var setStep = function (next) {
+      current = Math.max(1, Math.min(total, next));
+      steps.forEach(function (step) {
+        step.classList.toggle('is-active', Number(step.getAttribute('data-q-step')) === current);
+      });
+      if (bar) bar.style.width = ((current / total) * 100) + '%';
+      if (progress) progress.textContent = current + ' / ' + total;
+      if (current > 1) syncEstimate();
+    };
+
+    var validateStep = function () {
+      var active = steps[current - 1];
+      var valid = true;
+      $$('input[required], select[required], textarea[required]', active).forEach(function (input) {
+        var bad = input.type === 'radio'
+          ? !$('input[name="' + input.name + '"]:checked', active)
+          : !String(input.value || '').trim() || !input.checkValidity();
+        if (bad) {
+          valid = false;
+          var field = input.closest('.field') || input.closest('.q-option');
+          if (field) field.classList.add('invalid');
+        }
+      });
+      return valid;
+    };
+
+    $$('[data-q-next]', form).forEach(function (button) {
+      button.addEventListener('click', function () {
+        if (!validateStep()) { toast(SITE.strings.formError, true); return; }
+        syncEstimate();
+        setStep(current + 1);
+      });
+    });
+    $$('[data-q-back]', form).forEach(function (button) {
+      button.addEventListener('click', function () { setStep(current - 1); });
+    });
+    form.addEventListener('submit', function (e) {
+      if (current !== total) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        syncEstimate();
+        setStep(total);
+      }
+    }, true);
+    form.addEventListener('input', syncEstimate);
+    form.addEventListener('change', syncEstimate);
+    form.addEventListener('reset', function () { setTimeout(function () { setStep(1); syncEstimate(); }, 0); });
+    setStep(1);
+    syncEstimate();
+  });
+
+  // PWA install prompt
+  var installBtn = $('[data-install-app]');
+  if (installBtn) {
+    var deferredPrompt = null;
+    var standalone = window.matchMedia && window.matchMedia('(display-mode: standalone)').matches;
+    if (standalone) installBtn.hidden = true;
+    window.addEventListener('beforeinstallprompt', function (e) {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.hidden = false;
+    });
+    installBtn.addEventListener('click', function () {
+      if (!deferredPrompt) { installBtn.hidden = true; return; }
+      deferredPrompt.prompt();
+      var choice = deferredPrompt.userChoice;
+      if (choice && choice.then) {
+        choice.then(function () { deferredPrompt = null; installBtn.hidden = true; });
+      } else {
+        deferredPrompt = null;
+        installBtn.hidden = true;
+      }
+    });
+    window.addEventListener('appinstalled', function () {
+      deferredPrompt = null;
+      installBtn.hidden = true;
+    });
+  }
+
+  // service worker: only on the real deployment (never in the preview iframe)
+  if (!isPreview && 'serviceWorker' in navigator) {
+    var secure = location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+    if (secure) {
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('sw.js').catch(function () {});
+      });
+    }
   }
 
   readCart();

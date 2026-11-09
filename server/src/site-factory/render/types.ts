@@ -309,6 +309,179 @@ const EN: UiStrings = {
   poweredBy: '', legal: 'Privacy',
 };
 
+/** Shared copy for the optional interactive features. */
+export interface FeatureStrings {
+  beforeAfter: string;
+  beforeAfterLead: string;
+  before: string;
+  after: string;
+  dragHint: string;
+  smartBooking: string;
+  pickDay: string;
+  pickTime: string;
+  closed: string;
+  today: string;
+  tomorrow: string;
+  bookingSummary: string;
+  notChosen: string;
+  tablePlan: string;
+  tablePlanLead: string;
+  hall: string;
+  windowZone: string;
+  terrace: string;
+  table: string;
+  seats: string;
+  chooseTable: string;
+  tableSelected: string;
+  tableHint: string;
+  noTable: string;
+  quoteBuilder: string;
+  step: string;
+  of: string;
+  next: string;
+  back: string;
+  estimate: string;
+  estimateNote: string;
+  requestQuote: string;
+  surface: string;
+  quality: string;
+  extras: string;
+  yourEstimate: string;
+  installApp: string;
+  offlineReady: string;
+  addToCalendar: string;
+}
+
+const FEATURES: Record<Lang, FeatureStrings> = {
+  ar: {
+    beforeAfter: 'قبل وبعد',
+    beforeAfterLead: 'نتائج حقيقية — اسحب المقبض للمقارنة.',
+    before: 'قبل',
+    after: 'بعد',
+    dragHint: 'اسحب للمقارنة',
+    smartBooking: 'احجز موعدك',
+    pickDay: 'اختر اليوم',
+    pickTime: 'اختر الوقت',
+    closed: 'مغلق',
+    today: 'اليوم',
+    tomorrow: 'غداً',
+    bookingSummary: 'ملخص الحجز',
+    notChosen: 'لم يُحدد',
+    tablePlan: 'مخطط الطاولات',
+    tablePlanLead: 'اختر الطاولة المناسبة لعدد الأشخاص.',
+    hall: 'الصالة',
+    windowZone: 'النافذة',
+    terrace: 'الشرفة',
+    table: 'طاولة',
+    seats: 'مقاعد',
+    chooseTable: 'اختر طاولة',
+    tableSelected: 'تم اختيار الطاولة',
+    tableHint: 'الطاولات الأصغر من عددكم تظهر باهتة.',
+    noTable: 'لم يتم اختيار طاولة',
+    quoteBuilder: 'عرض سعر في 3 خطوات',
+    step: 'الخطوة',
+    of: 'من',
+    next: 'التالي',
+    back: 'السابق',
+    estimate: 'التقدير الفوري',
+    estimateNote: 'تقدير تقريبي، يُؤكد بعد المعاينة.',
+    requestQuote: 'إرسال طلب العرض',
+    surface: 'المساحة (م²)',
+    quality: 'مستوى التشطيب',
+    extras: 'خدمات إضافية',
+    yourEstimate: 'تقديرك',
+    installApp: 'تثبيت التطبيق',
+    offlineReady: 'الموقع يعمل دون اتصال',
+    addToCalendar: 'أضف إلى التقويم',
+  },
+  fr: {
+    beforeAfter: 'Avant / Après',
+    beforeAfterLead: 'Des résultats réels — faites glisser le curseur pour comparer.',
+    before: 'Avant',
+    after: 'Après',
+    dragHint: 'Faites glisser pour comparer',
+    smartBooking: 'Réservez votre créneau',
+    pickDay: 'Choisissez le jour',
+    pickTime: 'Choisissez l’heure',
+    closed: 'Fermé',
+    today: 'Aujourd’hui',
+    tomorrow: 'Demain',
+    bookingSummary: 'Récapitulatif',
+    notChosen: 'Non sélectionné',
+    tablePlan: 'Plan de salle',
+    tablePlanLead: 'Choisissez la table adaptée à votre groupe.',
+    hall: 'Salle',
+    windowZone: 'Fenêtre',
+    terrace: 'Terrasse',
+    table: 'Table',
+    seats: 'places',
+    chooseTable: 'Choisir une table',
+    tableSelected: 'Table sélectionnée',
+    tableHint: 'Les tables trop petites pour votre groupe apparaissent grisées.',
+    noTable: 'Aucune table sélectionnée',
+    quoteBuilder: 'Devis en 3 étapes',
+    step: 'Étape',
+    of: 'sur',
+    next: 'Suivant',
+    back: 'Retour',
+    estimate: 'Estimation instantanée',
+    estimateNote: 'Estimation indicative, confirmée après visite.',
+    requestQuote: 'Envoyer la demande',
+    surface: 'Surface (m²)',
+    quality: 'Niveau de finition',
+    extras: 'Options',
+    yourEstimate: 'Votre estimation',
+    installApp: 'Installer l’application',
+    offlineReady: 'Le site fonctionne hors ligne',
+    addToCalendar: 'Ajouter au calendrier',
+  },
+  en: {
+    beforeAfter: 'Before / After',
+    beforeAfterLead: 'Real results — drag the handle to compare.',
+    before: 'Before',
+    after: 'After',
+    dragHint: 'Drag to compare',
+    smartBooking: 'Book your slot',
+    pickDay: 'Choose a day',
+    pickTime: 'Choose a time',
+    closed: 'Closed',
+    today: 'Today',
+    tomorrow: 'Tomorrow',
+    bookingSummary: 'Booking summary',
+    notChosen: 'Not selected',
+    tablePlan: 'Floor plan',
+    tablePlanLead: 'Pick the table that fits your party.',
+    hall: 'Main hall',
+    windowZone: 'Window',
+    terrace: 'Terrace',
+    table: 'Table',
+    seats: 'seats',
+    chooseTable: 'Choose a table',
+    tableSelected: 'Table selected',
+    tableHint: 'Tables too small for your party are dimmed.',
+    noTable: 'No table selected',
+    quoteBuilder: '3-step quote builder',
+    step: 'Step',
+    of: 'of',
+    next: 'Next',
+    back: 'Back',
+    estimate: 'Instant estimate',
+    estimateNote: 'Indicative estimate, confirmed after a site visit.',
+    requestQuote: 'Send quote request',
+    surface: 'Area (m²)',
+    quality: 'Finish level',
+    extras: 'Extras',
+    yourEstimate: 'Your estimate',
+    installApp: 'Install app',
+    offlineReady: 'Site works offline',
+    addToCalendar: 'Add to calendar',
+  },
+};
+
+export function featureStrings(lang: Lang): FeatureStrings {
+  return FEATURES[lang] || FEATURES.ar;
+}
+
 export function ui(lang: Lang): UiStrings {
   return lang === 'ar' ? AR : lang === 'fr' ? FR : EN;
 }

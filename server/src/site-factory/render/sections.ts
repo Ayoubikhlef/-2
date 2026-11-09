@@ -1,5 +1,5 @@
-import type { RenderConfig, RenderProduct, RenderService, RenderTeamMember, UiStrings } from './types';
-import { esc, attr, money, ui } from './types';
+import type { FeatureStrings, RenderConfig, RenderProduct, RenderService, RenderTeamMember, UiStrings } from './types';
+import { esc, attr, featureStrings, money, ui } from './types';
 import {
   icon,
   initials,
@@ -81,9 +81,11 @@ function contactDetails(config: RenderConfig, s: UiStrings): string {
   </div>`;
 }
 
-function leadForm(config: RenderConfig, s: UiStrings, kind: 'contact' | 'reservation' = 'contact'): string {
+function leadForm(config: RenderConfig, s: UiStrings, kind: 'contact' | 'reservation' = 'contact', lang: Lang = 'ar'): string {
   if (kind === 'reservation') {
-    return `<form class="reserve-card" data-lead-form data-lead-kind="reservation" novalidate>
+    const f = featureStrings(lang);
+    const floorPlan = config.templateSlug === 'restaurant' ? floorPlanPicker(f) : '';
+    return `<form class="reserve-card" data-lead-form data-lead-kind="reservation" data-smart-booking data-slots="12:00,12:30,13:00,13:30,14:00,18:00,18:30,19:00,19:30,20:00,20:30,21:00,21:30,22:00" novalidate>
       <h3 class="h3">${esc(s.bookTable)}</h3>
       <p style="opacity:.65;font-size:.85rem;margin:6px 0 20px">${esc(s.bookSuccess)}</p>
       <div class="form-grid">
@@ -95,6 +97,7 @@ function leadForm(config: RenderConfig, s: UiStrings, kind: 'contact' | 'reserva
         <div class="field"><label for="r-note">${esc(s.note)}</label><input id="r-note" name="message" maxlength="300"></div>
         <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
       </div>
+      ${floorPlan}
       <button class="btn btn-primary btn-block mt-3" type="submit">${icon('calendar')}${esc(s.book)}</button>
       <div class="form-status" role="status"></div>
     </form>`;
@@ -127,6 +130,67 @@ function contactSection(config: RenderConfig, s: UiStrings, title?: string): str
       ${leadForm(config, s)}
     </div>
   </section>`;
+}
+
+function beforeAfterSection(config: RenderConfig, f: FeatureStrings): string {
+  const gallery = (config.gallery || []).filter(Boolean);
+  const before = gallery[0] || config.coverUrl || '';
+  const after = gallery[1] || gallery[2] || config.coverUrl || '';
+  if (!before || !after || before === after) return '';
+  return `<section class="section ba-section" id="transformation">
+    <div class="container">
+      <div class="section-head center" data-reveal>
+        <div><span class="eyebrow">${esc(f.beforeAfter)}</span><h2 class="h2 mt-2">${esc(f.beforeAfter)}</h2><p class="lead">${esc(f.beforeAfterLead)}</p></div>
+      </div>
+      <div class="ba-slider" data-before-after style="--pos:50%">
+        <img class="ba-img ba-img-after" src="${attr(after)}" alt="${attr(`${config.siteName} — ${f.after}`)}" loading="lazy" decoding="async" width="1200" height="760">
+        <div class="ba-before-layer"><img class="ba-img" src="${attr(before)}" alt="${attr(`${config.siteName} — ${f.before}`)}" loading="lazy" decoding="async" width="1200" height="760"></div>
+        <span class="ba-tag ba-tag-before">${esc(f.before)}</span>
+        <span class="ba-tag ba-tag-after">${esc(f.after)}</span>
+        <div class="ba-line" aria-hidden="true"><span class="ba-knob"><span>‹</span><span>›</span></span></div>
+        <input class="ba-range" type="range" min="0" max="100" value="50" aria-label="${attr(f.dragHint)}">
+      </div>
+      <p class="ba-hint">${esc(f.dragHint)}</p>
+    </div>
+  </section>`;
+}
+
+function floorPlanPicker(f: FeatureStrings): string {
+  const zones: Array<{ key: string; label: string; tables: Array<[number, number]> }> = [
+    { key: 'hall', label: f.hall, tables: [[1, 2], [2, 2], [3, 4], [4, 4], [5, 6], [6, 8]] },
+    { key: 'window', label: f.windowZone, tables: [[7, 2], [8, 2], [9, 4], [10, 4]] },
+    { key: 'terrace', label: f.terrace, tables: [[11, 2], [12, 4], [13, 4], [14, 6]] },
+  ];
+  return `<div class="floor-plan" data-floor-plan>
+    <div class="fp-head"><span class="fp-title">${icon('users')}${esc(f.tablePlan)}</span><p>${esc(f.tablePlanLead)}</p></div>
+    ${zones.map((zone) => `<div class="fp-zone">
+      <span class="fp-zone-name">${esc(zone.label)}</span>
+      <div class="fp-grid">${zone.tables.map(([number, seats]) => `<button type="button" class="fp-table" data-table="${attr(`${f.table} ${number} · ${zone.label}`)}" data-seats="${seats}" data-zone="${zone.key}" aria-pressed="false" aria-label="${attr(`${f.table} ${number} — ${zone.label} — ${seats} ${f.seats}`)}"><span>${number}</span><small>${seats} ${esc(f.seats)}</small></button>`).join('')}</div>
+    </div>`).join('')}
+    <p class="fp-hint">${esc(f.tableHint)}</p>
+    <p class="fp-status" data-table-status>${esc(f.noTable)}</p>
+    <input type="hidden" name="table" data-table-input>
+  </div>`;
+}
+
+function qProgress(): string {
+  return `<div class="q-progress"><div class="q-track"><i data-q-bar style="width:33.33%"></i></div><span data-q-progress>1 / 3</span></div>`;
+}
+
+function qStepHead(f: FeatureStrings, number: number, title: string): string {
+  return `<div class="q-step-head"><span class="q-step-num">0${number}</span><div><strong>${esc(title)}</strong><small>${esc(f.step)} ${number} ${esc(f.of)} 3</small></div></div>`;
+}
+
+function qNav(f: FeatureStrings, back = true): string {
+  return `<div class="q-nav">${back ? `<button type="button" class="btn btn-ghost" data-q-back>${icon('arrow')}${esc(f.back)}</button>` : ''}<button type="button" class="btn btn-primary" data-q-next>${esc(f.next)}${icon('arrow')}</button></div>`;
+}
+
+function qEstimate(f: FeatureStrings): string {
+  return `<div class="q-estimate" aria-live="polite"><span>${esc(f.estimate)}</span><strong data-q-estimate>—</strong><small>${esc(f.estimateNote)}</small></div>`;
+}
+
+function qSummary(f: FeatureStrings): string {
+  return `<div class="q-summary" data-q-summary aria-live="polite"><div><span>${esc(f.bookingSummary)}</span><strong>${esc(f.notChosen)}</strong></div></div>`;
 }
 
 function statsBand(config: RenderConfig, s: UiStrings): string {
@@ -1172,7 +1236,7 @@ export function medicalPage(config: RenderConfig, s: UiStrings, lang: Lang): str
           <a class="btn btn-wa" href="${attr(waHref(config, `${s.appointment} — ${config.siteName}`))}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.whatsapp)}</a>
         </div>
       </div>
-      <form class="booking-card appointment-card" data-lead-form data-lead-kind="appointment" data-appointment novalidate>
+      <form class="booking-card appointment-card" data-lead-form data-lead-kind="appointment" data-appointment data-smart-booking data-slots="${attr(times.join(','))}" novalidate>
         <h3>${esc(copy.formTitle)}</h3>
         <p class="booking-sub">${esc(copy.formSub)}</p>
         <div class="form-grid">
@@ -2440,6 +2504,7 @@ function propertyCard(p: RenderProduct, config: RenderConfig, s: UiStrings, lang
 
 export function realEstatePage(config: RenderConfig, s: UiStrings, lang: Lang): string {
   const copy = REALESTATE[lang];
+  const f = featureStrings(lang);
   const properties = config.products.filter((p) => p.name);
   const team = config.team || [];
   const services = config.services.length ? config.services : copy.fallbackServices;
@@ -2500,6 +2565,8 @@ export function realEstatePage(config: RenderConfig, s: UiStrings, lang: Lang): 
       <div class="property-grid">${properties.length ? properties.map((p) => propertyCard(p, config, s, lang)).join('') : `<div class="property-empty">${esc(s.emptyCart)}</div>`}</div>
     </div>
   </section>
+
+  ${beforeAfterSection(config, f)}
 
   <section class="section" id="services">
     <div class="container">
@@ -3315,6 +3382,22 @@ function constructionCard(member: RenderTeamMember, copy: ConstructionCopy): str
 
 export function constructionPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
   const copy = CONSTRUCTION[lang];
+  const f = featureStrings(lang);
+  const projectTypes: Array<[string, number]> = lang === 'ar'
+    ? [['بناء جديد', 52000], ['تجديد شامل', 38000], ['توسعة', 45000], ['تشطيب فقط', 22000]]
+    : lang === 'fr'
+      ? [['Construction neuve', 52000], ['Rénovation complète', 38000], ['Extension', 45000], ['Finitions', 22000]]
+      : [['New build', 52000], ['Full renovation', 38000], ['Extension', 45000], ['Finishing only', 22000]];
+  const finishes: Array<[string, number]> = lang === 'ar'
+    ? [['اقتصادي', 1], ['متوسط', 1.18], ['فاخر', 1.45]]
+    : lang === 'fr'
+      ? [['Économique', 1], ['Intermédiaire', 1.18], ['Haut de gamme', 1.45]]
+      : [['Economy', 1], ['Standard', 1.18], ['Premium', 1.45]];
+  const extras: Array<[string, number]> = lang === 'ar'
+    ? [['مخططات معمارية', 35000], ['رخصة البناء', 18000], ['تصميم ثلاثي الأبعاد', 25000]]
+    : lang === 'fr'
+      ? [['Plans architecturaux', 35000], ['Permis de construire', 18000], ['Visualisation 3D', 25000]]
+      : [['Architectural plans', 35000], ['Building permit', 18000], ['3D visualization', 25000]];
   const services = config.services.length ? config.services : copy.fallbackServices;
   const projects = config.products.filter((p) => p.name);
   const team = config.team || [];
@@ -3384,6 +3467,8 @@ export function constructionPage(config: RenderConfig, s: UiStrings, lang: Lang)
     </div>
   </section>
 
+  ${beforeAfterSection(config, f)}
+
   <section class="section" id="process">
     <div class="container">
       ${sectionHead(copy.processTitle, copy.processLead, undefined, true)}
@@ -3445,21 +3530,53 @@ export function constructionPage(config: RenderConfig, s: UiStrings, lang: Lang)
           <a class="btn btn-wa" href="${attr(quoteWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.whatsapp)}</a>
         </div>
       </div>
-      <form class="quote-card" data-lead-form data-lead-kind="quote" novalidate>
+      <form class="quote-card q-builder" data-lead-form data-lead-kind="quote" data-quote-builder data-q-detail-label="${attr(f.quality)}" novalidate>
         <h3>${esc(copy.formTitle)}</h3>
-        <p class="booking-sub">${esc(copy.formSub)}</p>
-        <div class="form-grid">
-          <div class="field"><label for="quo-name">${esc(s.name)}</label><input id="quo-name" name="name" required maxlength="80" autocomplete="name"><span class="err">${esc(s.required)}</span></div>
-          <div class="field"><label for="quo-phone">${esc(s.phone)}</label><input id="quo-phone" name="phone" type="tel" required maxlength="20" autocomplete="tel" dir="ltr"><span class="err">${esc(s.invalidPhone)}</span></div>
-          <div class="field full"><label for="quo-email">${esc(s.email)}</label><input id="quo-email" name="email" type="email" maxlength="120" autocomplete="email" dir="ltr"></div>
-          <div class="field full"><label for="quo-service">${esc(copy.summaryService)}</label><input id="quo-service" name="serviceType" maxlength="200"></div>
-          <div class="field full"><label for="quo-type">${esc(copy.summaryType)}</label><input id="quo-type" name="projectType" maxlength="200"></div>
-          <div class="field full"><label for="quo-msg">${esc(s.message)}</label><textarea id="quo-msg" name="message" required maxlength="1200"></textarea><span class="err">${esc(s.required)}</span></div>
-          <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
+        <p class="booking-sub">${esc(f.quoteBuilder)} — ${esc(copy.formSub)}</p>
+        ${qProgress()}
+
+        <div class="q-step is-active" data-q-step="1">
+          ${qStepHead(f, 1, copy.summaryService)}
+          <div class="q-options">
+            ${projectTypes.map(([label, rate], i) => `<label class="q-option">
+              <input type="radio" name="serviceType" value="${attr(label)}" data-q-rate="${rate}" ${i === 0 ? 'checked' : ''} required>
+              <span class="q-option-body"><strong>${esc(label)}</strong><small>${money(rate, lang)} / m²</small></span>
+            </label>`).join('')}
+          </div>
+          ${qNav(f, false)}
         </div>
-        <button class="btn btn-primary btn-block mt-3" type="submit">${icon('send')}${esc(copy.confirm)}</button>
-        <div class="form-status" role="status"></div>
-        <p class="form-note center mt-2">${esc(copy.note)}</p>
+
+        <div class="q-step" data-q-step="2">
+          ${qStepHead(f, 2, `${f.surface} · ${f.quality}`)}
+          <div class="form-grid">
+            <div class="field full"><label for="quo-surface">${esc(f.surface)}</label><input id="quo-surface" name="surface" type="number" min="20" max="2000" step="10" value="120" inputmode="numeric" data-q-surface></div>
+            <div class="field full"><label for="quo-type">${esc(f.quality)}</label><select id="quo-type" name="projectType" data-q-detail>
+              ${finishes.map(([label, factor]) => `<option value="${attr(label)}" data-q-factor="${factor}">${esc(label)}</option>`).join('')}
+            </select></div>
+            <div class="field full"><span class="q-field-label">${esc(f.extras)}</span>
+              <div class="q-checks">${extras.map(([label, price]) => `<label class="q-check"><input type="checkbox" name="extra" value="${attr(label)}" data-q-add="${price}"><span>${esc(label)} <b>+${money(price, lang)}</b></span></label>`).join('')}</div>
+            </div>
+          </div>
+          ${qEstimate(f)}
+          ${qNav(f, true)}
+        </div>
+
+        <div class="q-step" data-q-step="3">
+          ${qStepHead(f, 3, s.contact)}
+          <div class="form-grid">
+            <div class="field"><label for="quo-name">${esc(s.name)}</label><input id="quo-name" name="name" required maxlength="80" autocomplete="name"><span class="err">${esc(s.required)}</span></div>
+            <div class="field"><label for="quo-phone">${esc(s.phone)}</label><input id="quo-phone" name="phone" type="tel" required maxlength="20" autocomplete="tel" dir="ltr"><span class="err">${esc(s.invalidPhone)}</span></div>
+            <div class="field full"><label for="quo-email">${esc(s.email)}</label><input id="quo-email" name="email" type="email" maxlength="120" autocomplete="email" dir="ltr"></div>
+            <div class="field full"><label for="quo-msg">${esc(s.message)}</label><textarea id="quo-msg" name="message" maxlength="1200"></textarea></div>
+            <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
+          </div>
+          ${qSummary(f)}
+          ${qEstimate(f)}
+          <input type="hidden" name="estimate" data-q-estimate-input>
+          <button class="btn btn-primary btn-block mt-3" type="submit">${icon('send')}${esc(copy.confirm)}</button>
+          <div class="form-status" role="status"></div>
+          <p class="form-note center mt-2">${esc(copy.note)}</p>
+        </div>
       </form>
     </div>
   </section>
@@ -3968,7 +4085,7 @@ export function hotelPage(config: RenderConfig, s: UiStrings, lang: Lang): strin
           <a class="btn btn-wa" href="${attr(bookWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.whatsapp)}</a>
         </div>
       </div>
-      <form class="book-card" data-lead-form data-lead-kind="hotel-booking" novalidate>
+      <form class="book-card" data-lead-form data-lead-kind="hotel-booking" data-smart-booking data-slots="14:00,15:00,16:00,17:00,18:00,19:00,20:00" novalidate>
         <h3>${esc(copy.formTitle)}</h3>
         <p class="booking-sub">${esc(copy.formSub)}</p>
         <div class="form-grid">
@@ -3977,7 +4094,10 @@ export function hotelPage(config: RenderConfig, s: UiStrings, lang: Lang): strin
           <div class="field full"><label for="bok-email">${esc(s.email)}</label><input id="bok-email" name="email" type="email" maxlength="120" autocomplete="email" dir="ltr"></div>
           <div class="field full"><label for="bok-room">${esc(copy.summaryRoom)}</label><input id="bok-room" name="roomType" maxlength="200"></div>
           <div class="field full"><label for="bok-nights">${esc(copy.summaryNights)}</label><input id="bok-nights" name="nights" type="number" min="1" maxlength="10"></div>
-          <div class="field full"><label for="bok-date">${esc(copy.summaryWhen)}</label><input id="bok-date" name="arrivalDate" type="date"></div>
+          <div class="field"><label for="bok-date">${esc(copy.summaryWhen)}</label><input id="bok-date" name="arrivalDate" type="date"></div>
+          <div class="field"><label for="bok-time">${esc(s.time)}</label><select id="bok-time" name="time">
+            ${['14:00','15:00','16:00','17:00','18:00','19:00','20:00'].map((t) => `<option value="${t}">${t}</option>`).join('')}
+          </select></div>
           <div class="field full"><label for="bok-msg">${esc(s.message)}</label><textarea id="bok-msg" name="message" required maxlength="1200"></textarea><span class="err">${esc(s.required)}</span></div>
           <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
         </div>
@@ -4768,6 +4888,7 @@ function treatmentCard(p: RenderProduct, config: RenderConfig, s: UiStrings, lan
 
 export function clinicPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
   const copy = CLINIC[lang];
+  const f = featureStrings(lang);
   const treatments = config.products.filter((p) => p.name);
   const team = config.team || [];
   const heroImage = config.coverUrl
@@ -4869,6 +4990,8 @@ export function clinicPage(config: RenderConfig, s: UiStrings, lang: Lang): stri
     </div>
   </section>
 
+  ${beforeAfterSection(config, f)}
+
   <section class="section bg-soft" id="book">
     <div class="container book-wrap">
       <div class="book-copy" data-reveal>
@@ -4889,7 +5012,7 @@ export function clinicPage(config: RenderConfig, s: UiStrings, lang: Lang): stri
           <a class="btn btn-wa" href="${attr(bookWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.whatsapp)}</a>
         </div>
       </div>
-      <form class="book-card" data-lead-form data-lead-kind="clinic-booking" novalidate>
+      <form class="book-card" data-lead-form data-lead-kind="clinic-booking" data-smart-booking data-slots="09:00,10:00,11:00,12:00,14:00,15:00,16:00,17:00,18:00" novalidate>
         <h3>${esc(copy.formTitle)}</h3>
         <p class="booking-sub">${esc(copy.formSub)}</p>
         <div class="form-grid">
@@ -4898,6 +5021,10 @@ export function clinicPage(config: RenderConfig, s: UiStrings, lang: Lang): stri
           <div class="field full"><label for="clinic-email">${esc(s.email)}</label><input id="clinic-email" name="email" type="email" maxlength="120" autocomplete="email" dir="ltr"></div>
           <div class="field full"><label for="clinic-service">${esc(copy.summaryService)}</label><input id="clinic-service" name="serviceType" maxlength="200"></div>
           <div class="field full"><label for="clinic-doctor">${esc(copy.summaryDoctor)}</label><input id="clinic-doctor" name="doctorName" maxlength="200"></div>
+          <div class="field"><label for="clinic-date">${esc(s.date)}</label><input id="clinic-date" name="date" type="date" required dir="ltr"><span class="err">${esc(s.required)}</span></div>
+          <div class="field"><label for="clinic-time">${esc(s.time)}</label><select id="clinic-time" name="time" required>
+            ${['09:00','10:00','11:00','12:00','14:00','15:00','16:00','17:00','18:00'].map((t) => `<option value="${t}">${t}</option>`).join('')}
+          </select></div>
           <div class="field full"><label for="clinic-msg">${esc(s.message)}</label><textarea id="clinic-msg" name="message" required maxlength="1200"></textarea><span class="err">${esc(s.required)}</span></div>
           <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
         </div>
@@ -5238,7 +5365,7 @@ export function restaurantPage(config: RenderConfig, s: UiStrings, lang: Lang): 
           <div class="hours-row"><span>${esc(s.location)}</span><span>${esc(config.address || config.city || '')}</span></div>
         </div>
       </div>
-      ${leadForm(config, s, 'reservation')}
+      ${leadForm(config, s, 'reservation', lang)}
     </div>
   </section>
 
@@ -7305,6 +7432,7 @@ const BISTRO: Record<Lang, BistroCopy> = {
 
 export function bistroPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
   const copy = BISTRO[lang];
+  const f = featureStrings(lang);
   const dishes = config.products.filter((p) => p.name);
   const categories = Array.from(new Set(dishes.map((p) => p.category).filter(Boolean))) as string[];
   const team = config.team || [];
@@ -7454,7 +7582,7 @@ export function bistroPage(config: RenderConfig, s: UiStrings, lang: Lang): stri
           <a class="btn btn-wa" href="${attr(reserveWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.whatsapp)}</a>
         </div>
       </div>
-      <form class="bistro-form-card" data-lead-form data-lead-kind="dining-reservation" novalidate>
+      <form class="bistro-form-card" data-lead-form data-lead-kind="dining-reservation" data-smart-booking data-slots="12:00,12:30,13:00,13:30,14:00,18:00,18:30,19:00,19:30,20:00,20:30,21:00,21:30,22:00" novalidate>
         <h3>${esc(copy.formTitle)}</h3>
         <p class="booking-sub">${esc(copy.formSub)}</p>
         <div class="form-grid">
@@ -7473,6 +7601,7 @@ export function bistroPage(config: RenderConfig, s: UiStrings, lang: Lang): stri
           <div class="field full"><label for="btr-msg">${esc(s.message)}</label><textarea id="btr-msg" name="message" maxlength="1200"></textarea></div>
           <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
         </div>
+        ${floorPlanPicker(f)}
         <button class="btn btn-primary btn-block mt-3" type="submit">${icon('send')}${esc(copy.confirm)}</button>
         <div class="form-status" role="status"></div>
         <p class="form-note center mt-2">${esc(copy.note)}</p>
@@ -7743,6 +7872,14 @@ const AGENCY: Record<Lang, AgencyCopy> = {
 
 export function agencyPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
   const copy = AGENCY[lang];
+  const f = featureStrings(lang);
+  const servicePrices = [35000, 45000, 40000, 50000, 60000, 25000];
+  const timelineFactors = [1.25, 1.1, 1, 1];
+  const extras: Array<[string, number]> = lang === 'ar'
+    ? [['تصوير ومحتوى بصري', 25000], ['صفحة هبوط', 30000], ['تقرير تحليلات شهري', 8000]]
+    : lang === 'fr'
+      ? [['Shooting & contenu visuel', 25000], ['Landing page', 30000], ['Rapport analytics mensuel', 8000]]
+      : [['Photo & video content', 25000], ['Landing page', 30000], ['Monthly analytics report', 8000]];
   const team = config.team || [];
   const shots = (config.gallery || []).slice(0, 3);
   const heroImage = config.coverUrl
@@ -7901,28 +8038,55 @@ export function agencyPage(config: RenderConfig, s: UiStrings, lang: Lang): stri
           <a class="btn btn-wa" href="${attr(quoteWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.whatsapp)}</a>
         </div>
       </div>
-      <form class="agency-form-card" data-lead-form data-lead-kind="agency-quote" novalidate>
+      <form class="agency-form-card q-builder" data-lead-form data-lead-kind="agency-quote" data-quote-builder data-q-detail-label="${attr(copy.timelineLabel)}" novalidate>
         <h3>${esc(copy.formTitle)}</h3>
-        <p class="booking-sub">${esc(copy.formSub)}</p>
-        <div class="form-grid">
-          <div class="field"><label for="agc-name">${esc(s.name)}</label><input id="agc-name" name="name" required maxlength="80" autocomplete="name"><span class="err">${esc(s.required)}</span></div>
-          <div class="field"><label for="agc-phone">${esc(s.phone)}</label><input id="agc-phone" name="phone" type="tel" required maxlength="20" autocomplete="tel" dir="ltr"><span class="err">${esc(s.invalidPhone)}</span></div>
-          <div class="field full"><label for="agc-email">${esc(s.email)}</label><input id="agc-email" name="email" type="email" maxlength="120" autocomplete="email" dir="ltr"></div>
-          <div class="field full"><label for="agc-service">${esc(copy.serviceLabel)}</label><select id="agc-service" name="serviceType" required>
-            ${copy.services.map((item) => `<option value="${attr(item.title)}">${esc(item.title)}</option>`).join('')}
-          </select></div>
-          <div class="field full"><label for="agc-budget">${esc(copy.budgetLabel)}</label><select id="agc-budget" name="budget">
-            ${copy.budgets.map((b) => `<option value="${attr(b)}">${esc(b)}</option>`).join('')}
-          </select></div>
-          <div class="field full"><label for="agc-timeline">${esc(copy.timelineLabel)}</label><select id="agc-timeline" name="timeline">
-            ${copy.timelines.map((t) => `<option value="${attr(t)}">${esc(t)}</option>`).join('')}
-          </select></div>
-          <div class="field full"><label for="agc-msg">${esc(s.message)}</label><textarea id="agc-msg" name="message" maxlength="1200"></textarea></div>
-          <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
+        <p class="booking-sub">${esc(f.quoteBuilder)} — ${esc(copy.formSub)}</p>
+        ${qProgress()}
+
+        <div class="q-step is-active" data-q-step="1">
+          ${qStepHead(f, 1, copy.serviceLabel)}
+          <div class="q-options">
+            ${copy.services.map((item, i) => `<label class="q-option">
+              <input type="radio" name="serviceType" value="${attr(item.title)}" data-q-base="${servicePrices[i] || 35000}" ${i === 0 ? 'checked' : ''} required>
+              <span class="q-option-body"><strong>${esc(item.title)}</strong><small>${esc(item.description)}</small><b>${money(servicePrices[i] || 35000, lang)}</b></span>
+            </label>`).join('')}
+          </div>
+          ${qNav(f, false)}
         </div>
-        <button class="btn btn-primary btn-block mt-3" type="submit">${icon('send')}${esc(copy.confirm)}</button>
-        <div class="form-status" role="status"></div>
-        <p class="form-note center mt-2">${esc(copy.note)}</p>
+
+        <div class="q-step" data-q-step="2">
+          ${qStepHead(f, 2, `${copy.budgetLabel} · ${copy.timelineLabel}`)}
+          <div class="form-grid">
+            <div class="field full"><label for="agc-budget">${esc(copy.budgetLabel)}</label><select id="agc-budget" name="budget">
+              ${copy.budgets.map((b) => `<option value="${attr(b)}">${esc(b)}</option>`).join('')}
+            </select></div>
+            <div class="field full"><label for="agc-timeline">${esc(copy.timelineLabel)}</label><select id="agc-timeline" name="timeline" data-q-detail>
+              ${copy.timelines.map((t, i) => `<option value="${attr(t)}" data-q-factor="${timelineFactors[i] || 1}">${esc(t)}</option>`).join('')}
+            </select></div>
+            <div class="field full"><span class="q-field-label">${esc(f.extras)}</span>
+              <div class="q-checks">${extras.map(([label, price]) => `<label class="q-check"><input type="checkbox" name="extra" value="${attr(label)}" data-q-add="${price}"><span>${esc(label)} <b>+${money(price, lang)}</b></span></label>`).join('')}</div>
+            </div>
+          </div>
+          ${qEstimate(f)}
+          ${qNav(f, true)}
+        </div>
+
+        <div class="q-step" data-q-step="3">
+          ${qStepHead(f, 3, s.contact)}
+          <div class="form-grid">
+            <div class="field"><label for="agc-name">${esc(s.name)}</label><input id="agc-name" name="name" required maxlength="80" autocomplete="name"><span class="err">${esc(s.required)}</span></div>
+            <div class="field"><label for="agc-phone">${esc(s.phone)}</label><input id="agc-phone" name="phone" type="tel" required maxlength="20" autocomplete="tel" dir="ltr"><span class="err">${esc(s.invalidPhone)}</span></div>
+            <div class="field full"><label for="agc-email">${esc(s.email)}</label><input id="agc-email" name="email" type="email" maxlength="120" autocomplete="email" dir="ltr"></div>
+            <div class="field full"><label for="agc-msg">${esc(s.message)}</label><textarea id="agc-msg" name="message" maxlength="1200"></textarea></div>
+            <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
+          </div>
+          ${qSummary(f)}
+          ${qEstimate(f)}
+          <input type="hidden" name="estimate" data-q-estimate-input>
+          <button class="btn btn-primary btn-block mt-3" type="submit">${icon('send')}${esc(copy.confirm)}</button>
+          <div class="form-status" role="status"></div>
+          <p class="form-note center mt-2">${esc(copy.note)}</p>
+        </div>
       </form>
     </div>
   </section>
@@ -8173,7 +8337,13 @@ const CLEANING: Record<Lang, CleaningCopy> = {
 
 export function cleaningPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
   const copy = CLEANING[lang];
+  const f = featureStrings(lang);
   const plans = config.products.filter((p) => p.name);
+  const extras: Array<[string, number]> = lang === 'ar'
+    ? [['تنظيف عميق للزوايا', 2500], ['تنظيف النوافذ', 1800], ['تنظيف الثلاجة', 1200]]
+    : lang === 'fr'
+      ? [['Nettoyage profond des recoins', 2500], ['Nettoyage des fenêtres', 1800], ['Nettoyage du réfrigérateur', 1200]]
+      : [['Deep corner cleaning', 2500], ['Window cleaning', 1800], ['Fridge cleaning', 1200]];
   const heroImage = config.coverUrl
     ? `<img src="${attr(config.coverUrl)}" alt="${attr(config.siteName)}" width="900" height="1100" fetchpriority="high" decoding="async">`
     : '';
@@ -8274,6 +8444,8 @@ export function cleaningPage(config: RenderConfig, s: UiStrings, lang: Lang): st
     </div>
   </section>
 
+  ${beforeAfterSection(config, f)}
+
   <section class="stats-band">
     <div class="container stats-grid">
       ${copy.stats.map(([num, label]) => `<div class="stat"><div class="num">${esc(num)}</div><div class="lbl">${esc(label)}</div></div>`).join('')}
@@ -8320,26 +8492,57 @@ export function cleaningPage(config: RenderConfig, s: UiStrings, lang: Lang): st
           <a class="btn btn-wa" href="${attr(bookWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.whatsapp)}</a>
         </div>
       </div>
-      <form class="cleaning-form-card" data-lead-form data-lead-kind="cleaning-booking" novalidate>
+      <form class="cleaning-form-card q-builder" data-lead-form data-lead-kind="cleaning-booking" data-quote-builder data-q-detail-label="${attr(copy.sizeLabel)}" data-smart-booking data-slots="08:00,09:00,10:00,11:00,13:00,14:00,15:00,16:00" novalidate>
         <h3>${esc(copy.formTitle)}</h3>
-        <p class="booking-sub">${esc(copy.formSub)}</p>
-        <div class="form-grid">
-          <div class="field"><label for="cln-name">${esc(s.name)}</label><input id="cln-name" name="name" required maxlength="80" autocomplete="name"><span class="err">${esc(s.required)}</span></div>
-          <div class="field"><label for="cln-phone">${esc(s.phone)}</label><input id="cln-phone" name="phone" type="tel" required maxlength="20" autocomplete="tel" dir="ltr"><span class="err">${esc(s.invalidPhone)}</span></div>
-          <div class="field full"><label for="cln-plan">${esc(copy.choosePlan)}</label><select id="cln-plan" name="planName" data-join-plan required>
-            <option value="">${esc(copy.choosePlan)}</option>
-            ${plans.map((p) => `<option value="${attr(p.name)}">${esc(p.name)} — ${money(p.price, lang)}</option>`).join('')}
-          </select><span class="err">${esc(s.required)}</span></div>
-          <div class="field full"><label for="cln-date">${esc(copy.dateLabel)}</label><input id="cln-date" name="date" type="date" required dir="ltr"><span class="err">${esc(s.required)}</span></div>
-          <div class="field full"><label for="cln-size">${esc(copy.sizeLabel)}</label><select id="cln-size" name="homeSize">
-            ${copy.sizes.map((size) => `<option value="${attr(size)}">${esc(size)}</option>`).join('')}
-          </select></div>
-          <div class="field full"><label for="cln-msg">${esc(s.message)}</label><textarea id="cln-msg" name="message" maxlength="1200"></textarea></div>
-          <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
+        <p class="booking-sub">${esc(f.quoteBuilder)} — ${esc(copy.formSub)}</p>
+        ${qProgress()}
+
+        <div class="q-step is-active" data-q-step="1">
+          ${qStepHead(f, 1, copy.choosePlan)}
+          <div class="q-options">
+            ${plans.map((p, i) => `<label class="q-option">
+              <input type="radio" name="planName" value="${attr(p.name)}" data-q-base="${Math.round(Number(p.price) || 0)}" ${i === 0 ? 'checked' : ''} required>
+              <span class="q-option-body"><strong>${esc(p.name)}</strong>${p.description ? `<small>${esc(p.description)}</small>` : ''}<b>${money(p.price, lang)}</b></span>
+            </label>`).join('')}
+          </div>
+          ${qNav(f, false)}
         </div>
-        <button class="btn btn-primary btn-block mt-3" type="submit">${icon('send')}${esc(copy.confirm)}</button>
-        <div class="form-status" role="status"></div>
-        <p class="form-note center mt-2">${esc(copy.note)}</p>
+
+        <div class="q-step" data-q-step="2">
+          ${qStepHead(f, 2, `${copy.dateLabel} · ${copy.sizeLabel}`)}
+          <div class="form-grid">
+            <div class="field"><label for="cln-date">${esc(copy.dateLabel)}</label><input id="cln-date" name="date" type="date" required dir="ltr"><span class="err">${esc(s.required)}</span></div>
+            <div class="field"><label for="cln-time">${esc(s.time)}</label><select id="cln-time" name="time" required>
+              ${['08:00','09:00','10:00','11:00','13:00','14:00','15:00','16:00'].map((t) => `<option value="${t}">${t}</option>`).join('')}
+            </select></div>
+            <div class="field full"><label for="cln-size">${esc(copy.sizeLabel)}</label><select id="cln-size" name="homeSize" data-q-detail>
+              ${copy.sizes.map((size, i) => `<option value="${attr(size)}" data-q-factor="${[1, 1.3, 1.6, 2][i] || 1}">${esc(size)}</option>`).join('')}
+            </select></div>
+            <div data-smart-booking-slot class="full"></div>
+            <div class="field full"><span class="q-field-label">${esc(f.extras)}</span>
+              <div class="q-checks">${extras.map(([label, price]) => `<label class="q-check"><input type="checkbox" name="extra" value="${attr(label)}" data-q-add="${price}"><span>${esc(label)} <b>+${money(price, lang)}</b></span></label>`).join('')}</div>
+            </div>
+          </div>
+          ${qEstimate(f)}
+          ${qNav(f, true)}
+        </div>
+
+        <div class="q-step" data-q-step="3">
+          ${qStepHead(f, 3, s.contact)}
+          <div class="form-grid">
+            <div class="field"><label for="cln-name">${esc(s.name)}</label><input id="cln-name" name="name" required maxlength="80" autocomplete="name"><span class="err">${esc(s.required)}</span></div>
+            <div class="field"><label for="cln-phone">${esc(s.phone)}</label><input id="cln-phone" name="phone" type="tel" required maxlength="20" autocomplete="tel" dir="ltr"><span class="err">${esc(s.invalidPhone)}</span></div>
+            <div class="field full"><label for="cln-email">${esc(s.email)}</label><input id="cln-email" name="email" type="email" maxlength="120" autocomplete="email" dir="ltr"></div>
+            <div class="field full"><label for="cln-msg">${esc(s.message)}</label><textarea id="cln-msg" name="message" maxlength="1200"></textarea></div>
+            <input type="text" name="website" tabindex="-1" autocomplete="off" style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0" aria-hidden="true">
+          </div>
+          ${qSummary(f)}
+          ${qEstimate(f)}
+          <input type="hidden" name="estimate" data-q-estimate-input>
+          <button class="btn btn-primary btn-block mt-3" type="submit">${icon('send')}${esc(copy.confirm)}</button>
+          <div class="form-status" role="status"></div>
+          <p class="form-note center mt-2">${esc(copy.note)}</p>
+        </div>
       </form>
     </div>
   </section>
@@ -8595,6 +8798,7 @@ const SALON: Record<Lang, SalonCopy> = {
 
 export function salonPage(config: RenderConfig, s: UiStrings, lang: Lang): string {
   const copy = SALON[lang];
+  const f = featureStrings(lang);
   const packages = config.products.filter((p) => p.name);
   const team = config.team || [];
   const gallery = (config.gallery || []).slice(0, 6);
@@ -8674,6 +8878,8 @@ export function salonPage(config: RenderConfig, s: UiStrings, lang: Lang): strin
     </div>
   </section>` : ''}
 
+  ${beforeAfterSection(config, f)}
+
   ${team.length ? `<section class="section" id="team">
     <div class="container">
       ${sectionHead(copy.teamEyebrow, copy.teamTitle, copy.teamLead, true)}
@@ -8750,7 +8956,7 @@ export function salonPage(config: RenderConfig, s: UiStrings, lang: Lang): strin
           <a class="btn btn-wa" href="${attr(bookWa)}" target="_blank" rel="noopener">${icon('whatsapp')}${esc(s.whatsapp)}</a>
         </div>
       </div>
-      <form class="salon-form-card" data-lead-form data-lead-kind="salon-booking" novalidate>
+      <form class="salon-form-card" data-lead-form data-lead-kind="salon-booking" data-smart-booking data-slots="${attr(copy.timeSlots.join(','))}" novalidate>
         <h3>${esc(copy.formTitle)}</h3>
         <p class="booking-sub">${esc(copy.formSub)}</p>
         <div class="form-grid">

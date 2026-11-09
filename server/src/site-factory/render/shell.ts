@@ -1,4 +1,4 @@
-import { esc, attr, ui, type RenderConfig, type UiStrings } from './types';
+import { esc, attr, ui, featureStrings, type RenderConfig, type UiStrings } from './types';
 
 type IconName =
   | 'phone' | 'whatsapp' | 'mail' | 'map' | 'clock' | 'arrow' | 'check' | 'star'
@@ -74,6 +74,60 @@ export function foregroundFor(hex: string): string {
   const linear = (value: number) => (value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4);
   const luminance = 0.2126 * linear(channel(0)) + 0.7152 * linear(channel(2)) + 0.0722 * linear(channel(4));
   return luminance > 0.58 ? '#0f172a' : '#ffffff';
+}
+
+const DAY_NAMES: Array<[number, string[]]> = [
+  [0, ['الأحد', 'الاحد', 'dimanche', 'sunday']],
+  [1, ['الاثنين', 'الإثنين', 'الاثنين', 'lundi', 'monday']],
+  [2, ['الثلاثاء', 'mardi', 'tuesday']],
+  [3, ['الأربعاء', 'الاربعاء', 'mercredi', 'wednesday']],
+  [4, ['الخميس', 'jeudi', 'thursday']],
+  [5, ['الجمعة', 'vendredi', 'friday']],
+  [6, ['السبت', 'samedi', 'saturday']],
+];
+
+const DAY_LOOKUP: Record<string, number> = {};
+for (const [index, names] of DAY_NAMES) {
+  for (const name of names) DAY_LOOKUP[name] = index;
+}
+
+/**
+ * Best-effort conversion of the free-form `hours` label into the open days
+ * used by the smart booking calendar. Ranges wrap around the week, so
+ * "السبت – الخميس" opens Saturday..Thursday and closes Friday.
+ */
+export function openDaysFromHours(hours: string): number[] {
+  const text = String(hours || '').toLowerCase();
+  const all = [0, 1, 2, 3, 4, 5, 6];
+  if (!text.trim()) return all;
+  if (/24\s*\/\s*7|7\s*\/\s*7|يومياً|كل يوم|على مدار الساعة|tous les jours|chaque jour|daily|every day/.test(text)) {
+    return all;
+  }
+  const found: number[] = [];
+  const pattern = new RegExp(
+    Object.keys(DAY_LOOKUP)
+      .sort((a, b) => b.length - a.length)
+      .map((name) => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .join('|'),
+    'g',
+  );
+  let match: RegExpExecArray | null;
+  while ((match = pattern.exec(text))) {
+    const index = DAY_LOOKUP[match[0]];
+    if (index !== undefined && !found.includes(index)) found.push(index);
+  }
+  if (!found.length) return all;
+  if (found.length === 1) return [found[0]];
+  const start = found[0];
+  const end = found[found.length - 1];
+  const range: number[] = [];
+  let cursor = start;
+  for (let guard = 0; guard < 7; guard++) {
+    range.push(cursor);
+    if (cursor === end) break;
+    cursor = (cursor + 1) % 7;
+  }
+  return range.length ? range : all;
 }
 
 export interface ShellOptions {
@@ -469,6 +523,7 @@ function whatsappCta(config: RenderConfig, s: UiStrings): string {
 export function renderShell(options: ShellOptions): string {
   const { config, lang, pagePath, alternates, title, description, body, jsonLd, siteUrl, coverFile, favicon, extraHead } = options;
   const s = ui(lang);
+  const f = featureStrings(lang);
   const primary = config.primaryColor;
   const secondary = config.secondaryColor;
   const foreground = foregroundFor(primary);
@@ -557,6 +612,7 @@ export function renderShell(options: ShellOptions): string {
   const waFloat = config.whatsapp
     ? `<a class="wa-float" href="${attr(waHref(config, `مرحباً ${config.siteName} 👋`))}" target="_blank" rel="noopener" aria-label="${attr(s.whatsapp)}">${icon('whatsapp')}</a>`
     : '';
+  const installBtn = `<button class="install-app" type="button" data-install-app hidden>${icon('download')}<span>${esc(f.installApp)}</span></button>`;
 
   const mainContent = config.templateSlug === 'card' ? body : `<main id="main">${body}</main>`;
 
@@ -570,6 +626,9 @@ export function renderShell(options: ShellOptions): string {
     preview: !!config.preview,
     template: config.templateSlug,
     products: config.products,
+    hours: config.hours || '',
+    openDays: openDaysFromHours(config.hours),
+    features: f,
     contact: {
       phone: config.phone,
       whatsapp: config.whatsapp,
@@ -589,6 +648,13 @@ export function renderShell(options: ShellOptions): string {
       orderError: s.orderError,
       messageSuccess: s.messageSuccess,
       saveContact: s.saveContact,
+      installApp: f.installApp,
+      offlineReady: f.offlineReady,
+      addToCalendar: f.addToCalendar,
+      guests: s.guests,
+      date: s.date,
+      time: s.time,
+      closed: f.closed,
     },
   };
 
@@ -633,6 +699,7 @@ ${headerHtml}
 ${mainContent}
 ${footerHtml}
 ${waFloat}
+${installBtn}
 <button class="to-top" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="${attr(s.backTop)}">${icon('arrow', 'icon')}</button>
 <div class="overlay" id="overlay"></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
