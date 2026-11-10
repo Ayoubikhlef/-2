@@ -120,8 +120,20 @@ function AdminLoadingPage() {
   );
 }
 
+function readNormalizedHash(): string {
+  if (typeof window === 'undefined') return '';
+  const current = window.location.hash;
+  const normalized = normalizeNavHref(current);
+  if (normalized && normalized !== current) {
+    // Rewrite label-style anchors (e.g. #تتبّع طلبك) to the real section id
+    // so refreshing or sharing the URL keeps working.
+    window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}${normalized}`);
+  }
+  return normalized;
+}
+
 export default function App() {
-  const [hash, setHash] = useState(() => (typeof window !== 'undefined' ? normalizeNavHref(window.location.hash) : ''));
+  const [hash, setHash] = useState(readNormalizedHash);
   const isFactoryPage =
     typeof window !== 'undefined' && window.location.pathname.replace(/\/+$/, '') === '/create-website';
   const is404 = !isFactoryPage && typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#hqpanel', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq', '#web', '#demo', '#order-tracking'].includes(hash);
@@ -139,7 +151,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const onHashChange = () => setHash(normalizeNavHref(window.location.hash));
+    const onHashChange = () => setHash(readNormalizedHash());
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
@@ -207,7 +219,7 @@ export default function App() {
 
   useEffect(() => {
     const updateTitle = () => {
-      const hash = window.location.hash;
+      const hash = normalizeNavHref(window.location.hash);
       const pathname = window.location.pathname.replace(/\/+$/, '');
       const lang = (localStorage.getItem('language') || 'en') as 'ar' | 'fr' | 'en';
       if (pathname === '/create-website') {
