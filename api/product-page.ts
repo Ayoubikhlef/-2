@@ -145,9 +145,28 @@ function buildJsonLd(product: Product, price: number, inStock: boolean, url: str
       url,
       priceCurrency: 'DZD',
       price,
+      priceValidUntil: `${new Date().getFullYear() + 1}-12-31`,
       availability: inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
       itemCondition: 'https://schema.org/NewCondition',
       seller: { '@type': 'Organization', name: 'AOS Tech Store' },
+      // Same facts as the Terms page: 7-day in-store returns, 2-5 day
+      // delivery in Algeria. Never invent reviews or a flat shipping rate.
+      shippingDetails: {
+        '@type': 'OfferShippingDetails',
+        shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'DZ' },
+        deliveryTime: {
+          '@type': 'ShippingDeliveryTime',
+          handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
+          transitTime: { '@type': 'QuantitativeValue', minValue: 2, maxValue: 5, unitCode: 'DAY' },
+        },
+      },
+      hasMerchantReturnPolicy: {
+        '@type': 'MerchantReturnPolicy',
+        applicableCountry: 'DZ',
+        returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+        merchantReturnDays: 7,
+        returnMethod: 'https://schema.org/ReturnInStore',
+      },
     },
     url,
     isPartOf: { '@id': `${SITE}/#website` },
