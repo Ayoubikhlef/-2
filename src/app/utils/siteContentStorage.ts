@@ -247,10 +247,20 @@ function getAll(): SiteContent {
       return defaultContent;
     }
     const parsed = JSON.parse(raw) as Partial<SiteContent>;
+    // Always surface the brand FAQ entries, even for visitors whose content
+    // was stored before those questions were added. Other edits stay intact.
+    const brandFaqIds = new Set(['about-aos-tech-store', 'location-aos-tech-store']);
+    const storedFaqItems = parsed.faq?.items ?? defaultContent.faq.items;
+    const faqItems = brand.lockIdentity
+      ? [
+          ...storedFaqItems.filter((item) => !brandFaqIds.has(item.id)),
+          ...defaultContent.faq.items.filter((item) => brandFaqIds.has(item.id)),
+        ]
+      : storedFaqItems;
     const merged: SiteContent = {
       hero: { ...defaultContent.hero, ...parsed.hero },
       whyUs: { ...defaultContent.whyUs, ...parsed.whyUs, features: parsed.whyUs?.features ?? defaultContent.whyUs.features },
-      faq: { ...defaultContent.faq, ...parsed.faq, items: parsed.faq?.items ?? defaultContent.faq.items },
+      faq: { ...defaultContent.faq, ...parsed.faq, items: faqItems },
       about: { ...defaultContent.about, ...parsed.about },
       services: { ...defaultContent.services, ...parsed.services, cards: parsed.services?.cards ?? defaultContent.services.cards, digitizationItems: parsed.services?.digitizationItems ?? defaultContent.services.digitizationItems },
       footer: { ...defaultContent.footer, ...parsed.footer },

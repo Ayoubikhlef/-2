@@ -29,8 +29,13 @@ export function Footer() {
           <div className="lg:col-span-1">
             <img src={brand.logo} alt={brand.name} className="h-14 w-auto mb-4" width="56" height="56" />
             <p className="text-foreground text-sm font-extrabold mb-1">{brand.name}</p>
-            <p className="text-muted-foreground text-sm leading-relaxed mb-4">
+            <p className="text-muted-foreground text-sm leading-relaxed mb-2">
               {t(content.footer.description)}
+            </p>
+            <p className="text-muted-foreground/80 text-xs leading-relaxed mb-4">
+              {language === 'ar'
+                ? 'AOS Tech Store (أوس تك / أوس تيك) — الاسم القانوني: أيوب أوفيس سيرفيسز'
+                : 'AOS Tech Store (AOS Tech / AOS Store) — Ayoub Office Services'}
             </p>
             <div className="flex items-center gap-3">
               <a href={contact.facebookUrl} target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-lg bg-muted flex items-center justify-center hover:bg-primary transition-colors" aria-label="Facebook">
