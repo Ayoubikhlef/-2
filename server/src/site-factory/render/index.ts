@@ -50,7 +50,7 @@ export function renderSite(input: RenderConfig): RenderedSite {
     secondaryColor: safeColor(input.secondaryColor, '#1e3a8a'),
     products: (input.products || []).map((p) => ({ ...p })),
     gallery: (input.gallery || [])
-      .filter((url) => typeof url === 'string' && /^https?:\/\//i.test(url))
+      .filter((url) => typeof url === 'string' && (/^https?:\/\//i.test(url) || url.startsWith('/')))
       .slice(0, 12),
     services: (input.services || []).filter((s) => s && s.title).map((s) => ({ ...s })),
     socials: {
@@ -86,14 +86,15 @@ export function renderSite(input: RenderConfig): RenderedSite {
     const path = `assets/cover.${cover.ext}`;
     addFile(path, cover.buffer, 'base64');
     config.coverUrl = path;
-  } else if (config.coverUrl && !/^https?:\/\//i.test(config.coverUrl)) {
+  } else if (config.coverUrl && !/^https?:\/\//i.test(config.coverUrl) && !config.coverUrl.startsWith('/')) {
     config.coverUrl = null;
   }
 
   config.products = config.products.map((product: RenderProduct, index: number) => {
     const image = dataUrlAsset(product.imageUrl);
     if (!image) {
-      return { ...product, imageUrl: product.imageUrl && /^https?:\/\//i.test(product.imageUrl) ? product.imageUrl : null };
+      const raw = product.imageUrl;
+      return { ...product, imageUrl: raw && (/^https?:\/\//i.test(raw) || raw.startsWith('/')) ? raw : null };
     }
     const path = `assets/product-${index + 1}.${image.ext}`;
     addFile(path, image.buffer, 'base64');

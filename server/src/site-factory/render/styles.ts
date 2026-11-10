@@ -1751,6 +1751,29 @@ html[dir="rtl"] .q-nav [data-q-next] .icon{transform:scaleX(-1)}
   .fp-table{min-width:calc(33.333% - 5px)}
 }
 
+/* Product cards — no hover lift, image zoom or reveal motion (all templates). */
+.product-card,.fleet-card,.car-card,.property-card,.room-card,.course-card,.bistro-dish,.boutique-card,.digital-card{
+  transition:box-shadow .2s ease,border-color .2s ease!important;
+}
+.product-card:hover,.fleet-card:hover,.car-card:hover,.property-card:hover,.room-card:hover,.course-card:hover,.bistro-dish:hover,.boutique-card:hover,.digital-card:hover{
+  transform:none!important;
+}
+.product-card:hover .product-thumb img,
+.fleet-card:hover .fleet-media img,
+.car-card:hover .car-thumb img,
+.property-card:hover .property-thumb img,
+.room-card:hover .room-thumb img,
+.course-card:hover .course-thumb img,
+.bistro-dish:hover .bistro-dish-thumb img,
+.boutique-card:hover .boutique-thumb img,
+.digital-card:hover .digital-thumb img{
+  transform:none!important;
+}
+.product-card[data-reveal],.fleet-card[data-reveal],.car-card[data-reveal],.property-card[data-reveal],.room-card[data-reveal],.course-card[data-reveal],.bistro-dish[data-reveal],.boutique-card[data-reveal],.digital-card[data-reveal]{
+  opacity:1!important;transform:none!important;transition:box-shadow .2s ease,border-color .2s ease!important;
+}
+.product-card .add-btn:hover{transform:none!important}
+
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
   [data-reveal]{opacity:1;transform:none}
