@@ -2,6 +2,19 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
+  "redirects": [
+    {
+      "source": "/:path((?!api/|socket.io/).*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "aostech.vercel.app"
+        }
+      ],
+      "destination": "https://aos-tech.store/:path",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/create-website",
