@@ -1774,6 +1774,56 @@ html[dir="rtl"] .q-nav [data-q-next] .icon{transform:scaleX(-1)}
 }
 .product-card .add-btn:hover{transform:none!important}
 
+/* No motion - all templates. The hero (first) image and every decorative
+   element stay perfectly still: no shaking, floating, pulsing or zooming. */
+*,
+*::before,
+*::after{
+  animation:none!important;
+  animation-duration:0s!important;
+  animation-delay:0s!important;
+  will-change:auto!important;
+}
+.hero-media,
+.hero-media img,
+.rest-hero .bg img,
+.landing-preview img,
+.showcase-media img,
+.vcard-cover img,
+.product-thumb img,
+.fleet-media img,
+.car-thumb img,
+.property-thumb img,
+.room-thumb img,
+.course-thumb img,
+.bistro-dish-thumb img,
+.boutique-thumb img,
+.digital-thumb img,
+.work-card img{
+  animation:none!important;
+  transform:none!important;
+  transition:none!important;
+  will-change:auto!important;
+}
+.float-icon,
+.wa-float,
+.brand-mark,
+.service-card::before,
+.appointment-card::before,
+.stats-band,
+.vcard-cover{
+  animation:none!important;
+}
+.btn-primary::after{
+  display:none!important;
+}
+[data-reveal]{
+  opacity:1!important;
+  transform:none!important;
+  transition:none!important;
+}
+html{scroll-behavior:auto!important}
+
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
   [data-reveal]{opacity:1;transform:none}
