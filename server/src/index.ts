@@ -254,10 +254,20 @@ async function fixMojibakeSettings() {
 // suspended). Set KEEP_ALIVE=off to disable, or override the URL with
 // KEEP_ALIVE_URL.
 const KEEP_ALIVE_INTERVAL_MS = 10 * 60 * 1000;
-const KEEP_ALIVE_START_HOUR = 5; // Africa/Algiers (UTC+1)
-const KEEP_ALIVE_END_HOUR = 1;
+
+function parseKeepAliveHour(value: string | undefined, fallback: number) {
+  if (value === undefined || value.trim() === '') return fallback;
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed < 0 || parsed > 24) return fallback;
+  return Math.floor(parsed) % 24;
+}
+
+// Africa/Algiers (UTC+1). Default 05:00 -> 01:00. Set both to 0 for 24/7.
+const KEEP_ALIVE_START_HOUR = parseKeepAliveHour(process.env.KEEP_ALIVE_START_HOUR, 5);
+const KEEP_ALIVE_END_HOUR = parseKeepAliveHour(process.env.KEEP_ALIVE_END_HOUR, 1);
 
 function isWithinKeepAliveWindow(now = new Date()) {
+  if (KEEP_ALIVE_START_HOUR === KEEP_ALIVE_END_HOUR) return true;
   const hour = Number(
     new Intl.DateTimeFormat('en-GB', {
       timeZone: 'Africa/Algiers',
@@ -265,7 +275,7 @@ function isWithinKeepAliveWindow(now = new Date()) {
       hour12: false,
     }).format(now),
   ) % 24;
-  if (KEEP_ALIVE_START_HOUR <= KEEP_ALIVE_END_HOUR) {
+  if (KEEP_ALIVE_START_HOUR < KEEP_ALIVE_END_HOUR) {
     return hour >= KEEP_ALIVE_START_HOUR && hour < KEEP_ALIVE_END_HOUR;
   }
   return hour >= KEEP_ALIVE_START_HOUR || hour < KEEP_ALIVE_END_HOUR;
