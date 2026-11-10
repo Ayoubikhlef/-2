@@ -13,6 +13,66 @@ import type { PricedItemInput } from '../data/deliveryTariff';
 
 export const orderRouter = Router();
 
+const PRODUCTS_SETTING_KEY = 'aos_products';
+const PRODUCTS_CACHE_KEY = 'products';
+const PRODUCTS_CACHE_TTL_MS = 30_000;
+
+type CatalogProduct = {
+  id: number;
+  nameAr?: string;
+  nameFr?: string;
+  nameEn?: string;
+  price: number;
+  salePrice?: number;
+  saleEnd?: string;
+  stock?: number | string | null;
+  weight?: string;
+  dimensions?: string;
+};
+
+/**
+ * Product catalog is normally served from `/api/products`, which caches it
+ * under the same key. Reusing that cache keeps checkout from reading the same
+ * multi-kilobyte setting row on every order during a rush.
+ */
+async function loadProductCatalog(): Promise<CatalogProduct[]> {
+  const cached = getCached<{ products: CatalogProduct[] }>(PRODUCTS_CACHE_KEY);
+  if (cached?.products) return cached.products;
+
+  const setting = await prisma.setting.findUnique({ where: { key: PRODUCTS_SETTING_KEY } });
+  const products = setting
+    ? fixMojibakeData(JSON.parse(setting.value)) as CatalogProduct[]
+    : [];
+  setCache(PRODUCTS_CACHE_KEY, { products }, PRODUCTS_CACHE_TTL_MS);
+  return products;
+}
+
+/** Only a finite numeric stock is enforced; missing stock means unlimited. */
+function finiteStock(product: CatalogProduct): number | null {
+  if (typeof product.stock === 'number' && Number.isFinite(product.stock)) {
+    return product.stock;
+  }
+  if (typeof product.stock === 'string' && product.stock.trim() !== '') {
+    const parsed = Number(product.stock);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return null;
+}
+
+function productLabel(product: CatalogProduct): string {
+  return product.nameAr || product.nameEn || product.nameFr || `#${product.id}`;
+}
+
+/** Order identity used to absorb a double submit that generated two ids. */
+function itemsSignature(items: Array<{ name: string; quantity: number }>): string {
+  return items
+    .map((item) => `${item.name.trim().toLowerCase()}:${item.quantity}`)
+    .sort()
+    .join('|');
+}
+
+const DUPLICATE_ORDER_WINDOW_MS = 120_000;
+
 const orderItemSchema = z.object({
   name: z.string().min(1),
   quantity: z.number().int().positive().max(10000),
@@ -105,13 +165,12 @@ orderRouter.post('/', async (req: Request, res: Response) => {
         serverTotal = data.total;
       }
     } else {
-      const setting = await prisma.setting.findUnique({ where: { key: 'aos_products' } });
-      const products: any[] = setting ? fixMojibakeData(JSON.parse(setting.value)) : [];
+      const products = await loadProductCatalog();
 
       for (const item of data.items) {
         const product = item.productId
-          ? products.find((p: any) => p.id === item.productId)
-          : products.find((p: any) => p.nameAr === item.name || p.nameFr === item.name || p.nameEn === item.name);
+          ? products.find((p) => p.id === item.productId)
+          : products.find((p) => p.nameAr === item.name || p.nameFr === item.name || p.nameEn === item.name);
 
         if (!product) {
           console.warn(`[Orders] Product not found (source=${data.source}): ${item.name} productId=${item.productId ?? 'none'}`);
@@ -121,6 +180,15 @@ orderRouter.post('/', async (req: Request, res: Response) => {
         const serverPrice = product.salePrice && product.saleEnd && new Date(product.saleEnd) > new Date()
           ? product.salePrice
           : product.price;
+
+        // Advisory fast-fail for sold-out items; the authoritative check runs
+        // inside the locked transaction below.
+        const available = finiteStock(product);
+        if (available !== null && available < item.quantity) {
+          return res.status(400).json({
+            error: `Insufficient stock: ${productLabel(product)} (available ${Math.max(0, available)})`,
+          });
+        }
 
         const itemTotal = Math.round(serverPrice * item.quantity);
         serverTotal += itemTotal;
@@ -204,9 +272,94 @@ orderRouter.post('/', async (req: Request, res: Response) => {
       console.warn(`[Orders] Client total ${data.total} != server total ${finalTotal} (delivery ${deliveryFee})`);
     }
 
+    // Aggregate quantities per product so two lines of the same item can not
+    // bypass the stock check. Quantities are validated in one locked
+    // transaction: read-modify-write under concurrency is what oversells.
+    const stockQuantities = new Map<number, number>();
+    if (!isService) {
+      for (const item of validatedItems) {
+        if (item.productId == null) continue;
+        stockQuantities.set(
+          item.productId,
+          (stockQuantities.get(item.productId) ?? 0) + item.quantity,
+        );
+      }
+    }
+
     const orderId = requestedId || crypto.randomUUID();
-    const order = await prisma.$transaction(async (tx) => {
-      return tx.order.create({
+    const result = await prisma.$transaction(async (tx) => {
+      // The catalog row doubles as the submission lock: it serializes stock
+      // checks and the recent-duplicate check across concurrent requests.
+      const rows = await tx.$queryRaw<Array<{ value: string }>>`
+        SELECT "value" FROM "Setting" WHERE "key" = ${PRODUCTS_SETTING_KEY} FOR UPDATE
+      `;
+      if (rows.length === 0 && stockQuantities.size > 0) {
+        return { stockError: 'Product catalog unavailable' };
+      }
+
+      // A retry can arrive after the first attempt committed but before the
+      // client saw the response. Return the winner instead of charging stock
+      // twice or answering "sold out" for an order that already exists.
+      if (requestedId) {
+        const existing = await tx.order.findUnique({
+          where: { id: requestedId },
+          select: { id: true },
+        });
+        if (existing) return { duplicateOrderId: existing.id };
+      }
+
+      // Safety net for clients still running an old bundle: two submits can
+      // create two different ids. An identical phone + name + items + total
+      // within two minutes is a double submit, not a second purchase.
+      const recent = await tx.order.findFirst({
+        where: {
+          phone: data.phone,
+          total: finalTotal,
+          createdAt: { gte: new Date(Date.now() - DUPLICATE_ORDER_WINDOW_MS) },
+        },
+        include: { items: true },
+        orderBy: { createdAt: 'desc' },
+      });
+      if (
+        recent &&
+        recent.customer.trim().toLowerCase() === data.customer.trim().toLowerCase() &&
+        itemsSignature(recent.items) === itemsSignature(validatedItems)
+      ) {
+        return { duplicateOrderId: recent.id };
+      }
+
+      let updatedCatalog: CatalogProduct[] | null = null;
+
+      if (stockQuantities.size > 0) {
+        const catalog = fixMojibakeData(JSON.parse(rows[0].value)) as CatalogProduct[];
+
+        for (const [productId, quantity] of stockQuantities) {
+          const product = catalog.find((p) => p.id === productId);
+          if (!product) {
+            return { stockError: `Product not found: #${productId}` };
+          }
+          const available = finiteStock(product);
+          if (available === null) continue; // unlimited stock
+          if (available < quantity) {
+            return {
+              stockError: `Insufficient stock: ${productLabel(product)} (available ${Math.max(0, available)})`,
+            };
+          }
+          product.stock = available - quantity;
+          updatedCatalog = catalog;
+        }
+
+        // Persist the decremented catalog in the same transaction as the
+        // order: if the insert fails, the stock change rolls back too.
+        if (updatedCatalog) {
+          await tx.setting.update({
+            where: { key: PRODUCTS_SETTING_KEY },
+            data: { value: JSON.stringify(updatedCatalog) },
+          });
+        }
+      }
+
+      const created = await tx.order.create({
         data: {
           id: orderId,
           customer: data.customer,
@@ -235,25 +388,33 @@ orderRouter.post('/', async (req: Request, res: Response) => {
         },
         include: { items: true },
       });
-    }).catch((err) => {
-      // Two simultaneous retries can both pass the check above; the primary
+
+      return { order: created, products: updatedCatalog };
+    }, { maxWait: 10_000, timeout: 15_000 }).catch((err) => {
+      // Two simultaneous retries can both pass the checks above; the primary
       // key then rejects the second insert. Treat it as a duplicate, not 500.
       if (requestedId && (err?.code === 'P2002' || String(err?.message || '').includes('Unique constraint'))) {
-        return null;
+        return { duplicateOrderId: requestedId };
       }
       throw err;
     });
 
-    if (!order) {
-      console.log(`[Orders] Concurrent duplicate ignored: ${requestedId}`);
-      return res.status(200).json({ id: requestedId, duplicate: true });
+    if ('duplicateOrderId' in result) {
+      console.log(`[Orders] Duplicate order ignored: ${result.duplicateOrderId}`);
+      return res.status(200).json({ id: result.duplicateOrderId, duplicate: true });
     }
 
-    if (order) {
-      const updatedSetting = await prisma.setting.findUnique({ where: { key: 'aos_products' } });
-      if (updatedSetting) {
-        clearCache('products');
-      }
+    if ('stockError' in result) {
+      console.warn(`[Orders] Rejected by stock check: ${result.stockError}`);
+      return res.status(400).json({ error: result.stockError });
+    }
+
+    const order = result.order;
+
+    // Keep the catalog cache in sync with the decremented stock we just
+    // committed, so the next shopper sees the real availability immediately.
+    if (result.products) {
+      setCache(PRODUCTS_CACHE_KEY, { products: result.products }, PRODUCTS_CACHE_TTL_MS);
     }
 
     console.log(`[Orders] Created order ${order.id} (${order.total} DZD)`);
@@ -464,6 +625,7 @@ orderRouter.delete('/:id', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), asy
   try {
     const { id } = req.params;
     await prisma.order.delete({ where: { id } });
+    clearCache('orders:list');
     console.log(`[Orders] Deleted order ${id}`);
     res.json({ deleted: true, id });
   } catch (err: any) {

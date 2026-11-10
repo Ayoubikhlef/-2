@@ -111,7 +111,7 @@ app.use((_req, res, next) => {
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100, handler: securityRateLimitHandler('auth'), validate: { xForwardedForHeader: false } });
 const adminGateLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, handler: securityRateLimitHandler('admin-gate'), validate: { xForwardedForHeader: false } });
 const passwordResetLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, handler: securityRateLimitHandler('password-reset'), validate: { xForwardedForHeader: false } });
-const orderLimiter = rateLimit({ windowMs: 60 * 1000, max: 200, handler: securityRateLimitHandler('orders'), validate: { xForwardedForHeader: false } });
+const orderLimiter = rateLimit({ windowMs: 60 * 1000, max: 600, handler: securityRateLimitHandler('orders'), validate: { xForwardedForHeader: false } });
 const generalLimiter = rateLimit({ windowMs: 60 * 1000, max: 600, handler: securityRateLimitHandler('general'), validate: { xForwardedForHeader: false } });
 app.use('/api/auth', authLimiter);
 app.use('/api/auth/admin-gate', adminGateLimiter);
@@ -166,6 +166,8 @@ async function initDb() {
   try {
     await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS idx_orders_created ON "Order" ("createdAt" DESC)`);
     await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS idx_orders_status ON "Order" (status)`);
+    await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS idx_orders_phone ON "Order" (phone)`);
+    await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS idx_orders_email ON "Order" (email)`);
   } catch { /* table may not exist yet */ }
 }
 

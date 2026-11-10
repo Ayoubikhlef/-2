@@ -33,11 +33,16 @@ dataRouter.post('/save', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async
     clearCache(`data:${key}`);
     clearCache(`data:all`);
     if (key === 'aos_products') clearCache('products');
+    if (key === 'aos_site_settings') clearCache('delivery:');
     await prisma.setting.upsert({
       where: { key },
       update: { value: serialized },
       create: { key, value: serialized },
     });
+    // Clear again after the write: a concurrent request may have repopulated
+    // the cache with the previous value between the first clear and the upsert.
+    if (key === 'aos_products') clearCache('products');
+    if (key === 'aos_site_settings') clearCache('delivery:');
     console.log(`[Data] Saved ${key} (${serialized.length} bytes)`);
     res.json({ ok: true, key });
   } catch (err) {

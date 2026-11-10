@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useCart } from '../contexts/CartContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { LoyaltyCard } from './LoyaltyCard';
-import { saveOrder } from '../utils/orderStorage';
+import { saveOrder, describeOrderError } from '../utils/orderStorage';
 import { wilayas, getMunicipalities } from '../data/products';
 import { Mail, Phone, MapPin, DollarSign, Banknote, Percent, FileText } from 'lucide-react';
 import { toast } from 'sonner';
@@ -241,7 +241,7 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
       clear();
     } catch (err: any) {
       console.error('[OrderForm] submit failed:', err);
-      toast.error(err?.message || t({
+      toast.error(describeOrderError(err, language) || err?.message || t({
         ar: 'تعذر إرسال الطلب. حاول مرة أخرى.',
         fr: 'Impossible d\'envoyer la commande. Réessayez.',
         en: 'Could not send the order. Please try again.',

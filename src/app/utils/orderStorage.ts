@@ -36,6 +36,38 @@ export type OrderRecord = {
   discountCode?: string;
 };
 
+/**
+ * Turns server-side checkout rejections into a customer-facing message.
+ * Returns null for unknown errors so the caller can use a generic fallback.
+ */
+export function describeOrderError(err: any, language: 'ar' | 'fr' | 'en'): string | null {
+  const message = String(err?.message || '');
+  const stock = message.match(/Insufficient stock:\s*(.+?)\s*\(available\s*(\d+)\)/i);
+  if (stock) {
+    const name = stock[1];
+    const available = Number(stock[2]);
+    if (language === 'ar') {
+      return available <= 0
+        ? `نفدت الكمية من «${name}». اختر منتجاً آخر أو تواصل معنا.`
+        : `الكمية المطلوبة من «${name}» غير متوفرة. المتوفر حالياً: ${available}.`;
+    }
+    if (language === 'fr') {
+      return available <= 0
+        ? `« ${name} » est en rupture de stock. Choisissez un autre produit ou contactez-nous.`
+        : `Stock insuffisant pour « ${name} ». Disponible : ${available}.`;
+    }
+    return available <= 0
+      ? `"${name}" is out of stock. Choose another product or contact us.`
+      : `Not enough stock for "${name}". Available: ${available}.`;
+  }
+  if (/Product not found|Product catalog unavailable/i.test(message)) {
+    if (language === 'ar') return 'هذا المنتج لم يعد متوفراً. حدّث الصفحة واختر منتجاً آخر.';
+    if (language === 'fr') return "Ce produit n'est plus disponible. Actualisez la page et choisissez un autre produit.";
+    return 'This product is no longer available. Refresh the page and choose another item.';
+  }
+  return null;
+}
+
 const STORAGE_KEY = 'ayoubtech-orders';
 const SOFT_DELETE_KEY = 'ayoubtech-soft-delete';
 const SYNCED_IDS_KEY = 'ayoubtech-synced-order-ids';
@@ -165,21 +197,6 @@ async function saveOrderInternal(order: Omit<OrderRecord, 'id' | 'createdAt' | '
   localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   log('info', `Saved order ${record.id} to localStorage`);
 
-  const products = getStoredProducts(defaultProducts);
-  let changed = false;
-  for (const item of order.items) {
-    const idx = products.findIndex(
-      (p) => p.nameAr === item.name || p.nameFr === item.name || p.nameEn === item.name
-    );
-    if (idx !== -1 && products[idx].stock !== undefined) {
-      products[idx].stock = Math.max(0, (products[idx].stock ?? 0) - item.quantity);
-      changed = true;
-    }
-  }
-  // Local-only: customers cannot push the whole catalog to /data/save (401),
-  // and re-rendering every listener here would block the submit click.
-  if (changed) saveProducts(products, { sync: false, dispatch: false });
-
   deferDispatchChange();
 
   try {
@@ -209,11 +226,37 @@ async function saveOrderInternal(order: Omit<OrderRecord, 'id' | 'createdAt' | '
     Object.keys(payload).forEach((k) => {
       if (payload[k] === undefined) delete payload[k];
     });
-    await api.orders.create(payload);
+    const serverResult = await api.orders.create(payload);
     log('info', `Order ${record.id} synced to server`);
     markSynced(record.id);
+
+    // Reflect the reserved stock locally only after the server accepted the
+    // order. The server is authoritative; this just keeps the open catalog
+    // from offering quantities that were sold in another tab. A duplicate
+    // answer means this submit did not reserve anything new.
+    if (!serverResult?.duplicate) {
+      const products = getStoredProducts(defaultProducts);
+      let changed = false;
+      for (const item of order.items) {
+        const idx = products.findIndex(
+          (p) => p.nameAr === item.name || p.nameFr === item.name || p.nameEn === item.name
+        );
+        if (idx !== -1 && products[idx].stock !== undefined) {
+          products[idx].stock = Math.max(0, (products[idx].stock ?? 0) - item.quantity);
+          changed = true;
+        }
+      }
+      if (changed) saveProducts(products, { sync: false, dispatch: false });
+    }
   } catch (err: any) {
     log('warn', `Server sync failed for order ${record.id}`, err?.message);
+    // A 4xx answer is definitive (sold out, invalid data, closed coupon):
+    // drop the optimistic local copy so it is not retried forever.
+    if (err?.status >= 400 && err?.status < 500) {
+      const remaining = getOrders().filter((o) => o.id !== record.id);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
+      deferDispatchChange();
+    }
     // Local copy stays queued for pushUnsyncedOrders, but the UI must know
     // the server rejected/failed so it does not fake a success.
     throw err instanceof Error ? err : new Error(String(err));

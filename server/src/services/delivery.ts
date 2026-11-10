@@ -1,4 +1,5 @@
 import { prisma } from '../utils/prisma';
+import { getCached, setCache } from '../utils/cache';
 import {
   buildDefaultFeeMap,
   calculateDeliveryQuote,
@@ -76,6 +77,10 @@ export function defaultDeliverySettings(): DeliverySettings {
  */
 export async function loadDeliverySettings(): Promise<DeliverySettings> {
   const defaults = defaultDeliverySettings();
+  const cacheKey = 'delivery:settings';
+  const cached = getCached<DeliverySettings>(cacheKey);
+  if (cached) return cached;
+
   try {
     const setting = await prisma.setting.findUnique({ where: { key: 'aos_site_settings' } });
     if (!setting) return defaults;
@@ -84,12 +89,14 @@ export async function loadDeliverySettings(): Promise<DeliverySettings> {
     const delivery = parsed?.delivery;
     if (!delivery || typeof delivery !== 'object') return defaults;
 
-    return {
+    const resolved: DeliverySettings = {
       freeThreshold: Math.round(toNumber(delivery.freeThreshold, defaults.freeThreshold, 0, 10_000_000)),
       homeFees: mergeFees(delivery.homeFees, defaults.homeFees),
       deskFees: mergeFees(delivery.deskFees, defaults.deskFees),
       rules: mergeRules(delivery.rules),
     };
+    setCache(cacheKey, resolved, 60_000);
+    return resolved;
   } catch (err) {
     console.warn('[Delivery] Failed to read settings, using defaults:', err);
     return defaults;

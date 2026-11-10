@@ -41,7 +41,13 @@ function normalizeProduct(p: any): Product {
     ? p.images.map((value: unknown) => normalizeImageUrl(typeof value === 'string' ? value : '')).filter(Boolean)
     : [];
   const image = normalizeImageUrl(p?.image) || images[0] || '';
-  return { ...p, stock: p?.stock ?? 0, image, images };
+  const stock = Number(p?.stock);
+  return {
+    ...p,
+    stock: Number.isFinite(stock) ? Math.max(0, Math.floor(stock)) : 0,
+    image,
+    images,
+  };
 }
 
 export function getStoredProducts(defaults: Product[]): Product[] {

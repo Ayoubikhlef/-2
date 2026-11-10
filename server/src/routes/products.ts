@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { prisma } from '../utils/prisma';
 import { syncProducts, isReady, type ProductRecord } from '../services/rag';
 import { requireAuth, requireRole, type AuthRequest } from '../middleware/auth';
-import { getCached, setCache, clearCache } from '../utils/cache';
+import { getCached, setCache } from '../utils/cache';
 import { fixMojibakeData } from '../utils/encoding';
 
 export const productRouter = Router();
@@ -49,13 +49,10 @@ const SETTINGS_KEY_PRODUCTS = 'aos_products';
 productRouter.post('/sync', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
     const { products } = syncSchema.parse(req.body);
-    // Persist products as JSON in the Setting model
-    await prisma.setting.upsert({
-      where: { key: SETTINGS_KEY_PRODUCTS },
-      update: { value: JSON.stringify(products) },
-      create: { key: SETTINGS_KEY_PRODUCTS, value: JSON.stringify(products) },
-    });
-    clearCache('products');
+    // The catalog itself is owned by /api/data/save (the admin editor sends
+    // arbitrary extra fields such as `stock`). This endpoint only refreshes
+    // the RAG index; overwriting the catalog from a possibly stale browser
+    // snapshot would resurrect stock that orders already reserved.
     const ragProducts: ProductRecord[] = products.map(p => ({
       id: p.id,
       nameAr: p.nameAr,

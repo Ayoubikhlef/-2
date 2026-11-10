@@ -2,10 +2,9 @@ import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { ShoppingCart, Plus, Minus, X, User, Phone, Mail, MapPin, CheckCircle, Info, Heart, Search, Camera, Share2, Eye, Banknote, Home, Store } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { useCart } from '../contexts/CartContext';
 import { products as defaultProducts, wilayas, getMunicipalities, type Product } from '../data/products';
 import { getStoredProducts, loadProductsFromServer } from '../utils/productStorage';
-import { saveOrder } from '../utils/orderStorage';
+import { saveOrder, describeOrderError } from '../utils/orderStorage';
 import { getDeliveryQuote, type DeliveryMethod } from '../data/deliveryFees';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'motion/react';
@@ -51,7 +50,6 @@ const categoryLabels: Record<string, { ar: string; fr: string; en: string }> = {
 
 export function Products() {
   const { t, language } = useLanguage();
-  const { addItem } = useCart();
   const [products, setProducts] = useState<Product[]>(loadProducts);
   const [quantities, setQuantities] = useState<{ [key: number]: number }>({});
   const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
@@ -285,6 +283,15 @@ export function Products() {
 
     if (!selectedProduct) return;
 
+    if (typeof selectedProduct.stock === 'number' && selectedProduct.stock <= 0) {
+      toast.error(t({
+        ar: 'هذا المنتج نفد من المخزون حالياً. اختر منتجاً آخر.',
+        fr: 'Ce produit est en rupture de stock. Choisissez un autre produit.',
+        en: 'This product is out of stock. Please choose another one.',
+      }));
+      return;
+    }
+
     const productName = language === 'ar' ? selectedProduct.nameAr : language === 'fr' ? selectedProduct.nameFr : selectedProduct.nameEn;
     const wilayaName = wilayas.find((w) => w.id.toString() === orderData.wilaya)?.[language === 'ar' ? 'nameAr' : language === 'fr' ? 'nameFr' : 'nameEn'] || '';
     const municipalityName = getMunicipalities(Number(orderData.wilaya)).find((m) => m.id === orderData.municipality)?.[language === 'ar' ? 'nameAr' : language === 'fr' ? 'nameFr' : 'nameEn'] || '';
@@ -294,16 +301,6 @@ export function Products() {
 
     submitLock.current = true;
     setSubmitting(true);
-    addItem({
-      productId: selectedProduct.id,
-      quantity: orderData.quantity,
-      price: selectedProduct.price,
-      name: productName,
-      stock: selectedProduct.stock ?? 0,
-      weight: selectedProduct.weight,
-      dimensions: selectedProduct.dimensions,
-    });
-
     try {
       const record = await saveOrder({
         customer: orderData.fullName,
@@ -348,7 +345,7 @@ export function Products() {
       toast.success(t({ ar: 'تم تسجيل الطلب بنجاح!', fr: 'Commande enregistrée avec succès!', en: 'Order saved successfully!' }));
     } catch (err: any) {
       console.error('[Products] quick-order failed:', err);
-      toast.error(err?.message || t({
+      toast.error(describeOrderError(err, language) || err?.message || t({
         ar: 'تعذر إرسال الطلب. حاول مرة أخرى.',
         fr: 'Impossible d\'envoyer la commande. Réessayez.',
         en: 'Could not send the order. Please try again.',

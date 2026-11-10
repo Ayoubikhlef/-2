@@ -132,6 +132,9 @@ model Order {
 
   user     User?       @relation(fields: [userId], references: [id])
   items    OrderItem[]
+
+  @@index([phone])
+  @@index([email])
 }
 
 model OrderItem {
