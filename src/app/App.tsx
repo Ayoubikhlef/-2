@@ -30,6 +30,7 @@ import { SkeletonCard } from './components/SkeletonCard';
 import { OrderTracking } from './components/OrderTracking';
 import { startAutoSync } from './utils/globalSync';
 import { getSiteSettings, normalizeNavHref } from './utils/siteSettingsStorage';
+import { productPathFromUrl } from './utils/productPath';
 
 const Admin = lazy(() => import('./components/Admin').then(m => ({ default: m.Admin })));
 const OrderForm = lazy(() => import('./components/OrderForm').then(m => ({ default: m.OrderForm })));
@@ -43,6 +44,7 @@ const AccountDashboard = lazy(() => import('./components/AccountDashboard').then
 const LoginPage = lazy(() => import('./components/LoginPage').then(m => ({ default: m.LoginPage })));
 const WABubble = lazy(() => import('./components/WABubble').then(m => ({ default: m.WABubble })));
 const AIAssistant = lazy(() => import('./components/AIAssistant').then(m => ({ default: m.AIAssistant })));
+const ProductPage = lazy(() => import('./components/ProductPage').then(m => ({ default: m.ProductPage })));
 function LiquidBackground() {
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
@@ -136,7 +138,9 @@ export default function App() {
   const [hash, setHash] = useState(readNormalizedHash);
   const isFactoryPage =
     typeof window !== 'undefined' && window.location.pathname.replace(/\/+$/, '') === '/create-website';
-  const is404 = !isFactoryPage && typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#hqpanel', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq', '#web', '#demo', '#order-tracking'].includes(hash);
+  const productSlug = typeof window !== 'undefined' ? productPathFromUrl(window.location.pathname) : null;
+  const isProductPage = Boolean(productSlug);
+  const is404 = !isFactoryPage && !isProductPage && typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#hqpanel', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq', '#web', '#demo', '#order-tracking'].includes(hash);
   const [showLogin, setShowLogin] = useState(false);
   const [maintenance, setMaintenance] = useState(false);
   // Render immediately for returning visitors (the flag is cached locally)
@@ -219,6 +223,8 @@ export default function App() {
 
   useEffect(() => {
     const updateTitle = () => {
+      // Product pages own their title/description/JSON-LD (see ProductPage).
+      if (productSlug) return;
       const hash = normalizeNavHref(window.location.hash);
       const pathname = window.location.pathname.replace(/\/+$/, '');
       const lang = (localStorage.getItem('language') || 'en') as 'ar' | 'fr' | 'en';
@@ -334,6 +340,7 @@ export default function App() {
   const currentHash = hash;
   const isPage =
     isFactoryPage ||
+    isProductPage ||
     ['#about', '#terms', '#privacy', '#checkout', '#loyalty', '#account', '#web', '#demo'].includes(currentHash);
 
   return (
@@ -361,7 +368,11 @@ export default function App() {
               <ScrollProgress />
               {currentHash !== '#demo' && <Header onLoginClick={() => setShowLogin(true)} />}
               <main id="main-content">
-                {isPage ? (
+                {isProductPage ? (
+                  <Suspense fallback={<AdminFallback />}>
+                    <ProductPage slug={productSlug!} />
+                  </Suspense>
+                ) : isPage ? (
                   <>
                     {isFactoryPage && (
                       <Suspense fallback={<AdminFallback />}>
@@ -430,6 +441,7 @@ export default function App() {
                   </>
                 )}
               </main>
+              {isProductPage && <Footer />}
               <ScrollToTop />
               {currentHash !== '#demo' && !isFactoryPage && (
                 <>

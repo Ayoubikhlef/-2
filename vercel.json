@@ -7,6 +7,10 @@
   },
   "rewrites": [
     {
+      "source": "/product/(.*)",
+      "destination": "/api/product-page?slug=$1"
+    },
+    {
       "source": "/create-website",
       "destination": "/index.html"
     },

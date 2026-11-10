@@ -21,6 +21,7 @@ import { ProductSuggestions } from './ProductSuggestions';
 import TiltedCard from './TiltedCard';
 import { TrustBadges } from './AnnouncementBar';
 import { submitOrderToSheet } from '../utils/googleForm';
+import { productPath } from '../utils/productPath';
 
 function loadProducts() {
   return getStoredProducts(defaultProducts);
@@ -616,13 +617,14 @@ export function Products() {
               </button>
               <button
                 onClick={() => {
+                  const shareUrl = `${window.location.origin}${productPath(viewingProduct)}`;
                   const shareData = {
                     title: language === 'ar' ? viewingProduct.nameAr : language === 'fr' ? viewingProduct.nameFr : viewingProduct.nameEn,
                     text: language === 'ar' ? viewingProduct.descAr : language === 'fr' ? viewingProduct.descFr : viewingProduct.descEn,
-                    url: window.location.href,
+                    url: shareUrl,
                   };
                   if (navigator.share) navigator.share(shareData);
-                  else navigator.clipboard.writeText(window.location.href);
+                  else navigator.clipboard.writeText(shareUrl);
                 }}
                 className="absolute top-4 left-4 rounded-full bg-white/20 backdrop-blur-sm p-3 text-white hover:bg-white/30 transition-all"
                 aria-label={language === 'ar' ? 'مشاركة' : language === 'fr' ? 'Partager' : 'Share'}
@@ -713,6 +715,14 @@ export function Products() {
                   {t({ ar: 'متابعة التسوق', fr: 'Continuer', en: 'Continue Shopping' })}
                 </button>
               </div>
+
+              <a
+                href={productPath(viewingProduct)}
+                className="mt-4 inline-flex items-center justify-center gap-2 text-sm font-semibold text-primary hover:underline"
+              >
+                <Eye className="w-4 h-4" />
+                {t({ ar: 'فتح صفحة المنتج', fr: 'Voir la fiche produit', en: 'View product page' })}
+              </a>
             </div>
           </motion.div>
         </motion.div>
