@@ -220,6 +220,9 @@ async function saveOrderInternal(order: Omit<OrderRecord, 'id' | 'createdAt' | '
       // The same id is used locally and on the server, so retries are
       // idempotent and the admin list cannot show the order twice.
       id: record.id,
+      // Anchors the server duplicate check to the original submit time so a
+      // queued offline order cannot re-create itself when it is retried.
+      createdAt: record.createdAt,
     };
     // Product orders may omit productId when only a display name is known;
     // server matches by name. Empty optional fields are stripped.
@@ -331,6 +334,7 @@ export async function pushUnsyncedOrders(): Promise<void> {
         source: order.source,
         discountCode: order.discountCode,
         id: order.id,
+        createdAt: order.createdAt,
       });
       markSynced(order.id);
       log('info', `Order ${order.id} pushed to server`);

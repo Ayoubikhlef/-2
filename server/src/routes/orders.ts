@@ -90,6 +90,7 @@ const optionalEmail = z.preprocess(
 const createOrderSchema = z
   .object({
     id: z.string().min(8).max(64).regex(/^[A-Za-z0-9_-]+$/).optional(),
+    createdAt: z.string().datetime().optional(),
     customer: z.string().min(1).max(200),
     phone: z.string().min(1).max(20),
     email: optionalEmail,
@@ -310,12 +311,22 @@ orderRouter.post('/', async (req: Request, res: Response) => {
 
       // Safety net for clients still running an old bundle: two submits can
       // create two different ids. An identical phone + name + items + total
-      // within two minutes is a double submit, not a second purchase.
+      // around the original submission time is a double submit, not a second
+      // purchase. The client timestamp also covers orders queued offline and
+      // pushed hours later, which must still match their server twin.
+      const clientCreatedAt = data.createdAt ? new Date(data.createdAt) : null;
+      const duplicateAnchor =
+        clientCreatedAt && Number.isFinite(clientCreatedAt.getTime())
+          ? clientCreatedAt
+          : new Date();
       const recent = await tx.order.findFirst({
         where: {
           phone: data.phone,
           total: finalTotal,
-          createdAt: { gte: new Date(Date.now() - DUPLICATE_ORDER_WINDOW_MS) },
+          createdAt: {
+            gte: new Date(duplicateAnchor.getTime() - DUPLICATE_ORDER_WINDOW_MS),
+            lte: new Date(duplicateAnchor.getTime() + DUPLICATE_ORDER_WINDOW_MS),
+          },
         },
         include: { items: true },
         orderBy: { createdAt: 'desc' },
