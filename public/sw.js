@@ -1,13 +1,12 @@
-const CACHE = 'aos-cache-v10';
-const STATIC_CACHE = 'aos-static-v10';
+const CACHE = 'aos-cache-v11';
+const STATIC_CACHE = 'aos-static-v11';
 const OFFLINE_URL = '/offline.html';
 
 const PRECACHE_URLS = [
   OFFLINE_URL,
   '/boot-guard.js',
-  '/aos-logo3.png',
-  '/aos-logo2.png',
-  '/aos-logo.png',
+  '/favicon-192.png',
+  '/icon-512.png',
   '/manifest.json',
 ];
 
@@ -169,8 +168,8 @@ self.addEventListener('push', function (event) {
   const data = event.data ? event.data.json() : {};
   const options = {
     body: data.body || 'New update from AOS Tech Store',
-    icon: '/aos-logo3.png',
-    badge: '/aos-logo3.png',
+    icon: '/favicon-192.png',
+    badge: '/favicon-192.png',
     vibrate: [200, 100, 200],
   };
   event.waitUntil(

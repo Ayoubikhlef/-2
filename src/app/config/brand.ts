@@ -96,13 +96,18 @@ export function applyBrand() {
 
   document.querySelector('meta[name="theme-color"]')?.setAttribute('content', primary);
 
-  let icon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
-  if (!icon) {
-    icon = document.createElement('link');
-    icon.rel = 'icon';
-    document.head.appendChild(icon);
+  // Keep the pre-sized favicon set (48/96/192) when present: search engines
+  // use it and a 1 MB logo would slow down every page load.
+  const hasSizedIcons = document.querySelector('link[rel="icon"][sizes]');
+  if (!hasSizedIcons) {
+    let icon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
+    if (!icon) {
+      icon = document.createElement('link');
+      icon.rel = 'icon';
+      document.head.appendChild(icon);
+    }
+    icon.href = brand.logo;
   }
-  icon.href = brand.logo;
 
   const siteUrl = `https://${brand.domain}`;
   setMeta('meta[name="description"]', brand.description);

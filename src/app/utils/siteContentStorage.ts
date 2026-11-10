@@ -153,7 +153,7 @@ const defaultContent: SiteContent = {
       {
         id: 'about-aos-tech-store',
         question: { ar: 'ما هو AOS Tech Store؟', fr: 'Qu\'est-ce que AOS Tech Store ?', en: 'What is AOS Tech Store?' },
-        answer: { ar: 'AOS Tech Store (أيوب أوفيس سيرفيسز) هو متجر خدمات مكتبية وإعلام آلي في الميلية، جيجل، يقدم الطباعة والرقمنة وصيانة الحواسيب وبيع المعدات وإنشاء المواقع الإلكترونية.', fr: 'AOS Tech Store (Ayoub Office Services) est un magasin de services de bureau et d\'informatique à El Milia, Jijel : impression, numérisation, maintenance, vente de matériel et création de sites web.', en: 'AOS Tech Store (Ayoub Office Services) is an office services and IT store in El Milia, Jijel: printing, digitization, computer maintenance, equipment sales and website creation.' },
+        answer: { ar: 'AOS Tech Store (AOS Tech) هو متجر خدمات مكتبية وإعلام آلي في الميلية، جيجل، يقدم الطباعة والرقمنة وصيانة الحواسيب وبيع المعدات وإنشاء المواقع الإلكترونية.', fr: 'AOS Tech Store (AOS Tech) est un magasin de services de bureau et d\'informatique à El Milia, Jijel : impression, numérisation, maintenance, vente de matériel et création de sites web.', en: 'AOS Tech Store (AOS Tech) is an office services and IT store in El Milia, Jijel: printing, digitization, computer maintenance, equipment sales and website creation.' },
       },
       {
         id: 'location-aos-tech-store',

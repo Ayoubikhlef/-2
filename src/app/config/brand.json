@@ -5,7 +5,7 @@
   "initials": "AOS",
   "description": "AOS Tech Store (Ayoub Office Services) — services informatiques, bureautiques, impression, numérisation, maintenance et vente de matériel informatique à El Milia, Jijel, Algérie.",
   "domain": "aos-tech.store",
-  "logo": "/logo.png",
+  "logo": "/icon-512.png",
   "colors": {
     "primary": "#0b5ed7",
     "gradientTo": "#1e3a8a"
