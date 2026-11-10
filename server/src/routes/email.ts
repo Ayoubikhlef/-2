@@ -50,7 +50,7 @@ emailRouter.post('/send', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), asyn
 
     const transporter = nodemailer.createTransport(smtpConfig);
     const info = await transporter.sendMail({
-      from: `"Ayoub Office Services" <${smtpConfig.auth.user}>`,
+      from: `"AOS Tech Store" <${smtpConfig.auth.user}>`,
       to: testEmail || recipients[0],
       bcc: testEmail ? undefined : recipients,
       subject,

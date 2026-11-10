@@ -1,9 +1,9 @@
 {
-  "name": "AYOUB OFFICE SERVICES",
-  "nameLatin": "AYOUB OFFICE SERVICES",
+  "name": "AOS Tech Store",
+  "nameLatin": "AOS Tech Store",
   "shortName": "AOS",
   "initials": "AOS",
-  "description": "Services informatiques, bureautiques et vente de matériel informatique à El Milia, Jijel, Algérie. Impression, numérisation, maintenance et accessoires.",
+  "description": "AOS Tech Store (Ayoub Office Services) — services informatiques, bureautiques, impression, numérisation, maintenance et vente de matériel informatique à El Milia, Jijel, Algérie.",
   "domain": "aos-tech.store",
   "logo": "/logo.png",
   "colors": {
@@ -27,7 +27,7 @@
       "en": "Grand Boulevard, El Milia, Jijel 18300"
     },
     "facebookUrl": "https://www.facebook.com/share/1BTrNWjYPx/",
-    "facebookName": "Ayoub Office Services",
+    "facebookName": "AOS Tech Store",
     "workingHours": {
       "ar": "السبت - الخميس: 08:00 - 19:00",
       "fr": "Samedi - Jeudi: 08:00 - 19:00",
@@ -45,8 +45,8 @@
     "en": "DZD"
   },
   "about": {
-    "ar": "أيوب أوفيس سيرفيسز متجر لخدمات المكتب ومستلزمات الإعلام الآلي في الميلية، ولاية جيجل. نقدم خدمات الطباعة والرقمنة والصيانة، إضافة إلى مجموعة من منتجات التقنية للأفراد والشركات.",
-    "fr": "Ayoub Office Services est un magasin de services de bureau et de fournitures informatiques à El Milia, wilaya de Jijel. Nous proposons des services d'impression, de numérisation et de maintenance, ainsi qu'une gamme de produits technologiques pour particuliers et entreprises.",
-    "en": "Ayoub Office Services is an office services and IT supplies store in El Milia, Jijel. We offer printing, digitization and maintenance services, plus a range of technology products for individuals and businesses."
+    "ar": "AOS Tech Store (أيوب أوفيس سيرفيسز) متجر لخدمات المكتب ومستلزمات الإعلام الآلي في الميلية، ولاية جيجل. نقدم خدمات الطباعة والرقمنة والصيانة، إضافة إلى مجموعة من منتجات التقنية للأفراد والشركات.",
+    "fr": "AOS Tech Store (Ayoub Office Services) est un magasin de services de bureau et de fournitures informatiques à El Milia, wilaya de Jijel. Nous proposons des services d'impression, de numérisation et de maintenance, ainsi qu'une gamme de produits technologiques pour particuliers et entreprises.",
+    "en": "AOS Tech Store (Ayoub Office Services) is an office services and IT supplies store in El Milia, Jijel. We offer printing, digitization and maintenance services, plus a range of technology products for individuals and businesses."
   }
 }

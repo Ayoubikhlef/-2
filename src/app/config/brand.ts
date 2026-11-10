@@ -109,10 +109,10 @@ export function applyBrand() {
   setMeta('meta[property="og:site_name"]', brand.name);
   setMeta('meta[property="og:title"]', brand.name);
   setMeta('meta[property="og:description"]', brand.description);
-  setMeta('meta[property="og:url"]', siteUrl);
+  setMeta('meta[property="og:url"]', `${siteUrl}/`);
   setMeta('meta[property="og:image"]', `${siteUrl}${brand.logo}`);
   setMeta('meta[name="twitter:title"]', brand.name);
   setMeta('meta[name="twitter:description"]', brand.description);
   setMeta('meta[name="twitter:image"]', `${siteUrl}${brand.logo}`);
-  document.querySelector('link[rel="canonical"]')?.setAttribute('href', siteUrl);
+  document.querySelector('link[rel="canonical"]')?.setAttribute('href', `${siteUrl}/`);
 }

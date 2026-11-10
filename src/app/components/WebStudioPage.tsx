@@ -291,7 +291,7 @@ export function WebStudioPage() {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center text-white text-[10px] font-black">AOS</div>
-                      <span className="text-[10px] sm:text-xs font-bold">AYOUB OFFICE SERVICES</span>
+                      <span className="text-[10px] sm:text-xs font-bold">AOS TECH STORE</span>
                     </div>
                     <div className="hidden sm:flex gap-2">
                       {['Accueil', 'Produits', 'Contact'].map((item) => (

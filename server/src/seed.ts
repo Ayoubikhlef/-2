@@ -9,7 +9,7 @@ async function seed() {
   await prisma.setting.upsert({
     where: { key: 'site_name' },
     update: {},
-    create: { key: 'site_name', value: 'Ayoub Office Services' },
+    create: { key: 'site_name', value: 'AOS Tech Store' },
   });
 
   console.log('[Seed] Default settings created');

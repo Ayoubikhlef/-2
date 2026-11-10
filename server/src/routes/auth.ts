@@ -89,9 +89,9 @@ async function sendResetEmail(email: string, token: string, userName: string) {
   const resetUrl = `${resetEndpoint}?token=${encodeURIComponent(token)}`;
 
   await transporter.sendMail({
-    from: `"Ayoub Office Services" <${resetEmail}>`,
+    from: `"AOS Tech Store" <${resetEmail}>`,
     to: email,
-    subject: 'Reset your password - Ayoub Office Services',
+    subject: 'Reset your password - AOS Tech Store',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #1e293b;">Reset Your Password</h2>
@@ -103,7 +103,7 @@ async function sendResetEmail(email: string, token: string, userName: string) {
         <p>This link will expire in 24 hours.</p>
         <p>If you didn't request this reset, please ignore this email or contact support if you have concerns.</p>
         <hr style="margin: 30px 0; border: none; border-top: 1px solid #cbd5e1;">
-        <p style="font-size: 12px; color: #64748b;">&copy; 2026 Ayoub Office Services. All rights reserved.</p>
+        <p style="font-size: 12px; color: #64748b;">&copy; 2026 AOS Tech Store. All rights reserved.</p>
       </div>
     `,
   });

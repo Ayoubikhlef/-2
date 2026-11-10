@@ -231,7 +231,7 @@ export default function App() {
         '#contact':  { ar: 'اتصل بنا', fr: 'Contact', en: 'Contact Us' },
       };
       const name = titles[hash]?.[lang];
-      document.title = name ? `${name} | ${brand.name}` : brand.name;
+      document.title = name ? `${name} | ${brand.name}` : `${brand.name} — Ayoub Office Services`;
     };
     updateTitle();
     window.addEventListener('hashchange', updateTitle);

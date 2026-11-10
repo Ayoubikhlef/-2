@@ -13,7 +13,7 @@
         {
           "type": "BODY",
           "format": "TEXT",
-          "text": "مرحباً {{1}} 🙏\nطلبك رقم #{{2}}: {{3}}\nالمبلغ: {{4}}\nشكراً لتسوقك مع Ayoub Office Services ❤️"
+          "text": "مرحباً {{1}} 🙏\nطلبك رقم #{{2}}: {{3}}\nالمبلغ: {{4}}\nشكراً لتسوقك مع AOS Tech Store ❤️"
         }
       ]
     },
@@ -30,7 +30,7 @@
         {
           "type": "BODY",
           "format": "TEXT",
-          "text": "Bonjour {{1}} 🙏\nVotre commande #{{2}}: {{3}}\nMontant: {{4}}\nMerci d'avoir choisi Ayoub Office Services ❤️"
+          "text": "Bonjour {{1}} 🙏\nVotre commande #{{2}}: {{3}}\nMontant: {{4}}\nMerci d'avoir choisi AOS Tech Store ❤️"
         }
       ]
     },

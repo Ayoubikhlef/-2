@@ -548,7 +548,7 @@ export const PACKAGES: PackageSeed[] = [
 ];
 
 export const DEFAULT_FACTORY_SETTINGS: FactorySettings = {
-  ownerName: 'AYOUB OFFICE SERVICES',
+  ownerName: 'AOS TECH STORE',
   ownerPhone: '0674113290',
   ownerWhatsapp: '213674113290',
   ownerEmail: 'ayoub.office.services@gmail.com',

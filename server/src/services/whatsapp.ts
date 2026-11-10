@@ -15,9 +15,9 @@ function getWebhookHeaders() {
 export async function sendWhatsAppNotification(phone: string, customer: string, orderId: string, status: string, total?: number) {
   const s = STATUS_TRANSLATIONS[status] || { ar: status, fr: status, en: status };
 
-  const arMsg = `مرحباً ${customer} 🙏\nطلبك رقم #${orderId.slice(0, 8)}: ${s.ar}${total ? `\nالمبلغ: ${total.toLocaleString()} د.ج` : ''}\nشكراً لتسوقك مع Ayoub Office Services ❤️`;
-  const frMsg = `Bonjour ${customer} 🙏\nVotre commande #${orderId.slice(0, 8)}: ${s.fr}${total ? `\nMontant: ${total.toLocaleString()} DZD` : ''}\nMerci d'avoir choisi Ayoub Office Services ❤️`;
-  const enMsg = `Hello ${customer} 🙏\nYour order #${orderId.slice(0, 8)}: ${s.en}${total ? `\nAmount: ${total.toLocaleString()} DZD` : ''}\nThank you for shopping at Ayoub Office Services ❤️`;
+  const arMsg = `مرحباً ${customer} 🙏\nطلبك رقم #${orderId.slice(0, 8)}: ${s.ar}${total ? `\nالمبلغ: ${total.toLocaleString()} د.ج` : ''}\nشكراً لتسوقك مع AOS Tech Store ❤️`;
+  const frMsg = `Bonjour ${customer} 🙏\nVotre commande #${orderId.slice(0, 8)}: ${s.fr}${total ? `\nMontant: ${total.toLocaleString()} DZD` : ''}\nMerci d'avoir choisi AOS Tech Store ❤️`;
+  const enMsg = `Hello ${customer} 🙏\nYour order #${orderId.slice(0, 8)}: ${s.en}${total ? `\nAmount: ${total.toLocaleString()} DZD` : ''}\nThank you for shopping at AOS Tech Store ❤️`;
 
   const phoneClean = phone.replace(/[^0-9]/g, '');
   const country = phoneClean.startsWith('213') ? phoneClean : `213${phoneClean.replace(/^0/, '')}`;

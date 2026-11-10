@@ -168,7 +168,7 @@ self.addEventListener('fetch', (e) => {
 self.addEventListener('push', function (event) {
   const data = event.data ? event.data.json() : {};
   const options = {
-    body: data.body || 'New update from Ayoub Office Services',
+    body: data.body || 'New update from AOS Tech Store',
     icon: '/aos-logo3.png',
     badge: '/aos-logo3.png',
     vibrate: [200, 100, 200],

@@ -28,6 +28,7 @@ export function Footer() {
           {/* Brand */}
           <div className="lg:col-span-1">
             <img src={brand.logo} alt={brand.name} className="h-14 w-auto mb-4" width="56" height="56" />
+            <p className="text-foreground text-sm font-extrabold mb-1">{brand.name}</p>
             <p className="text-muted-foreground text-sm leading-relaxed mb-4">
               {t(content.footer.description)}
             </p>
