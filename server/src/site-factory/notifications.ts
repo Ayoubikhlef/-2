@@ -1,7 +1,7 @@
 import { sendSecurityAlertEmail } from '../services/emailAlerts';
 import { sendTelegramMessage } from '../services/telegram';
 
-const ADMIN_URL = process.env.PUBLIC_SITE_URL || 'https://aostech.vercel.app';
+const ADMIN_URL = process.env.PUBLIC_SITE_URL || 'https://aos-tech.store';
 
 function money(value: number): string {
   return `${Math.round(Number(value) || 0).toLocaleString('fr-FR')} د.ج`;

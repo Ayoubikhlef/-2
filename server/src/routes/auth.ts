@@ -82,7 +82,7 @@ async function generateResetToken(): Promise<{ token: string; tokenHash: string;
 }
 
 async function sendResetEmail(email: string, token: string, userName: string) {
-  const configuredApiUrl = (process.env.API_PUBLIC_URL || process.env.VITE_API_URL || 'https://aostech.vercel.app/api').replace(/\/+$/, '');
+  const configuredApiUrl = (process.env.API_PUBLIC_URL || process.env.VITE_API_URL || 'https://aos-tech.store/api').replace(/\/+$/, '');
   const resetEndpoint = configuredApiUrl.endsWith('/api')
     ? `${configuredApiUrl}/auth/reset-password`
     : `${configuredApiUrl}/api/auth/reset-password`;

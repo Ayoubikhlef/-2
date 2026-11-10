@@ -193,8 +193,8 @@ git push
 
 هذه الخدمة مدمجة في نفس المشروع:
 
-- صفحة الطلب: `https://aostech.vercel.app/create-website`
-- لوحة المالك: `https://aostech.vercel.app/#hqpanel` ← تبويب **مصنع المواقع**
+- صفحة الطلب: `https://aos-tech.store/create-website`
+- لوحة المالك: `https://aos-tech.store/#hqpanel` ← تبويب **مصنع المواقع**
 
 العميل يختار قالباً (متجر، شركة، معرض أعمال، بطاقة رقمية، مطعم، صفحة هبوط)، يدخل معلوماته، يحجز اسماً مجانياً على `pages.dev`، يختار الباقة وطريقة الدفع، ثم يرسل الطلب. أنت تراجع الوصل وتؤكد الدفع وتنشر الموقع.
 
@@ -218,7 +218,7 @@ git push
 ```env
 CLOUDFLARE_API_TOKEN=التوكن-هنا
 CLOUDFLARE_ACCOUNT_ID=رقم-الحساب-هنا
-PUBLIC_SITE_URL=https://aostech.vercel.app
+PUBLIC_SITE_URL=https://aos-tech.store
 PUBLIC_API_URL=https://iueefgma6y.onrender.com
 ```
 
@@ -248,7 +248,7 @@ PUBLIC_API_URL=https://iueefgma6y.onrender.com
 - توليد الموقع، تنزيل ZIP، إعادة التوليد، تعليق الموقع أو تفعيله.
 - تأكيد النشر يدوياً بعد رفع ZIP.
 
-صفحة التتبع للعميل: `https://aostech.vercel.app/create-website?ref=WEB-...` (أو من زر **تتبع طلبك**).
+صفحة التتبع للعميل: `https://aos-tech.store/create-website?ref=WEB-...` (أو من زر **تتبع طلبك**).
 
 ### هـ) التنبيهات
 

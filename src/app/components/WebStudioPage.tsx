@@ -284,7 +284,7 @@ export function WebStudioPage() {
                   <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
                   <div className="ms-3 flex-1 rounded-md bg-white dark:bg-slate-800 border border-border px-3 py-1 text-[10px] sm:text-xs text-muted-foreground truncate">
-                    aostech.vercel.app
+                    aos-tech.store
                   </div>
                 </div>
                 <div className="p-4 sm:p-5 bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
@@ -328,7 +328,7 @@ export function WebStudioPage() {
                   </div>
                   <div>
                     <p className="text-[10px] text-muted-foreground leading-none mb-1">{t({ ar: 'موقع مباشر', fr: 'Site en ligne', en: 'Live site' })}</p>
-                    <p className="text-xs font-bold leading-none">aostech.vercel.app</p>
+                    <p className="text-xs font-bold leading-none">aos-tech.store</p>
                   </div>
                 </div>
               </div>

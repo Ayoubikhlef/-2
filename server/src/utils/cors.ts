@@ -1,5 +1,5 @@
 export function getAllowedOrigins(): string[] {
-  const raw = process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:4173,https://aostech.vercel.app';
+  const raw = process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:4173,https://aos-tech.store,https://www.aos-tech.store,https://aostech.vercel.app';
   return raw
     .split(',')
     .map(origin => origin.trim())
