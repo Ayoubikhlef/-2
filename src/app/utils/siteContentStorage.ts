@@ -150,6 +150,16 @@ const defaultContent: SiteContent = {
         question: { ar: 'هل هناك ضمان أو دعم ما بعد البيع؟', fr: 'Y a-t-il une garantie ou un support après-vente ?', en: 'Is there a warranty or after-sales support?' },
         answer: { ar: 'نعم، نقدم ضمان لبعض المنتجات ودعم فني للمساعدة في أي استفسار بعد الشراء. تواصل معنا وسنرشدك.', fr: 'Oui, nous offrons une garantie sur certains produits et un support après-vente pour toute question après l\'achat.', en: 'Yes, we provide a warranty on some products and after-sales support for any questions after purchase.' },
       },
+      {
+        id: 'about-aos-tech-store',
+        question: { ar: 'ما هو AOS Tech Store؟', fr: 'Qu\'est-ce que AOS Tech Store ?', en: 'What is AOS Tech Store?' },
+        answer: { ar: 'AOS Tech Store (أيوب أوفيس سيرفيسز) هو متجر خدمات مكتبية وإعلام آلي في الميلية، جيجل، يقدم الطباعة والرقمنة وصيانة الحواسيب وبيع المعدات وإنشاء المواقع الإلكترونية.', fr: 'AOS Tech Store (Ayoub Office Services) est un magasin de services de bureau et d\'informatique à El Milia, Jijel : impression, numérisation, maintenance, vente de matériel et création de sites web.', en: 'AOS Tech Store (Ayoub Office Services) is an office services and IT store in El Milia, Jijel: printing, digitization, computer maintenance, equipment sales and website creation.' },
+      },
+      {
+        id: 'location-aos-tech-store',
+        question: { ar: 'أين يقع AOS Tech Store؟', fr: 'Où se trouve AOS Tech Store ?', en: 'Where is AOS Tech Store located?' },
+        answer: { ar: 'يقع AOS Tech Store في الشارع الكبير، الميلية، جيجل 18300، الجزائر. الهاتف: 0674 11 32 90.', fr: 'AOS Tech Store se trouve au Grand Boulevard, El Milia, Jijel 18300, Algérie. Téléphone : 0674 11 32 90.', en: 'AOS Tech Store is located at Grand Boulevard, El Milia, Jijel 18300, Algeria. Phone: 0674 11 32 90.' },
+      },
     ],
   },
   about: {
