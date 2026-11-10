@@ -74,6 +74,11 @@ const SYNCED_IDS_KEY = 'ayoubtech-synced-order-ids';
 
 const isDev = import.meta.env.DEV;
 
+/** 429 (rate limit) and 5xx are transient and must stay queued for retry. */
+function isPermanentOrderRejection(status: unknown): boolean {
+  return status === 400 || status === 404 || status === 409 || status === 422;
+}
+
 function log(level: 'info' | 'warn' | 'error', msg: string, data?: any) {
   if (!isDev) return;
   const prefix = `[Orders]`;
@@ -253,15 +258,16 @@ async function saveOrderInternal(order: Omit<OrderRecord, 'id' | 'createdAt' | '
     }
   } catch (err: any) {
     log('warn', `Server sync failed for order ${record.id}`, err?.message);
-    // A 4xx answer is definitive (sold out, invalid data, closed coupon):
-    // drop the optimistic local copy so it is not retried forever.
-    if (err?.status >= 400 && err?.status < 500) {
+    // A definitive 4xx answer (sold out, invalid data, closed coupon):
+    // drop the optimistic local copy so it is not retried forever. A 429
+    // (rate limit) is temporary and must stay queued.
+    if (isPermanentOrderRejection(err?.status)) {
       const remaining = getOrders().filter((o) => o.id !== record.id);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
       deferDispatchChange();
     }
-    // Local copy stays queued for pushUnsyncedOrders, but the UI must know
-    // the server rejected/failed so it does not fake a success.
+    // Transient failures stay queued for pushUnsyncedOrders, but the UI must
+    // know the server rejected/failed so it does not fake a success.
     throw err instanceof Error ? err : new Error(String(err));
   }
 
@@ -339,10 +345,14 @@ export async function pushUnsyncedOrders(): Promise<void> {
       markSynced(order.id);
       log('info', `Order ${order.id} pushed to server`);
     } catch (err: any) {
-      // Permanent validation errors: stop infinite retry, surface in console.
-      if (err?.status && err.status >= 400 && err.status < 500) {
+      // Permanent validation errors: stop infinite retry and remove the
+      // local copy. Rate limits and server errors stay queued.
+      if (isPermanentOrderRejection(err?.status)) {
         console.warn(`[Orders] Dropping permanently rejected order ${order.id}:`, err.message);
         markSynced(order.id);
+        const remaining = getOrders().filter((o) => o.id !== order.id);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(remaining));
+        deferDispatchChange();
       } else {
         log('warn', `Failed to push order ${order.id}`, err?.message);
       }

@@ -334,6 +334,9 @@ orderRouter.post('/', async (req: Request, res: Response) => {
       if (
         recent &&
         recent.customer.trim().toLowerCase() === data.customer.trim().toLowerCase() &&
+        recent.address.trim().toLowerCase() === data.address.trim().toLowerCase() &&
+        recent.wilaya === data.wilaya &&
+        recent.municipality === data.municipality &&
         itemsSignature(recent.items) === itemsSignature(validatedItems)
       ) {
         return { duplicateOrderId: recent.id };
