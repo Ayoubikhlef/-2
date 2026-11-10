@@ -145,7 +145,7 @@ app.use('/api/site-factory', siteFactoryRouter);
 app.get('/api/health', async (_req, res) => {
   try {
     await prisma.$queryRaw`SELECT 1`;
-    res.json({ status: 'ok', db: 'connected', uptime: process.uptime(), timestamp: new Date().toISOString() });
+    res.json({ status: 'ok', db: 'connected', uptime: process.uptime(), timestamp: new Date().toISOString(), keepAlive: keepAliveStatus });
   } catch (err: any) {
     res.json({ status: 'ok', db: 'error', dbError: err.message, uptime: process.uptime() });
   }
@@ -266,6 +266,17 @@ function parseKeepAliveHour(value: string | undefined, fallback: number) {
 const KEEP_ALIVE_START_HOUR = parseKeepAliveHour(process.env.KEEP_ALIVE_START_HOUR, 5);
 const KEEP_ALIVE_END_HOUR = parseKeepAliveHour(process.env.KEEP_ALIVE_END_HOUR, 1);
 
+// Surfaced by /api/health so the keep-alive can be verified from outside
+// Render's dashboard (no secrets are exposed).
+const keepAliveStatus = {
+  enabled: process.env.KEEP_ALIVE !== 'off',
+  intervalMinutes: KEEP_ALIVE_INTERVAL_MS / 60_000,
+  window: `${String(KEEP_ALIVE_START_HOUR).padStart(2, '0')}:00-${String(KEEP_ALIVE_END_HOUR).padStart(2, '0')}:00 Africa/Algiers`,
+  lastPingAt: null as string | null,
+  lastStatus: null as number | null,
+  lastError: null as string | null,
+};
+
 function isWithinKeepAliveWindow(now = new Date()) {
   if (KEEP_ALIVE_START_HOUR === KEEP_ALIVE_END_HOUR) return true;
   const hour = Number(
@@ -289,13 +300,18 @@ function startKeepAlive() {
 
   const ping = async () => {
     if (!isWithinKeepAliveWindow()) return;
+    keepAliveStatus.lastPingAt = new Date().toISOString();
     try {
       const res = await fetch(url, {
         signal: AbortSignal.timeout(60_000),
         headers: { 'User-Agent': 'aos-keep-alive' },
       });
+      keepAliveStatus.lastStatus = res.status;
+      keepAliveStatus.lastError = null;
       console.log(`[keep-alive] ${res.status} ${url}`);
     } catch (err) {
+      keepAliveStatus.lastStatus = null;
+      keepAliveStatus.lastError = (err as Error).message;
       console.warn('[keep-alive] ping failed:', (err as Error).message);
     }
   };
