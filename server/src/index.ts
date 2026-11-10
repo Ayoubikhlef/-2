@@ -246,6 +246,56 @@ async function fixMojibakeSettings() {
   }
 }
 
+// Render's free instance sleeps after 15 minutes without inbound traffic, so
+// the first visitor (or order) of the day waits ~1 minute. A cheap request to
+// our own public URL every 10 minutes keeps the API warm. It runs only during
+// the store's active hours to stay well inside Render's 750 free hours/month
+// (a 24/7 service plus deploy overlaps can otherwise hit the cap and get
+// suspended). Set KEEP_ALIVE=off to disable, or override the URL with
+// KEEP_ALIVE_URL.
+const KEEP_ALIVE_INTERVAL_MS = 10 * 60 * 1000;
+const KEEP_ALIVE_START_HOUR = 5; // Africa/Algiers (UTC+1)
+const KEEP_ALIVE_END_HOUR = 1;
+
+function isWithinKeepAliveWindow(now = new Date()) {
+  const hour = Number(
+    new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Africa/Algiers',
+      hour: 'numeric',
+      hour12: false,
+    }).format(now),
+  ) % 24;
+  if (KEEP_ALIVE_START_HOUR <= KEEP_ALIVE_END_HOUR) {
+    return hour >= KEEP_ALIVE_START_HOUR && hour < KEEP_ALIVE_END_HOUR;
+  }
+  return hour >= KEEP_ALIVE_START_HOUR || hour < KEEP_ALIVE_END_HOUR;
+}
+
+function startKeepAlive() {
+  if (process.env.KEEP_ALIVE === 'off') return;
+
+  const baseUrl = process.env.RENDER_EXTERNAL_URL || 'https://iueefgma6y.onrender.com';
+  const url = process.env.KEEP_ALIVE_URL || `${baseUrl.replace(/\/+$/, '')}/api/health`;
+
+  const ping = async () => {
+    if (!isWithinKeepAliveWindow()) return;
+    try {
+      const res = await fetch(url, {
+        signal: AbortSignal.timeout(60_000),
+        headers: { 'User-Agent': 'aos-keep-alive' },
+      });
+      console.log(`[keep-alive] ${res.status} ${url}`);
+    } catch (err) {
+      console.warn('[keep-alive] ping failed:', (err as Error).message);
+    }
+  };
+
+  // First ping shortly after boot so a deploy re-arms the timer quickly.
+  setTimeout(() => void ping(), 60_000).unref();
+  setInterval(() => void ping(), KEEP_ALIVE_INTERVAL_MS).unref();
+  console.log(`[keep-alive] enabled -> ${url}`);
+}
+
 async function startServer() {
   initLive(server);
   initRAG();
@@ -267,6 +317,7 @@ async function startServer() {
     const networkInterfaces: any[] = Object.values(require('os').networkInterfaces()).flat();
     const ip: string = networkInterfaces.find((i: any) => i.family === 'IPv4' && !i.internal)?.address || 'localhost';
     console.log(`[AOS Server] Running on http://localhost:${PORT}`);
+    startKeepAlive();
   });
 }
 
