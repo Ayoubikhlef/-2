@@ -2,19 +2,9 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
-  "redirects": [
-    {
-      "source": "/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "aostech.vercel.app"
-        }
-      ],
-      "destination": "https://aos-tech.store/:path*",
-      "permanent": true
-    }
-  ],
+  "proxy": {
+    "entrypoint": "proxy.ts"
+  },
   "rewrites": [
     {
       "source": "/create-website",
@@ -30,6 +20,24 @@
     }
   ],
   "headers": [
+    {
+      "source": "/",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/create-website",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0, must-revalidate"
+        }
+      ]
+    },
     {
       "source": "/api/(.*)",
       "headers": [

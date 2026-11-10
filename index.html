@@ -44,7 +44,18 @@
       #seo-fallback ul { padding-inline-start: 22px; margin: 8px 0; }
       #seo-fallback a { color: #2563eb; font-weight: 700; text-decoration: none; }
       html.dark #seo-fallback a { color: #60a5fa; }
+
+      /* Branded boot screen: covers the SEO fallback until React mounts. */
+      #boot-screen { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 24px; text-align: center; color: #e2e8f0; background: radial-gradient(circle at 50% 32%, #1e3a8a 0%, #0f172a 58%, #020617 100%); font-family: 'Tajawal', 'Noto Sans Arabic', system-ui, -apple-system, sans-serif; }
+      #boot-screen .boot-logo { width: 72px; height: 72px; border-radius: 22px; display: grid; place-items: center; background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #fff; font-weight: 900; font-size: 1.35rem; letter-spacing: .08em; box-shadow: 0 24px 60px -18px rgba(37,99,235,.85); }
+      #boot-screen .boot-spinner { width: 26px; height: 26px; border-radius: 50%; border: 3px solid rgba(255,255,255,.16); border-top-color: #60a5fa; animation: bootspin .8s linear infinite; }
+      #boot-screen p { margin: 0; font-size: .9rem; color: rgba(226,232,240,.7); }
+      #boot-screen button { display: inline-flex; align-items: center; justify-content: center; margin-top: 4px; padding: 10px 22px; border: 0; border-radius: 999px; background: #2563eb; color: #fff; font-family: inherit; font-size: .9rem; font-weight: 800; cursor: pointer; }
+      #boot-screen button:hover { background: #1d4ed8; }
+      #boot-screen button[hidden] { display: none; }
+      @keyframes bootspin { to { transform: rotate(360deg); } }
     </style>
+    <noscript><style>#boot-screen{display:none!important}</style></noscript>
     <script>
       (function () {
         try {
@@ -117,7 +128,14 @@
         <p>الهاتف: <a href="tel:+213674113290">0674 11 32 90</a> — العنوان: الشارع الكبير، الميلية، جيجل 18300، الجزائر.</p>
         <p><a href="/create-website">أنشئ موقعك الإلكتروني</a> · <a href="/#products">المنتجات</a> · <a href="/#services">الخدمات</a> · <a href="/#contact">اتصل بنا</a></p>
       </div>
+      <div id="boot-screen" role="status" aria-live="polite">
+        <div class="boot-logo" aria-hidden="true">AOS</div>
+        <div class="boot-spinner" aria-hidden="true"></div>
+        <p data-boot-hint>جارٍ تحميل الموقع…</p>
+        <button type="button" data-boot-retry hidden>إعادة المحاولة</button>
+      </div>
     </div>
+    <script src="/boot-guard.js"></script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

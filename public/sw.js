@@ -1,9 +1,10 @@
-const CACHE = 'aos-cache-v9';
-const STATIC_CACHE = 'aos-static-v9';
+const CACHE = 'aos-cache-v10';
+const STATIC_CACHE = 'aos-static-v10';
 const OFFLINE_URL = '/offline.html';
 
 const PRECACHE_URLS = [
   OFFLINE_URL,
+  '/boot-guard.js',
   '/aos-logo3.png',
   '/aos-logo2.png',
   '/aos-logo.png',
@@ -47,7 +48,9 @@ self.addEventListener('fetch', (e) => {
     e.respondWith(
       (async () => {
         try {
-          const networkResponse = await fetch(request);
+          // Always ask the network for a fresh document. Cached HTML often
+          // points at assets that a new deployment has already removed.
+          const networkResponse = await fetch(request, { cache: 'no-store' });
           if (networkResponse.ok) {
             const cache = await caches.open(CACHE);
             cache.put(request, networkResponse.clone());
@@ -74,10 +77,13 @@ self.addEventListener('fetch', (e) => {
         const cached = await caches.match(request);
         const networkPromise = fetch(request)
           .then(async (networkResponse) => {
-            if (networkResponse.ok) {
-              const cache = await caches.open(STATIC_CACHE);
-              cache.put(request, networkResponse.clone());
+            if (!networkResponse.ok) {
+              // The asset is gone from the new deployment: never replace a
+              // working cached copy with an error response.
+              return cached ? null : networkResponse;
             }
+            const cache = await caches.open(STATIC_CACHE);
+            cache.put(request, networkResponse.clone());
             return networkResponse;
           })
           .catch(() => null);
@@ -86,10 +92,9 @@ self.addEventListener('fetch', (e) => {
             networkPromise,
             new Promise((resolve) => setTimeout(() => resolve(null), 2000)),
           ]);
-          if (fresh) return fresh;
-          return cached;
+          return fresh || cached;
         }
-        return networkPromise || cached || new Response('', { status: 404 });
+        return (await networkPromise) || new Response('', { status: 404 });
       })()
     );
     return;
