@@ -125,7 +125,31 @@ function safeId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
+const inFlightOrders = new Map<string, Promise<OrderRecord>>();
+
+function orderFingerprint(order: Omit<OrderRecord, 'id' | 'createdAt' | 'status'>): string {
+  const items = order.items
+    .map((item) => `${item.productId ?? item.name}:${item.quantity}:${item.price}`)
+    .join('|');
+  return `${order.phone}|${order.source}|${order.total}|${items}`;
+}
+
 export async function saveOrder(order: Omit<OrderRecord, 'id' | 'createdAt' | 'status'>): Promise<OrderRecord> {
+  // A double click or a retried submit must not create two orders. While the
+  // first request is in flight, identical submissions share its promise.
+  const key = orderFingerprint(order);
+  const pending = inFlightOrders.get(key);
+  if (pending) return pending;
+
+  let task: Promise<OrderRecord>;
+  task = saveOrderInternal(order).finally(() => {
+    if (inFlightOrders.get(key) === task) inFlightOrders.delete(key);
+  });
+  inFlightOrders.set(key, task);
+  return task;
+}
+
+async function saveOrderInternal(order: Omit<OrderRecord, 'id' | 'createdAt' | 'status'>): Promise<OrderRecord> {
   // Let React paint the "submitting" state before any synchronous work.
   await nextPaint();
 
@@ -159,7 +183,6 @@ export async function saveOrder(order: Omit<OrderRecord, 'id' | 'createdAt' | 's
   deferDispatchChange();
 
   try {
-    const id = safeId();
     const payload: Record<string, any> = {
       customer: order.customer,
       phone: order.phone,
@@ -177,7 +200,9 @@ export async function saveOrder(order: Omit<OrderRecord, 'id' | 'createdAt' | 's
       total: order.total,
       source: order.source,
       discountCode: order.discountCode,
-      id,
+      // The same id is used locally and on the server, so retries are
+      // idempotent and the admin list cannot show the order twice.
+      id: record.id,
     };
     // Product orders may omit productId when only a display name is known;
     // server matches by name. Empty optional fields are stripped.
@@ -278,6 +303,29 @@ export async function pushUnsyncedOrders(): Promise<void> {
   }
 }
 
+function orderItemSignature(order: OrderRecord): string {
+  return order.items
+    .map((item) => `${item.name.trim().toLowerCase()}:${item.quantity}`)
+    .sort()
+    .join('|');
+}
+
+/**
+ * Historical local records were stored with a different id than the server
+ * copy. Treat them as the same order when phone, customer, items and the
+ * submission time match, even if delivery recalculated the total.
+ */
+function isSameOrder(a: OrderRecord, b: OrderRecord): boolean {
+  if (a.id === b.id) return true;
+  if (a.phone !== b.phone) return false;
+  if (a.customer.trim().toLowerCase() !== b.customer.trim().toLowerCase()) return false;
+  if (orderItemSignature(a) !== orderItemSignature(b)) return false;
+  const aTime = new Date(a.createdAt).getTime();
+  const bTime = new Date(b.createdAt).getTime();
+  if (!Number.isFinite(aTime) || !Number.isFinite(bTime)) return false;
+  return Math.abs(aTime - bTime) <= 5 * 60 * 1000;
+}
+
 export async function loadOrdersFromServer(): Promise<OrderRecord[]> {
   if (!getAccessToken()) {
     return getOrders();
@@ -314,13 +362,7 @@ export async function loadOrdersFromServer(): Promise<OrderRecord[]> {
     const localOrders = getOrders();
     const merged = [...serverOrders as OrderRecord[]];
     for (const local of localOrders) {
-      const matchById = merged.some(m => m.id === local.id);
-      const matchByContent = merged.some(m =>
-        m.phone === local.phone &&
-        m.total === local.total &&
-        m.customer === local.customer
-      );
-      if (!matchById && !matchByContent) {
+      if (!merged.some(m => isSameOrder(m, local))) {
         merged.push(local);
       }
     }

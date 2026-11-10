@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { ShoppingCart, Plus, Minus, X, User, Phone, Mail, MapPin, CheckCircle, Info, Heart, Search, Camera, Share2, Eye, Banknote, Home, Store } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -156,6 +156,8 @@ export function Products() {
   const [couponError, setCouponError] = useState('');
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>('home');
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const submitLock = useRef(false);
   const [lastOrderId, setLastOrderId] = useState<string | null>(null);
 
   const updateQuantity = (productId: number, delta: number) => {
@@ -274,6 +276,7 @@ export function Products() {
 
   const handleOrderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitLock.current || submitted) return;
 
     if (!orderData.fullName || !orderData.phone || !orderData.address) {
       toast.error(t({ ar: 'الرجاء ملء الحقول الأساسية', fr: 'Veuillez remplir les champs requis', en: 'Please fill the required fields' }));
@@ -289,6 +292,8 @@ export function Products() {
     const discountAmount = quickDiscount;
     const grandTotal = quickTotal;
 
+    submitLock.current = true;
+    setSubmitting(true);
     addItem({
       productId: selectedProduct.id,
       quantity: orderData.quantity,
@@ -348,6 +353,9 @@ export function Products() {
         fr: 'Impossible d\'envoyer la commande. Réessayez.',
         en: 'Could not send the order. Please try again.',
       }));
+    } finally {
+      submitLock.current = false;
+      setSubmitting(false);
     }
   };
 
@@ -1200,9 +1208,12 @@ export function Products() {
                       <TrustBadges />
                       <button
                         type="submit"
-                        className="hidden sm:block w-full rounded-2xl bg-gradient-to-r from-primary to-blue-700 px-6 py-5 text-primary-foreground font-bold text-xl shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 hover:scale-[1.02] transition-all duration-300 btn-liquid"
+                        disabled={submitting}
+                        className="hidden sm:block w-full rounded-2xl bg-gradient-to-r from-primary to-blue-700 px-6 py-5 text-primary-foreground font-bold text-xl shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 hover:scale-[1.02] transition-all duration-300 btn-liquid disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
                       >
-                        {t({ ar: 'تأكيد الطلب', fr: 'Confirmer la commande', en: 'Confirm Order' })}
+                        {submitting
+                          ? t({ ar: 'جارٍ إرسال الطلب...', fr: 'Envoi en cours...', en: 'Sending order...' })
+                          : t({ ar: 'تأكيد الطلب', fr: 'Confirmer la commande', en: 'Confirm Order' })}
                       </button>
 
                       <p className="hidden sm:block text-xs text-center text-muted-foreground">
@@ -1216,9 +1227,12 @@ export function Products() {
                 <div className="sm:hidden sticky bottom-0 z-10 border-t border-border bg-background/95 backdrop-blur px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
                   <button
                     type="submit"
-                    className="w-full rounded-2xl bg-gradient-to-r from-primary to-blue-700 px-6 py-4 min-h-[52px] text-primary-foreground font-bold text-lg shadow-xl shadow-primary/20 transition-all duration-300 btn-liquid"
+                    disabled={submitting}
+                    className="w-full rounded-2xl bg-gradient-to-r from-primary to-blue-700 px-6 py-4 min-h-[52px] text-primary-foreground font-bold text-lg shadow-xl shadow-primary/20 transition-all duration-300 btn-liquid disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    {t({ ar: 'تأكيد الطلب', fr: 'Confirmer la commande', en: 'Confirm Order' })}
+                    {submitting
+                      ? t({ ar: 'جارٍ إرسال الطلب...', fr: 'Envoi en cours...', en: 'Sending order...' })
+                      : t({ ar: 'تأكيد الطلب', fr: 'Confirmer la commande', en: 'Confirm Order' })}
                   </button>
                 </div>
               </form>

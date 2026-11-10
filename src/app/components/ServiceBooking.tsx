@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { User, Phone, MessageSquare, CheckCircle } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { saveOrder } from '../utils/orderStorage';
@@ -13,6 +13,8 @@ export function ServiceBooking() {
   const [services, setServices] = useState(() => { initializeServices(defaultServices); return getStoredServices(defaultServices); });
   const [form, setForm] = useState({ name: '', phone: '', service: '', note: '' });
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const submitLock = useRef(false);
   const [bookingSummary, setBookingSummary] = useState<{ serviceName: string; name: string; phone: string; note: string } | null>(null);
   const serviceOptions = useMemo(() => getAllServiceOptions(services), [services]);
 
@@ -24,6 +26,7 @@ export function ServiceBooking() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitLock.current) return;
     if (!form.name || !form.phone) {
       toast.error(t({ ar: 'الرجاء ملء الحقول الأساسية', fr: 'Veuillez remplir les champs requis', en: 'Please fill the required fields' }));
       return;
@@ -35,6 +38,8 @@ export function ServiceBooking() {
 
     const option = serviceOptions.find((s) => s.value === form.service)!;
 
+    submitLock.current = true;
+    setSubmitting(true);
     try {
       await saveOrder({
         customer: form.name,
@@ -66,6 +71,9 @@ export function ServiceBooking() {
         fr: 'Impossible d\'envoyer la réservation. Réessayez.',
         en: 'Could not send the booking. Please try again.',
       }));
+    } finally {
+      submitLock.current = false;
+      setSubmitting(false);
     }
   };
 
@@ -210,9 +218,12 @@ export function ServiceBooking() {
 
               <button
                 type="submit"
-                className="w-full rounded-2xl bg-gradient-to-r from-primary to-blue-700 px-6 py-5 text-primary-foreground font-bold text-xl shadow-xl shadow-primary/20 hover:shadow-2xl hover:scale-[1.02] transition-all duration-300"
+                disabled={submitting}
+                className="w-full rounded-2xl bg-gradient-to-r from-primary to-blue-700 px-6 py-5 text-primary-foreground font-bold text-xl shadow-xl shadow-primary/20 hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
-                {t({ ar: 'تأكيد الحجز', fr: 'Confirmer la réservation', en: 'Confirm Booking' })}
+                {submitting
+                  ? t({ ar: 'جارٍ إرسال الحجز...', fr: 'Envoi en cours...', en: 'Sending booking...' })
+                  : t({ ar: 'تأكيد الحجز', fr: 'Confirmer la réservation', en: 'Confirm Booking' })}
               </button>
             </div>
           </form>

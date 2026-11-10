@@ -29,6 +29,7 @@ const optionalEmail = z.preprocess(
 
 const createOrderSchema = z
   .object({
+    id: z.string().min(8).max(64).regex(/^[A-Za-z0-9_-]+$/).optional(),
     customer: z.string().min(1).max(200),
     phone: z.string().min(1).max(20),
     email: optionalEmail,
@@ -67,6 +68,21 @@ orderRouter.post('/', async (req: Request, res: Response) => {
       `wilaya=${JSON.stringify(data.wilaya)} items=${data.items.length} ua=${req.headers['user-agent'] || 'n/a'}`
     );
     const isService = data.source === 'service-booking';
+
+    // The client sends a stable id. If the same submit is retried (timeout,
+    // double click, sync retry), return the existing order instead of
+    // creating a duplicate and sending duplicate notifications.
+    const requestedId = data.id;
+    if (requestedId) {
+      const existing = await prisma.order.findUnique({
+        where: { id: requestedId },
+        select: { id: true },
+      });
+      if (existing) {
+        console.log(`[Orders] Duplicate submit ignored: ${requestedId}`);
+        return res.status(200).json({ id: existing.id, duplicate: true });
+      }
+    }
 
     let serverTotal = 0;
     const validatedItems: { name: string; quantity: number; price: number; total: number; productId?: number }[] = [];
@@ -188,7 +204,7 @@ orderRouter.post('/', async (req: Request, res: Response) => {
       console.warn(`[Orders] Client total ${data.total} != server total ${finalTotal} (delivery ${deliveryFee})`);
     }
 
-    const orderId = crypto.randomUUID();
+    const orderId = requestedId || crypto.randomUUID();
     const order = await prisma.$transaction(async (tx) => {
       return tx.order.create({
         data: {
@@ -219,7 +235,19 @@ orderRouter.post('/', async (req: Request, res: Response) => {
         },
         include: { items: true },
       });
+    }).catch((err) => {
+      // Two simultaneous retries can both pass the check above; the primary
+      // key then rejects the second insert. Treat it as a duplicate, not 500.
+      if (requestedId && (err?.code === 'P2002' || String(err?.message || '').includes('Unique constraint'))) {
+        return null;
+      }
+      throw err;
     });
+
+    if (!order) {
+      console.log(`[Orders] Concurrent duplicate ignored: ${requestedId}`);
+      return res.status(200).json({ id: requestedId, duplicate: true });
+    }
 
     if (order) {
       const updatedSetting = await prisma.setting.findUnique({ where: { key: 'aos_products' } });

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useCart } from '../contexts/CartContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { LoyaltyCard } from './LoyaltyCard';
@@ -48,6 +48,7 @@ export function OrderForm() {
     municipality: getMunicipalities(18)[0]?.id || '1',
   }));
   const [submitting, setSubmitting] = useState(false);
+  const submitLock = useRef(false);
   const [whatsappLink, setWhatsappLink] = useState('');
 
   // Keep the cart's delivery estimate in sync with the address form.
@@ -107,7 +108,7 @@ export function OrderForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (submitting) return;
+    if (submitting || submitLock.current) return;
     if (items.length === 0) {
       toast.error(t({ ar: 'أضف منتجات إلى السلة أولاً', fr: 'Ajoutez des produits au panier d’abord', en: 'Add items to the cart first' }));
       return;
@@ -130,6 +131,7 @@ export function OrderForm() {
     const normalizedPhone = formData.phone.replace(/[\s\-.]/g, '');
 
     setSubmitting(true);
+    submitLock.current = true;
     try {
       const savedRecord = await saveOrder({
         customer: formData.fullName,
@@ -245,6 +247,7 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
         en: 'Could not send the order. Please try again.',
       }));
     } finally {
+      submitLock.current = false;
       setSubmitting(false);
     }
   };
