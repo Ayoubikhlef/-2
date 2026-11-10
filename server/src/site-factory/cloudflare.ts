@@ -48,6 +48,23 @@ async function cf<T = any>(path: string, init: RequestInit = {}): Promise<T> {
   }
 }
 
+/**
+ * Removes a Pages project we own. Used when an admin deletes a request so the
+ * published site does not stay online after its data is gone.
+ */
+export async function deleteCloudflareProject(
+  name: string,
+): Promise<{ ok: boolean; skipped?: boolean; error?: string }> {
+  if (!name || !isCloudflareConfigured()) return { ok: false, skipped: true };
+  try {
+    await cf(`/accounts/${accountId()}/pages/projects/${encodeURIComponent(name)}`, { method: 'DELETE' });
+    return { ok: true };
+  } catch (err: any) {
+    if (err?.status === 404) return { ok: true };
+    return { ok: false, error: err?.message || 'تعذر حذف مشروع Cloudflare.' };
+  }
+}
+
 async function ensureProject(name: string): Promise<void> {
   try {
     const project = await cf<any>(`/accounts/${accountId()}/pages/projects/${encodeURIComponent(name)}`);

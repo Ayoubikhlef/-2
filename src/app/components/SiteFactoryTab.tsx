@@ -205,6 +205,7 @@ export function SiteFactoryTab() {
   const [busy, setBusy] = useState('');
   const [note, setNote] = useState('');
   const [manualUrl, setManualUrl] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
 
   const [sites, setSites] = useState<any[]>([]);
   const [sitesLoaded, setSitesLoaded] = useState(false);
@@ -333,6 +334,39 @@ export function SiteFactoryTab() {
       }
     } catch (error: any) {
       toast.error(error?.message || t({ ar: 'تعذر تحديث الحالة.', fr: 'Échec de la mise à jour.', en: 'Could not update status.' }));
+    } finally {
+      setBusy('');
+    }
+  }
+
+  async function removeRequest() {
+    if (!deleteTarget?.id) return;
+    setBusy(`delete-${deleteTarget.id}`);
+    try {
+      const result = await api.siteFactory.admin.deleteRequest(deleteTarget.id);
+      toast.success(
+        t({
+          ar: 'تم حذف الطلب نهائياً.',
+          fr: 'Demande supprimée définitivement.',
+          en: 'Request permanently deleted.',
+        }),
+      );
+      if (result?.deployWarning) toast.warning(result.deployWarning);
+      if (detail?.id === deleteTarget.id) setDetail(null);
+      setDeleteTarget(null);
+      setSitesLoaded(false);
+      if (view === 'sites') {
+        const response = await api.siteFactory.admin.sites();
+        setSites(response.sites || []);
+      }
+      if (requests.length === 1 && page > 1) setPage((value) => Math.max(1, value - 1));
+      else await loadRequests();
+      await loadStats();
+    } catch (error: any) {
+      toast.error(
+        error?.message ||
+          t({ ar: 'تعذر حذف الطلب.', fr: 'Impossible de supprimer la demande.', en: 'Could not delete the request.' }),
+      );
     } finally {
       setBusy('');
     }
@@ -752,11 +786,18 @@ export function SiteFactoryTab() {
           ) : (
             <div className="space-y-3">
               {requests.map((request) => (
-                <button
+                <div
                   key={request.id}
-                  type="button"
+                  role="button"
+                  tabIndex={0}
                   onClick={() => openDetail(request.id)}
-                  className="block w-full rounded-2xl border border-white/10 bg-slate-900/70 p-4 text-start transition hover:border-primary/40 hover:bg-slate-900"
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      openDetail(request.id);
+                    }
+                  }}
+                  className="block w-full cursor-pointer rounded-2xl border border-white/10 bg-slate-900/70 p-4 text-start transition hover:border-primary/40 hover:bg-slate-900 focus:outline-none focus-visible:border-primary/60"
                 >
                   <div className="flex flex-wrap items-center gap-2">
                     <StatusBadge status={request.status} />
@@ -783,10 +824,22 @@ export function SiteFactoryTab() {
                         {request.phone}
                       </span>
                       <span className="font-bold text-primary">{money(request.price, lang)}</span>
+                      <button
+                        type="button"
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setDeleteTarget(request);
+                        }}
+                        title={t({ ar: 'حذف الطلب نهائياً', fr: 'Supprimer définitivement', en: 'Delete permanently' })}
+                        aria-label={t({ ar: 'حذف الطلب نهائياً', fr: 'Supprimer définitivement', en: 'Delete permanently' })}
+                        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-rose-500/30 bg-rose-500/10 text-rose-300 transition hover:bg-rose-500/20"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
                       <ArrowRight className="h-4 w-4 text-white/30 rtl:rotate-180" />
                     </div>
                   </div>
-                </button>
+                </div>
               ))}
             </div>
           )}
@@ -1488,6 +1541,25 @@ export function SiteFactoryTab() {
                       {t({ ar: 'رفض', fr: 'Rejeter', en: 'Reject' })}
                     </button>
                   </div>
+
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-white/5 pt-3">
+                    <p className="text-[11px] leading-relaxed text-white/35">
+                      {t({
+                        ar: 'الحذف يمسح الطلب وكل بياناته نهائياً من اللوحة.',
+                        fr: 'La suppression efface définitivement la demande et ses données.',
+                        en: 'Deleting removes the request and all its data permanently.',
+                      })}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setDeleteTarget(detail)}
+                      disabled={!!busy}
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-rose-500/40 bg-rose-500/10 px-3 py-2 text-xs font-bold text-rose-300 hover:bg-rose-500/20 disabled:opacity-50"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      {t({ ar: 'حذف الطلب', fr: 'Supprimer la demande', en: 'Delete request' })}
+                    </button>
+                  </div>
                 </div>
 
                 {/* Site actions */}
@@ -1620,6 +1692,69 @@ export function SiteFactoryTab() {
                 )}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Delete request confirmation */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-[calc(var(--z-modal)+10)] flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-3xl border border-white/10 bg-slate-950 p-5 shadow-2xl">
+            <div className="mb-3 flex items-center gap-3">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-500/15 text-rose-300">
+                <Trash2 className="h-5 w-5" />
+              </span>
+              <div className="min-w-0">
+                <h3 className="text-base font-black text-white">
+                  {t({ ar: 'حذف الطلب نهائياً؟', fr: 'Supprimer définitivement ?', en: 'Delete request permanently?' })}
+                </h3>
+                <p className="truncate font-mono text-[11px] text-white/40" dir="ltr">
+                  {deleteTarget.ref} • {deleteTarget.subdomain}.pages.dev
+                </p>
+              </div>
+            </div>
+
+            <p className="text-sm leading-relaxed text-white/60">
+              {t({
+                ar: `سيتم حذف طلب «${deleteTarget.siteName}» وكل ما يرتبط به: المعاينة، المنتجات، الطلبات والرسائل. لا يمكن التراجع.`,
+                fr: `La demande « ${deleteTarget.siteName} » et toutes ses données (aperçu, produits, commandes, messages) seront supprimées. Action irréversible.`,
+                en: `The request “${deleteTarget.siteName}” and all its data (preview, products, orders, messages) will be deleted. This cannot be undone.`,
+              })}
+            </p>
+
+            {deleteTarget.site?.status === 'published' && (
+              <p className="mt-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-2.5 text-xs font-semibold leading-relaxed text-amber-200">
+                {t({
+                  ar: 'تنبيه: هذا الموقع منشور حالياً. سيُحذف من اللوحة، وإذا كان مستضافاً على Cloudflare Pages سيُحذف مشروعه أيضاً.',
+                  fr: 'Attention : ce site est publié. Il sera retiré du panneau et son projet Cloudflare Pages sera supprimé s’il est hébergé là.',
+                  en: 'Warning: this site is live. It will be removed from the panel, and its Cloudflare Pages project will be deleted too when hosted there.',
+                })}
+              </p>
+            )}
+
+            <div className="mt-4 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setDeleteTarget(null)}
+                disabled={busy.startsWith('delete-')}
+                className="rounded-xl border border-white/10 bg-slate-800 px-3.5 py-2 text-xs font-bold text-white hover:bg-slate-700 disabled:opacity-50"
+              >
+                {t({ ar: 'إلغاء', fr: 'Annuler', en: 'Cancel' })}
+              </button>
+              <button
+                type="button"
+                onClick={removeRequest}
+                disabled={busy.startsWith('delete-')}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-rose-500 px-3.5 py-2 text-xs font-black text-white hover:bg-rose-600 disabled:opacity-50"
+              >
+                {busy.startsWith('delete-') ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Trash2 className="h-3.5 w-3.5" />
+                )}
+                {t({ ar: 'حذف نهائي', fr: 'Supprimer', en: 'Delete permanently' })}
+              </button>
+            </div>
           </div>
         </div>
       )}

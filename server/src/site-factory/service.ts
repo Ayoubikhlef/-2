@@ -11,7 +11,7 @@ import {
 import { checkSubdomain, normalizeSubdomain } from './subdomain';
 import { renderSite } from './render';
 import type { RenderedFile, RenderConfig, RenderProduct, RenderService } from './render/types';
-import { deployToCloudflare, isCloudflareConfigured } from './cloudflare';
+import { deleteCloudflareProject, deployToCloudflare, isCloudflareConfigured } from './cloudflare';
 import { createZip } from './zip';
 import { dataUrlAsset } from './render/types';
 import {
@@ -712,6 +712,47 @@ export async function setRequestStatus(requestId: string, status: RequestStatus,
   );
 
   return updated;
+}
+
+/**
+ * Permanently removes a request with its preview site (products, orders,
+ * leads and builds cascade with the site). When the site is hosted on
+ * Cloudflare Pages the project is deleted too, so nothing stays online.
+ */
+export async function deleteRequest(requestId: string) {
+  const request = await prisma.siteRequest.findUnique({
+    where: { id: requestId },
+    include: {
+      site: { select: { id: true, subdomain: true, status: true, url: true, deployedUrl: true, deployProvider: true } },
+    },
+  });
+  if (!request) throw new NotFound('الطلب غير موجود.');
+
+  let deployWarning: string | null = null;
+  const site = request.site;
+  if (site) {
+    const liveUrl = site.deployedUrl || site.url;
+    if (site.deployProvider === 'cloudflare') {
+      const removed = await deleteCloudflareProject(site.subdomain);
+      if (!removed.ok && !removed.skipped) {
+        deployWarning = `تم حذف الطلب من اللوحة، لكن تعذّر حذف مشروع Cloudflare «${site.subdomain}»: ${removed.error}`;
+      } else if (removed.skipped && liveUrl) {
+        deployWarning = `تم حذف الطلب من اللوحة. الموقع كان منشوراً على ${liveUrl} — احذفه يدوياً من Cloudflare Pages إن لزم.`;
+      }
+    } else if (liveUrl) {
+      deployWarning = `تم حذف الطلب من اللوحة. الموقع كان منشوراً على ${liveUrl} — أزل النشر يدوياً إن لزم.`;
+    }
+    await prisma.site.delete({ where: { id: site.id } });
+  }
+  await prisma.siteRequest.delete({ where: { id: requestId } });
+
+  return {
+    ok: true,
+    ref: request.ref,
+    subdomain: request.subdomain,
+    siteDeleted: !!site,
+    deployWarning,
+  };
 }
 
 export async function regenerateSite(siteId: string) {

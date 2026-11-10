@@ -378,6 +378,10 @@ siteFactoryRouter.patch('/admin/requests/:id/status', async (req, res) => {
   res.json({ ok: true, request });
 });
 
+siteFactoryRouter.delete('/admin/requests/:id', async (req, res) => {
+  res.json(await factory.deleteRequest(String(req.params.id)));
+});
+
 siteFactoryRouter.get('/admin/sites', async (_req, res) => {
   const sites = await prisma.site.findMany({
     orderBy: { createdAt: 'desc' },

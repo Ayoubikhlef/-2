@@ -295,6 +295,8 @@ export const api = {
           method: 'PATCH',
           body: JSON.stringify({ status, note }),
         }),
+      deleteRequest: (id: string) =>
+        request<any>(`/site-factory/admin/requests/${encodeURIComponent(id)}`, { method: 'DELETE' }),
       sites: () => request<{ sites: any[] }>('/site-factory/admin/sites'),
       publish: (id: string) =>
         request<any>(`/site-factory/admin/sites/${encodeURIComponent(id)}/publish`, { method: 'POST' }, true, 120000),
