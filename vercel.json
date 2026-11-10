@@ -4,14 +4,14 @@
   "framework": "vite",
   "redirects": [
     {
-      "source": "/:path((?!api/|socket.io/).*)",
+      "source": "/:path*",
       "has": [
         {
           "type": "host",
           "value": "aostech.vercel.app"
         }
       ],
-      "destination": "https://aos-tech.store/:path",
+      "destination": "https://aos-tech.store/:path*",
       "permanent": true
     }
   ],
