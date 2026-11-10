@@ -192,10 +192,57 @@ function saveDelivery(data: DeliveryConfig): void {
   dispatchAndSync();
 }
 
+/**
+ * Converts free-text admin nav targets into real section ids.
+ * Keeps normal anchors and external/internal links untouched, and repairs
+ * common mistakes such as typing the label (`#تتبّع طلبك`) instead of the
+ * section id (`#order-tracking`).
+ */
+export function normalizeNavHref(href: string): string {
+  const raw = (href || '').trim();
+  if (!raw) return raw;
+  if (/^(https?:|mailto:|tel:|\/)/i.test(raw)) return raw;
+
+  const withHash = raw.startsWith('#') ? raw : `#${raw}`;
+  let fragment = withHash.slice(1);
+  try { fragment = decodeURIComponent(fragment); } catch {}
+
+  const key = fragment
+    .normalize('NFKD')
+    .replace(/[\u064B-\u0655\u0670]/g, '')
+    .toLowerCase()
+    .replace(/[\s_\-–—]+/g, '');
+
+  const aliases: Record<string, string> = {
+    ordertracking: 'order-tracking',
+    ordertrack: 'order-tracking',
+    trackorder: 'order-tracking',
+    trackyourorder: 'order-tracking',
+    tracking: 'order-tracking',
+    تتبعالطلب: 'order-tracking',
+    تتبعطلبك: 'order-tracking',
+    تتبعيطلبك: 'order-tracking',
+    suividelacommande: 'order-tracking',
+    suivrecommand: 'order-tracking',
+  };
+
+  return `#${aliases[key] || fragment}`;
+}
+
 function getSettings(): SiteSettings {
   try {
     const raw = localStorage.getItem(SETTINGS_KEY);
     const merged = raw ? { ...defaultSettings, ...JSON.parse(raw) } : { ...defaultSettings };
+    // Repair admin-entered nav targets so a label stored as the href still
+    // opens the intended section instead of the 404 page.
+    merged.headerNavLinks = (merged.headerNavLinks || defaultSettings.headerNavLinks).map((link: NavLink) => ({
+      ...link,
+      href: normalizeNavHref(link.href),
+    }));
+    merged.footerQuickLinks = (merged.footerQuickLinks || defaultSettings.footerQuickLinks).map((link: NavLink) => ({
+      ...link,
+      href: normalizeNavHref(link.href),
+    }));
     if (brand.lockIdentity) {
       merged.siteName = brand.name;
       merged.logoUrl = brand.logo;

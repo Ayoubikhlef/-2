@@ -41,6 +41,30 @@ function LangInput({ label, value, onChange }: { label: string; value: { ar: str
   );
 }
 
+const NAV_HREF_OPTIONS = [
+  '#products',
+  '#booking',
+  '#services',
+  '#wishlist',
+  '#faq',
+  '#contact',
+  '#order-tracking',
+  '#about',
+  '#terms',
+  '#privacy',
+  '#account',
+  '#loyalty',
+  '/create-website',
+];
+
+function NavHrefSuggestions() {
+  return (
+    <datalist id="aos-nav-hrefs">
+      {NAV_HREF_OPTIONS.map((value) => <option key={value} value={value} />)}
+    </datalist>
+  );
+}
+
 function NavLinkEditor({ link, onChange, onDelete }: { link: NavLink; onChange: (l: NavLink) => void; onDelete: () => void }) {
   return (
     <div className="rounded-xl border border-white/10 bg-slate-800/50 p-4 space-y-3">
@@ -50,7 +74,7 @@ function NavLinkEditor({ link, onChange, onDelete }: { link: NavLink; onChange: 
       </div>
       <div className="space-y-2">
         <label className="block text-xs text-white/60">href</label>
-        <input value={link.href} onChange={e => onChange({ ...link, href: e.target.value })}
+        <input value={link.href} list="aos-nav-hrefs" onChange={e => onChange({ ...link, href: e.target.value })}
           className="w-full rounded-lg bg-slate-800 border border-white/10 px-3 py-2 text-sm text-white outline-none focus:border-primary/50" />
       </div>
       <LangInput label="Label" value={link.label} onChange={v => onChange({ ...link, label: v })} />
@@ -419,6 +443,7 @@ export function SiteSettingsTab() {
 
       {sub === 'nav' && (
         <div className="space-y-4 max-w-2xl">
+          <NavHrefSuggestions />
           <h4 className="text-white font-bold text-base">{t({ ar: 'روابط القائمة العلوية', fr: 'Liens du menu header', en: 'Header Navigation Links' })}</h4>
           {data.settings.headerNavLinks.map((link, idx) => (
             <NavLinkEditor key={idx} link={link} onChange={l => updateNavLink('headerNavLinks', idx, l)} onDelete={() => removeNavLink('headerNavLinks', idx)} />
@@ -434,6 +459,7 @@ export function SiteSettingsTab() {
 
       {sub === 'footerLinks' && (
         <div className="space-y-4 max-w-2xl">
+          <NavHrefSuggestions />
           <LangInput label={t({ ar: 'عنوان الروابط السريعة', fr: 'Titre liens rapides', en: 'Quick Links Title' })} value={data.settings.footerQuickLinksTitle} onChange={v => setData({ ...data, settings: { ...data.settings, footerQuickLinksTitle: v } })} />
           <LangInput label={t({ ar: 'عنوان معلومات الاتصال', fr: 'Titre coordonnées', en: 'Contact Title' })} value={data.settings.footerContactTitle} onChange={v => setData({ ...data, settings: { ...data.settings, footerContactTitle: v } })} />
 

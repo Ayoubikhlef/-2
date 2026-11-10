@@ -29,7 +29,7 @@ import { brand } from './config/brand';
 import { SkeletonCard } from './components/SkeletonCard';
 import { OrderTracking } from './components/OrderTracking';
 import { startAutoSync } from './utils/globalSync';
-import { getSiteSettings } from './utils/siteSettingsStorage';
+import { getSiteSettings, normalizeNavHref } from './utils/siteSettingsStorage';
 
 const Admin = lazy(() => import('./components/Admin').then(m => ({ default: m.Admin })));
 const OrderForm = lazy(() => import('./components/OrderForm').then(m => ({ default: m.OrderForm })));
@@ -121,10 +121,10 @@ function AdminLoadingPage() {
 }
 
 export default function App() {
-  const [hash, setHash] = useState(() => (typeof window !== 'undefined' ? window.location.hash : ''));
+  const [hash, setHash] = useState(() => (typeof window !== 'undefined' ? normalizeNavHref(window.location.hash) : ''));
   const isFactoryPage =
     typeof window !== 'undefined' && window.location.pathname.replace(/\/+$/, '') === '/create-website';
-  const is404 = !isFactoryPage && typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#hqpanel', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq', '#web', '#demo'].includes(hash);
+  const is404 = !isFactoryPage && typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#hqpanel', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq', '#web', '#demo', '#order-tracking'].includes(hash);
   const [showLogin, setShowLogin] = useState(false);
   const [maintenance, setMaintenance] = useState(false);
   // Render immediately for returning visitors (the flag is cached locally)
@@ -139,13 +139,13 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const onHashChange = () => setHash(window.location.hash);
+    const onHashChange = () => setHash(normalizeNavHref(window.location.hash));
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
   useEffect(() => {
-    const sectionHash = ['#products', '#booking', '#services', '#contact', '#wishlist', '#faq'];
+    const sectionHash = ['#products', '#booking', '#services', '#contact', '#wishlist', '#faq', '#order-tracking'];
     if (sectionHash.includes(hash)) {
       const id = hash.slice(1);
       const timer = setTimeout(() => {
@@ -229,6 +229,7 @@ export default function App() {
         '#web':      { ar: 'إنشاء المواقع', fr: 'Création de sites web', en: 'Web Design' },
         '#demo':     { ar: 'متجر تجريبي', fr: 'Boutique démo', en: 'Demo store' },
         '#contact':  { ar: 'اتصل بنا', fr: 'Contact', en: 'Contact Us' },
+        '#order-tracking': { ar: 'تتبع الطلب', fr: 'Suivi de commande', en: 'Order Tracking' },
       };
       const name = titles[hash]?.[lang];
       document.title = name ? `${name} | ${brand.name}` : `${brand.name} — Ayoub Office Services`;
