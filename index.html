@@ -35,6 +35,15 @@
     <style>
       body { margin: 0; min-height: 100vh; background: #f8fafc; }
       html.dark body { background: #0f172a; }
+      #seo-fallback { max-width: 880px; margin: 0 auto; padding: 56px 22px; font-family: 'Tajawal', 'Noto Sans Arabic', system-ui, -apple-system, sans-serif; color: #0f172a; line-height: 1.85; }
+      html.dark #seo-fallback { color: #e2e8f0; }
+      #seo-fallback h1 { font-size: 1.65rem; line-height: 1.5; margin: 0 0 14px; }
+      #seo-fallback h2 { font-size: 1.1rem; margin: 26px 0 8px; }
+      #seo-fallback p, #seo-fallback li { font-size: .95rem; color: #475569; margin: 6px 0; }
+      html.dark #seo-fallback p, html.dark #seo-fallback li { color: #94a3b8; }
+      #seo-fallback ul { padding-inline-start: 22px; margin: 8px 0; }
+      #seo-fallback a { color: #2563eb; font-weight: 700; text-decoration: none; }
+      html.dark #seo-fallback a { color: #60a5fa; }
     </style>
     <script>
       (function () {
@@ -93,7 +102,22 @@
   </head>
 
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div id="seo-fallback" dir="rtl">
+        <h1>أيوب أوفيس سيرفيسز — خدمات مكتبية وإعلام آلي في الميلية، جيجل</h1>
+        <p>متجر خدمات المكتب والإعلام الآلي: الطباعة والرقمنة، صيانة الحواسيب والطابعات، بيع مستلزمات الإعلام الآلي والهواتف، وإنشاء المواقع والمتاجر الإلكترونية.</p>
+        <h2>خدماتنا</h2>
+        <ul>
+          <li>طباعة ورقمنة المستندات والملفات</li>
+          <li>صيانة الحواسيب والطابعات</li>
+          <li>بيع مستلزمات الإعلام الآلي والهواتف</li>
+          <li>إنشاء المواقع الإلكترونية والمتاجر</li>
+        </ul>
+        <h2>تواصل معنا</h2>
+        <p>الهاتف: <a href="tel:+213674113290">0674 11 32 90</a> — العنوان: الشارع الكبير، الميلية، جيجل 18300، الجزائر.</p>
+        <p><a href="/create-website">أنشئ موقعك الإلكتروني</a> · <a href="/#products">المنتجات</a> · <a href="/#services">الخدمات</a> · <a href="/#contact">اتصل بنا</a></p>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
