@@ -113,6 +113,7 @@ const TEMPLATE_ICONS: Record<string, typeof CreditCard> = {
   fashion: Wallet,
   bakery: Receipt,
   carrental: Wallet,
+  'car-showroom-dz': Wallet,
   nonprofit: MessageCircle,
   events: MessageCircle,
 };
@@ -124,6 +125,7 @@ const PREVIEW_ALIAS: Record<string, string> = {
   electronics: 'store',
   fashion: 'store',
   carrental: 'store',
+  'car-showroom-dz': 'store',
   bakery: 'restaurant',
   beauty: 'portfolio',
   photography: 'portfolio',

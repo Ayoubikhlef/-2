@@ -363,6 +363,18 @@ export const TEMPLATES: TemplateSeed[] = [
     },
   },
   {
+    slug: 'car-showroom-dz',
+    category: 'showroom',
+    accent: '#c81622',
+    sortOrder: 35,
+    name: { ar: 'معرض سيارات صينية — الجزائر', fr: 'Showroom Auto Chinois — Algérie', en: 'Chinese Car Showroom — Algeria' },
+    description: {
+      ar: 'معرض سيارات صينية في الجزائر: بيكانتو، جيتور، شيري، شانجان وجيلي بأسعار السوق الجزائرية، تقسيط ميسّر، ضمان المصنع وطلب عرض سعر عبر واتساب.',
+      fr: 'Showroom de voitures chinoises en Algérie : Picanto, Jetour, Chery, Changan et Geely aux prix du marché algérien, financement, garantie et devis via WhatsApp.',
+      en: 'Chinese car showroom in Algeria: Picanto, Jetour, Chery, Changan and Geely at Algerian market prices, easy financing, factory warranty and WhatsApp quote requests.',
+    },
+  },
+  {
     slug: 'agriculture',
     category: 'agriculture',
     accent: '#4d7c0f',

@@ -8,6 +8,15 @@ import { SITE_JS } from './client';
 
 const LANGS: Lang[] = ['ar', 'fr', 'en'];
 
+/**
+ * Templates that reuse an existing page layout under their own slug.
+ * The alias is applied once here so navigation, JSON-LD, styles and the
+ * published body class all resolve to the right renderer family.
+ */
+const LAYOUT_ALIAS: Record<string, string> = {
+  'car-showroom-dz': 'showroom',
+};
+
 function shortHash(text: string): string {
   let hash = 5381;
   for (let i = 0; i < text.length; i++) hash = ((hash << 5) + hash + text.charCodeAt(i)) | 0;
@@ -36,6 +45,7 @@ function siteDescription(config: RenderConfig): string {
 export function renderSite(input: RenderConfig): RenderedSite {
   const config: RenderConfig = {
     ...input,
+    templateSlug: LAYOUT_ALIAS[input.templateSlug] || input.templateSlug,
     primaryColor: safeColor(input.primaryColor, '#0b5ed7'),
     secondaryColor: safeColor(input.secondaryColor, '#1e3a8a'),
     products: (input.products || []).map((p) => ({ ...p })),
