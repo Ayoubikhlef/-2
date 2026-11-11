@@ -86,7 +86,7 @@ const defaultContent: SiteContent = {
       fr: 'Nous offrons une large gamme de services et fournitures informatiques',
       en: 'We offer a wide range of services and IT supplies',
     },
-    bgImage: '/hero-bg.png',
+    bgImage: '/hero-bg.jpg',
   },
   whyUs: {
     title: {
@@ -257,6 +257,10 @@ function getAll(): SiteContent {
           ...defaultContent.faq.items.filter((item) => brandFaqIds.has(item.id)),
         ]
       : storedFaqItems;
+    // The old PNG hero weighed 2.3 MB. Keep already-saved content fast by
+    // pointing it at the equivalent 254 KB JPEG.
+    if (parsed.hero?.bgImage === '/hero-bg.png') parsed.hero.bgImage = '/hero-bg.jpg';
+
     const merged: SiteContent = {
       hero: { ...defaultContent.hero, ...parsed.hero },
       whyUs: { ...defaultContent.whyUs, ...parsed.whyUs, features: parsed.whyUs?.features ?? defaultContent.whyUs.features },
