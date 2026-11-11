@@ -35,9 +35,10 @@ export function Hero() {
         ) : (
           <TechHeroBackground />
         )}
-        {/* Readability gradient: follows the active theme so light mode keeps
-            a light hero while text stays high-contrast. */}
-        <div className="absolute inset-0 bg-gradient-to-r from-white/85 via-white/45 to-white/0 dark:from-slate-950/80 dark:via-slate-950/40 dark:to-slate-900/5" />
+        {/* Readability gradient follows the page direction: the veil sits
+            behind the text, leaving the open side of the hero fully visible
+            in both themes. */}
+        <div className="hero-readability absolute inset-0" />
       </div>
 
       {/* Content */}
