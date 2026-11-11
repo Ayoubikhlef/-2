@@ -173,6 +173,11 @@ export const api = {
       request<{ value: any }>(`/data/${encodeURIComponent(key)}`),
     delete: (key: string) =>
       request<{ deleted: boolean }>(`/data/${encodeURIComponent(key)}`, { method: 'DELETE' }),
+    updateProductStock: (id: number, delta: number) =>
+      request<{ id: number; stock: number }>('/data/products/stock', {
+        method: 'POST',
+        body: JSON.stringify({ id, delta }),
+      }),
   },
 
   newsletter: {

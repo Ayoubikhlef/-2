@@ -197,6 +197,11 @@ async function saveOrderInternal(order: Omit<OrderRecord, 'id' | 'createdAt' | '
     status: 'new',
   };
 
+  // The server recomputes prices, discounts and delivery. Once it answers,
+  // use its totals for the confirmation screen and the invoice instead of the
+  // optimistic local estimate.
+  let syncedRecord: OrderRecord = record;
+
   const current = getOrders();
   const next = [record, ...current];
   localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
@@ -238,6 +243,23 @@ async function saveOrderInternal(order: Omit<OrderRecord, 'id' | 'createdAt' | '
     log('info', `Order ${record.id} synced to server`);
     markSynced(record.id);
 
+    if (serverResult && !serverResult.duplicate && typeof serverResult.total === 'number') {
+      syncedRecord = {
+        ...record,
+        subtotal: typeof serverResult.subtotal === 'number' ? serverResult.subtotal : record.subtotal,
+        deliveryFee: typeof serverResult.deliveryFee === 'number' ? serverResult.deliveryFee : record.deliveryFee,
+        total: serverResult.total,
+        discount: typeof serverResult.discountAmount === 'number' ? serverResult.discountAmount : record.discount,
+        discountCode: typeof serverResult.discountCode === 'string' ? serverResult.discountCode : record.discountCode,
+      };
+      const stored = getOrders();
+      const index = stored.findIndex((entry) => entry.id === record.id);
+      if (index !== -1) {
+        stored[index] = syncedRecord;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+      }
+    }
+
     // Reflect the reserved stock locally only after the server accepted the
     // order. The server is authoritative; this just keeps the open catalog
     // from offering quantities that were sold in another tab. A duplicate
@@ -271,7 +293,7 @@ async function saveOrderInternal(order: Omit<OrderRecord, 'id' | 'createdAt' | '
     throw err instanceof Error ? err : new Error(String(err));
   }
 
-  return record;
+  return syncedRecord;
 }
 
 export function updateOrderStatus(id: string, status: OrderStatus): OrderRecord | null {

@@ -91,12 +91,16 @@ export function addProduct(product: Omit<Product, 'id'>): Product {
   return newProduct;
 }
 
-export function updateProduct(id: number, updates: Partial<Product>): boolean {
+export function updateProduct(
+  id: number,
+  updates: Partial<Product>,
+  opts: { sync?: boolean; dispatch?: boolean } = {}
+): boolean {
   const products = getStoredProducts([]);
   const idx = products.findIndex((p) => p.id === id);
   if (idx === -1) return false;
   products[idx] = { ...products[idx], ...updates };
-  saveProducts(products);
+  saveProducts(products, opts);
   return true;
 }
 

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { getStoredProducts, addProduct, updateProduct, deleteProduct, copyProduct, toggleProductVisibility } from '../utils/productStorage';
+import { addProduct, updateProduct, deleteProduct, copyProduct, toggleProductVisibility, pullProductsFromServer } from '../utils/productStorage';
+import { api } from '../utils/api';
 import { getAllCategories, getBuiltInCategories, getCustomCategories, addCustomCategory, removeCustomCategory, type CustomCategory } from '../utils/categoryStorage';
 import { normalizeImageUrl, isImageUrl } from '../utils/imageUrl';
 import { products as defaultProducts, type Product, type ProductSpec } from '../data/products';
@@ -72,22 +73,42 @@ export function ManageProductsTab({ products, onUpdate }: { products: Product[];
     toast.success(t({ ar: 'تم نسخ المنتج', fr: 'Produit dupliqué', en: 'Product duplicated' }));
   };
 
-  const adjustStock = (id: number, delta: number) => {
+  // Stock changes are sent as deltas so a sale made while this page is open
+  // cannot be overwritten by an absolute quantity from a stale snapshot.
+  const pushStockDelta = async (id: number, delta: number): Promise<boolean> => {
+    if (!delta) return true;
     const product = products.find((p) => p.id === id);
-    if (!product) return;
-    updateProduct(id, { stock: Math.max(0, (product.stock ?? 0) + delta) });
+    const current = product?.stock ?? 0;
+    updateProduct(id, { stock: Math.max(0, current + delta) }, { sync: false });
     onUpdate();
+    try {
+      const result = await api.updateProductStock(id, delta);
+      updateProduct(id, { stock: result.stock }, { sync: false });
+      onUpdate();
+      return true;
+    } catch {
+      toast.error(t({ ar: 'تعذّر تحديث المخزون', fr: 'Échec de la mise à jour du stock', en: 'Failed to update stock' }));
+      try {
+        await pullProductsFromServer(defaultProducts);
+      } catch {}
+      onUpdate();
+      return false;
+    }
+  };
+
+  const adjustStock = (id: number, delta: number) => {
+    void pushStockDelta(id, delta);
   };
 
   const setStock = (id: number, value: string) => {
     const product = products.find((p) => p.id === id);
     if (!product) return;
     const parsed = Number(value);
-    updateProduct(id, { stock: Number.isFinite(parsed) ? Math.max(0, Math.floor(parsed)) : 0 });
-    onUpdate();
+    const desired = Number.isFinite(parsed) ? Math.max(0, Math.floor(parsed)) : 0;
+    void pushStockDelta(id, desired - (product.stock ?? 0));
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editing) return;
     if (!editing.nameAr || !editing.nameFr || !editing.nameEn || !editing.price) {
@@ -100,6 +121,13 @@ export function ManageProductsTab({ products, onUpdate }: { products: Product[];
       return;
     }
     const images = (editing.images || []).map(normalizeImageUrl).filter(Boolean);
+    const desiredStock = Number.isFinite(Number(editing.stock))
+      ? Math.max(0, Math.floor(Number(editing.stock)))
+      : 0;
+    const existing = 'id' in editing && editing.id
+      ? products.find((p) => p.id === editing.id)
+      : undefined;
+    const originalStock = existing?.stock ?? desiredStock;
     const productData: Omit<Product, 'id'> = {
       nameAr: editing.nameAr!,
       nameFr: editing.nameFr!,
@@ -120,7 +148,9 @@ export function ManageProductsTab({ products, onUpdate }: { products: Product[];
       warranty: editing.warranty || '',
       seoKeywords: editing.seoKeywords || '',
       hidden: editing.hidden ?? false,
-      stock: Number.isFinite(Number(editing.stock)) ? Math.max(0, Math.floor(Number(editing.stock))) : 0,
+      // Existing products keep their server quantity through the catalog save;
+      // the difference is applied atomically below.
+      stock: existing ? originalStock : desiredStock,
       images,
       image,
       category: editing.category || 'accessories',
@@ -132,9 +162,12 @@ export function ManageProductsTab({ products, onUpdate }: { products: Product[];
       relatedIds: editing.relatedIds || [],
     };
 
-    if ('id' in editing && editing.id) {
-      updateProduct(editing.id as number, productData);
+    if (existing) {
+      updateProduct(existing.id, productData);
       toast.success(t({ ar: 'تم تحديث المنتج', fr: 'Produit mis à jour', en: 'Product updated' }));
+      if (desiredStock !== originalStock) {
+        await pushStockDelta(existing.id, desiredStock - originalStock);
+      }
     } else {
       addProduct(productData);
       toast.success(t({ ar: 'تم إضافة المنتج', fr: 'Produit ajouté', en: 'Product added' }));

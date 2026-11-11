@@ -1,7 +1,10 @@
 import { Router, Request, Response } from 'express';
 import crypto from 'crypto';
+import rateLimit from 'express-rate-limit';
 import { z } from 'zod';
+import type { Prisma } from '@prisma/client';
 import { prisma } from '../utils/prisma';
+import { securityRateLimitHandler } from '../services/security';
 import { sendWhatsAppNotification, sendNewOrderAlert } from '../services/whatsapp';
 import { sendNewOrderTelegramAlert, sendNewOrderDiscordAlert } from '../services/telegram';
 import { emitNewOrder } from '../services/live';
@@ -72,6 +75,173 @@ function itemsSignature(items: Array<{ name: string; quantity: number }>): strin
 }
 
 const DUPLICATE_ORDER_WINDOW_MS = 120_000;
+const COUPON_USAGE_KEY = 'aos_coupon_usage';
+const AUTO_CANCEL_HOURS = Math.max(1, Number(process.env.ORDER_AUTO_CANCEL_HOURS) || 72);
+// Never sweep orders older than this on the first run after a deploy: very old
+// "new" rows were probably fulfilled and simply never marked completed.
+const AUTO_CANCEL_MAX_AGE_DAYS = Math.max(1, Number(process.env.ORDER_AUTO_CANCEL_MAX_AGE_DAYS) || 30);
+const TX_OPTIONS = { maxWait: 10_000, timeout: 20_000 };
+
+// A shopper never needs more than a handful of orders in ten minutes. The
+// broad /api/orders limiter stays for reads and admin traffic; this one only
+// guards the public create endpoint against stock-draining bots.
+const createOrderLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 12,
+  handler: securityRateLimitHandler('orders-create'),
+  validate: { xForwardedForHeader: false },
+});
+
+async function readCouponUsage(tx: Prisma.TransactionClient): Promise<Record<string, number>> {
+  const setting = await tx.setting.findUnique({ where: { key: COUPON_USAGE_KEY } });
+  if (!setting) return {};
+  try {
+    const parsed = JSON.parse(setting.value);
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? parsed as Record<string, number>
+      : {};
+  } catch {
+    return {};
+  }
+}
+
+type RestorableOrder = {
+  id: string;
+  status: string;
+  stockRestoredAt: Date | null;
+  items: Array<{ catalogProductId: number | null; name: string; quantity: number }>;
+};
+
+/**
+ * Returns reserved units to the JSON product catalog exactly once per order.
+ * Completed orders are left alone: their stock was genuinely sold, and
+ * deleting old history must not inflate the inventory.
+ */
+async function restoreStockForOrders(
+  tx: Prisma.TransactionClient,
+  orders: RestorableOrder[],
+): Promise<CatalogProduct[] | null> {
+  const eligible = orders.filter((order) => !order.stockRestoredAt && order.status !== 'completed');
+  if (eligible.length === 0) return null;
+
+  const rows = await tx.$queryRaw<Array<{ value: string }>>`
+    SELECT "value" FROM "Setting" WHERE "key" = ${PRODUCTS_SETTING_KEY} FOR UPDATE
+  `;
+  if (rows.length === 0) return null;
+
+  const catalog = fixMojibakeData(JSON.parse(rows[0].value)) as CatalogProduct[];
+  let changed = false;
+
+  for (const order of eligible) {
+    for (const item of order.items) {
+      const product = item.catalogProductId != null
+        ? catalog.find((p) => p.id === item.catalogProductId)
+        : catalog.find((p) => p.nameAr === item.name || p.nameFr === item.name || p.nameEn === item.name);
+      if (!product) continue;
+      const available = finiteStock(product);
+      if (available === null) continue; // unlimited stock stays unlimited
+      product.stock = Math.max(0, available) + item.quantity;
+      changed = true;
+    }
+  }
+
+  if (changed) {
+    await tx.setting.update({
+      where: { key: PRODUCTS_SETTING_KEY },
+      data: { value: JSON.stringify(catalog) },
+    });
+  }
+
+  await tx.order.updateMany({
+    where: { id: { in: eligible.map((order) => order.id) } },
+    data: { stockRestoredAt: new Date() },
+  });
+
+  return changed ? catalog : null;
+}
+
+async function restoreOrderStock(
+  tx: Prisma.TransactionClient,
+  orderId: string,
+): Promise<CatalogProduct[] | null> {
+  const order = await tx.order.findUnique({
+    where: { id: orderId },
+    include: { items: true },
+  });
+  if (!order) return null;
+  return restoreStockForOrders(tx, [order]);
+}
+
+/**
+ * Cancels product orders that stayed "new" for too long and returns their
+ * reserved stock. Runs hourly from the server bootstrap. A transaction-level
+ * re-check keeps an admin action from racing the cleanup.
+ */
+export async function cancelStaleOrders(): Promise<number> {
+  const cutoff = new Date(Date.now() - AUTO_CANCEL_HOURS * 60 * 60 * 1000);
+  const oldest = new Date(Date.now() - AUTO_CANCEL_MAX_AGE_DAYS * 24 * 60 * 60 * 1000);
+  let cancelled = 0;
+
+  for (let pass = 0; pass < 5; pass++) {
+    const stale = await prisma.order.findMany({
+      where: {
+        status: 'new',
+        source: { not: 'service-booking' },
+        stockRestoredAt: null,
+        createdAt: { lt: cutoff, gte: oldest },
+      },
+      select: { id: true },
+      take: 100,
+    });
+    if (stale.length === 0) break;
+
+    for (const { id } of stale) {
+      const result = await prisma.$transaction(async (tx) => {
+        const order = await tx.order.findUnique({
+          where: { id },
+          include: { items: true },
+        });
+        if (!order || order.status !== 'new' || order.stockRestoredAt) return null;
+
+        const catalog = await restoreStockForOrders(tx, [order]);
+        const updated = await tx.order.update({
+          where: { id },
+          data: { status: 'cancelled' },
+        });
+        await tx.orderStatusEvent.create({
+          data: {
+            orderId: id,
+            status: 'cancelled',
+            note: `auto-cancel: unconfirmed for ${AUTO_CANCEL_HOURS}h`,
+          },
+        });
+        return { order: updated, catalog };
+      }, TX_OPTIONS);
+
+      if (!result) continue;
+      cancelled++;
+      if (result.catalog) {
+        setCache(PRODUCTS_CACHE_KEY, { products: result.catalog }, PRODUCTS_CACHE_TTL_MS);
+      }
+      console.log(`[Orders] Auto-cancelled stale order ${id}`);
+      sendWhatsAppNotification(
+        result.order.phone,
+        result.order.customer,
+        id,
+        'cancelled',
+        result.order.total,
+      );
+    }
+
+    if (stale.length < 100) break;
+  }
+
+  if (cancelled > 0) {
+    clearCache('orders:list');
+    console.log(`[Orders] Auto-cancelled ${cancelled} stale order(s)`);
+  }
+  return cancelled;
+}
 
 const orderItemSchema = z.object({
   name: z.string().min(1),
@@ -89,7 +259,7 @@ const optionalEmail = z.preprocess(
 
 const createOrderSchema = z
   .object({
-    id: z.string().min(8).max(64).regex(/^[A-Za-z0-9_-]+$/).optional(),
+    id: z.string().min(8).max(64).regex(/^[A-Za-z0-9_-]+$/),
     createdAt: z.string().datetime().optional(),
     customer: z.string().min(1).max(200),
     phone: z.string().min(1).max(20),
@@ -121,7 +291,7 @@ const createOrderSchema = z
     }
   });
 
-orderRouter.post('/', async (req: Request, res: Response) => {
+orderRouter.post('/', createOrderLimiter, async (req: Request, res: Response) => {
   try {
     const data = createOrderSchema.parse(req.body);
     console.log(
@@ -217,9 +387,19 @@ orderRouter.post('/', async (req: Request, res: Response) => {
     let localityId: number | null = null;
 
     if (!isService) {
-      localityId = data.wilayaId
-        ?? parseLocalityIdFromLabel(data.wilaya)
-        ?? 18;
+      // The wilaya label always starts with its official number ("18 Jijel").
+      // Trusting the numeric id sent by the browser let a cheap locality pay
+      // for a remote one; derive the id from the label and reject any mismatch.
+      const localityFromLabel = parseLocalityIdFromLabel(data.wilaya);
+      if (localityFromLabel === null) {
+        return res.status(400).json({
+          error: 'Wilaya must include its official number (e.g. 18 Jijel)',
+        });
+      }
+      if (data.wilayaId !== undefined && data.wilayaId !== localityFromLabel) {
+        return res.status(400).json({ error: 'Wilaya does not match the delivery locality' });
+      }
+      localityId = localityFromLabel;
       deliveryMethod = data.deliveryMethod ?? 'home';
 
       const quote = await quoteOrderDelivery({
@@ -239,6 +419,7 @@ orderRouter.post('/', async (req: Request, res: Response) => {
     let finalTotal = serverTotal;
     let discountAmount = 0;
     let appliedCode: string | undefined;
+    let appliedCoupon: any = null;
 
     if (data.discountCode) {
       const couponSetting = await prisma.setting.findUnique({ where: { key: 'aos_coupons' } });
@@ -261,7 +442,8 @@ orderRouter.post('/', async (req: Request, res: Response) => {
           : Math.min(coupon.value, serverTotal);
         discountAmount = Math.min(discountAmount, serverTotal);
         finalTotal = Math.max(0, serverTotal - discountAmount);
-        appliedCode = coupon.code;
+        appliedCode = String(coupon.code).trim().toUpperCase();
+        appliedCoupon = coupon;
       }
     }
 
@@ -362,15 +544,33 @@ orderRouter.post('/', async (req: Request, res: Response) => {
           product.stock = available - quantity;
           updatedCatalog = catalog;
         }
+      }
 
-        // Persist the decremented catalog in the same transaction as the
-        // order: if the insert fails, the stock change rolls back too.
-        if (updatedCatalog) {
-          await tx.setting.update({
-            where: { key: PRODUCTS_SETTING_KEY },
-            data: { value: JSON.stringify(updatedCatalog) },
-          });
+      // Coupon usage is checked only after the stock checks pass, so a stock
+      // rejection has no write to commit. The increment commits with the order
+      // and rolls back if the insert fails.
+      if (appliedCoupon && appliedCode) {
+        await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext(${appliedCode}))`;
+        const usage = await readCouponUsage(tx);
+        const used = Number(usage[appliedCode] ?? 0);
+        if (appliedCoupon.maxUses > 0 && used >= appliedCoupon.maxUses) {
+          return { couponError: 'Coupon usage limit reached' };
         }
+        usage[appliedCode] = used + 1;
+        await tx.setting.upsert({
+          where: { key: COUPON_USAGE_KEY },
+          create: { key: COUPON_USAGE_KEY, value: JSON.stringify(usage) },
+          update: { value: JSON.stringify(usage) },
+        });
+      }
+
+      // Persist the decremented catalog in the same transaction as the order:
+      // if the insert fails, both the stock change and the coupon use roll back.
+      if (updatedCatalog) {
+        await tx.setting.update({
+          where: { key: PRODUCTS_SETTING_KEY },
+          data: { value: JSON.stringify(updatedCatalog) },
+        });
       }
 
       const created = await tx.order.create({
@@ -390,13 +590,17 @@ orderRouter.post('/', async (req: Request, res: Response) => {
           wilayaId: isService ? null : localityId,
           status: 'new',
           source: data.source,
-          paymentMethod: appliedCode ? ('discount:' + appliedCode) : undefined,
+          paymentMethod: isService ? null : 'cod',
+          discountAmount,
+          discountCode: appliedCode ?? null,
+          statusEvents: { create: { status: 'new' } },
           items: {
             create: validatedItems.map(item => ({
               name: item.name,
               quantity: item.quantity,
               price: item.price,
               total: item.total,
+              catalogProductId: item.productId ?? null,
             })),
           },
         },
@@ -404,7 +608,7 @@ orderRouter.post('/', async (req: Request, res: Response) => {
       });
 
       return { order: created, products: updatedCatalog };
-    }, { maxWait: 10_000, timeout: 15_000 }).catch((err) => {
+    }, TX_OPTIONS).catch((err) => {
       // Two simultaneous retries can both pass the checks above; the primary
       // key then rejects the second insert. Treat it as a duplicate, not 500.
       if (requestedId && (err?.code === 'P2002' || String(err?.message || '').includes('Unique constraint'))) {
@@ -416,6 +620,11 @@ orderRouter.post('/', async (req: Request, res: Response) => {
     if ('duplicateOrderId' in result) {
       console.log(`[Orders] Duplicate order ignored: ${result.duplicateOrderId}`);
       return res.status(200).json({ id: result.duplicateOrderId, duplicate: true });
+    }
+
+    if ('couponError' in result) {
+      console.warn(`[Orders] Coupon rejected: ${result.couponError}`);
+      return res.status(400).json({ error: result.couponError });
     }
 
     if ('stockError' in result) {
@@ -584,17 +793,54 @@ orderRouter.get('/', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async (_r
 orderRouter.patch('/:id/status', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
-    const { status } = z.object({ status: z.enum(['new', 'processing', 'completed', 'cancelled']) }).parse(req.body);
+    const { status } = z.object({
+      status: z.enum(['new', 'processing', 'completed', 'cancelled']),
+    }).parse(req.body);
 
-    const updated = await prisma.order.update({
-      where: { id },
-      data: { status },
-    });
+    const result = await prisma.$transaction(async (tx) => {
+      const existing = await tx.order.findUnique({
+        where: { id },
+        include: { items: true },
+      });
+      if (!existing) return { notFound: true as const };
 
-    sendWhatsAppNotification(updated.phone, updated.customer, id, status, updated.total);
+      const changed = existing.status !== status;
+      const updated = changed
+        ? await tx.order.update({ where: { id }, data: { status } })
+        : existing;
+
+      if (changed) {
+        await tx.orderStatusEvent.create({ data: { orderId: id, status } });
+      }
+
+      // Cancelling returns reserved stock once. A cancellation recorded before
+      // this deploy has stockRestoredAt=null and is repaired here too.
+      const catalog = status === 'cancelled' && !existing.stockRestoredAt
+        ? await restoreOrderStock(tx, id)
+        : null;
+
+      return { updated, catalog, changed };
+    }, TX_OPTIONS);
+
+    if ('notFound' in result) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+
+    if (result.catalog) {
+      setCache(PRODUCTS_CACHE_KEY, { products: result.catalog }, PRODUCTS_CACHE_TTL_MS);
+    }
+    if (result.changed) {
+      sendWhatsAppNotification(
+        result.updated.phone,
+        result.updated.customer,
+        id,
+        status,
+        result.updated.total,
+      );
+    }
     clearCache('orders:list');
     console.log(`[Orders] Updated order ${id} status to ${status}`);
-    res.json(updated);
+    res.json(result.updated);
   } catch (err) {
     if (err instanceof z.ZodError) {
       return res.status(400).json({ error: 'Validation failed', details: err.errors });
@@ -607,11 +853,30 @@ orderRouter.patch('/:id/status', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'
 orderRouter.post('/delete', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
     const { id } = z.object({ id: z.string().min(1) }).parse(req.body);
-    await prisma.order.delete({ where: { id } });
+    const result = await prisma.$transaction(async (tx) => {
+      const order = await tx.order.findUnique({
+        where: { id },
+        include: { items: true },
+      });
+      if (!order) return { notFound: true as const };
+      const catalog = await restoreStockForOrders(tx, [order]);
+      await tx.order.delete({ where: { id } });
+      return { catalog };
+    }, TX_OPTIONS);
+
+    if ('notFound' in result) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+    if (result.catalog) {
+      setCache(PRODUCTS_CACHE_KEY, { products: result.catalog }, PRODUCTS_CACHE_TTL_MS);
+    }
     clearCache('orders:list');
     console.log(`[Orders] Deleted order ${id}`);
     res.json({ deleted: true, id });
   } catch (err: any) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Validation failed', details: err.errors });
+    }
     if (err?.code === 'P2025') {
       return res.status(404).json({ error: 'Not found' });
     }
@@ -622,13 +887,21 @@ orderRouter.post('/delete', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), as
 
 orderRouter.post('/clear-all', requireAuth, requireRole('SUPER_ADMIN'), async (_req: AuthRequest, res: Response) => {
   try {
-    const orders = await prisma.order.findMany({ select: { id: true } });
-    const ids = orders.map(o => o.id);
-    await prisma.orderItem.deleteMany({});
-    await prisma.order.deleteMany({});
+    const result = await prisma.$transaction(async (tx) => {
+      const orders = await tx.order.findMany({
+        include: { items: true },
+      });
+      const catalog = await restoreStockForOrders(tx, orders);
+      await tx.order.deleteMany({});
+      return { catalog, ids: orders.map((order) => order.id) };
+    }, TX_OPTIONS);
+
+    if (result.catalog) {
+      setCache(PRODUCTS_CACHE_KEY, { products: result.catalog }, PRODUCTS_CACHE_TTL_MS);
+    }
     clearCache('orders:list');
-    console.log(`[Orders] Cleared all ${ids.length} orders`);
-    res.json({ deleted: true, count: ids.length, ids });
+    console.log(`[Orders] Cleared all ${result.ids.length} orders`);
+    res.json({ deleted: true, count: result.ids.length, ids: result.ids });
   } catch (err) {
     console.error('[Orders] Clear all error:', err);
     res.status(500).json({ error: 'Failed to clear orders' });
@@ -638,7 +911,23 @@ orderRouter.post('/clear-all', requireAuth, requireRole('SUPER_ADMIN'), async (_
 orderRouter.delete('/:id', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
-    await prisma.order.delete({ where: { id } });
+    const result = await prisma.$transaction(async (tx) => {
+      const order = await tx.order.findUnique({
+        where: { id },
+        include: { items: true },
+      });
+      if (!order) return { notFound: true as const };
+      const catalog = await restoreStockForOrders(tx, [order]);
+      await tx.order.delete({ where: { id } });
+      return { catalog };
+    }, TX_OPTIONS);
+
+    if ('notFound' in result) {
+      return res.status(404).json({ error: 'Not found' });
+    }
+    if (result.catalog) {
+      setCache(PRODUCTS_CACHE_KEY, { products: result.catalog }, PRODUCTS_CACHE_TTL_MS);
+    }
     clearCache('orders:list');
     console.log(`[Orders] Deleted order ${id}`);
     res.json({ deleted: true, id });

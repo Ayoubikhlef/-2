@@ -11,7 +11,7 @@ import http from 'http';
 import { authRouter } from './routes/auth';
 import { chatRouter } from './routes/chat';
 import { productRouter } from './routes/products';
-import { orderRouter } from './routes/orders';
+import { orderRouter, cancelStaleOrders } from './routes/orders';
 import { reviewRouter } from './routes/reviews';
 import { newsletterRouter } from './routes/newsletter';
 import { contactRouter } from './routes/contact';
@@ -222,6 +222,38 @@ async function ensureOrderDeliveryColumns() {
   }
 }
 
+// Order hardening runs before traffic is accepted: stock restoration and
+// status history must exist even if the host skipped `prisma db push`.
+async function ensureOrderHardeningSchema() {
+  const statements = [
+    `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "discountAmount" DOUBLE PRECISION NOT NULL DEFAULT 0`,
+    `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "discountCode" TEXT`,
+    `ALTER TABLE "Order" ADD COLUMN IF NOT EXISTS "stockRestoredAt" TIMESTAMP(3)`,
+    `ALTER TABLE "OrderItem" ADD COLUMN IF NOT EXISTS "catalogProductId" INTEGER`,
+    `CREATE TABLE IF NOT EXISTS "OrderStatusEvent" (
+      "id" TEXT NOT NULL,
+      "orderId" TEXT NOT NULL,
+      "status" TEXT NOT NULL,
+      "note" TEXT,
+      "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      CONSTRAINT "OrderStatusEvent_pkey" PRIMARY KEY ("id"),
+      CONSTRAINT "OrderStatusEvent_orderId_fkey" FOREIGN KEY ("orderId")
+        REFERENCES "Order"("id") ON DELETE CASCADE ON UPDATE CASCADE
+    )`,
+    `CREATE INDEX IF NOT EXISTS "OrderStatusEvent_orderId_createdAt_idx"
+      ON "OrderStatusEvent"("orderId", "createdAt")`,
+  ];
+
+  try {
+    for (const sql of statements) {
+      await prisma.$executeRawUnsafe(sql);
+    }
+    console.log('[AOS] Order hardening schema ready');
+  } catch (err) {
+    console.error('[AOS] Failed to ensure Order hardening schema:', err);
+  }
+}
+
 async function fixMojibakeSettings() {
   try {
     const settings = await prisma.setting.findMany();
@@ -334,6 +366,7 @@ async function startServer() {
   // produce 500s on the first requests after a deploy.
   await ensureAuditLogTable();
   await ensureOrderDeliveryColumns();
+  await ensureOrderHardeningSchema();
   await ensureSeedAdmin();
   try {
     await ensureSiteFactoryDefaults();
@@ -349,6 +382,17 @@ async function startServer() {
     const ip: string = networkInterfaces.find((i: any) => i.family === 'IPv4' && !i.internal)?.address || 'localhost';
     console.log(`[AOS Server] Running on http://localhost:${PORT}`);
     startKeepAlive();
+
+    // Unconfirmed product orders reserve stock; release it after the timeout
+    // instead of leaving the catalog permanently drained.
+    void cancelStaleOrders().catch((err) => {
+      console.error('[AOS] Initial stale-order cleanup failed:', err);
+    });
+    setInterval(() => {
+      void cancelStaleOrders().catch((err) => {
+        console.error('[AOS] Stale-order cleanup failed:', err);
+      });
+    }, 60 * 60 * 1000).unref();
   });
 }
 
