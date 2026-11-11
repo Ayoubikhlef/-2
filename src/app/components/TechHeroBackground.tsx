@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useTheme } from '../contexts/ThemeContext';
 import './TechHeroBackground.css';
 
 type Particle = {
@@ -21,6 +22,35 @@ type Glow = {
   phase: number;
 };
 
+type Palette = {
+  link: string;
+  halo: string;
+  core: string;
+  glows: Array<{ color: string; strength: number }>;
+};
+
+const DARK_PALETTE: Palette = {
+  link: '96, 165, 250',
+  halo: '56, 189, 248',
+  core: '191, 219, 254',
+  glows: [
+    { color: '14, 165, 233', strength: 0.42 },
+    { color: '37, 99, 235', strength: 0.4 },
+    { color: '56, 189, 248', strength: 0.34 },
+  ],
+};
+
+const LIGHT_PALETTE: Palette = {
+  link: '37, 99, 235',
+  halo: '14, 165, 233',
+  core: '30, 64, 175',
+  glows: [
+    { color: '56, 189, 248', strength: 0.3 },
+    { color: '59, 130, 246', strength: 0.26 },
+    { color: '14, 165, 233', strength: 0.2 },
+  ],
+};
+
 /**
  * Lightweight animated technology background for the main hero.
  *
@@ -28,12 +58,13 @@ type Glow = {
  * CSS-only gradients, a slowly drifting circuit grid and a scan line. No video
  * or image download, and animation is paused when the tab is hidden.
  *
- * Visitors who ask for reduced motion get the same scene at a much slower
- * pace instead of a frozen picture, so the hero never looks like a broken
- * static image.
+ * The palette follows the active theme so light mode keeps the same motion
+ * without a dark block breaking the page. Visitors who ask for reduced motion
+ * get the scene at a much slower pace instead of a frozen picture.
  */
 export function TechHeroBackground() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const { theme } = useTheme();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -41,6 +72,7 @@ export function TechHeroBackground() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    const palette = theme === 'light' ? LIGHT_PALETTE : DARK_PALETTE;
     const media = window.matchMedia('(prefers-reduced-motion: reduce)');
     let motionScale = media.matches ? 0.3 : 1;
     let width = 0;
@@ -70,10 +102,13 @@ export function TechHeroBackground() {
       }));
 
       glows = [
-        { ax: 0.78, ay: 0.24, radius: 0.5, color: '14, 165, 233', ampX: 90, ampY: 55, speed: 0.00019, phase: 0 },
-        { ax: 0.16, ay: 0.8, radius: 0.46, color: '37, 99, 235', ampX: 70, ampY: 60, speed: 0.00015, phase: 2.1 },
-        { ax: 0.5, ay: 0.5, radius: 0.34, color: '56, 189, 248', ampX: 120, ampY: 45, speed: 0.00023, phase: 4.2 },
-      ];
+        { ax: 0.78, ay: 0.24, radius: 0.5, ampX: 90, ampY: 55, speed: 0.00019, phase: 0 },
+        { ax: 0.16, ay: 0.8, radius: 0.46, ampX: 70, ampY: 60, speed: 0.00015, phase: 2.1 },
+        { ax: 0.5, ay: 0.5, radius: 0.34, ampX: 120, ampY: 45, speed: 0.00023, phase: 4.2 },
+      ].map((glow, index) => ({
+        ...glow,
+        color: palette.glows[index]?.color ?? palette.glows[0].color,
+      }));
 
       draw(0, true);
     };
@@ -84,20 +119,21 @@ export function TechHeroBackground() {
 
       // Slow moving light blooms. They are drawn in canvas (not only CSS) so
       // the background keeps breathing even when CSS animations are reduced.
-      for (const glow of glows) {
+      glows.forEach((glow, index) => {
         const sway = staticFrame ? 0 : motionTime * glow.speed;
         const cx = glow.ax * width + Math.cos(sway + glow.phase) * glow.ampX;
         const cy = glow.ay * height + Math.sin(sway * 1.35 + glow.phase * 1.7) * glow.ampY;
         const radius = glow.radius * Math.min(width, height);
+        const strength = palette.glows[index]?.strength ?? 0.3;
         const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
-        gradient.addColorStop(0, `rgba(${glow.color}, 0.42)`);
-        gradient.addColorStop(0.55, `rgba(${glow.color}, 0.16)`);
+        gradient.addColorStop(0, `rgba(${glow.color}, ${strength})`);
+        gradient.addColorStop(0.55, `rgba(${glow.color}, ${strength * 0.38})`);
         gradient.addColorStop(1, `rgba(${glow.color}, 0)`);
         ctx.fillStyle = gradient;
         ctx.beginPath();
         ctx.arc(cx, cy, radius, 0, Math.PI * 2);
         ctx.fill();
-      }
+      });
 
       const linkDistance = Math.min(170, Math.max(110, width / 9));
       const linkDistanceSq = linkDistance * linkDistance;
@@ -121,7 +157,7 @@ export function TechHeroBackground() {
           const distanceSq = dx * dx + dy * dy;
           if (distanceSq > linkDistanceSq) continue;
           const alpha = (1 - Math.sqrt(distanceSq) / linkDistance) * 0.55;
-          ctx.strokeStyle = `rgba(96, 165, 250, ${alpha})`;
+          ctx.strokeStyle = `rgba(${palette.link}, ${alpha})`;
           ctx.lineWidth = 1;
           ctx.beginPath();
           ctx.moveTo(particle.x, particle.y);
@@ -136,11 +172,11 @@ export function TechHeroBackground() {
         // without the cost of canvas shadows.
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, particle.radius * 3.6, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(56, 189, 248, ${twinkle * 0.22})`;
+        ctx.fillStyle = `rgba(${palette.halo}, ${twinkle * 0.22})`;
         ctx.fill();
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(191, 219, 254, ${twinkle})`;
+        ctx.fillStyle = `rgba(${palette.core}, ${twinkle})`;
         ctx.fill();
       }
     };
@@ -190,7 +226,7 @@ export function TechHeroBackground() {
       media.removeEventListener('change', onMotionPreference);
       window.removeEventListener('resize', resize);
     };
-  }, []);
+  }, [theme]);
 
   return (
     <div className="tech-hero pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">

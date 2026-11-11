@@ -35,9 +35,9 @@ export function Hero() {
         ) : (
           <TechHeroBackground />
         )}
-        {/* Keep text readable without flattening the animated background:
-            heavy dimming on the text edge only, almost none on the open side. */}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/40 to-slate-900/5" />
+        {/* Readability gradient: follows the active theme so light mode keeps
+            a light hero while text stays high-contrast. */}
+        <div className="absolute inset-0 bg-gradient-to-r from-white/85 via-white/45 to-white/0 dark:from-slate-950/80 dark:via-slate-950/40 dark:to-slate-900/5" />
       </div>
 
       {/* Content */}
@@ -52,7 +52,7 @@ export function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.5 }}
-              className="inline-block bg-white/10 backdrop-blur-sm text-white/90 text-sm font-semibold px-4 py-2 rounded-full border border-white/20 mb-6"
+              className="inline-block bg-primary/10 backdrop-blur-sm text-primary text-sm font-semibold px-4 py-2 rounded-full border border-primary/20 mb-6 dark:bg-white/10 dark:text-white/90 dark:border-white/20"
             >
               {t({ ar: 'خدمات مكتبية وإعلام آلي', fr: 'Services informatiques et bureautiques', en: 'IT & Office Services' })}
             </motion.span>
@@ -61,7 +61,7 @@ export function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl mb-6 text-white leading-tight font-black"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl mb-6 text-slate-900 leading-tight font-black dark:text-white"
             >
               {t(content.hero.title)}
               <br />
@@ -74,7 +74,7 @@ export function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.6 }}
-              className="text-lg md:text-xl mb-10 text-white/80 max-w-xl leading-relaxed"
+              className="text-lg md:text-xl mb-10 text-slate-600 max-w-xl leading-relaxed dark:text-white/80"
             >
               {t(content.hero.subtitle)}
             </motion.p>
@@ -94,7 +94,7 @@ export function Hero() {
               </a>
               <a
                 href="#products"
-                className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white border border-white/20 px-8 py-4 rounded-xl font-semibold hover:bg-white/20 transition-all text-base"
+                className="inline-flex items-center gap-2 bg-primary/5 backdrop-blur-sm text-slate-800 border border-primary/25 px-8 py-4 rounded-xl font-semibold hover:bg-primary/10 transition-all text-base dark:bg-white/10 dark:text-white dark:border-white/20 dark:hover:bg-white/20"
               >
                 {t({ ar: 'تصفح المنتجات', fr: 'Voir nos produits', en: 'View our products' })}
               </a>
