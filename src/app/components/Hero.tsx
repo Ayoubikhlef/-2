@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { ArrowRight, Phone, Globe } from 'lucide-react';
 import { getSiteContent } from '../utils/siteContentStorage';
 import { getSiteSettings } from '../utils/siteSettingsStorage';
+import { TechHeroBackground } from './TechHeroBackground';
 
 export function Hero() {
   const { t } = useLanguage();
@@ -18,19 +19,23 @@ export function Hero() {
 
   return (
     <section className="relative min-h-[70vh] md:min-h-[80vh] flex items-center overflow-hidden">
-      {/* Background Image */}
+      {/* Animated technology background (or a custom image set in admin) */}
       <div className="absolute inset-0">
-        <img
-          src={content.hero.bgImage}
-          alt=""
-          width={1920}
-          height={1080}
-          loading="eager"
-          fetchPriority="high"
-          decoding="async"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/70 to-slate-900/40" />
+        {content.hero.bgImage?.trim() ? (
+          <img
+            src={content.hero.bgImage}
+            alt=""
+            width={1920}
+            height={1080}
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <TechHeroBackground />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/60 to-slate-900/20" />
       </div>
 
       {/* Content */}

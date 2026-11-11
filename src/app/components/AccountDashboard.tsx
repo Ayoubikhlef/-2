@@ -3,9 +3,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../utils/api';
 import { getOrders } from '../utils/orderStorage';
-import { Package, MapPin, Gift, LogOut, ChevronRight, Clock, CheckCircle, XCircle, Truck } from 'lucide-react';
-import { toast } from 'sonner';
-import { LoginPage } from './LoginPage';
+import { Package, MapPin, Gift, LogOut, ChevronRight, Clock, CheckCircle, XCircle, Truck, Lock } from 'lucide-react';
 
 const statusIcons: Record<string, any> = {
   new: Clock, processing: Truck, completed: CheckCircle, cancelled: XCircle,
@@ -35,9 +33,30 @@ export function AccountDashboard() {
 
   if (!user) {
     return (
-      <section className="py-20 min-h-screen bg-gradient-to-b from-slate-50/80 to-white/70 dark:from-transparent dark:to-transparent">
-        <div className="max-w-md mx-auto px-4 text-center">
-          <LoginPage onClose={() => {}} standalone />
+      <section className="py-20 min-h-screen bg-gradient-to-b from-slate-50/80 to-white/70 dark:from-transparent dark:to-transparent" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+        <div className="max-w-md mx-auto px-4">
+          <div className="rounded-3xl border border-border bg-card p-8 text-center shadow-sm">
+            <div className="w-16 h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-5">
+              <Lock className="w-8 h-8" />
+            </div>
+            <h1 className="text-2xl font-bold text-foreground mb-3">
+              {t({ ar: 'مساحة خاصة بمالك المتجر', fr: 'Espace réservé au propriétaire', en: 'Store owner area' })}
+            </h1>
+            <p className="text-sm leading-relaxed text-muted-foreground mb-6">
+              {t({
+                ar: 'لا يوجد حساب للزوار. يمكنك تصفح المنتجات وإتمام طلبك مباشرة.',
+                fr: 'Aucun compte visiteur. Parcourez les produits et commandez directement.',
+                en: 'There is no visitor account. Browse products and order directly.',
+              })}
+            </p>
+            <a
+              href="/"
+              className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              {t({ ar: 'العودة إلى الرئيسية', fr: 'Retour à l’accueil', en: 'Back to home' })}
+              <ChevronRight className="w-4 h-4" />
+            </a>
+          </div>
         </div>
       </section>
     );

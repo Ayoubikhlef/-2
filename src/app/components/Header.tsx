@@ -11,10 +11,9 @@ import { getSiteSettings } from '../utils/siteSettingsStorage';
 import { brand } from '../config/brand';
 import { OpenStatusBadge } from './OpenStatusBadge';
 
-export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
+export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
-  const [logoHits, setLogoHits] = useState(0);
   const [settings, setSettings] = useState(() => getSiteSettings());
   const [scrolled, setScrolled] = useState(false);
   const { t, language } = useLanguage();
@@ -35,18 +34,6 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleLogoClick = () => {
-    const next = logoHits + 1;
-    if (next >= 5) {
-      setLogoHits(0);
-      window.location.hash = 'hqpanel';
-      window.dispatchEvent(new HashChangeEvent('hashchange'));
-    } else {
-      setLogoHits(next);
-      setTimeout(() => setLogoHits(0), 2000);
-    }
-  };
-
   const navLinks = settings.settings.headerNavLinks;
   const pathname = typeof window !== 'undefined' ? window.location.pathname.replace(/\/+$/, '') : '';
   const onHomePage = pathname === '' || pathname === '/index.html';
@@ -59,7 +46,7 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 md:h-20">
           {/* Logo */}
-          <a href="/" className="flex items-center gap-2 shrink-0" onClick={(e) => { if (!onHomePage) return; e.preventDefault(); handleLogoClick(); }}>
+          <a href="/" className="flex items-center gap-2 shrink-0" aria-label={brand.name}>
             <img src={brand.logo} alt={brand.name} className="h-10 md:h-12 w-auto" width="48" height="48" />
           </a>
 
@@ -193,15 +180,6 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
                       <LogOut className="w-4 h-4 text-muted-foreground" />
                     </button>
                   </div>
-                )}
-                {!user && (
-                  <button
-                    onClick={() => { onLoginClick?.(); setMobileMenuOpen(false); }}
-                    className="flex items-center gap-3 w-full px-4 py-3 text-sm font-semibold bg-muted rounded-lg hover:bg-muted/80 transition-colors mx-2 mb-2"
-                  >
-                    <User className="w-5 h-5 text-primary" />
-                    {t({ ar: 'تسجيل الدخول', fr: 'Connexion', en: 'Sign In' })}
-                  </button>
                 )}
                 {navLinks.map((link, idx) => (
                   <a

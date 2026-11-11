@@ -1,0 +1,114 @@
+.tech-hero-base {
+  background:
+    radial-gradient(900px 620px at 82% 18%, rgba(14, 165, 233, 0.22), transparent 62%),
+    radial-gradient(760px 520px at 8% 88%, rgba(37, 99, 235, 0.24), transparent 64%),
+    linear-gradient(135deg, #020617 0%, #061a33 46%, #0a2549 100%);
+}
+
+.tech-hero-grid {
+  position: absolute;
+  inset: -64px;
+  background-image:
+    linear-gradient(to right, rgba(96, 165, 250, 0.16) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(96, 165, 250, 0.16) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse at 50% 42%, #000 0%, #000 38%, transparent 78%);
+  mask-image: radial-gradient(ellipse at 50% 42%, #000 0%, #000 38%, transparent 78%);
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  animation: tech-grid-drift 26s linear infinite;
+}
+
+.tech-hero-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(64px);
+  opacity: 0.65;
+  will-change: transform;
+}
+
+.tech-hero-orb-one {
+  top: -12rem;
+  right: -9rem;
+  width: 34rem;
+  height: 34rem;
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.5), transparent 68%);
+  animation: tech-orb-one 17s ease-in-out infinite alternate;
+}
+
+.tech-hero-orb-two {
+  bottom: -14rem;
+  left: -8rem;
+  width: 30rem;
+  height: 30rem;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.48), transparent 68%);
+  animation: tech-orb-two 21s ease-in-out infinite alternate;
+}
+
+.tech-hero-scan {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(125, 211, 252, 0.65), transparent);
+  box-shadow: 0 0 22px rgba(56, 189, 248, 0.35);
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: tech-scan 9s linear infinite;
+}
+
+@keyframes tech-grid-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(56px, 56px, 0);
+  }
+}
+
+@keyframes tech-orb-one {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(-48px, 36px, 0) scale(1.12);
+  }
+}
+
+@keyframes tech-orb-two {
+  from {
+    transform: translate3d(0, 0, 0) scale(1.08);
+  }
+  to {
+    transform: translate3d(42px, -30px, 0) scale(1);
+  }
+}
+
+@keyframes tech-scan {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.6;
+  }
+  82% {
+    opacity: 0.35;
+  }
+  100% {
+    transform: translateY(82vh);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tech-hero-grid,
+  .tech-hero-orb,
+  .tech-hero-scan {
+    animation: none;
+  }
+
+  .tech-hero-scan {
+    display: none;
+  }
+}

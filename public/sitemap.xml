@@ -9,10 +9,6 @@
       <image:loc>https://aos-tech.store/icon-512.png</image:loc>
       <image:title>AOS Tech Store - أوس تك</image:title>
     </image:image>
-    <image:image>
-      <image:loc>https://aos-tech.store/hero-bg.jpg</image:loc>
-      <image:title>AOS Tech Store - Ayoub Office Services</image:title>
-    </image:image>
   </url>
   <url>
     <loc>https://aos-tech.store/product/3-wireless-mouse</loc>

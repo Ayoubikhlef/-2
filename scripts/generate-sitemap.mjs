@@ -74,7 +74,6 @@ async function main() {
   const entries = [
     urlEntry(`${SITE}/`, '1.0', 'weekly', [
       { loc: absoluteUrl('/icon-512.png'), title: 'AOS Tech Store - أوس تك' },
-      { loc: absoluteUrl('/hero-bg.jpg'), title: 'AOS Tech Store - Ayoub Office Services' },
     ]),
     ...products.map((product) => {
       const slug = slugify(product.nameEn || product.nameFr || product.nameAr);

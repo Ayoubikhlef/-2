@@ -5,7 +5,7 @@ import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '../utils/prisma';
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../utils/jwt';
-import { AppError, BadRequest, Conflict, Unauthorized } from '../utils/errors';
+import { AppError, BadRequest, Unauthorized } from '../utils/errors';
 import { requireAuth, AuthRequest } from '../middleware/auth';
 import nodemailer from 'nodemailer';
 import { logAction } from '../services/audit';
@@ -32,13 +32,6 @@ const resetEmail = process.env.RESET_EMAIL || process.env.SMTP_USER;
 const transporter = createTransporter();
 
 // --- Validation Schemas ---
-const registerSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-  name: z.string().min(2),
-  phone: z.string().optional(),
-});
-
 const loginSchema = z.object({
   email: z.string().min(1),
   password: z.string().min(1),
@@ -111,43 +104,12 @@ async function sendResetEmail(email: string, token: string, userName: string) {
 
 // --- Routes ---
 
-authRouter.post('/register', async (req, res: Response) => {
-  const { email: rawEmail, password, name, phone } = registerSchema.parse(req.body);
-  const email = normalizeEmail(rawEmail);
-
-  const exists = await prisma.user.findFirst({
-    where: {
-      email: email,
-    },
+// Public sign-up is closed: the storefront has no customer accounts and only
+// the owner signs in through the private #hqpanel gate.
+authRouter.post('/register', (_req, res: Response) => {
+  res.status(403).json({
+    error: 'Public registration is disabled. This store is managed by its owner.',
   });
-  if (exists) throw new Conflict('Email already registered');
-
-  const passwordHash = await bcrypt.hash(password, 12);
-  const user = await prisma.user.create({
-    data: { email, passwordHash, name, phone },
-  });
-
-  const accessToken = signAccessToken({ userId: user.id, role: user.role });
-  const refreshToken = signRefreshToken({ userId: user.id });
-
-  await prisma.user.update({ where: { id: user.id }, data: { refreshToken } });
-
-  res.cookie('refreshToken', refreshToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    // lax: works for same-site XHR via Vercel proxy; strict breaks some
-    // cross-site / redirect flows on Safari and iOS.
-    sameSite: 'lax',
-    path: '/',
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  });
-
-  res.status(201).json({
-    user: { id: user.id, email: user.email, name: user.name, role: user.role },
-    accessToken,
-  });
-
-  await logAction(user.id, 'REGISTER', 'User', { email: user.email }, req.ip);
 });
 
 authRouter.post('/login', async (req, res: Response) => {
@@ -206,6 +168,21 @@ authRouter.post('/login', async (req, res: Response) => {
 
     if (!user.isActive) throw new Unauthorized('Account is deactivated');
 
+    // Only the owner's admin roles can sign in. Existing customer rows are
+    // kept for order history but can never obtain a session.
+    if (user.role !== 'SUPER_ADMIN' && user.role !== 'ADMIN') {
+      reportSecurityEvent({
+        type: 'failed_login',
+        severity: 'medium',
+        req,
+        details: `Blocked non-admin login for ${email.slice(0, 3)}***`,
+        autoBlock: false,
+      });
+      return res.status(403).json({
+        error: 'Access is restricted to the store owner.',
+      });
+    }
+
     // 4. Session Creation
     const accessToken = signAccessToken({
       userId: String(user.id),
@@ -255,6 +232,12 @@ authRouter.post('/forgot-password', async (req, res: Response) => {
     });
 
     if (!user) {
+      return res.status(200).json({ ok: true });
+    }
+
+    // Password-reset emails are only sent to the owner's admin accounts.
+    // Other rows get the same generic response to avoid account enumeration.
+    if (user.role !== 'SUPER_ADMIN' && user.role !== 'ADMIN') {
       return res.status(200).json({ ok: true });
     }
 
@@ -510,6 +493,12 @@ authRouter.post('/refresh', async (req, res: Response) => {
   const user = await prisma.user.findUnique({ where: { id: payload.userId } });
   if (!user || user.refreshToken !== token || !user.isActive) {
     throw new Unauthorized('Invalid refresh token');
+  }
+
+  // Revoke any customer session created before public login was removed.
+  if (user.role !== 'SUPER_ADMIN' && user.role !== 'ADMIN') {
+    await prisma.user.update({ where: { id: user.id }, data: { refreshToken: null } });
+    throw new Unauthorized('Access is restricted to the store owner');
   }
 
   const accessToken = signAccessToken({ userId: user.id, role: user.role });

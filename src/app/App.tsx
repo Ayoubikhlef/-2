@@ -41,7 +41,6 @@ const WebStudioPage = lazy(() => import('./components/WebStudioPage').then(m => 
 const SiteFactoryPage = lazy(() => import('./components/SiteFactoryPage').then(m => ({ default: m.SiteFactoryPage })));
 const DemoStorePage = lazy(() => import('./components/DemoStorePage').then(m => ({ default: m.DemoStorePage })));
 const AccountDashboard = lazy(() => import('./components/AccountDashboard').then(m => ({ default: m.AccountDashboard })));
-const LoginPage = lazy(() => import('./components/LoginPage').then(m => ({ default: m.LoginPage })));
 const WABubble = lazy(() => import('./components/WABubble').then(m => ({ default: m.WABubble })));
 const AIAssistant = lazy(() => import('./components/AIAssistant').then(m => ({ default: m.AIAssistant })));
 const ProductPage = lazy(() => import('./components/ProductPage').then(m => ({ default: m.ProductPage })));
@@ -141,18 +140,11 @@ export default function App() {
   const productSlug = typeof window !== 'undefined' ? productPathFromUrl(window.location.pathname) : null;
   const isProductPage = Boolean(productSlug);
   const is404 = !isFactoryPage && !isProductPage && typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#hqpanel', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq', '#web', '#demo', '#order-tracking'].includes(hash);
-  const [showLogin, setShowLogin] = useState(false);
   const [maintenance, setMaintenance] = useState(false);
   // Render immediately for returning visitors (the flag is cached locally)
   // and refresh it in the background. Only the very first visit waits, with
   // a short cap so a cold API never freezes the site.
   const [maintenanceChecked, setMaintenanceChecked] = useState(() => hasMaintenanceCache());
-
-  useEffect(() => {
-    const handleOpenLogin = () => setShowLogin(true);
-    window.addEventListener('aos:open-login', handleOpenLogin);
-    return () => window.removeEventListener('aos:open-login', handleOpenLogin);
-  }, []);
 
   useEffect(() => {
     const onHashChange = () => setHash(readNormalizedHash());
@@ -366,7 +358,7 @@ export default function App() {
               </a>
               {!isPage && !isFactoryPage && <AnnouncementBar />}
               <ScrollProgress />
-              {currentHash !== '#demo' && <Header onLoginClick={() => setShowLogin(true)} />}
+              {currentHash !== '#demo' && <Header />}
               <main id="main-content">
                 {isProductPage ? (
                   <Suspense fallback={<AdminFallback />}>
@@ -450,11 +442,6 @@ export default function App() {
                 </>
               )}
             </div>
-            )}
-            {showLogin && (
-              <Suspense fallback={null}>
-                <LoginPage onClose={() => setShowLogin(false)} />
-              </Suspense>
             )}
           </ErrorBoundary>
           <Toaster

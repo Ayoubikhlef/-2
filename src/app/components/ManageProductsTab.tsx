@@ -82,7 +82,7 @@ export function ManageProductsTab({ products, onUpdate }: { products: Product[];
     updateProduct(id, { stock: Math.max(0, current + delta) }, { sync: false });
     onUpdate();
     try {
-      const result = await api.updateProductStock(id, delta);
+      const result = await api.data.updateProductStock(id, delta);
       updateProduct(id, { stock: result.stock }, { sync: false });
       onUpdate();
       return true;

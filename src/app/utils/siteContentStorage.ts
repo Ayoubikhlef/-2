@@ -86,7 +86,9 @@ const defaultContent: SiteContent = {
       fr: 'Nous offrons une large gamme de services et fournitures informatiques',
       en: 'We offer a wide range of services and IT supplies',
     },
-    bgImage: '/hero-bg.jpg',
+    // Empty means "use the animated technology background". A custom URL can
+    // still override it from the admin content tab.
+    bgImage: '',
   },
   whyUs: {
     title: {
@@ -257,9 +259,11 @@ function getAll(): SiteContent {
           ...defaultContent.faq.items.filter((item) => brandFaqIds.has(item.id)),
         ]
       : storedFaqItems;
-    // The old PNG hero weighed 2.3 MB. Keep already-saved content fast by
-    // pointing it at the equivalent 254 KB JPEG.
-    if (parsed.hero?.bgImage === '/hero-bg.png') parsed.hero.bgImage = '/hero-bg.jpg';
+    // Both legacy hero images (the 2.3 MB PNG and the 254 KB JPEG that
+    // replaced it) are retired in favour of the animated tech background.
+    if (parsed.hero?.bgImage === '/hero-bg.png' || parsed.hero?.bgImage === '/hero-bg.jpg') {
+      parsed.hero.bgImage = '';
+    }
 
     const merged: SiteContent = {
       hero: { ...defaultContent.hero, ...parsed.hero },

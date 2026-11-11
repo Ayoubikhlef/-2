@@ -114,9 +114,29 @@ export function ManageContentTab() {
           <LangInput label={t({ ar: 'اسم العلامة التجارية', fr: 'Nom de marque', en: 'Brand Name' })} value={content.hero.brandName} onChange={v => setContent({ ...content, hero: { ...content.hero, brandName: v } })} />
           <LangTextarea label={t({ ar: 'النص الفرعي', fr: 'Sous-titre', en: 'Subtitle' })} value={content.hero.subtitle} onChange={v => setContent({ ...content, hero: { ...content.hero, subtitle: v } })} />
           <div className="space-y-2">
-            <label className="block text-sm font-bold text-white/80">{t({ ar: 'رابط صورة الخلفية', fr: 'URL image de fond', en: 'Background Image URL' })}</label>
-            <input value={content.hero.bgImage} onChange={e => setContent({ ...content, hero: { ...content.hero, bgImage: e.target.value } })}
-              className="w-full rounded-lg bg-slate-800 border border-white/10 px-3 py-2.5 text-sm text-white outline-none focus:border-primary/50" />
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <label className="block text-sm font-bold text-white/80">{t({ ar: 'رابط صورة الخلفية', fr: 'URL image de fond', en: 'Background Image URL' })}</label>
+              <button
+                type="button"
+                onClick={() => setContent({ ...content, hero: { ...content.hero, bgImage: '' } })}
+                className="rounded-full border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary hover:bg-primary/20 transition-colors"
+              >
+                {t({ ar: 'استخدام الخلفية المتحركة', fr: 'Utiliser le fond animé', en: 'Use animated background' })}
+              </button>
+            </div>
+            <input
+              value={content.hero.bgImage}
+              onChange={e => setContent({ ...content, hero: { ...content.hero, bgImage: e.target.value } })}
+              placeholder={t({ ar: 'اتركه فارغاً للخلفية المتحركة', fr: 'Laisser vide pour le fond animé', en: 'Leave empty for the animated background' })}
+              className="w-full rounded-lg bg-slate-800 border border-white/10 px-3 py-2.5 text-sm text-white outline-none focus:border-primary/50"
+            />
+            <p className="text-xs leading-relaxed text-white/50">
+              {t({
+                ar: 'اترك الحقل فارغاً لاستخدام خلفية التكنولوجيا المتحركة. أدخل رابط صورة فقط إذا أردت استبدالها بصورة ثابتة.',
+                fr: 'Laissez ce champ vide pour le fond technologique animé. Ajoutez une URL uniquement pour le remplacer par une image fixe.',
+                en: 'Leave this field empty to use the animated technology background. Add a URL only to replace it with a static image.',
+              })}
+            </p>
           </div>
           <button onClick={() => save({ hero: content.hero })} className="flex items-center gap-2 rounded-full bg-primary text-slate-950 px-6 py-3 font-bold text-sm hover:bg-primary/90 transition-all">
             <Save className="w-4 h-4" /> {t({ ar: 'حفظ', fr: 'Sauvegarder', en: 'Save' })}
