@@ -1,12 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Star } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { toast } from 'sonner';
-import { getReviews, addReview, getAverageRating, getRatingDistribution, type Review } from '../utils/reviewStorage';
+import { fetchReviews, submitReview, type Review } from '../utils/reviewStorage';
 import { motion, AnimatePresence } from 'motion/react';
 
 type ReviewsProps = {
   productId: number;
+  /** Lets the product page keep its Product JSON-LD in sync with visible reviews. */
+  onReviewsChange?: (reviews: Review[]) => void;
 };
 
 const ratingLabels: Record<number, { ar: string; fr: string; en: string }> = {
@@ -63,28 +65,57 @@ function ReviewCard({ review }: { review: Review }) {
   );
 }
 
-export function Reviews({ productId }: ReviewsProps) {
+export function Reviews({ productId, onReviewsChange }: ReviewsProps) {
   const { t, language } = useLanguage();
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [avgRating, setAvgRating] = useState(0);
-  const [distribution, setDistribution] = useState<Record<number, number>>({});
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [name, setName] = useState('');
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
+  const [website, setWebsite] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [hoveredRating, setHoveredRating] = useState(0);
+  const onReviewsChangeRef = useRef(onReviewsChange);
 
-  const load = () => {
-    setReviews(getReviews(productId));
-    setAvgRating(getAverageRating(productId));
-    setDistribution(getRatingDistribution(productId));
-  };
+  useEffect(() => {
+    onReviewsChangeRef.current = onReviewsChange;
+  }, [onReviewsChange]);
 
-  useEffect(() => { load(); }, [productId]);
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setLoadError(false);
+    fetchReviews(productId)
+      .then((list) => {
+        if (cancelled) return;
+        setReviews(list);
+        onReviewsChangeRef.current?.(list);
+      })
+      .catch(() => {
+        if (!cancelled) setLoadError(true);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [productId]);
 
   const totalReviews = reviews.length;
+  const avgRating = useMemo(() => {
+    if (totalReviews === 0) return 0;
+    const sum = reviews.reduce((total, review) => total + review.rating, 0);
+    return Math.round((sum / totalReviews) * 10) / 10;
+  }, [reviews, totalReviews]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const distribution = useMemo(() => {
+    const dist: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    for (const review of reviews) {
+      dist[review.rating] = (dist[review.rating] || 0) + 1;
+    }
+    return dist;
+  }, [reviews]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
       toast.error(t({ ar: 'الرجاء إدخال الاسم', fr: 'Veuillez entrer votre nom', en: 'Please enter your name' }));
@@ -100,13 +131,26 @@ export function Reviews({ productId }: ReviewsProps) {
     }
 
     setSubmitting(true);
-    addReview(productId, name.trim(), rating, comment.trim());
-    load();
-    setName('');
-    setRating(0);
-    setComment('');
-    setSubmitting(false);
-    toast.success(t({ ar: 'تم إضافة التقييم بنجاح!', fr: 'Avis ajouté avec succès!', en: 'Review added successfully!' }));
+    try {
+      await submitReview(productId, name.trim(), rating, comment.trim(), website);
+      toast.success(t({
+        ar: 'تم إرسال تقييمك، وسيظهر بعد المراجعة.',
+        fr: 'Votre avis a été envoyé et sera publié après modération.',
+        en: 'Your review was submitted and will appear after moderation.',
+      }));
+      setName('');
+      setRating(0);
+      setComment('');
+      setWebsite('');
+    } catch (err: any) {
+      toast.error(err?.message || t({
+        ar: 'تعذّر إرسال التقييم، حاول مرة أخرى.',
+        fr: "Impossible d'envoyer l'avis, réessayez.",
+        en: 'Could not submit the review, please try again.',
+      }));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -122,9 +166,11 @@ export function Reviews({ productId }: ReviewsProps) {
               ))}
             </div>
             <p className="text-sm text-muted-foreground mt-1">
-              {totalReviews === 0
-                ? t({ ar: 'لا توجد تقييمات', fr: 'Aucun avis', en: 'No reviews' })
-                : `${totalReviews} ${t({ ar: 'تقييم', fr: 'avis', en: 'review' })}${totalReviews > 1 ? (language === 'en' ? 's' : language === 'fr' ? 's' : '') : ''}`}
+              {loading && totalReviews === 0
+                ? t({ ar: 'جارٍ التحميل...', fr: 'Chargement...', en: 'Loading...' })
+                : totalReviews === 0
+                  ? t({ ar: 'لا توجد تقييمات', fr: 'Aucun avis', en: 'No reviews' })
+                  : `${totalReviews} ${t({ ar: 'تقييم', fr: 'avis', en: 'review' })}${totalReviews > 1 ? (language === 'en' ? 's' : language === 'fr' ? 's' : '') : ''}`}
             </p>
           </div>
 
@@ -154,7 +200,13 @@ export function Reviews({ productId }: ReviewsProps) {
 
       {/* Review List */}
       <AnimatePresence mode="popLayout">
-        {reviews.length === 0 ? (
+        {loading && reviews.length === 0 ? (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
+            {[1, 2].map((item) => (
+              <div key={item} className="h-24 animate-pulse rounded-2xl border border-border bg-muted/40" />
+            ))}
+          </motion.div>
+        ) : reviews.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -162,7 +214,9 @@ export function Reviews({ productId }: ReviewsProps) {
           >
             <Star className="w-12 h-12 mx-auto text-muted-foreground/30 mb-3" />
             <p className="text-muted-foreground">
-              {t({ ar: 'لا توجد تقييمات بعد. كن أول من يقيم!', fr: 'Aucun avis pour le moment. Soyez le premier à donner votre avis!', en: 'No reviews yet. Be the first to review!' })}
+              {loadError
+                ? t({ ar: 'تعذّر تحميل التقييمات حالياً.', fr: 'Impossible de charger les avis pour le moment.', en: 'Could not load reviews right now.' })
+                : t({ ar: 'لا توجد تقييمات بعد. كن أول من يقيم!', fr: 'Aucun avis pour le moment. Soyez le premier à donner votre avis!', en: 'No reviews yet. Be the first to review!' })}
             </p>
           </motion.div>
         ) : (
@@ -181,7 +235,7 @@ export function Reviews({ productId }: ReviewsProps) {
             {t({ ar: 'أضف تقييمك', fr: 'Ajouter votre avis', en: 'Add Your Review' })}
           </h3>
           <p className="text-sm text-muted-foreground">
-            {t({ ar: 'شاركنا رأيك في هذا المنتج', fr: 'Partagez votre expérience avec ce produit', en: 'Share your experience with this product' })}
+            {t({ ar: 'شاركنا رأيك في هذا المنتج. تتم مراجعة التقييمات قبل نشرها.', fr: 'Partagez votre expérience avec ce produit. Les avis sont modérés avant publication.', en: 'Share your experience with this product. Reviews are moderated before publication.' })}
           </p>
         </div>
 
@@ -194,6 +248,7 @@ export function Reviews({ productId }: ReviewsProps) {
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
+              maxLength={50}
               placeholder={t({ ar: 'أدخل اسمك', fr: 'Entrez votre nom', en: 'Enter your name' })}
               className="w-full rounded-2xl border-2 border-border bg-background px-5 py-3.5 text-base outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
             />
@@ -223,10 +278,23 @@ export function Reviews({ productId }: ReviewsProps) {
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             rows={3}
+            maxLength={500}
             placeholder={t({ ar: 'اكتب تجربتك مع هذا المنتج...', fr: 'Écrivez votre expérience avec ce produit...', en: 'Write about your experience with this product...' })}
             className="w-full resize-none rounded-2xl border-2 border-border bg-background px-5 py-3.5 text-base outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
           />
         </div>
+
+        {/* Honeypot: hidden from people, tempting for bots. */}
+        <input
+          type="text"
+          name="website"
+          value={website}
+          onChange={(e) => setWebsite(e.target.value)}
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+          className="hidden"
+        />
 
         <button
           type="submit"

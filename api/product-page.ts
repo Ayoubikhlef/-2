@@ -10,7 +10,9 @@
 
 const SITE = 'https://aos-tech.store';
 const API = 'https://iueefgma6y.onrender.com/api/products';
+const REVIEWS_API = 'https://iueefgma6y.onrender.com/api/reviews';
 const PRODUCT_CACHE_MS = 60_000;
+const REVIEW_CACHE_MS = 60_000;
 const SHELL_CACHE_MS = 5 * 60_000;
 
 interface Product {
@@ -37,8 +39,18 @@ interface Product {
   specs: { label: Record<string, string>; value: Record<string, string> }[];
 }
 
+interface Review {
+  id: string;
+  productId: number;
+  name: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
+
 let productCache: { items: Product[]; at: number } | null = null;
 let shellCache: { html: string; at: number } | null = null;
+const reviewCache = new Map<number, { items: Review[]; at: number }>();
 
 function escapeHtml(value: unknown): string {
   return String(value ?? '')
@@ -101,6 +113,68 @@ async function getProducts(): Promise<Product[]> {
   return visible;
 }
 
+/**
+ * Only approved reviews are returned by the public API. Any failure degrades
+ * to "no reviews" so a cold or busy API never breaks a product page.
+ */
+async function getReviews(productId: number): Promise<Review[]> {
+  const cached = reviewCache.get(productId);
+  if (cached && Date.now() - cached.at < REVIEW_CACHE_MS) return cached.items;
+
+  try {
+    const res = await fetch(`${REVIEWS_API}/${productId}`, {
+      signal: AbortSignal.timeout(5_000),
+      headers: { 'User-Agent': 'aos-product-page', Accept: 'application/json' },
+    });
+    if (!res.ok) return cached?.items || [];
+    const json: any = await res.json();
+    const rows: Review[] = Array.isArray(json) ? json : [];
+    const items = rows.filter(
+      (review) =>
+        review &&
+        typeof review.name === 'string' &&
+        review.name.trim() &&
+        Number.isInteger(review.rating) &&
+        review.rating >= 1 &&
+        review.rating <= 5 &&
+        typeof review.comment === 'string' &&
+        review.comment.trim(),
+    );
+    reviewCache.set(productId, { items, at: Date.now() });
+    return items;
+  } catch {
+    return cached?.items || [];
+  }
+}
+
+function buildAggregateRating(reviews: Review[]) {
+  if (!reviews.length) return null;
+  const total = reviews.reduce((sum, review) => sum + review.rating, 0);
+  return {
+    '@type': 'AggregateRating',
+    ratingValue: Math.round((total / reviews.length) * 10) / 10,
+    reviewCount: reviews.length,
+    bestRating: 5,
+    worstRating: 1,
+  };
+}
+
+function buildReviewJsonLd(reviews: Review[], url: string) {
+  return reviews.slice(0, 20).map((review) => ({
+    '@type': 'Review',
+    '@id': `${url}#review-${review.id}`,
+    author: { '@type': 'Person', name: review.name },
+    datePublished: review.createdAt,
+    reviewBody: review.comment,
+    reviewRating: {
+      '@type': 'Rating',
+      ratingValue: review.rating,
+      bestRating: 5,
+      worstRating: 1,
+    },
+  }));
+}
+
 async function getShell(): Promise<string> {
   if (shellCache && Date.now() - shellCache.at < SHELL_CACHE_MS) return shellCache.html;
   const res = await fetch(`${SITE}/index.html`, {
@@ -126,8 +200,9 @@ function removeMeta(html: string, attribute: 'name' | 'property', key: string): 
   return html.replace(pattern, '');
 }
 
-function buildJsonLd(product: Product, price: number, inStock: boolean, url: string) {
+function buildJsonLd(product: Product, price: number, inStock: boolean, url: string, reviews: Review[] = []) {
   const images = [product.image, ...(product.images || [])].filter(Boolean).map(absoluteUrl);
+  const aggregateRating = buildAggregateRating(reviews);
   return {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -140,6 +215,10 @@ function buildJsonLd(product: Product, price: number, inStock: boolean, url: str
     mpn: product.sku || `AOS-${product.id}`,
     category: product.category || undefined,
     brand: { '@type': 'Brand', name: product.brand || 'AOS Tech Store' },
+    // Real, admin-approved reviews only. Absent when the product has none.
+    ...(aggregateRating
+      ? { aggregateRating, review: buildReviewJsonLd(reviews, url) }
+      : {}),
     offers: {
       '@type': 'Offer',
       url,
@@ -173,23 +252,36 @@ function buildJsonLd(product: Product, price: number, inStock: boolean, url: str
   };
 }
 
-function renderFallback(product: Product, price: number, inStock: boolean, url: string): string {
+function renderFallback(product: Product, price: number, inStock: boolean, url: string, reviews: Review[] = []): string {
   const name = product.nameAr || product.nameFr;
   const specs = (product.specs || [])
     .slice(0, 8)
     .map((spec) => `<li>${escapeHtml(spec.label?.ar || spec.label?.fr)}: ${escapeHtml(spec.value?.ar || spec.value?.fr)}</li>`)
     .join('');
+  const average = reviews.length
+    ? Math.round((reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length) * 10) / 10
+    : 0;
+  const reviewList = reviews.length
+    ? `<h2>آراء العملاء / Avis clients (${average}/5 — ${reviews.length})</h2><ul>${reviews
+        .slice(0, 10)
+        .map(
+          (review) =>
+            `<li><strong>${escapeHtml(review.name)}</strong> — ${review.rating}/5: ${escapeHtml(review.comment)}</li>`,
+        )
+        .join('')}</ul>`
+    : '';
   return `
         <h1>${escapeHtml(name)} - AOS Tech Store</h1>
         <p>${escapeHtml(product.descAr || product.descFr || '')}</p>
         <p><strong>${escapeHtml(price.toLocaleString('fr-FR'))} DZD</strong> — ${inStock ? 'متوفر في المخزون / En stock' : 'غير متوفر حاليًا / Rupture de stock'}</p>
         ${specs ? `<h2>المواصفات / Spécifications</h2><ul>${specs}</ul>` : ''}
+        ${reviewList}
         <p><a href="${escapeHtml(url)}">${escapeHtml(name)}</a> — <a href="/#products">كل المنتجات</a></p>
         <p>AOS Tech Store (أوس تك / Ayoub Office Services) — El Milia, Jijel. الهاتف: <a href="tel:+213674113290">0674 11 32 90</a></p>
         `;
 }
 
-function renderProductPage(shell: string, product: Product): string {
+function renderProductPage(shell: string, product: Product, reviews: Review[] = []): string {
   const p = pricing(product);
   const slug = slugify(product.nameEn || product.nameFr || product.nameAr);
   const url = `${SITE}/product/${product.id}${slug ? `-${slug}` : ''}`;
@@ -234,7 +326,7 @@ function renderProductPage(shell: string, product: Product): string {
     }
   });
 
-  const jsonLd = JSON.stringify(buildJsonLd(product, p.price, p.inStock, url));
+  const jsonLd = JSON.stringify(buildJsonLd(product, p.price, p.inStock, url, reviews));
   const breadcrumbLd = JSON.stringify({
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -255,7 +347,7 @@ function renderProductPage(shell: string, product: Product): string {
   if (fallbackStart !== -1 && fallbackEnd !== -1) {
     html =
       html.slice(0, fallbackStart) +
-      `<div id="seo-fallback" dir="rtl">${renderFallback(product, p.price, p.inStock, url)}</div>\n      ` +
+      `<div id="seo-fallback" dir="rtl">${renderFallback(product, p.price, p.inStock, url, reviews)}</div>\n      ` +
       html.slice(fallbackEnd);
   }
 
@@ -307,7 +399,8 @@ export default async function handler(req: any, res: any) {
     }
 
     const shell = await getShell();
-    const html = renderProductPage(shell, product);
+    const reviews = await getReviews(product.id);
+    const html = renderProductPage(shell, product, reviews);
 
     res.status(200);
     res.setHeader('Content-Type', 'text/html; charset=utf-8');

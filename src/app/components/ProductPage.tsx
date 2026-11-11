@@ -21,6 +21,8 @@ import { loadProductsFromServer } from '../utils/productStorage';
 import { findProductBySlug, productPath } from '../utils/productPath';
 import { applyProductSeo, getProductPricing } from '../utils/productSeo';
 import { getSiteSettings } from '../utils/siteSettingsStorage';
+import type { Review } from '../utils/reviewStorage';
+import { Reviews } from './Reviews';
 import { formatPrice } from '../lib/utils';
 
 function productName(product: Product, language: 'ar' | 'fr' | 'en') {
@@ -37,6 +39,7 @@ export function ProductPage({ slug }: { slug: string }) {
   const [products, setProducts] = useState<Product[]>(defaultProducts);
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [reviews, setReviews] = useState<Review[]>([]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -56,10 +59,15 @@ export function ProductPage({ slug }: { slug: string }) {
 
   const pricing = useMemo(() => (product ? getProductPricing(product) : null), [product]);
 
+  // Never let the previous product's reviews leak into the next product page.
+  useEffect(() => {
+    setReviews([]);
+  }, [product?.id]);
+
   useEffect(() => {
     if (!product || !pricing) return;
-    applyProductSeo(product, pricing);
-  }, [product, pricing]);
+    applyProductSeo(product, pricing, reviews);
+  }, [product, pricing, reviews]);
 
   if (!product || !pricing) {
     return (
@@ -328,6 +336,13 @@ export function ProductPage({ slug }: { slug: string }) {
             </div>
           </div>
         )}
+
+        <div className="mt-14" id="product-reviews">
+          <h2 className="mb-5 text-xl font-bold">
+            {t({ ar: 'آراء العملاء', fr: 'Avis clients', en: 'Customer reviews' })}
+          </h2>
+          <Reviews productId={product.id} onReviewsChange={setReviews} />
+        </div>
 
         {related.length > 0 && (
           <div className="mt-14">

@@ -181,6 +181,23 @@ model Review {
   @@unique([userId, productId])
 }
 
+// Reviews for the JSON catalog. The catalog lives in Setting["aos_products"],
+// so productId is a plain string rather than a relation to Product (whose ids
+// are cuids used by the older API). Reviews are moderated before they are
+// exposed publicly and before they can appear in Product structured data.
+model ProductReview {
+  id        String   @id @default(cuid())
+  productId String
+  name      String
+  rating    Int
+  comment   String
+  approved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([productId, approved, createdAt])
+  @@index([approved, createdAt])
+}
+
 model Coupon {
   id        String    @id @default(cuid())
   code      String    @unique

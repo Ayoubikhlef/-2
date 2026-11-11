@@ -12,6 +12,16 @@ export interface ProductPricing {
   inStock: boolean;
 }
 
+/** Approved reviews that may appear both on the page and in structured data. */
+export interface ProductReviewSummary {
+  id?: string;
+  name: string;
+  rating: number;
+  comment: string;
+  /** ISO date string. */
+  date: string;
+}
+
 export function getProductPricing(product: Product): ProductPricing {
   const originalPrice = Number(product.price) || 0;
   const salePrice = product.salePrice == null ? null : Number(product.salePrice);
@@ -48,11 +58,39 @@ export function productDescription(product: Product, pricing: ProductPricing): s
   return `${product.nameAr} (${product.nameFr}) — ${text}. Prix ${price}. Livraison dans les 58 wilayas d'Algérie. AOS Tech Store, El Milia, Jijel.`;
 }
 
-export function buildProductJsonLd(product: Product, pricing: ProductPricing) {
+export function buildProductJsonLd(
+  product: Product,
+  pricing: ProductPricing,
+  reviews: ProductReviewSummary[] = [],
+) {
   const url = productUrl(product);
   const images = [product.image, ...(product.images || [])]
     .filter(Boolean)
     .map((image) => absoluteUrl(image));
+
+  const validReviews = reviews.filter(
+    (review) =>
+      review &&
+      review.name &&
+      Number.isFinite(review.rating) &&
+      review.rating >= 1 &&
+      review.rating <= 5 &&
+      review.comment,
+  );
+
+  const reviewJsonLd = validReviews.slice(0, 20).map((review) => ({
+    '@type': 'Review',
+    ...(review.id ? { '@id': `${url}#review-${review.id}` } : {}),
+    author: { '@type': 'Person', name: review.name },
+    datePublished: review.date,
+    reviewBody: review.comment,
+    reviewRating: {
+      '@type': 'Rating',
+      ratingValue: review.rating,
+      bestRating: 5,
+      worstRating: 1,
+    },
+  }));
 
   return {
     '@context': 'https://schema.org',
@@ -69,6 +107,23 @@ export function buildProductJsonLd(product: Product, pricing: ProductPricing) {
       '@type': 'Brand',
       name: product.brand || SITE_NAME,
     },
+    // Only genuine, admin-approved reviews are published here. Without them
+    // the fields stay absent instead of carrying invented ratings.
+    ...(validReviews.length > 0
+      ? {
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue:
+              Math.round(
+                (validReviews.reduce((sum, review) => sum + review.rating, 0) / validReviews.length) * 10,
+              ) / 10,
+            reviewCount: validReviews.length,
+            bestRating: 5,
+            worstRating: 1,
+          },
+          review: reviewJsonLd,
+        }
+      : {}),
     offers: {
       '@type': 'Offer',
       url,
@@ -136,7 +191,11 @@ function setCanonical(href: string) {
 }
 
 /** Updates the client-side head so SPA navigation and JS-rendered crawls agree with the SSR output. */
-export function applyProductSeo(product: Product, pricing: ProductPricing) {
+export function applyProductSeo(
+  product: Product,
+  pricing: ProductPricing,
+  reviews: ProductReviewSummary[] = [],
+) {
   if (typeof document === 'undefined') return;
   const url = productUrl(product);
   const title = productTitle(product);
@@ -157,13 +216,16 @@ export function applyProductSeo(product: Product, pricing: ProductPricing) {
   setMeta('name', 'twitter:description', description);
   setMeta('name', 'twitter:image', image);
 
-  if (!document.querySelector('script[data-aos-product-jsonld]')) {
-    const script = document.createElement('script');
-    script.type = 'application/ld+json';
-    script.setAttribute('data-aos-product-jsonld', 'true');
-    script.textContent = JSON.stringify(buildProductJsonLd(product, pricing));
-    document.head.appendChild(script);
+  // Always rewrite the script: reviews arrive after the first paint, and the
+  // JSON-LD must include them as soon as they are rendered on the page.
+  let productScript = document.querySelector<HTMLScriptElement>('script[data-aos-product-jsonld]');
+  if (!productScript) {
+    productScript = document.createElement('script');
+    productScript.type = 'application/ld+json';
+    productScript.setAttribute('data-aos-product-jsonld', 'true');
+    document.head.appendChild(productScript);
   }
+  productScript.textContent = JSON.stringify(buildProductJsonLd(product, pricing, reviews));
 
   let breadcrumb = document.querySelector<HTMLScriptElement>('script[data-aos-breadcrumb-jsonld]');
   if (!breadcrumb) {

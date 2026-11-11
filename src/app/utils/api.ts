@@ -235,7 +235,19 @@ export const api = {
 
   reviews: {
     list: (productId: number) => request<any[]>(`/reviews/${productId}`),
-    create: (data: any) => request<any>('/reviews', { method: 'POST', body: JSON.stringify(data) }),
+    create: (data: { productId: number; name: string; rating: number; comment: string; website?: string }) =>
+      request<{ ok: boolean; pending: boolean; id?: string }>('/reviews', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    adminList: () => request<any[]>('/reviews/admin/all'),
+    setApproved: (id: string, approved: boolean) =>
+      request<any>(`/reviews/admin/${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ approved }),
+      }),
+    remove: (id: string) =>
+      request<{ deleted: boolean }>(`/reviews/admin/${encodeURIComponent(id)}`, { method: 'DELETE' }),
   },
 
   loyalty: {
