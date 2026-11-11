@@ -39,7 +39,7 @@ export function Header({ onLoginClick }: { onLoginClick?: () => void }) {
     const next = logoHits + 1;
     if (next >= 5) {
       setLogoHits(0);
-      window.location.hash = 'admin';
+      window.location.hash = 'hqpanel';
       window.dispatchEvent(new HashChangeEvent('hashchange'));
     } else {
       setLogoHits(next);
