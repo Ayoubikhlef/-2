@@ -35,7 +35,9 @@ export function Hero() {
         ) : (
           <TechHeroBackground />
         )}
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/60 to-slate-900/20" />
+        {/* Keep text readable without flattening the animated background:
+            heavy dimming on the text edge only, almost none on the open side. */}
+        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/40 to-slate-900/5" />
       </div>
 
       {/* Content */}

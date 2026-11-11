@@ -10,13 +10,27 @@ type Particle = {
   phase: number;
 };
 
+type Glow = {
+  ax: number;
+  ay: number;
+  radius: number;
+  color: string;
+  ampX: number;
+  ampY: number;
+  speed: number;
+  phase: number;
+};
+
 /**
  * Lightweight animated technology background for the main hero.
  *
  * A canvas constellation (drifting nodes + connecting lines) sits on top of
  * CSS-only gradients, a slowly drifting circuit grid and a scan line. No video
- * or image download, and animation is paused when the tab is hidden or when
- * the visitor asks for reduced motion.
+ * or image download, and animation is paused when the tab is hidden.
+ *
+ * Visitors who ask for reduced motion get the same scene at a much slower
+ * pace instead of a frozen picture, so the hero never looks like a broken
+ * static image.
  */
 export function TechHeroBackground() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -28,10 +42,11 @@ export function TechHeroBackground() {
     if (!ctx) return;
 
     const media = window.matchMedia('(prefers-reduced-motion: reduce)');
-    let reducedMotion = media.matches;
+    let motionScale = media.matches ? 0.3 : 1;
     let width = 0;
     let height = 0;
     let particles: Particle[] = [];
+    let glows: Glow[] = [];
     let raf = 0;
     let startTime = 0;
 
@@ -44,30 +59,55 @@ export function TechHeroBackground() {
       canvas.height = Math.round(height * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-      const count = Math.round(Math.min(64, Math.max(24, (width * height) / 24_000)));
+      const count = Math.round(Math.min(105, Math.max(40, (width * height) / 14_000)));
       particles = Array.from({ length: count }, () => ({
         x: Math.random() * width,
         y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.32,
-        vy: (Math.random() - 0.5) * 0.32,
-        radius: 0.8 + Math.random() * 1.5,
+        vx: (Math.random() - 0.5) * 0.62,
+        vy: (Math.random() - 0.5) * 0.62,
+        radius: 1.1 + Math.random() * 1.7,
         phase: Math.random() * Math.PI * 2,
       }));
+
+      glows = [
+        { ax: 0.78, ay: 0.24, radius: 0.5, color: '14, 165, 233', ampX: 90, ampY: 55, speed: 0.00019, phase: 0 },
+        { ax: 0.16, ay: 0.8, radius: 0.46, color: '37, 99, 235', ampX: 70, ampY: 60, speed: 0.00015, phase: 2.1 },
+        { ax: 0.5, ay: 0.5, radius: 0.34, color: '56, 189, 248', ampX: 120, ampY: 45, speed: 0.00023, phase: 4.2 },
+      ];
 
       draw(0, true);
     };
 
     const draw = (time: number, staticFrame = false) => {
+      const motionTime = staticFrame ? 0 : time;
       ctx.clearRect(0, 0, width, height);
-      const linkDistance = Math.min(150, Math.max(95, width / 11));
+
+      // Slow moving light blooms. They are drawn in canvas (not only CSS) so
+      // the background keeps breathing even when CSS animations are reduced.
+      for (const glow of glows) {
+        const sway = staticFrame ? 0 : motionTime * glow.speed;
+        const cx = glow.ax * width + Math.cos(sway + glow.phase) * glow.ampX;
+        const cy = glow.ay * height + Math.sin(sway * 1.35 + glow.phase * 1.7) * glow.ampY;
+        const radius = glow.radius * Math.min(width, height);
+        const gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+        gradient.addColorStop(0, `rgba(${glow.color}, 0.42)`);
+        gradient.addColorStop(0.55, `rgba(${glow.color}, 0.16)`);
+        gradient.addColorStop(1, `rgba(${glow.color}, 0)`);
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      const linkDistance = Math.min(170, Math.max(110, width / 9));
       const linkDistanceSq = linkDistance * linkDistance;
 
       for (let i = 0; i < particles.length; i++) {
         const particle = particles[i];
 
         if (!staticFrame) {
-          particle.x += particle.vx;
-          particle.y += particle.vy;
+          particle.x += particle.vx * motionScale;
+          particle.y += particle.vy * motionScale;
           if (particle.x < -20) particle.x = width + 20;
           else if (particle.x > width + 20) particle.x = -20;
           if (particle.y < -20) particle.y = height + 20;
@@ -80,9 +120,9 @@ export function TechHeroBackground() {
           const dy = particle.y - other.y;
           const distanceSq = dx * dx + dy * dy;
           if (distanceSq > linkDistanceSq) continue;
-          const alpha = (1 - Math.sqrt(distanceSq) / linkDistance) * 0.4;
+          const alpha = (1 - Math.sqrt(distanceSq) / linkDistance) * 0.55;
           ctx.strokeStyle = `rgba(96, 165, 250, ${alpha})`;
-          ctx.lineWidth = 0.8;
+          ctx.lineWidth = 1;
           ctx.beginPath();
           ctx.moveTo(particle.x, particle.y);
           ctx.lineTo(other.x, other.y);
@@ -90,17 +130,17 @@ export function TechHeroBackground() {
         }
 
         const twinkle = staticFrame
-          ? 0.8
-          : 0.65 + Math.sin(time / 1100 + particle.phase) * 0.3;
+          ? 0.85
+          : 0.75 + Math.sin(motionTime / 900 + particle.phase) * 0.25;
         // Soft halo first, then the bright core: gives the nodes a glow
         // without the cost of canvas shadows.
         ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.radius * 3.2, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(56, 189, 248, ${twinkle * 0.14})`;
+        ctx.arc(particle.x, particle.y, particle.radius * 3.6, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(56, 189, 248, ${twinkle * 0.22})`;
         ctx.fill();
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(147, 197, 253, ${twinkle})`;
+        ctx.fillStyle = `rgba(191, 219, 254, ${twinkle})`;
         ctx.fill();
       }
     };
@@ -112,7 +152,7 @@ export function TechHeroBackground() {
     };
 
     const start = () => {
-      if (raf || reducedMotion || document.hidden) return;
+      if (raf || document.hidden) return;
       raf = window.requestAnimationFrame(loop);
     };
 
@@ -129,13 +169,9 @@ export function TechHeroBackground() {
     };
 
     const onMotionPreference = () => {
-      reducedMotion = media.matches;
-      if (reducedMotion) {
-        stop();
-        draw(0, true);
-      } else {
-        start();
-      }
+      // Slow the scene down instead of freezing it, then let the running loop
+      // pick up the new pace on its next frame.
+      motionScale = media.matches ? 0.3 : 1;
     };
 
     const observer = new ResizeObserver(resize);
