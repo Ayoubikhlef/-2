@@ -314,9 +314,11 @@ export function AIAssistant() {
             transition={{ y: { duration: 2, repeat: Infinity, ease: 'easeInOut' } }}
             exit={{ scale: 0, opacity: 0 }}
             onClick={() => { setOpen(true); setShowBubble(false); }}
+            aria-label={t({ ar: 'المساعد الذكي - تحدث معنا', fr: 'Assistant IA - Discuter', en: 'AI assistant - Chat with us' })}
+            title={t({ ar: 'المساعد الذكي', fr: 'Assistant IA', en: 'AI Assistant' })}
             className="fixed bottom-20 left-6 z-[var(--z-float)] w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-xl hover:shadow-2xl hover:scale-110 transition-all flex items-center justify-center"
           >
-            <Sparkles className="w-6 h-6" />
+            <Sparkles className="w-6 h-6" aria-hidden="true" />
           </motion.button>
         )}
       </AnimatePresence>

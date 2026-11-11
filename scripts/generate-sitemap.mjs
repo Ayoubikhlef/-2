@@ -34,12 +34,29 @@ function escapeXml(value) {
     .replace(/'/g, '&apos;');
 }
 
-function urlEntry(loc, priority, changefreq) {
+function absoluteUrl(value) {
+  if (!value) return `${SITE}/icon-512.png`;
+  if (/^https?:\/\//i.test(value)) return value;
+  return `${SITE}${value.startsWith('/') ? '' : '/'}${value}`;
+}
+
+function urlEntry(loc, priority, changefreq, images = []) {
+  const imageEntries = images
+    .filter((image) => image && image.loc)
+    .slice(0, 10)
+    .map(
+      (image) => `    <image:image>
+      <image:loc>${escapeXml(image.loc)}</image:loc>
+      <image:title>${escapeXml(image.title || '')}</image:title>
+    </image:image>`,
+    )
+    .join('\n');
+
   return `  <url>
     <loc>${escapeXml(loc)}</loc>
     <lastmod>${new Date().toISOString().slice(0, 10)}</lastmod>
     <changefreq>${changefreq}</changefreq>
-    <priority>${priority}</priority>
+    <priority>${priority}</priority>${imageEntries ? `\n${imageEntries}` : ''}
   </url>`;
 }
 
@@ -55,16 +72,27 @@ async function main() {
   const products = list.filter((product) => product && !product.hidden && Number.isFinite(Number(product.id)));
 
   const entries = [
-    urlEntry(`${SITE}/`, '1.0', 'weekly'),
+    urlEntry(`${SITE}/`, '1.0', 'weekly', [
+      { loc: absoluteUrl('/icon-512.png'), title: 'AOS Tech Store - أوس تك' },
+      { loc: absoluteUrl('/hero-bg.jpg'), title: 'AOS Tech Store - Ayoub Office Services' },
+    ]),
     ...products.map((product) => {
       const slug = slugify(product.nameEn || product.nameFr || product.nameAr);
-      return urlEntry(`${SITE}/product/${product.id}${slug ? `-${slug}` : ''}`, '0.8', 'weekly');
+      const images = [product.image, ...(product.images || [])]
+        .filter(Boolean)
+        .map((image) => ({ loc: absoluteUrl(image), title: product.nameAr || product.nameFr || product.nameEn }));
+      return urlEntry(
+        `${SITE}/product/${product.id}${slug ? `-${slug}` : ''}`,
+        '0.8',
+        'weekly',
+        images,
+      );
     }),
     urlEntry(`${SITE}/create-website`, '0.5', 'monthly'),
   ];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${entries.join('\n')}
 </urlset>
 `;

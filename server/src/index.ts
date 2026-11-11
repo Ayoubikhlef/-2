@@ -14,6 +14,7 @@ import { productRouter } from './routes/products';
 import { orderRouter } from './routes/orders';
 import { reviewRouter } from './routes/reviews';
 import { newsletterRouter } from './routes/newsletter';
+import { contactRouter } from './routes/contact';
 import { loyaltyRouter } from './routes/loyalty';
 import { dataRouter } from './routes/data';
 import { maintenanceRouter } from './routes/maintenance';
@@ -28,6 +29,7 @@ import { initLive } from './services/live';
 import { initRAG } from './services/rag';
 import { prisma } from './utils/prisma';
 import { isOriginAllowed } from './utils/cors';
+import { isTelegramConfigured } from './services/telegram';
 import { fixMojibakeData } from './utils/encoding';
 import { ensureSiteFactoryDefaults } from './site-factory/service';
 
@@ -113,11 +115,13 @@ const adminGateLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, handler:
 const passwordResetLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, handler: securityRateLimitHandler('password-reset'), validate: { xForwardedForHeader: false } });
 const orderLimiter = rateLimit({ windowMs: 60 * 1000, max: 600, handler: securityRateLimitHandler('orders'), validate: { xForwardedForHeader: false } });
 const generalLimiter = rateLimit({ windowMs: 60 * 1000, max: 600, handler: securityRateLimitHandler('general'), validate: { xForwardedForHeader: false } });
+const contactLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 12, handler: securityRateLimitHandler('contact'), validate: { xForwardedForHeader: false } });
 app.use('/api/auth', authLimiter);
 app.use('/api/auth/admin-gate', adminGateLimiter);
 app.use('/api/auth/forgot-password', passwordResetLimiter);
 app.use('/api/auth/reset-password', passwordResetLimiter);
 app.use('/api/newsletter', generalLimiter);
+app.use('/api/contact', contactLimiter);
 app.use('/api/chat', generalLimiter);
 app.use('/api/orders', orderLimiter);
 app.use('/api/loyalty', orderLimiter);
@@ -134,6 +138,7 @@ app.use('/api/products', productRouter);
 app.use('/api/orders', orderRouter);
 app.use('/api/reviews', reviewRouter);
 app.use('/api/newsletter', newsletterRouter);
+app.use('/api/contact', contactRouter);
 app.use('/api/loyalty', loyaltyRouter);
 app.use('/api/data', dataRouter);
 app.use('/api/maintenance', maintenanceRouter);
@@ -145,7 +150,7 @@ app.use('/api/site-factory', siteFactoryRouter);
 app.get('/api/health', async (_req, res) => {
   try {
     await prisma.$queryRaw`SELECT 1`;
-    res.json({ status: 'ok', db: 'connected', uptime: process.uptime(), timestamp: new Date().toISOString(), keepAlive: keepAliveStatus });
+    res.json({ status: 'ok', db: 'connected', uptime: process.uptime(), timestamp: new Date().toISOString(), keepAlive: keepAliveStatus, telegram: isTelegramConfigured() });
   } catch (err: any) {
     res.json({ status: 'ok', db: 'error', dbError: err.message, uptime: process.uptime() });
   }

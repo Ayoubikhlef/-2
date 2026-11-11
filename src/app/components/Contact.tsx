@@ -4,6 +4,8 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { motion } from 'motion/react';
 import { getSiteSettings } from '../utils/siteSettingsStorage';
 import { brand } from '../config/brand';
+import { ContactForm } from './ContactForm';
+import { OpenStatusBadge } from './OpenStatusBadge';
 
 export function Contact() {
   const { t } = useLanguage();
@@ -38,6 +40,9 @@ export function Contact() {
               en: 'Visit us or contact us for all your office and IT needs'
             })}
           </p>
+          <div className="mt-5 flex justify-center">
+            <OpenStatusBadge variant="full" />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6 max-w-6xl mx-auto mb-12">
@@ -103,6 +108,8 @@ export function Contact() {
             </a>
           </div>
         </div>
+
+        <ContactForm />
 
         {/* Google Maps */}
         <div className="max-w-6xl mx-auto rounded-2xl overflow-hidden shadow-lg border border-border">

@@ -179,6 +179,15 @@ export const api = {
     subscribe: (email: string) => request<{ ok: boolean }>('/newsletter', { method: 'POST', body: JSON.stringify({ email }) }),
   },
 
+  contact: {
+    list: (status?: string) =>
+      request<{ messages: any[]; unread: number }>(`/contact${status && status !== 'all' ? `?status=${encodeURIComponent(status)}` : ''}`),
+    update: (id: string, status: 'new' | 'read' | 'replied') =>
+      request<any>(`/contact/${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify({ status }) }),
+    remove: (id: string) =>
+      request<{ deleted: boolean }>(`/contact/${encodeURIComponent(id)}`, { method: 'DELETE' }),
+  },
+
   email: {
     send: (data: { subject: string; body: string; testEmail?: string }) =>
       request<{ sent: boolean; count?: number; mode?: string }>('/email/send', { method: 'POST', body: JSON.stringify(data) }),

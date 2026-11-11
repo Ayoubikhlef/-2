@@ -235,9 +235,19 @@ function renderProductPage(shell: string, product: Product): string {
   });
 
   const jsonLd = JSON.stringify(buildJsonLd(product, p.price, p.inStock, url));
+  const breadcrumbLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'الرئيسية', item: `${SITE}/` },
+      { '@type': 'ListItem', position: 2, name: 'المنتجات', item: `${SITE}/#products` },
+      { '@type': 'ListItem', position: 3, name: product.nameAr || product.nameFr || product.nameEn, item: url },
+    ],
+  });
   html = html.replace(
     '</head>',
-    `  <script type="application/ld+json" data-aos-product-jsonld="true">${jsonLd}</script>\n  </head>`,
+    `  <script type="application/ld+json" data-aos-product-jsonld="true">${jsonLd}</script>\n` +
+      `  <script type="application/ld+json" data-aos-breadcrumb-jsonld="true">${breadcrumbLd}</script>\n  </head>`,
   );
 
   const fallbackStart = html.indexOf('<div id="seo-fallback"');

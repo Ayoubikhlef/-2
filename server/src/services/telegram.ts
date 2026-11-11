@@ -76,6 +76,39 @@ function escapeHtml(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+export function isTelegramConfigured(): boolean {
+  return Boolean(getBotToken() && getChatId());
+}
+
+export function sendContactTelegramAlert(message: {
+  id: string;
+  name: string;
+  phone: string;
+  email?: string | null;
+  subject?: string | null;
+  message: string;
+  language?: string | null;
+}) {
+  const subjectLabels: Record<string, string> = {
+    general: 'استفسار عام',
+    order: 'طلب أو توصيل',
+    product: 'منتج محدد',
+    repair: 'صيانة أو إصلاح',
+    web: 'إنشاء موقع',
+    other: 'موضوع آخر',
+  };
+
+  const text = `<b>✉️ رسالة جديدة من الموقع</b>
+👤 ${escapeHtml(message.name)} | ${escapeHtml(message.phone)}
+${message.email ? `📧 ${escapeHtml(message.email)}\n` : ''}🏷️ ${escapeHtml(subjectLabels[message.subject || 'general'] || message.subject || 'عام')}
+
+${escapeHtml(message.message).slice(0, 1800)}
+
+🆔 #${message.id.slice(0, 8)}`;
+
+  return sendTelegramMessage(text);
+}
+
 export async function sendDiscordWebhook(text: string): Promise<boolean> {
   const webhookUrl = process.env.DISCORD_WEBHOOK_URL || null;
   if (!webhookUrl) {

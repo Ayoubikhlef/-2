@@ -10,6 +10,8 @@ import {
   ChevronRight,
   Home,
   Phone,
+  RotateCcw,
+  Banknote,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -129,7 +131,8 @@ export function ProductPage({ slug }: { slug: string }) {
   };
 
   return (
-    <section className="pt-24 pb-20 sm:pt-28">
+    <>
+    <section className="pt-24 pb-28 sm:pb-20 sm:pt-28">
       <div className="mx-auto max-w-6xl px-4">
         <nav aria-label="Breadcrumb" className="mb-6 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
           <a href="/" className="transition hover:text-primary">
@@ -275,12 +278,26 @@ export function ProductPage({ slug }: { slug: string }) {
                 </div>
               </div>
               <div className="flex items-start gap-3">
+                <RotateCcw className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                <div>
+                  <p className="text-sm font-semibold">{t({ ar: 'إرجاع خلال 7 أيام', fr: 'Retour sous 7 jours', en: '7-day returns' })}</p>
+                  <p className="text-xs text-muted-foreground">{t({ ar: 'في حالته الأصلية', fr: 'Dans son état d’origine', en: 'In original condition' })}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
                 <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
                 <div>
                   <p className="text-sm font-semibold">{t({ ar: 'ضمان المتجر', fr: 'Garantie magasin', en: 'Store warranty' })}</p>
                   <p className="text-xs text-muted-foreground">
                     {product.warranty || t({ ar: 'منتج أصلي 100%', fr: 'Produit 100% original', en: '100% genuine product' })}
                   </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <Banknote className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                <div>
+                  <p className="text-sm font-semibold">{t({ ar: 'دفع آمن عند الاستلام', fr: 'Paiement à la réception', en: 'Pay on delivery' })}</p>
+                  <p className="text-xs text-muted-foreground">{t({ ar: 'أو الدفع في المتجر', fr: 'Ou en magasin', en: 'Or pay in store' })}</p>
                 </div>
               </div>
             </div>
@@ -344,5 +361,27 @@ export function ProductPage({ slug }: { slug: string }) {
         )}
       </div>
     </section>
+
+    {/* Sticky purchase bar: mobile only, the highest-converting element on a product page. */}
+    <div className="fixed inset-x-0 bottom-0 z-[calc(var(--z-float)-1)] border-t border-border bg-background/95 px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] backdrop-blur-lg sm:hidden">
+      <div className="flex items-center gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-xs font-semibold text-muted-foreground">{name}</p>
+          <p className="text-lg font-extrabold leading-tight text-primary">{formatPrice(pricing.price)}</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => addToCart(true)}
+          disabled={!pricing.inStock}
+          className="inline-flex min-h-[48px] shrink-0 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-base font-bold text-primary-foreground shadow-lg shadow-primary/20 transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <ShoppingCart className="h-5 w-5" />
+          {pricing.inStock
+            ? t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order now' })
+            : t({ ar: 'غير متوفر', fr: 'Rupture', en: 'Out of stock' })}
+        </button>
+      </div>
+    </div>
+    </>
   );
 }

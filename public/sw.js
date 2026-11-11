@@ -1,5 +1,5 @@
-const CACHE = 'aos-cache-v12';
-const STATIC_CACHE = 'aos-static-v12';
+const CACHE = 'aos-cache-v13';
+const STATIC_CACHE = 'aos-static-v13';
 const OFFLINE_URL = '/offline.html';
 
 const PRECACHE_URLS = [

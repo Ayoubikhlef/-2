@@ -26,6 +26,7 @@ const ManageContentTab = lazy(() => import('./ManageContentTab').then(m => ({ de
 const SiteSettingsTab = lazy(() => import('./SiteSettingsTab').then(m => ({ default: m.SiteSettingsTab })));
 const ReviewsTab = lazy(() => import('./ReviewsTab').then(m => ({ default: m.ReviewsTab })));
 const NewsletterTab = lazy(() => import('./NewsletterTab').then(m => ({ default: m.NewsletterTab })));
+const MessagesTab = lazy(() => import('./MessagesTab').then(m => ({ default: m.MessagesTab })));
 const SecurityTab = lazy(() => import('./SecurityTab').then(m => ({ default: m.SecurityTab })));
 const SiteFactoryTab = lazy(() => import('./SiteFactoryTab').then(m => ({ default: m.SiteFactoryTab })));
 
@@ -147,7 +148,7 @@ export function Admin() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [isOn, setIsOn] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [tab, setTab] = useState<'dashboard' | 'orders' | 'products' | 'services' | 'manage-products' | 'manage-services' | 'customers' | 'coupons' | 'content' | 'settings' | 'reviews' | 'newsletter' | 'security' | 'factory'>('orders');
+  const [tab, setTab] = useState<'dashboard' | 'orders' | 'products' | 'services' | 'manage-products' | 'manage-services' | 'customers' | 'coupons' | 'content' | 'settings' | 'reviews' | 'newsletter' | 'messages' | 'security' | 'factory'>('orders');
   const [manageProducts, setManageProducts] = useState<Product[]>([]);
   const [manageServices, setManageServices] = useState<ServiceCategory[]>([]);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>(getSyncStatus());
@@ -703,6 +704,17 @@ export function Admin() {
             {t({ ar: 'النشرة', fr: 'Newsletter', en: 'Newsletter' })}
           </button>
           <button
+            onClick={() => setTab('messages')}
+            className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all border flex items-center gap-2 ${
+              tab === 'messages'
+                ? 'bg-primary text-slate-950 border-primary'
+                : 'bg-slate-900 text-white/70 border-white/10 hover:bg-slate-800'
+            }`}
+          >
+            <MailOpen className="w-4 h-4" />
+            {t({ ar: 'الرسائل', fr: 'Messages', en: 'Messages' })}
+          </button>
+          <button
             onClick={() => setTab('security')}
             className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all border flex items-center gap-2 ${
               tab === 'security'
@@ -861,6 +873,8 @@ export function Admin() {
           <ReviewsTab />
         ) : tab === 'newsletter' ? (
           <NewsletterTab />
+        ) : tab === 'messages' ? (
+          <MessagesTab />
         ) : tab === 'security' ? (
           <SecurityTab />
         ) : tab === 'factory' ? (

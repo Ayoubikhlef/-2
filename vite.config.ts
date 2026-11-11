@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import fs from 'node:fs/promises'
 import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
@@ -71,49 +71,51 @@ function templatePreviews() {
   }
 }
 
-export default defineConfig({
-  plugins: [
-    figmaAssetResolver(),
-    templatePreviews(),
-    react(),
-    tailwindcss(),
-  ],
-  // `vite preview` serves the production bundle on another port; without this
-  // proxy its `/api` calls fall back to index.html and break the catalog.
-  server: {
-    proxy: {
-      '/api': { target: 'http://localhost:3001', changeOrigin: true },
-      '/socket.io': { target: 'http://localhost:3001', ws: true },
+export default defineConfig(({ mode }) => {
+  // Local preview can point at the deployed API when no local database exists.
+  // Set VITE_API_PROXY (and VITE_API_URL=/api) in .env.local; default stays the
+  // local Express server on port 3001.
+  const env = loadEnv(mode, process.cwd(), '');
+  const apiTarget = env.VITE_API_PROXY || 'http://localhost:3001';
+  const proxy = {
+    '/api': { target: apiTarget, changeOrigin: true, secure: true },
+    '/socket.io': { target: apiTarget, changeOrigin: true, ws: true },
+  };
+
+  return {
+    plugins: [
+      figmaAssetResolver(),
+      templatePreviews(),
+      react(),
+      tailwindcss(),
+    ],
+    // `vite preview` serves the production bundle on another port; without this
+    // proxy its `/api` calls fall back to index.html and break the catalog.
+    server: { proxy },
+    preview: { proxy },
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, './src'),
+      },
     },
-  },
-  preview: {
-    proxy: {
-      '/api': { target: 'http://localhost:3001', changeOrigin: true },
-      '/socket.io': { target: 'http://localhost:3001', ws: true },
-    },
-  },
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
-  assetsInclude: ['**/*.svg', '**/*.csv'],
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'motion'],
-          ui: ['lucide-react', 'sonner'],
+    assetsInclude: ['**/*.svg', '**/*.csv'],
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ['react', 'react-dom', 'motion'],
+            ui: ['lucide-react', 'sonner'],
+          },
         },
       },
-    },
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: true,
+          drop_debugger: true,
+        },
       },
+      sourcemap: false,
     },
-    sourcemap: false,
-  },
-})
+  };
+});

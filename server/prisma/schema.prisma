@@ -190,6 +190,23 @@ model NewsletterSubscriber {
   @@map("aos_newsletter")
 }
 
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  email     String?
+  subject   String   @default("general")
+  message   String
+  language  String?
+  status    String   @default("new")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("aos_contact_messages")
+}
+
 model AuditLog {
   id        String   @id @default(cuid())
   userId    String?

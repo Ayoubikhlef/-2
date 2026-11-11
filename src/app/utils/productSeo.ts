@@ -102,6 +102,19 @@ export function buildProductJsonLd(product: Product, pricing: ProductPricing) {
   };
 }
 
+export function buildBreadcrumbJsonLd(product: Product) {
+  const url = productUrl(product);
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'الرئيسية', item: `${SITE_URL}/` },
+      { '@type': 'ListItem', position: 2, name: 'المنتجات', item: `${SITE_URL}/#products` },
+      { '@type': 'ListItem', position: 3, name: product.nameAr || product.nameFr || product.nameEn, item: url },
+    ],
+  };
+}
+
 function setMeta(attribute: 'name' | 'property', key: string, content: string) {
   let element = document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${key}"]`);
   if (!element) {
@@ -151,4 +164,13 @@ export function applyProductSeo(product: Product, pricing: ProductPricing) {
     script.textContent = JSON.stringify(buildProductJsonLd(product, pricing));
     document.head.appendChild(script);
   }
+
+  let breadcrumb = document.querySelector<HTMLScriptElement>('script[data-aos-breadcrumb-jsonld]');
+  if (!breadcrumb) {
+    breadcrumb = document.createElement('script');
+    breadcrumb.type = 'application/ld+json';
+    breadcrumb.setAttribute('data-aos-breadcrumb-jsonld', 'true');
+    document.head.appendChild(breadcrumb);
+  }
+  breadcrumb.textContent = JSON.stringify(buildBreadcrumbJsonLd(product));
 }

@@ -1,62 +1,126 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://aos-tech.store/</loc>
-    <lastmod>2026-11-10</lastmod>
+    <lastmod>2026-11-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://aos-tech.store/icon-512.png</image:loc>
+      <image:title>AOS Tech Store - أوس تك</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://aos-tech.store/hero-bg.jpg</image:loc>
+      <image:title>AOS Tech Store - Ayoub Office Services</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://aos-tech.store/product/3-wireless-mouse</loc>
-    <lastmod>2026-11-10</lastmod>
+    <lastmod>2026-11-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://aos-tech.store/products/07.jpg</image:loc>
+      <image:title>ماوس لاسلكي</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://aos-tech.store/products/08.jpg</image:loc>
+      <image:title>ماوس لاسلكي</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://aos-tech.store/products/27.jpg</image:loc>
+      <image:title>ماوس لاسلكي</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://aos-tech.store/product/7-canon-2206-printer</loc>
-    <lastmod>2026-11-10</lastmod>
+    <lastmod>2026-11-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://aos-tech.store/products/01.jpg</image:loc>
+      <image:title>طابعة Canon 2206</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://aos-tech.store/product/8-sandisk-64gb-flash-drive</loc>
-    <lastmod>2026-11-10</lastmod>
+    <lastmod>2026-11-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://aos-tech.store/products/34.webp</image:loc>
+      <image:title>فلاشة SanDisk 64GB</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://aos-tech.store/product/9-multi-port-charger</loc>
-    <lastmod>2026-11-10</lastmod>
+    <lastmod>2026-11-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://aos-tech.store/products/35.jpg</image:loc>
+      <image:title>شاحن متعدد المنافذ</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://aos-tech.store/product/11-dell-laptop</loc>
-    <lastmod>2026-11-10</lastmod>
+    <lastmod>2026-11-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://aos-tech.store/products/17.jpg</image:loc>
+      <image:title>لابتوب Dell</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://aos-tech.store/products/17.jpg</image:loc>
+      <image:title>لابتوب Dell</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://aos-tech.store/products/02.jpg</image:loc>
+      <image:title>لابتوب Dell</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://aos-tech.store/product/12-mechanical-keyboard</loc>
-    <lastmod>2026-11-10</lastmod>
+    <lastmod>2026-11-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://www.licbplus.com.dz/storage/images/products/Pm3w5wXxtonlzjGdUdv5cBQ4cjmUbzpktRKKFYyI.jpg</image:loc>
+      <image:title>لوحة مفاتيح ميكانيكية</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://www.licbplus.com.dz/storage/images/productlines/thumbnails/AJvHVXh0otTrQptAz83o6FajOG6mBEAv4KQCHb5n.jpg.webp</image:loc>
+      <image:title>لوحة مفاتيح ميكانيكية</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://aos-tech.store/product/13-headset-spirit-of-gamer-xpert-h1300</loc>
-    <lastmod>2026-11-10</lastmod>
+    <lastmod>2026-11-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://www.licbplus.com.dz/storage/images/products/thumbnails/YQ74BG7Lb2gifQ8ySKdUHDY3DissXMjypNwOvalv.jpg.webp</image:loc>
+      <image:title>Headset Spirit of Gamer Xpert-H1300</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://www.licbplus.com.dz/storage/images/products/VNhUJ2LqCRNSkFuiuPUOOAM3ohiihPp6ElDMRowa.jpg</image:loc>
+      <image:title>Headset Spirit of Gamer Xpert-H1300</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://aos-tech.store/product/14-attack-shark-x11-wireless-gaming-mouse</loc>
-    <lastmod>2026-11-10</lastmod>
+    <lastmod>2026-11-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://www.licbplus.com.dz/storage/images/products/IGamVnN378tm8Iuf8qeFVIIITy3oxMKCvpcB5yr5.jpg</image:loc>
+      <image:title>فأرة ألعاب لاسلكية ATTACK SHARK X11</image:title>
+    </image:image>
   </url>
   <url>
     <loc>https://aos-tech.store/create-website</loc>
-    <lastmod>2026-11-10</lastmod>
+    <lastmod>2026-11-11</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>

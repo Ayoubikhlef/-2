@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { ShoppingCart, Plus, Minus, X, User, Phone, Mail, MapPin, CheckCircle, Info, Heart, Search, Camera, Share2, Eye, Banknote, Home, Store } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, X, User, Phone, Mail, MapPin, CheckCircle, Info, Heart, Search, Camera, Share2, Eye, Banknote, Home, Store, SlidersHorizontal, RotateCcw } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { products as defaultProducts, wilayas, getMunicipalities, type Product } from '../data/products';
 import { getStoredProducts, loadProductsFromServer } from '../utils/productStorage';
@@ -60,6 +60,11 @@ export function Products() {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [sortBy, setSortBy] = useState<'newest' | 'priceAsc' | 'priceDesc' | 'name'>('newest');
+  const [brandFilter, setBrandFilter] = useState('all');
+  const [priceMin, setPriceMin] = useState('');
+  const [priceMax, setPriceMax] = useState('');
+  const [stockOnly, setStockOnly] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [visualSearchOpen, setVisualSearchOpen] = useState(false);
@@ -104,12 +109,48 @@ export function Products() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  useEffect(() => setPage(1), [debouncedSearch, activeCategory]);
+  useEffect(() => setPage(1), [debouncedSearch, activeCategory, brandFilter, priceMin, priceMax, stockOnly]);
+
+  const brands = useMemo(
+    () => Array.from(new Set(products.filter((p) => !p.hidden && p.brand).map((p) => p.brand))).sort((a, b) => a.localeCompare(b)),
+    [products],
+  );
+
+  const activeFilterCount =
+    (brandFilter !== 'all' ? 1 : 0) +
+    (priceMin.trim() || priceMax.trim() ? 1 : 0) +
+    (stockOnly ? 1 : 0);
+
+  const resetFilters = () => {
+    setBrandFilter('all');
+    setPriceMin('');
+    setPriceMax('');
+    setStockOnly(false);
+  };
 
   const filteredProducts = useMemo(() => {
     let result = products.filter(p => !p.hidden);
     if (activeCategory !== 'all') {
       result = result.filter((p) => p.category === activeCategory);
+    }
+    if (brandFilter !== 'all') {
+      result = result.filter((p) => p.brand === brandFilter);
+    }
+    const min = Number(priceMin);
+    const max = Number(priceMax);
+    const effectivePrice = (p: Product) =>
+      p.salePrice && p.saleEnd && new Date(p.saleEnd) > new Date() ? p.salePrice : p.price;
+    if (priceMin.trim() && Number.isFinite(min)) {
+      result = result.filter((p) => effectivePrice(p) >= min);
+    }
+    if (priceMax.trim() && Number.isFinite(max)) {
+      result = result.filter((p) => effectivePrice(p) <= max);
+    }
+    if (stockOnly) {
+      result = result.filter((p) => {
+        const stock = Number(p.stock);
+        return !Number.isFinite(stock) || stock > 0;
+      });
     }
     if (debouncedSearch.trim()) {
       const q = debouncedSearch.toLowerCase();
@@ -126,7 +167,7 @@ export function Products() {
     else if (sortBy === 'priceDesc') result = [...result].sort((a, b) => priceOf(b) - priceOf(a));
     else if (sortBy === 'name') result = [...result].sort((a, b) => (language === 'ar' ? a.nameAr : language === 'fr' ? a.nameFr : a.nameEn).localeCompare(language === 'ar' ? b.nameAr : language === 'fr' ? b.nameFr : b.nameEn));
     return result;
-  }, [activeCategory, debouncedSearch, sortBy, language, products]);
+  }, [activeCategory, brandFilter, priceMin, priceMax, stockOnly, debouncedSearch, sortBy, language, products]);
   const suggestions = useMemo(() => {
     if (!debouncedSearch.trim()) return [];
     const q = debouncedSearch.toLowerCase();
@@ -434,21 +475,118 @@ export function Products() {
               <option value="priceDesc">{t({ ar: 'السعر: من الأعلى للأقل', fr: 'Prix: décroissant', en: 'Price: high to low' })}</option>
               <option value="name">{t({ ar: 'الاسم: أ - ي', fr: 'Nom: A - Z', en: 'Name: A - Z' })}</option>
             </select>
-            {Object.entries(categoryLabels).map(([key, label]) => (
-              <button
-                key={key}
-                role="tab"
-                aria-selected={activeCategory === key}
-                onClick={() => setActiveCategory(key)}
-                className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${
-                  activeCategory === key
-                    ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
-                    : 'bg-card border border-border text-muted-foreground hover:border-primary hover:text-primary'
-                }`}
+            <button
+              type="button"
+              onClick={() => setFiltersOpen((open) => !open)}
+              aria-expanded={filtersOpen}
+              aria-controls="product-filters"
+              className={`lg:hidden inline-flex items-center gap-2 rounded-2xl border-2 px-4 py-2.5 text-sm font-semibold transition ${
+                activeFilterCount > 0
+                  ? 'border-primary bg-primary/10 text-primary'
+                  : 'border-border bg-card text-muted-foreground hover:border-primary hover:text-primary'
+              }`}
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+              {t({ ar: 'الفلاتر', fr: 'Filtres', en: 'Filters' })}
+              {activeFilterCount > 0 && (
+                <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1 text-[11px] font-bold text-primary-foreground">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+            <div
+              role="tablist"
+              aria-label={t({ ar: 'فئات المنتجات', fr: 'Catégories de produits', en: 'Product categories' })}
+              className="contents"
+            >
+              {Object.entries(categoryLabels).map(([key, label]) => (
+                <button
+                  key={key}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeCategory === key}
+                  onClick={() => setActiveCategory(key)}
+                  className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${
+                    activeCategory === key
+                      ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
+                      : 'bg-card border border-border text-muted-foreground hover:border-primary hover:text-primary'
+                  }`}
+                >
+                  {label[language]}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Brand / price / availability filters */}
+          <div
+            id="product-filters"
+            className={`mt-4 ${filtersOpen ? 'grid' : 'hidden'} lg:grid gap-3 rounded-2xl border border-border bg-card p-4 sm:grid-cols-2 lg:grid-cols-4 lg:items-end`}
+          >
+            <div>
+              <label htmlFor="filter-brand" className="mb-1.5 block text-xs font-bold text-muted-foreground">
+                {t({ ar: 'الماركة', fr: 'Marque', en: 'Brand' })}
+              </label>
+              <select
+                id="filter-brand"
+                value={brandFilter}
+                onChange={(e) => setBrandFilter(e.target.value)}
+                className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm font-semibold outline-none transition focus:border-primary"
               >
-                {label[language]}
-              </button>
-            ))}
+                <option value="all">{t({ ar: 'كل الماركات', fr: 'Toutes les marques', en: 'All brands' })}</option>
+                {brands.map((brandName) => (
+                  <option key={brandName} value={brandName}>{brandName}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <span className="mb-1.5 block text-xs font-bold text-muted-foreground">
+                {t({ ar: 'السعر (د.ج)', fr: 'Prix (DZD)', en: 'Price (DZD)' })}
+              </span>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min="0"
+                  value={priceMin}
+                  onChange={(e) => setPriceMin(e.target.value)}
+                  placeholder={t({ ar: 'من', fr: 'Min', en: 'Min' })}
+                  aria-label={t({ ar: 'السعر الأدنى', fr: 'Prix minimum', en: 'Minimum price' })}
+                  dir="ltr"
+                  className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none transition focus:border-primary"
+                />
+                <span aria-hidden="true" className="text-muted-foreground">—</span>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min="0"
+                  value={priceMax}
+                  onChange={(e) => setPriceMax(e.target.value)}
+                  placeholder={t({ ar: 'إلى', fr: 'Max', en: 'Max' })}
+                  aria-label={t({ ar: 'السعر الأقصى', fr: 'Prix maximum', en: 'Maximum price' })}
+                  dir="ltr"
+                  className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm outline-none transition focus:border-primary"
+                />
+              </div>
+            </div>
+            <label className="flex min-h-[44px] cursor-pointer items-center gap-2.5 rounded-xl border border-border bg-background px-3 py-2.5 text-sm font-semibold">
+              <input
+                type="checkbox"
+                checked={stockOnly}
+                onChange={(e) => setStockOnly(e.target.checked)}
+                className="h-4 w-4 accent-[var(--primary)]"
+              />
+              {t({ ar: 'المتوفر في المخزون فقط', fr: 'En stock uniquement', en: 'In stock only' })}
+            </label>
+            <button
+              type="button"
+              onClick={resetFilters}
+              disabled={activeFilterCount === 0}
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-semibold transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <RotateCcw className="h-4 w-4" />
+              {t({ ar: 'مسح الفلاتر', fr: 'Réinitialiser', en: 'Reset filters' })}
+            </button>
           </div>
         </div>
 
@@ -509,6 +647,8 @@ export function Products() {
                   </h3>
                   <button
                     onClick={(e) => { e.stopPropagation(); const added = toggleWishlist(product.id); toast.success(added ? t({ ar: 'أضيف إلى المفضلة', fr: 'Ajouté aux favoris', en: 'Added to wishlist' }) : t({ ar: 'أزيل من المفضلة', fr: 'Retiré des favoris', en: 'Removed from wishlist' })); }}
+                    aria-label={`${isInWishlist(product.id) ? t({ ar: 'إزالة من المفضلة', fr: 'Retirer des favoris', en: 'Remove from wishlist' }) : t({ ar: 'إضافة إلى المفضلة', fr: 'Ajouter aux favoris', en: 'Add to wishlist' })}: ${language === 'ar' ? product.nameAr : language === 'fr' ? product.nameFr : product.nameEn}`}
+                    title={isInWishlist(product.id) ? t({ ar: 'إزالة من المفضلة', fr: 'Retirer des favoris', en: 'Remove from wishlist' }) : t({ ar: 'إضافة إلى المفضلة', fr: 'Ajouter aux favoris', en: 'Add to wishlist' })}
                     className="shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-muted transition"
                   >
                     <Heart className={`w-4 h-4 ${isInWishlist(product.id) ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} />

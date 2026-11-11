@@ -155,12 +155,16 @@ export function ServiceBooking() {
             <div className="space-y-4 bg-card rounded-2xl border border-border p-6 sm:p-8">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-base font-bold mb-2">
+                  <label htmlFor="booking-name" className="block text-base font-bold mb-2">
                     {t({ ar: 'الاسم الكامل', fr: 'Nom complet', en: 'Full Name' })} <span className="text-destructive">*</span>
                   </label>
                   <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" aria-hidden="true" />
                     <input
+                      id="booking-name"
+                      name="name"
+                      required
+                      autoComplete="name"
                       value={form.name}
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
                       placeholder={t({ ar: 'مثال: أحمد بن علي', fr: 'Ex: Ahmed Ben Ali', en: 'Ex: Ahmed Ben Ali' })}
@@ -169,12 +173,18 @@ export function ServiceBooking() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-base font-bold mb-2">
+                  <label htmlFor="booking-phone" className="block text-base font-bold mb-2">
                     {t({ ar: 'رقم الهاتف', fr: 'Téléphone', en: 'Phone' })} <span className="text-destructive">*</span>
                   </label>
                   <div className="relative">
-                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" aria-hidden="true" />
                     <input
+                      id="booking-phone"
+                      name="phone"
+                      type="tel"
+                      required
+                      autoComplete="tel"
+                      inputMode="tel"
                       value={form.phone}
                       onChange={(e) => setForm({ ...form, phone: e.target.value })}
                       placeholder="0674 11 32 90"
@@ -185,10 +195,13 @@ export function ServiceBooking() {
               </div>
 
               <div>
-                <label className="block text-base font-bold mb-2">
+                <label htmlFor="booking-service" className="block text-base font-bold mb-2">
                   {t({ ar: 'اختر نوع الخدمة', fr: 'Choisissez le type de service', en: 'Select Service Type' })} <span className="text-destructive">*</span>
                 </label>
                 <select
+                  id="booking-service"
+                  name="service"
+                  required
                   value={form.service}
                   onChange={(e) => setForm({ ...form, service: e.target.value })}
                   className="w-full rounded-2xl border-2 border-border bg-background px-5 py-4 text-base outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 appearance-none cursor-pointer"
@@ -203,10 +216,12 @@ export function ServiceBooking() {
               </div>
 
               <div>
-                <label className="block text-base font-bold mb-2">{t({ ar: 'ملاحظات', fr: 'Notes', en: 'Notes' })}</label>
+                <label htmlFor="booking-note" className="block text-base font-bold mb-2">{t({ ar: 'ملاحظات', fr: 'Notes', en: 'Notes' })}</label>
                 <div className="relative">
-                  <MessageSquare className="absolute left-4 top-4 w-5 h-5 text-muted-foreground" />
+                  <MessageSquare className="absolute left-4 top-4 w-5 h-5 text-muted-foreground" aria-hidden="true" />
                   <textarea
+                    id="booking-note"
+                    name="note"
                     value={form.note}
                     onChange={(e) => setForm({ ...form, note: e.target.value })}
                     rows={3}

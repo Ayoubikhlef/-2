@@ -443,7 +443,7 @@ export default function App() {
               </main>
               {isProductPage && <Footer />}
               <ScrollToTop />
-              {currentHash !== '#demo' && !isFactoryPage && (
+              {currentHash !== '#demo' && !isFactoryPage && !isProductPage && (
                 <>
                   <Suspense fallback={null}><WABubble /></Suspense>
                   <Suspense fallback={null}><AIAssistant /></Suspense>

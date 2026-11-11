@@ -52,9 +52,9 @@ export function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="text-foreground font-bold mb-4 text-sm uppercase tracking-wider">
+            <h2 className="text-foreground font-bold mb-4 text-sm uppercase tracking-wider">
               {t(s.footerQuickLinksTitle)}
-            </h4>
+            </h2>
             <ul className="space-y-2.5">
               {s.footerQuickLinks.map((link, idx) => (
                 <li key={idx}>
@@ -75,9 +75,9 @@ export function Footer() {
 
           {/* Services */}
           <div>
-            <h4 className="text-foreground font-bold mb-4 text-sm uppercase tracking-wider">
+            <h2 className="text-foreground font-bold mb-4 text-sm uppercase tracking-wider">
               {t({ ar: 'خدماتنا', fr: 'Services', en: 'Services' })}
-            </h4>
+            </h2>
             <ul className="space-y-2.5">
               {[
                 { ar: 'طباعة ونسخ', fr: 'Impression', en: 'Printing' },
@@ -97,9 +97,9 @@ export function Footer() {
 
           {/* Contact */}
           <div>
-            <h4 className="text-foreground font-bold mb-4 text-sm uppercase tracking-wider">
+            <h2 className="text-foreground font-bold mb-4 text-sm uppercase tracking-wider">
               {t(s.footerContactTitle)}
-            </h4>
+            </h2>
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-3 text-muted-foreground">
                 <MapPin className="w-4 h-4 shrink-0 mt-0.5" />
@@ -126,7 +126,7 @@ export function Footer() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
             <p>© {s.copyrightYear} {s.copyrightName}. {t({ ar: 'جميع الحقوق محفوظة', fr: 'Tous droits réservés', en: 'All rights reserved' })}.</p>
             <p>
-              {t(s.developerPrefix)} <a href={s.developerUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/80 transition-colors">{t(s.developerName)}</a>
+              {t(s.developerPrefix)} <a href={s.developerUrl} target="_blank" rel="noopener noreferrer" className="text-foreground underline decoration-primary/60 underline-offset-2 hover:text-primary transition-colors">{t(s.developerName)}</a>
             </p>
           </div>
         </div>
