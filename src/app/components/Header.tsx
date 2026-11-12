@@ -1,8 +1,7 @@
-import { Phone, Menu, X, ShoppingCart, User, LogOut, Sun, Moon } from 'lucide-react';
+import { Phone, Menu, X, ShoppingCart, Sun, Moon } from 'lucide-react';
 import { useState, useEffect, type MouseEvent } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useCart } from '../contexts/CartContext';
-import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { Cart } from './CartView';
@@ -18,7 +17,6 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const { t, language } = useLanguage();
   const { items } = useCart();
-  const { user, logout, isAdmin } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const itemCount = items.length;
 
@@ -86,13 +84,6 @@ export function Header() {
               <Phone className="w-4 h-4" />
               <span className="font-bold whitespace-nowrap">{settings.contact.phoneDisplay}</span>
             </div>
-
-            {user && (
-              <a href={pageHref('#account')} className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-foreground/70 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors">
-                <User className="w-4 h-4" />
-                {t({ ar: 'حسابي', fr: 'Mon Compte', en: 'My Account' })}
-              </a>
-            )}
 
             <LanguageSwitcher />
 
@@ -177,20 +168,6 @@ export function Header() {
               aria-label={t({ ar: 'القائمة الرئيسية', fr: 'Menu principal', en: 'Main menu' })}
             >
               <div className="py-4 space-y-1">
-                {user && (
-                  <div className="flex items-center gap-3 px-4 py-3 mb-2 bg-muted rounded-lg mx-2">
-                    <User className="w-5 h-5 text-primary" />
-                    <span className="font-semibold truncate">{user.name}</span>
-                    {isAdmin && (
-                      <a href={pageHref('#hqpanel')} className="text-sm text-primary font-bold ms-auto">
-                        {t({ ar: 'أدمين', fr: 'Admin', en: 'Admin' })}
-                      </a>
-                    )}
-                    <button onClick={logout} className="p-1 hover:bg-background rounded" title={t({ ar: 'تسجيل خروج', fr: 'Déconnexion', en: 'Logout' })}>
-                      <LogOut className="w-4 h-4 text-muted-foreground" />
-                    </button>
-                  </div>
-                )}
                 {navLinks.map((link, idx) => (
                   <a
                     key={idx}
