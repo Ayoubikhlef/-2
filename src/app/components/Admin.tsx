@@ -6,7 +6,6 @@ import { products as defaultProducts, type Product } from '../data/products';
 import { getStoredServices, initializeServices } from '../utils/serviceStorage';
 import { defaultServices, type ServiceCategory } from '../data/services';
 import { RefreshCw, Trash2, ChevronDown, Phone, MapPin, Mail, DollarSign, Package, Eye, Lightbulb, Wrench, FileText, Globe, Settings, Star, MailOpen, Download, Shield } from 'lucide-react';
-import { generateInvoice } from './InvoicePDF';
 import { toast } from 'sonner';
 import { isMaintenanceMode, setMaintenanceMode, getMaintenanceMessage, setMaintenanceMessage } from '../utils/maintenanceStorage';
 import { setAccessToken, setStoredUser } from '../utils/api';
@@ -981,6 +980,9 @@ export function Admin() {
                       <button
                         onClick={async () => {
                           try {
+                            // Loaded on demand: jsPDF + html2canvas must not be
+                            // part of the admin (or public) initial download.
+                            const { generateInvoice } = await import('./InvoicePDF');
                             await generateInvoice(order, language);
                           } catch (err) {
                             if (import.meta.env.DEV) console.error('Invoice generation failed:', err);

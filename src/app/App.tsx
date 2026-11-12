@@ -149,7 +149,13 @@ export default function App() {
   useEffect(() => {
     const onHashChange = () => setHash(readNormalizedHash());
     window.addEventListener('hashchange', onHashChange);
-    return () => window.removeEventListener('hashchange', onHashChange);
+    // Client-side navigation (see utils/navigation.ts) uses pushState, so the
+    // back/forward buttons must update the view as well.
+    window.addEventListener('popstate', onHashChange);
+    return () => {
+      window.removeEventListener('hashchange', onHashChange);
+      window.removeEventListener('popstate', onHashChange);
+    };
   }, []);
 
   useEffect(() => {

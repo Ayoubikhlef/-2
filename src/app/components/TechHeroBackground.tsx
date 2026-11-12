@@ -64,6 +64,7 @@ const LIGHT_PALETTE: Palette = {
  */
 export function TechHeroBackground() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const { theme } = useTheme();
 
   useEffect(() => {
@@ -81,6 +82,7 @@ export function TechHeroBackground() {
     let glows: Glow[] = [];
     let raf = 0;
     let startTime = 0;
+    let visible = true;
 
     const resize = () => {
       const rect = canvas.getBoundingClientRect();
@@ -188,7 +190,7 @@ export function TechHeroBackground() {
     };
 
     const start = () => {
-      if (raf || document.hidden) return;
+      if (raf || !visible || document.hidden) return;
       raf = window.requestAnimationFrame(loop);
     };
 
@@ -212,6 +214,22 @@ export function TechHeroBackground() {
 
     const observer = new ResizeObserver(resize);
     observer.observe(canvas);
+
+    // Once the hero scrolls away there is no reason to keep repainting the
+    // canvas (or the CSS orbs) on the main thread — on phones that cost is
+    // paid while the visitor is reading products or filling the order form.
+    const container = containerRef.current;
+    const intersection = new IntersectionObserver(
+      ([entry]) => {
+        visible = entry.isIntersecting;
+        container?.classList.toggle('tech-hero-paused', !visible);
+        if (visible) start();
+        else stop();
+      },
+      { rootMargin: '120px' },
+    );
+    if (container) intersection.observe(container);
+
     resize();
     start();
 
@@ -222,6 +240,7 @@ export function TechHeroBackground() {
     return () => {
       stop();
       observer.disconnect();
+      intersection.disconnect();
       document.removeEventListener('visibilitychange', onVisibility);
       media.removeEventListener('change', onMotionPreference);
       window.removeEventListener('resize', resize);
@@ -229,7 +248,7 @@ export function TechHeroBackground() {
   }, [theme]);
 
   return (
-    <div className="tech-hero pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+    <div ref={containerRef} className="tech-hero pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
       <div className="tech-hero-base absolute inset-0" />
       <div className="tech-hero-grid" />
       <div className="tech-hero-orb tech-hero-orb-one" />

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef, memo } from 'react';
 import { createPortal } from 'react-dom';
 import { ShoppingCart, Plus, Minus, X, User, Phone, Mail, MapPin, CheckCircle, Info, Heart, Search, Camera, Share2, Eye, Banknote, Home, Store, SlidersHorizontal, RotateCcw } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -48,6 +48,154 @@ const categoryLabels: Record<string, { ar: string; fr: string; en: string }> = {
   laptops: { ar: 'لابتوبات', fr: 'Ordinateurs', en: 'Laptops' },
   networking: { ar: 'شبكات', fr: 'Réseaux', en: 'Networking' },
 };
+
+type ProductCardProps = {
+  product: Product;
+  quantity: number;
+  priority: boolean;
+  onDetails: (product: Product) => void;
+  onOrder: (product: Product) => void;
+  onQuickView: (product: Product) => void;
+  onQuantityChange: (productId: number, delta: number) => void;
+};
+
+/**
+ * A single catalogue card, isolated behind React.memo.
+ *
+ * The order sheet keeps its form state in the parent component, so without
+ * this boundary every keystroke in the order form re-rendered all twelve 3D
+ * cards (and re-read localStorage for each wishlist icon). On phones that was
+ * the difference between a smooth form and a form that visibly stutters.
+ */
+const ProductCard = memo(function ProductCard({
+  product,
+  quantity,
+  priority,
+  onDetails,
+  onOrder,
+  onQuickView,
+  onQuantityChange,
+}: ProductCardProps) {
+  const { t, language } = useLanguage();
+  const name = language === 'ar' ? product.nameAr : language === 'fr' ? product.nameFr : product.nameEn;
+  const description = language === 'ar' ? product.descAr : language === 'fr' ? product.descFr : product.descEn;
+  const onSale = Boolean(product.salePrice && product.saleEnd && new Date(product.saleEnd) > new Date());
+  const wished = isInWishlist(product.id);
+
+  return (
+    <div
+      onClick={() => onDetails(product)}
+      className="group bg-card rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 border border-border/50 hover:border-primary/30 cursor-pointer relative"
+    >
+      <TiltedCard
+        imageSrc={product.image}
+        priority={priority}
+        altText={language === 'ar' ? product.nameAr : product.nameEn}
+        captionText={`${product.price.toLocaleString()} د.ج`}
+        containerHeight="200px"
+        containerWidth="100%"
+        imageHeight="200px"
+        imageWidth="100%"
+        scaleOnHover={1.05}
+        rotateAmplitude={12}
+        showMobileWarning={false}
+        showTooltip={true}
+        displayOverlayContent={true}
+        overlayContent={
+          <div className="relative w-full h-full">
+            {onSale && (
+              <div className="absolute top-2 left-2 flex flex-col gap-1">
+                <div className="bg-red-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold shadow-lg">
+                  {language === 'ar' ? 'تخفيض' : language === 'fr' ? 'SOLDE' : 'SALE'}
+                </div>
+              </div>
+            )}
+            <div className="absolute top-2 right-2 bg-primary text-primary-foreground px-2.5 py-1 rounded-lg text-xs font-bold shadow-sm">
+              {(onSale ? product.salePrice! : product.price).toLocaleString()} د.ج
+            </div>
+            {product.brand && (
+              <div className="absolute bottom-2 left-2 bg-black/40 backdrop-blur-sm text-white/90 px-2 py-0.5 rounded-lg text-[10px] font-medium">
+                {product.brand}
+              </div>
+            )}
+          </div>
+        }
+      />
+
+      <div className="p-4 sm:p-5">
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <h3 className="text-base font-bold leading-tight flex-1">{name}</h3>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              const added = toggleWishlist(product.id);
+              toast.success(added
+                ? t({ ar: 'أضيف إلى المفضلة', fr: 'Ajouté aux favoris', en: 'Added to wishlist' })
+                : t({ ar: 'أزيل من المفضلة', fr: 'Retiré des favoris', en: 'Removed from wishlist' }));
+            }}
+            aria-label={`${wished ? t({ ar: 'إزالة من المفضلة', fr: 'Retirer des favoris', en: 'Remove from wishlist' }) : t({ ar: 'إضافة إلى المفضلة', fr: 'Ajouter aux favoris', en: 'Add to wishlist' })}: ${name}`}
+            title={wished ? t({ ar: 'إزالة من المفضلة', fr: 'Retirer des favoris', en: 'Remove from wishlist' }) : t({ ar: 'إضافة إلى المفضلة', fr: 'Ajouter aux favoris', en: 'Add to wishlist' })}
+            className="shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-muted transition"
+          >
+            <Heart className={`w-4 h-4 ${wished ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} />
+          </button>
+        </div>
+        <p className="text-sm text-muted-foreground/80 line-clamp-2 mb-3">{description}</p>
+
+        <div className="flex items-center gap-2 mb-4" onClick={(e) => e.stopPropagation()}>
+          {onSale ? (
+            <>
+              <span className="text-xl font-black text-primary">{product.salePrice!.toLocaleString()} د.ج</span>
+              <span className="text-sm font-semibold text-muted-foreground line-through">{product.price.toLocaleString()} د.ج</span>
+              <span className="text-[11px] font-bold bg-red-500 text-white px-2 py-0.5 rounded-full">
+                -{Math.round((1 - product.salePrice! / product.price) * 100)}%
+              </span>
+            </>
+          ) : (
+            <span className="text-xl font-black text-primary">{product.price.toLocaleString()} د.ج</span>
+          )}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2" onClick={(e) => e.stopPropagation()}>
+          <div className="flex items-center gap-1 bg-muted rounded-lg p-0.5">
+            <button
+              onClick={() => onQuantityChange(product.id, -1)}
+              aria-label={t({ ar: 'إنقاص الكمية', fr: 'Diminuer', en: 'Decrease' })}
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-background rounded-md transition"
+            >
+              <Minus className="w-4 h-4" />
+            </button>
+            <span className="px-1 font-semibold text-sm min-w-[1.5rem] text-center">{quantity}</span>
+            <button
+              onClick={() => onQuantityChange(product.id, 1)}
+              aria-label={t({ ar: 'زيادة الكمية', fr: 'Augmenter', en: 'Increase' })}
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-background rounded-md transition"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="flex flex-1 items-center gap-2 min-w-[150px]">
+            <button
+              onClick={() => onOrder(product)}
+              aria-label={t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}
+              className="flex-1 min-h-[44px] bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95"
+            >
+              <ShoppingCart className="w-3.5 h-3.5" />
+              <span>{t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}</span>
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); onQuickView(product); }}
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg border border-border hover:bg-muted transition"
+              aria-label={t({ ar: 'معاينة', fr: 'Aperçu', en: 'Quick view' })}
+            >
+              <Eye className="w-4 h-4 text-muted-foreground" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+});
 
 export function Products() {
   const { t, language } = useLanguage();
@@ -200,29 +348,30 @@ export function Products() {
   const submitLock = useRef(false);
   const [lastOrderId, setLastOrderId] = useState<string | null>(null);
 
-  const updateQuantity = (productId: number, delta: number) => {
-    const current = quantities[productId] || 1;
+  const updateQuantity = useCallback((productId: number, delta: number) => {
     const product = products.find(p => p.id === productId);
     const maxStock = product?.stock ?? 10000;
-    const newQty = Math.max(1, Math.min(current + delta, maxStock));
-    setQuantities((prev) => ({ ...prev, [productId]: newQty }));
-  };
+    setQuantities((prev) => {
+      const current = prev[productId] || 1;
+      return { ...prev, [productId]: Math.max(1, Math.min(current + delta, maxStock)) };
+    });
+  }, [products]);
 
-  const openProductDetails = (product: Product) => {
+  const openProductDetails = useCallback((product: Product) => {
     setViewingProduct(product);
-  };
+  }, []);
 
-  const closeProductDetails = () => {
+  const closeProductDetails = useCallback(() => {
     setViewingProduct(null);
-  };
+  }, []);
 
-  const openQuickView = (product: Product) => {
+  const openQuickView = useCallback((product: Product) => {
     setQuickViewProduct(product);
-  };
+  }, []);
 
-  const closeQuickView = () => {
+  const closeQuickView = useCallback(() => {
     setQuickViewProduct(null);
-  };
+  }, []);
 
   const shareProduct = (product: Product) => {
     const name = language === 'ar' ? product.nameAr : language === 'fr' ? product.nameFr : product.nameEn;
@@ -239,20 +388,20 @@ export function Products() {
     window.open(waUrl, '_blank');
   };
 
-  const openOrderModal = (product: Product) => {
+  const openOrderModal = useCallback((product: Product) => {
     setSelectedProduct(product);
     setViewingProduct(null);
     setQuickViewProduct(null);
     setSubmitted(false);
     setLastOrderId(null);
-  };
+  }, []);
 
-  const closeOrderModal = () => {
+  const closeOrderModal = useCallback(() => {
     setSelectedProduct(null);
     setViewingProduct(null);
     setSubmitted(false);
     setLastOrderId(null);
-  };
+  }, []);
 
   // Order sheet: freeze background scroll, allow Escape, and make the page behind inert.
   const orderSheetOpen = !!selectedProduct;
@@ -600,103 +749,16 @@ export function Products() {
         <>
         <div className="grid grid-cols-1 min-[360px]:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
           {paginatedProducts.map((product, index) => (
-            <div
+            <ProductCard
               key={product.id}
-              onClick={() => openProductDetails(product)}
-              className="group bg-card rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 border border-border/50 hover:border-primary/30 cursor-pointer relative"
-            >
-              <TiltedCard
-                imageSrc={product.image}
-                priority={index < 6}
-                altText={language === 'ar' ? product.nameAr : product.nameEn}
-                captionText={`${product.price.toLocaleString()} د.ج`}
-                containerHeight="200px"
-                containerWidth="100%"
-                imageHeight="200px"
-                imageWidth="100%"
-                scaleOnHover={1.05}
-                rotateAmplitude={12}
-                showMobileWarning={false}
-                showTooltip={true}
-                displayOverlayContent={true}
-                overlayContent={
-                  <div className="relative w-full h-full">
-                    {product.salePrice && product.saleEnd && new Date(product.saleEnd) > new Date() && (
-                      <div className="absolute top-2 left-2 flex flex-col gap-1">
-                        <div className="bg-red-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold shadow-lg">
-                          {language === 'ar' ? 'تخفيض' : language === 'fr' ? 'SOLDE' : 'SALE'}
-                        </div>
-                      </div>
-                    )}
-                    <div className="absolute top-2 right-2 bg-primary text-primary-foreground px-2.5 py-1 rounded-lg text-xs font-bold shadow-sm">
-                      {(product.salePrice && product.saleEnd && new Date(product.saleEnd) > new Date() ? product.salePrice : product.price).toLocaleString()} د.ج
-                    </div>
-                    {product.brand && (
-                      <div className="absolute bottom-2 left-2 bg-black/40 backdrop-blur-sm text-white/90 px-2 py-0.5 rounded-lg text-[10px] font-medium">
-                        {product.brand}
-                      </div>
-                    )}
-                  </div>
-                }
-              />
-
-              <div className="p-4 sm:p-5">
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <h3 className="text-base font-bold leading-tight flex-1">
-                    {language === 'ar' ? product.nameAr : language === 'fr' ? product.nameFr : product.nameEn}
-                  </h3>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); const added = toggleWishlist(product.id); toast.success(added ? t({ ar: 'أضيف إلى المفضلة', fr: 'Ajouté aux favoris', en: 'Added to wishlist' }) : t({ ar: 'أزيل من المفضلة', fr: 'Retiré des favoris', en: 'Removed from wishlist' })); }}
-                    aria-label={`${isInWishlist(product.id) ? t({ ar: 'إزالة من المفضلة', fr: 'Retirer des favoris', en: 'Remove from wishlist' }) : t({ ar: 'إضافة إلى المفضلة', fr: 'Ajouter aux favoris', en: 'Add to wishlist' })}: ${language === 'ar' ? product.nameAr : language === 'fr' ? product.nameFr : product.nameEn}`}
-                    title={isInWishlist(product.id) ? t({ ar: 'إزالة من المفضلة', fr: 'Retirer des favoris', en: 'Remove from wishlist' }) : t({ ar: 'إضافة إلى المفضلة', fr: 'Ajouter aux favoris', en: 'Add to wishlist' })}
-                    className="shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-muted transition"
-                  >
-                    <Heart className={`w-4 h-4 ${isInWishlist(product.id) ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} />
-                  </button>
-                </div>
-                <p className="text-sm text-muted-foreground/80 line-clamp-2 mb-3">
-                  {language === 'ar' ? product.descAr : language === 'fr' ? product.descFr : product.descEn}
-                </p>
-
-                <div className="flex items-center gap-2 mb-4" onClick={(e) => e.stopPropagation()}>
-                  {product.salePrice && product.saleEnd && new Date(product.saleEnd) > new Date() ? (
-                    <>
-                      <span className="text-xl font-black text-primary">{product.salePrice.toLocaleString()} د.ج</span>
-                      <span className="text-sm font-semibold text-muted-foreground line-through">{product.price.toLocaleString()} د.ج</span>
-                      <span className="text-[11px] font-bold bg-red-500 text-white px-2 py-0.5 rounded-full">
-                        -{Math.round((1 - product.salePrice / product.price) * 100)}%
-                      </span>
-                    </>
-                  ) : (
-                    <span className="text-xl font-black text-primary">{product.price.toLocaleString()} د.ج</span>
-                  )}
-                </div>
-
-                <div className="flex flex-wrap items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                  <div className="flex items-center gap-1 bg-muted rounded-lg p-0.5">
-                    <button onClick={() => updateQuantity(product.id, -1)} aria-label={t({ ar: 'إنقاص الكمية', fr: 'Diminuer', en: 'Decrease' })} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-background rounded-md transition">
-                      <Minus className="w-4 h-4" />
-                    </button>
-                    <span className="px-1 font-semibold text-sm min-w-[1.5rem] text-center">{quantities[product.id] || 1}</span>
-                    <button onClick={() => updateQuantity(product.id, 1)} aria-label={t({ ar: 'زيادة الكمية', fr: 'Augmenter', en: 'Increase' })} className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-background rounded-md transition">
-                      <Plus className="w-4 h-4" />
-                    </button>
-                  </div>
-                  <div className="flex flex-1 items-center gap-2 min-w-[150px]">
-                    <button onClick={() => openOrderModal(product)} aria-label={t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}
-                      className="flex-1 min-h-[44px] bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95">
-                      <ShoppingCart className="w-3.5 h-3.5" />
-                      <span>{t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}</span>
-                    </button>
-                    <button onClick={(e) => { e.stopPropagation(); openQuickView(product); }}
-                      className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg border border-border hover:bg-muted transition"
-                      aria-label={t({ ar: 'معاينة', fr: 'Aperçu', en: 'Quick view' })}>
-                      <Eye className="w-4 h-4 text-muted-foreground" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
+              product={product}
+              priority={index < 6}
+              quantity={quantities[product.id] || 1}
+              onDetails={openProductDetails}
+              onOrder={openOrderModal}
+              onQuickView={openQuickView}
+              onQuantityChange={updateQuantity}
+            />
           ))}
         </div>
         {/* Pagination */}
@@ -877,7 +939,7 @@ export function Products() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[var(--z-modal)] flex items-end sm:items-center justify-center sm:p-6 bg-black/60 backdrop-blur-sm"
+          className="fixed inset-0 z-[var(--z-modal)] flex items-end sm:items-center justify-center sm:p-6 bg-black/70 sm:bg-black/60 sm:backdrop-blur-sm"
           onClick={closeOrderModal}
         >
           <motion.div

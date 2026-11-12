@@ -129,6 +129,17 @@
   );
 }
 
+/*
+ * Offscreen hero: the canvas loop is paused from JS, and the CSS motion is
+ * parked here so the compositor does not animate an invisible layer.
+ */
+.tech-hero-paused .tech-hero-grid,
+.tech-hero-paused .tech-hero-orb-one,
+.tech-hero-paused .tech-hero-orb-two,
+.tech-hero-paused .tech-hero-scan {
+  animation-play-state: paused;
+}
+
 @keyframes tech-grid-drift {
   from {
     transform: translate3d(0, 0, 0);

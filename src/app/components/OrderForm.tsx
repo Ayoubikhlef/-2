@@ -10,8 +10,6 @@ import { formatPrice } from '../lib/utils';
 import { DeliveryCalculator } from './DeliveryCalculator';
 import { TrustBadges } from './AnnouncementBar';
 import { getSiteSettings } from '../utils/siteSettingsStorage';
-import confetti from 'canvas-confetti';
-import { generateInvoice } from './InvoicePDF';
 import { submitOrderToSheet } from '../utils/googleForm';
 
 type PaymentMethod = 'cod';
@@ -215,6 +213,9 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
       toast.success(t({ ar: 'تم إرسال الطلب! سيتم التواصل معك قريباً.', fr: 'Commande envoyée! Nous vous contacterons bientôt.', en: 'Order sent! We will contact you soon.' }));
 
       try {
+        // Only celebrate once the order is confirmed; keeping this out of the
+        // initial bundle avoids loading the confetti runtime on every visit.
+        const { default: confetti } = await import('canvas-confetti');
         confetti({
           particleCount: 150,
           spread: 80,
@@ -454,7 +455,12 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
                     {lastOrder && (
                       <button
                         type="button"
-                        onClick={async () => { await generateInvoice(lastOrder, language); }}
+                        onClick={async () => {
+                          // jsPDF + html2canvas are ~750 KB; load them only
+                          // when the customer actually asks for the invoice.
+                          const { generateInvoice } = await import('./InvoicePDF');
+                          await generateInvoice(lastOrder, language);
+                        }}
                         className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 px-5 py-3 text-sm font-bold text-white hover:from-emerald-400 hover:to-green-500 shadow-md transition-all"
                       >
                         <FileText className="w-4 h-4" />

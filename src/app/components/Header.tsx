@@ -1,5 +1,5 @@
 import { Phone, Menu, X, ShoppingCart, User, LogOut, Sun, Moon } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type MouseEvent } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { getSiteSettings } from '../utils/siteSettingsStorage';
 import { brand } from '../config/brand';
 import { OpenStatusBadge } from './OpenStatusBadge';
+import { navigateToCheckout } from '../utils/navigation';
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -40,6 +41,17 @@ export function Header() {
   // Hash links only work on the home page; from /create-website they must point
   // back to the home page before jumping to the section.
   const pageHref = (href: string) => (!onHomePage && href.startsWith('#') ? `/${href}` : href);
+
+  // On the home page the browser handles the hash natively. From a product or
+  // factory page, the plain `/#checkout` link used to reload the entire app;
+  // route it through the in-memory navigator instead.
+  const handleOrderClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    setMobileMenuOpen(false);
+    if (onHomePage) return;
+    event.preventDefault();
+    navigateToCheckout();
+  };
 
   return (
     <header className={`sticky top-0 z-[var(--z-header)] transition-all duration-300 ${scrolled ? 'bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl shadow-lg shadow-black/5 border-b border-border/50' : 'bg-white dark:bg-slate-900 border-b border-border/30'}`}>
@@ -111,6 +123,7 @@ export function Header() {
 
             <a
               href={pageHref('#checkout')}
+              onClick={handleOrderClick}
               className="inline-flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-primary/90 transition-all shadow-sm shadow-primary/20 hover:shadow-md hover:shadow-primary/30"
             >
               {t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}
@@ -202,7 +215,7 @@ export function Header() {
                   <a
                     href={pageHref('#checkout')}
                     className="block w-full text-center bg-primary text-white py-3 rounded-lg font-bold hover:bg-primary/90 transition-all"
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={handleOrderClick}
                   >
                     {t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}
                   </a>

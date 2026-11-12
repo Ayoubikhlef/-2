@@ -24,6 +24,7 @@ import { getSiteSettings } from '../utils/siteSettingsStorage';
 import type { Review } from '../utils/reviewStorage';
 import { Reviews } from './Reviews';
 import { formatPrice } from '../lib/utils';
+import { navigateToCheckout } from '../utils/navigation';
 
 function productName(product: Product, language: 'ar' | 'fr' | 'en') {
   return language === 'ar' ? product.nameAr : language === 'fr' ? product.nameFr : product.nameEn;
@@ -131,8 +132,9 @@ export function ProductPage({ slug }: { slug: string }) {
       dimensions: product.dimensions,
     });
     if (goToCheckout) {
-      // Let CartProvider persist the new line before the full navigation.
-      setTimeout(() => { window.location.href = '/#checkout'; }, 120);
+      // Same-document navigation: the cart is already persisted and the app is
+      // loaded, so a full reload would only add seconds of blank screen.
+      setTimeout(() => { navigateToCheckout(); }, 120);
       return;
     }
     toast.success(t({ ar: 'أُضيف إلى السلة', fr: 'Ajouté au panier', en: 'Added to cart' }));
