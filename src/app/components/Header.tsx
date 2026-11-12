@@ -9,7 +9,6 @@ import { Cart } from './CartView';
 import { motion, AnimatePresence } from 'motion/react';
 import { getSiteSettings } from '../utils/siteSettingsStorage';
 import { brand } from '../config/brand';
-import { OpenStatusBadge } from './OpenStatusBadge';
 import { navigateToCheckout } from '../utils/navigation';
 
 export function Header() {
@@ -87,8 +86,6 @@ export function Header() {
               <Phone className="w-4 h-4" />
               <span className="font-bold whitespace-nowrap">{settings.contact.phoneDisplay}</span>
             </div>
-
-            <OpenStatusBadge className="hidden xl:inline-flex" />
 
             {user && (
               <a href={pageHref('#account')} className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-foreground/70 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors">
