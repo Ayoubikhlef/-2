@@ -14,6 +14,7 @@ import { VisualSearch } from './VisualSearch';
 import { Reviews } from './Reviews';
 import { FlashSaleTimer } from './FlashSaleTimer';
 import { brand } from '../config/brand';
+import './ProductCard.css';
 import { ProductComparison } from './ProductComparison';
 import { ProductGallery } from './ProductGallery';
 import { SearchSuggestions } from './SearchSuggestions';
@@ -85,51 +86,45 @@ const ProductCard = memo(function ProductCard({
   return (
     <div
       onClick={() => onDetails(product)}
-      className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm transition-all duration-500 hover:border-primary/30 hover:shadow-xl cursor-pointer"
+      className="product-card group"
     >
-      <div className="relative">
+      <div className="product-card__image">
         <TiltedCard
           imageSrc={product.image}
           priority={priority}
           altText={language === 'ar' ? product.nameAr : product.nameEn}
-          captionText={`${product.price.toLocaleString()} د.ج`}
-          containerHeight="180px"
+          containerHeight="100%"
           containerWidth="100%"
-          imageHeight="140px"
-          imageWidth="180px"
-          scaleOnHover={1.05}
-          rotateAmplitude={12}
+          imageHeight="100%"
+          imageWidth="100%"
+          scaleOnHover={1.04}
+          rotateAmplitude={10}
           showMobileWarning={false}
-          showTooltip={true}
+          showTooltip={false}
         />
 
         {onSale && (
-          <div className="absolute top-2 left-2 flex flex-col gap-1">
-            <div className="bg-red-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold shadow-lg">
-              {language === 'ar' ? 'تخفيض' : language === 'fr' ? 'SOLDE' : 'SALE'}
-            </div>
-          </div>
+          <span className="product-card__sale">
+            {language === 'ar' ? 'تخفيض' : language === 'fr' ? 'SOLDE' : 'SALE'}
+          </span>
         )}
-        <div className="absolute top-2 right-2 bg-primary text-primary-foreground px-2.5 py-1 rounded-lg text-xs font-bold shadow-sm">
-          {(onSale ? product.salePrice! : product.price).toLocaleString()} د.ج
-        </div>
-        {product.brand && (
-          <div className="absolute bottom-2 left-2 bg-black/40 backdrop-blur-sm text-white/90 px-2 py-0.5 rounded-lg text-[10px] font-medium">
+        {product.brand && product.brand.toLowerCase() !== 'generic' && (
+          <span className="product-card__brand" data-brand={product.brand}>
             {product.brand}
-          </div>
+          </span>
         )}
         <button
           onClick={(e) => { e.stopPropagation(); onQuickView(product); }}
-          className="absolute bottom-2 right-2 flex min-h-[36px] min-w-[36px] items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm transition hover:bg-black/60"
+          className="product-card__quick-view"
           aria-label={t({ ar: 'معاينة', fr: 'Aperçu', en: 'Quick view' })}
         >
-          <Eye className="w-4 h-4" />
+          <Eye className="h-4 w-4" />
         </button>
       </div>
 
-      <div className="flex flex-1 flex-col p-4 sm:p-5">
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="text-base font-bold leading-tight line-clamp-2 min-h-10 flex-1">{name}</h3>
+      <div className="product-card__body">
+        <div className="product-card__heading">
+          <h3 className="product-card__title">{name}</h3>
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -140,52 +135,51 @@ const ProductCard = memo(function ProductCard({
             }}
             aria-label={`${wished ? t({ ar: 'إزالة من المفضلة', fr: 'Retirer des favoris', en: 'Remove from wishlist' }) : t({ ar: 'إضافة إلى المفضلة', fr: 'Ajouter aux favoris', en: 'Add to wishlist' })}: ${name}`}
             title={wished ? t({ ar: 'إزالة من المفضلة', fr: 'Retirer des favoris', en: 'Remove from wishlist' }) : t({ ar: 'إضافة إلى المفضلة', fr: 'Ajouter aux favoris', en: 'Add to wishlist' })}
-            className="shrink-0 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full hover:bg-muted transition"
+            className="product-card__fav"
           >
-            <Heart className={`w-4 h-4 ${wished ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} />
+            <Heart className={wished ? 'fill-red-500 text-red-500' : 'text-muted-foreground'} />
           </button>
         </div>
-        <p className="text-sm text-muted-foreground/80 line-clamp-2 min-h-10 mb-3">{description}</p>
 
-        <div className="flex min-h-8 items-center gap-2 mb-4" onClick={(e) => e.stopPropagation()}>
+        <p className="product-card__desc">{description}</p>
+
+        <div className="product-card__price" onClick={(e) => e.stopPropagation()}>
           {onSale ? (
             <>
-              <span className="text-xl font-black text-primary">{product.salePrice!.toLocaleString()} د.ج</span>
-              <span className="text-sm font-semibold text-muted-foreground line-through">{product.price.toLocaleString()} د.ج</span>
-              <span className="text-[11px] font-bold bg-red-500 text-white px-2 py-0.5 rounded-full">
+              <span className="product-card__price-current">{product.salePrice!.toLocaleString()} د.ج</span>
+              <span className="product-card__price-old">{product.price.toLocaleString()} د.ج</span>
+              <span className="product-card__discount">
                 -{Math.round((1 - product.salePrice! / product.price) * 100)}%
               </span>
             </>
           ) : (
-            <span className="text-xl font-black text-primary">{product.price.toLocaleString()} د.ج</span>
+            <span className="product-card__price-current">{product.price.toLocaleString()} د.ج</span>
           )}
         </div>
 
-        <div className="mt-auto flex flex-wrap items-center gap-2" onClick={(e) => e.stopPropagation()}>
-          <div className="flex items-center gap-1 bg-muted rounded-lg p-0.5">
+        <div className="product-card__actions" onClick={(e) => e.stopPropagation()}>
+          <div className="product-card__qty">
             <button
               onClick={() => onQuantityChange(product.id, -1)}
               aria-label={t({ ar: 'إنقاص الكمية', fr: 'Diminuer', en: 'Decrease' })}
-              className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-background rounded-md transition"
             >
-              <Minus className="w-4 h-4" />
+              <Minus className="h-4 w-4" />
             </button>
-            <span className="px-1 font-semibold text-sm min-w-[1.5rem] text-center">{quantity}</span>
+            <span>{quantity}</span>
             <button
               onClick={() => onQuantityChange(product.id, 1)}
               aria-label={t({ ar: 'زيادة الكمية', fr: 'Augmenter', en: 'Increase' })}
-              className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-background rounded-md transition"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="h-4 w-4" />
             </button>
           </div>
           <button
             onClick={() => onOrder(product)}
             aria-label={t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}
-            className="flex min-h-[44px] min-w-[110px] flex-1 items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:scale-95"
+            className="product-card__order"
           >
-            <ShoppingCart className="w-3.5 h-3.5 shrink-0" />
-            <span className="whitespace-nowrap">{t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}</span>
+            <ShoppingCart className="h-4 w-4 shrink-0" />
+            <span>{t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}</span>
           </button>
         </div>
       </div>
@@ -743,7 +737,7 @@ export function Products() {
           </div>
         ) : (
         <>
-        <div className="grid grid-cols-1 min-[360px]:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+        <div className="product-grid">
           {paginatedProducts.map((product, index) => (
             <ProductCard
               key={product.id}

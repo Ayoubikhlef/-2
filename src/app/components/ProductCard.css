@@ -1,0 +1,333 @@
+/* ===== شبكة المنتجات ===== */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+  max-width: 1280px;
+  margin-inline: auto;
+}
+
+/* ===== البطاقة: ارتفاع موحّد والأزرار في الأسفل ===== */
+.product-card {
+  --pc-surface: #fff;
+  --pc-border: #e8ecf2;
+  --pc-title: #111827;
+  --pc-desc: #4b5563;
+  --pc-price: #0b57d0;
+  --pc-qty-bg: #f1f4f9;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+  background: var(--pc-surface);
+  border: 1px solid var(--pc-border);
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.product-card:hover {
+  border-color: #c9d8ee;
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.1);
+}
+
+.dark .product-card {
+  --pc-surface: var(--card);
+  --pc-border: var(--border);
+  --pc-title: var(--foreground);
+  --pc-desc: var(--muted-foreground);
+  --pc-price: #7ab3ff;
+  --pc-qty-bg: var(--muted);
+}
+
+.dark .product-card:hover {
+  border-color: var(--ring);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.4);
+}
+
+.product-card button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* ===== الصورة: مربع موحّد بخلفية بيضاء ===== */
+.product-card__image {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  overflow: hidden;
+  background: #fff;
+}
+
+.product-card__image .tilted-card-figure {
+  width: 100%;
+  height: 100%;
+  background: #fff;
+}
+
+.product-card__image .tilted-card-inner {
+  width: 100%;
+  height: 100%;
+}
+
+.product-card__image .tilted-card-img {
+  width: 100%;
+  height: 100%;
+  padding: 8%;
+  border-radius: 0;
+}
+
+.product-card__image .tilted-card-skeleton {
+  border-radius: 0;
+  background: linear-gradient(100deg, #f6f8fb 30%, #e9eef5 50%, #f6f8fb 70%);
+  background-size: 220% 100%;
+}
+
+/* ===== النصوص ===== */
+.product-card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px 16px 16px;
+}
+
+.product-card__heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.product-card__title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  color: var(--pc-title);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: start;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: calc(1.4em * 2);
+}
+
+.product-card__desc {
+  margin: 0;
+  color: var(--pc-desc);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  text-align: start;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: calc(1.6em * 3);
+}
+
+.product-card__price {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  margin-top: auto;
+  padding-top: 2px;
+  color: var(--pc-price);
+}
+
+.product-card__price-current {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: inherit;
+}
+
+.product-card__price-old {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--pc-desc);
+  text-decoration: line-through;
+}
+
+.product-card__discount {
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+/* ===== صف الأزرار ===== */
+.product-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.product-card__qty {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  padding: 2px;
+  border-radius: 10px;
+  background: var(--pc-qty-bg);
+}
+
+.product-card__qty button {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 8px;
+  color: var(--pc-title);
+  transition: background 0.2s ease;
+}
+
+.product-card__qty button:hover {
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.dark .product-card__qty button:hover {
+  background: var(--background);
+}
+
+.product-card__qty span {
+  min-width: 22px;
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--pc-title);
+}
+
+.product-card__order {
+  display: flex;
+  flex: 1 1 104px;
+  min-width: 104px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 10px;
+  border-radius: 10px;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: filter 0.2s ease, transform 0.12s ease;
+}
+
+.product-card__order:hover {
+  filter: brightness(1.05);
+}
+
+.product-card__order:active {
+  transform: scale(0.97);
+}
+
+/* ===== الشارات ===== */
+.product-card__brand {
+  position: absolute;
+  top: 10px;
+  inset-inline-start: 10px;
+  z-index: 4;
+  max-width: min(70%, 160px);
+  overflow: hidden;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #f1f4f9;
+  color: #1f2937;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.product-card__brand[data-brand='Generic'] {
+  display: none;
+}
+
+.product-card__sale {
+  position: absolute;
+  top: 10px;
+  inset-inline-end: 10px;
+  z-index: 4;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.product-card__quick-view {
+  position: absolute;
+  bottom: 10px;
+  inset-inline-end: 10px;
+  z-index: 4;
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #111827;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.14);
+  transition: opacity 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.product-card__quick-view:hover {
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.18);
+}
+
+@media (hover: hover) and (pointer: fine) and (min-width: 601px) {
+  .product-card__quick-view {
+    opacity: 0;
+  }
+
+  .product-card:hover .product-card__quick-view,
+  .product-card:focus-within .product-card__quick-view {
+    opacity: 1;
+  }
+}
+
+/* ===== زر المفضلة ===== */
+.product-card__fav {
+  display: grid;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 999px;
+  transition: background 0.2s ease;
+}
+
+.product-card__fav:hover {
+  background: var(--pc-qty-bg);
+}
+
+.product-card__fav svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ===== الجوال ===== */
+@media (max-width: 600px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .product-card__body {
+    padding: 10px;
+  }
+}
