@@ -85,46 +85,51 @@ const ProductCard = memo(function ProductCard({
   return (
     <div
       onClick={() => onDetails(product)}
-      className="group bg-card rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 border border-border/50 hover:border-primary/30 cursor-pointer relative"
+      className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border/50 bg-card shadow-sm transition-all duration-500 hover:border-primary/30 hover:shadow-xl cursor-pointer"
     >
-      <TiltedCard
-        imageSrc={product.image}
-        priority={priority}
-        altText={language === 'ar' ? product.nameAr : product.nameEn}
-        captionText={`${product.price.toLocaleString()} د.ج`}
-        containerHeight="200px"
-        containerWidth="100%"
-        imageHeight="200px"
-        imageWidth="100%"
-        scaleOnHover={1.05}
-        rotateAmplitude={12}
-        showMobileWarning={false}
-        showTooltip={true}
-        displayOverlayContent={true}
-        overlayContent={
-          <div className="relative w-full h-full">
-            {onSale && (
-              <div className="absolute top-2 left-2 flex flex-col gap-1">
-                <div className="bg-red-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold shadow-lg">
-                  {language === 'ar' ? 'تخفيض' : language === 'fr' ? 'SOLDE' : 'SALE'}
-                </div>
-              </div>
-            )}
-            <div className="absolute top-2 right-2 bg-primary text-primary-foreground px-2.5 py-1 rounded-lg text-xs font-bold shadow-sm">
-              {(onSale ? product.salePrice! : product.price).toLocaleString()} د.ج
-            </div>
-            {product.brand && (
-              <div className="absolute bottom-2 left-2 bg-black/40 backdrop-blur-sm text-white/90 px-2 py-0.5 rounded-lg text-[10px] font-medium">
-                {product.brand}
-              </div>
-            )}
-          </div>
-        }
-      />
+      <div className="relative">
+        <TiltedCard
+          imageSrc={product.image}
+          priority={priority}
+          altText={language === 'ar' ? product.nameAr : product.nameEn}
+          captionText={`${product.price.toLocaleString()} د.ج`}
+          containerHeight="180px"
+          containerWidth="100%"
+          imageHeight="140px"
+          imageWidth="180px"
+          scaleOnHover={1.05}
+          rotateAmplitude={12}
+          showMobileWarning={false}
+          showTooltip={true}
+        />
 
-      <div className="p-4 sm:p-5">
+        {onSale && (
+          <div className="absolute top-2 left-2 flex flex-col gap-1">
+            <div className="bg-red-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold shadow-lg">
+              {language === 'ar' ? 'تخفيض' : language === 'fr' ? 'SOLDE' : 'SALE'}
+            </div>
+          </div>
+        )}
+        <div className="absolute top-2 right-2 bg-primary text-primary-foreground px-2.5 py-1 rounded-lg text-xs font-bold shadow-sm">
+          {(onSale ? product.salePrice! : product.price).toLocaleString()} د.ج
+        </div>
+        {product.brand && (
+          <div className="absolute bottom-2 left-2 bg-black/40 backdrop-blur-sm text-white/90 px-2 py-0.5 rounded-lg text-[10px] font-medium">
+            {product.brand}
+          </div>
+        )}
+        <button
+          onClick={(e) => { e.stopPropagation(); onQuickView(product); }}
+          className="absolute bottom-2 right-2 flex min-h-[36px] min-w-[36px] items-center justify-center rounded-full bg-black/40 text-white backdrop-blur-sm transition hover:bg-black/60"
+          aria-label={t({ ar: 'معاينة', fr: 'Aperçu', en: 'Quick view' })}
+        >
+          <Eye className="w-4 h-4" />
+        </button>
+      </div>
+
+      <div className="flex flex-1 flex-col p-4 sm:p-5">
         <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="text-base font-bold leading-tight flex-1">{name}</h3>
+          <h3 className="text-base font-bold leading-tight line-clamp-2 min-h-10 flex-1">{name}</h3>
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -140,9 +145,9 @@ const ProductCard = memo(function ProductCard({
             <Heart className={`w-4 h-4 ${wished ? 'fill-red-500 text-red-500' : 'text-muted-foreground'}`} />
           </button>
         </div>
-        <p className="text-sm text-muted-foreground/80 line-clamp-2 mb-3">{description}</p>
+        <p className="text-sm text-muted-foreground/80 line-clamp-2 min-h-10 mb-3">{description}</p>
 
-        <div className="flex items-center gap-2 mb-4" onClick={(e) => e.stopPropagation()}>
+        <div className="flex min-h-8 items-center gap-2 mb-4" onClick={(e) => e.stopPropagation()}>
           {onSale ? (
             <>
               <span className="text-xl font-black text-primary">{product.salePrice!.toLocaleString()} د.ج</span>
@@ -156,7 +161,7 @@ const ProductCard = memo(function ProductCard({
           )}
         </div>
 
-        <div className="flex flex-wrap items-center gap-2" onClick={(e) => e.stopPropagation()}>
+        <div className="mt-auto flex flex-wrap items-center gap-2" onClick={(e) => e.stopPropagation()}>
           <div className="flex items-center gap-1 bg-muted rounded-lg p-0.5">
             <button
               onClick={() => onQuantityChange(product.id, -1)}
@@ -174,23 +179,14 @@ const ProductCard = memo(function ProductCard({
               <Plus className="w-4 h-4" />
             </button>
           </div>
-          <div className="flex flex-1 items-center gap-2 min-w-[150px]">
-            <button
-              onClick={() => onOrder(product)}
-              aria-label={t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}
-              className="flex-1 min-h-[44px] bg-primary text-primary-foreground hover:bg-primary/90 px-3 py-2 rounded-lg text-sm font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95"
-            >
-              <ShoppingCart className="w-3.5 h-3.5" />
-              <span>{t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}</span>
-            </button>
-            <button
-              onClick={(e) => { e.stopPropagation(); onQuickView(product); }}
-              className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg border border-border hover:bg-muted transition"
-              aria-label={t({ ar: 'معاينة', fr: 'Aperçu', en: 'Quick view' })}
-            >
-              <Eye className="w-4 h-4 text-muted-foreground" />
-            </button>
-          </div>
+          <button
+            onClick={() => onOrder(product)}
+            aria-label={t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}
+            className="flex min-h-[44px] min-w-[110px] flex-1 items-center justify-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:scale-95"
+          >
+            <ShoppingCart className="w-3.5 h-3.5 shrink-0" />
+            <span className="whitespace-nowrap">{t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}</span>
+          </button>
         </div>
       </div>
     </div>
@@ -747,7 +743,7 @@ export function Products() {
           </div>
         ) : (
         <>
-        <div className="grid grid-cols-1 min-[360px]:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+        <div className="grid grid-cols-1 min-[360px]:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {paginatedProducts.map((product, index) => (
             <ProductCard
               key={product.id}
