@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
 import { Package, Truck, CheckCircle, XCircle, Search } from 'lucide-react';
 import { toast } from 'sonner';
@@ -27,6 +27,13 @@ const statusLabels = {
   ar: { new: 'جديد', processing: 'قيد المعالجة', completed: 'مكتمل', cancelled: 'ملغي' },
   fr: { new: 'Nouveau', processing: 'En cours', completed: 'Terminé', cancelled: 'Annulé' },
   en: { new: 'New', processing: 'Processing', completed: 'Completed', cancelled: 'Cancelled' },
+};
+
+const statusBadgeClasses: Record<OrderStatus, string> = {
+  new: 'bg-blue-500/15 text-blue-600 dark:text-blue-400 ring-1 ring-blue-500/30',
+  processing: 'bg-amber-500/15 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/30',
+  completed: 'bg-green-500/15 text-green-600 dark:text-green-400 ring-1 ring-green-500/30',
+  cancelled: 'bg-red-500/15 text-red-500 dark:text-red-400 ring-1 ring-red-500/30',
 };
 
 function Stepper({ status }: { status: OrderStatus }) {
@@ -215,10 +222,47 @@ function OrderCard({ order }: { order: OrderRecord }) {
 }
 
 export function OrderTracking() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [orderId, setOrderId] = useState('');
   const [order, setOrder] = useState<OrderRecord | null>(null);
   const [loading, setLoading] = useState(false);
+  const [recentOrders, setRecentOrders] = useState<OrderRecord[]>([]);
+  const [showAllOrders, setShowAllOrders] = useState(false);
+  const detailsRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const loadLocalOrders = () => {
+      const list = getOrders()
+        .slice()
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      setRecentOrders(list);
+    };
+    loadLocalOrders();
+    window.addEventListener('aos:data-changed', loadLocalOrders);
+    window.addEventListener('storage', loadLocalOrders);
+    return () => {
+      window.removeEventListener('aos:data-changed', loadLocalOrders);
+      window.removeEventListener('storage', loadLocalOrders);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!order) return;
+    detailsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [order]);
+
+  const handleSelectOrder = useCallback((record: OrderRecord) => {
+    setOrder(record);
+    setOrderId(record.id);
+  }, []);
+
+  const formatShortDate = (value: string) =>
+    new Date(value).toLocaleDateString(
+      language === 'ar' ? 'ar-DZ' : language === 'fr' ? 'fr-DZ' : 'en-DZ',
+      { day: 'numeric', month: 'short', year: 'numeric' }
+    );
+
+  const visibleOrders = showAllOrders ? recentOrders : recentOrders.slice(0, 3);
 
   const handleSearch = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -277,7 +321,7 @@ export function OrderTracking() {
       viewport={{ once: true, margin: '-100px' }}
       transition={{ duration: 0.6 }}
       id="order-tracking"
-      className="py-20 bg-gradient-to-b from-white/80 to-slate-50/70 dark:from-transparent dark:to-transparent"
+      className="scroll-mt-24 py-20 bg-gradient-to-b from-white/80 to-slate-50/70 dark:from-transparent dark:to-transparent"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
@@ -327,7 +371,85 @@ export function OrderTracking() {
           </form>
         </div>
 
-        {order && <OrderCard order={order} />}
+        {recentOrders.length > 0 && (
+          <div className="max-w-3xl mx-auto mb-12">
+            <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
+              <div>
+                <h3 className="text-lg font-bold text-foreground">
+                  {t({ ar: 'طلباتك على هذا الجهاز', fr: 'Vos commandes sur cet appareil', en: 'Your orders on this device' })}
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {t({
+                    ar: 'محفوظة في هذا المتصفح فقط. اضغط على أي طلب لعرض تفاصيله.',
+                    fr: 'Enregistrées dans ce navigateur uniquement. Cliquez sur une commande pour voir ses détails.',
+                    en: 'Saved in this browser only. Click an order to see its details.',
+                  })}
+                </p>
+              </div>
+              <span className="inline-flex items-center rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-bold">
+                {recentOrders.length}
+              </span>
+            </div>
+
+            <div className="space-y-2">
+              {visibleOrders.map((record) => {
+                const itemCount = (record.items || []).reduce((sum, item) => sum + item.quantity, 0);
+                return (
+                  <button
+                    key={record.id}
+                    type="button"
+                    onClick={() => handleSelectOrder(record)}
+                    className="group flex w-full items-center justify-between gap-4 rounded-2xl border border-border bg-card px-4 py-3 text-start shadow-sm transition-all hover:border-primary/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                  >
+                    <div className="flex min-w-0 items-center gap-3">
+                      <span className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${statusBadgeClasses[record.status]}`}>
+                        {statusLabels[language][record.status]}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="truncate font-mono text-sm font-semibold text-foreground">
+                          #{record.id.slice(0, 8)}
+                        </p>
+                        <p className="truncate text-xs text-muted-foreground">
+                          {formatShortDate(record.createdAt)} · {itemCount} {t({ ar: 'قطعة', fr: 'article(s)', en: 'item(s)' })}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="shrink-0 text-end">
+                      <p className="text-sm font-bold text-primary">
+                        {Number(record.total).toLocaleString()} د.ج
+                      </p>
+                      <p className="text-[11px] font-semibold text-muted-foreground transition-colors group-hover:text-primary">
+                        {t({ ar: 'عرض التفاصيل', fr: 'Voir les détails', en: 'View details' })}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {recentOrders.length > 3 && (
+              <button
+                type="button"
+                onClick={() => setShowAllOrders((value) => !value)}
+                className="mt-3 w-full rounded-xl border border-dashed border-border px-4 py-2.5 text-sm font-semibold text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary"
+              >
+                {showAllOrders
+                  ? t({ ar: 'عرض أقل', fr: 'Voir moins', en: 'Show less' })
+                  : t({
+                      ar: `عرض كل الطلبات (${recentOrders.length})`,
+                      fr: `Voir toutes les commandes (${recentOrders.length})`,
+                      en: `Show all orders (${recentOrders.length})`,
+                    })}
+              </button>
+            )}
+          </div>
+        )}
+
+        {order && (
+          <div ref={detailsRef} className="scroll-mt-24">
+            <OrderCard order={order} />
+          </div>
+        )}
       </div>
     </motion.section>
   );
