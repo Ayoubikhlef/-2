@@ -957,17 +957,18 @@ export function Products() {
         <AnimatePresence>
         <motion.div
           key="order-sheet"
-          initial={{ opacity: 0 }}
+          initial={{ opacity: 0.35 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          transition={{ duration: 0.16, ease: 'easeOut' }}
           className="fixed inset-0 z-[var(--z-modal)] flex items-end sm:items-center justify-center sm:p-6 bg-black/70 sm:bg-black/60 sm:backdrop-blur-sm"
           onClick={closeOrderModal}
         >
           <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: 30 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.92, y: 30 }}
-            transition={{ type: 'spring', duration: 0.6 }}
+            initial={{ scale: 0.97, y: 24 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.97, y: 24 }}
+            transition={{ type: 'tween', duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
             role="dialog"
             aria-modal="true"
             aria-label={t({ ar: 'نموذج طلب', fr: 'Formulaire de commande', en: 'Order Form' })}
