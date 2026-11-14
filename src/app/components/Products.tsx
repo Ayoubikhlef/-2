@@ -400,25 +400,56 @@ export function Products() {
     const scrollY = window.scrollY;
     const opener = document.activeElement as HTMLElement | null;
     document.body.classList.add('modal-open');
-
-    let inerted: HTMLElement[] = [];
-    const sheet = document.querySelector('.aos-order-sheet');
+    const sheet = document.querySelector<HTMLElement>('.aos-order-sheet');
     const root = document.getElementById('root');
+
+    // `inert` on #root invalidated the styles of the whole page (~2,100
+    // elements) and delayed the sheet's first paint by ~85ms on a 4x-throttled
+    // phone. aria-hidden plus the Tab trap below keep assistive technology and
+    // keyboard users inside the dialog without a page-wide style recalculation.
     if (sheet && root && !root.contains(sheet)) {
-      root.inert = true;
-      inerted = [root];
+      root.setAttribute('aria-hidden', 'true');
     }
 
+    const focusables = () => {
+      if (!sheet) return [] as HTMLElement[];
+      return Array.from(sheet.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )).filter((el) => el.offsetParent !== null);
+    };
+
+    const focusSheet = () => sheet?.focus({ preventScroll: true });
+
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') closeOrderModal();
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeOrderModal();
+        return;
+      }
+      if (e.key !== 'Tab' || !sheet) return;
+      const list = focusables();
+      if (!list.length) return;
+      const first = list[0];
+      const last = list[list.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+      if (e.shiftKey && (active === first || !sheet.contains(active))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && (active === last || !sheet.contains(active))) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     window.addEventListener('keydown', onKey);
+    // Move assistive-technology focus into the dialog after its first paint.
+    const focusTimer = window.setTimeout(focusSheet, 30);
 
     return () => {
+      window.clearTimeout(focusTimer);
       window.removeEventListener('keydown', onKey);
       document.body.classList.remove('modal-open');
+      root?.removeAttribute('aria-hidden');
       window.scrollTo({ top: scrollY });
-      inerted.forEach((el) => { el.inert = false; });
       opener?.focus?.({ preventScroll: true });
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -940,7 +971,8 @@ export function Products() {
             role="dialog"
             aria-modal="true"
             aria-label={t({ ar: 'نموذج طلب', fr: 'Formulaire de commande', en: 'Order Form' })}
-            className="aos-order-sheet aos-sheet w-full sm:max-w-4xl rounded-t-[28px] sm:rounded-[40px] border border-border bg-background shadow-2xl"
+            tabIndex={-1}
+            className="aos-order-sheet aos-sheet w-full sm:max-w-4xl rounded-t-[28px] sm:rounded-[40px] border border-border bg-background shadow-2xl outline-none"
             onClick={(e) => e.stopPropagation()}
           >
             {submitted ? (
