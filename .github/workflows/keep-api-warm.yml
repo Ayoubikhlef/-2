@@ -97,13 +97,15 @@ jobs:
         if: failure()
         env:
           GH_TOKEN: ${{ github.token }}
+          # The job does not check out the repository, so gh cannot infer it.
+          GH_REPO: ${{ github.repository }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         shell: bash
         run: |
           set -euo pipefail
           title='aos-tech.store health check failing'
-          existing=$(gh issue list --state open --search "in:title \"${title}\"" \
-            --json number --jq '.[0].number // empty')
+          existing=$(gh issue list --state open --limit 100 --json number,title \
+            --jq "[.[] | select(.title == \"${title}\")][0].number // empty")
           if [ -n "${existing}" ]; then
             echo "Issue #${existing} is already open; skipping duplicate creation."
             exit 0
@@ -116,12 +118,14 @@ jobs:
         if: success()
         env:
           GH_TOKEN: ${{ github.token }}
+          # The job does not check out the repository, so gh cannot infer it.
+          GH_REPO: ${{ github.repository }}
         shell: bash
         run: |
           set -euo pipefail
           title='aos-tech.store health check failing'
-          existing=$(gh issue list --state open --search "in:title \"${title}\"" \
-            --json number --jq '.[0].number // empty')
+          existing=$(gh issue list --state open --limit 100 --json number,title \
+            --jq "[.[] | select(.title == \"${title}\")][0].number // empty")
           if [ -n "${existing}" ]; then
             gh issue close "${existing}" \
               --comment "Recovered: the scheduled health check passed at $(date -u +%FT%TZ)."
