@@ -1,4 +1,4 @@
-import { Phone, Menu, X, ShoppingCart, Sun, Moon } from 'lucide-react';
+import { Phone, Menu, X, ShoppingCart, Sun, Moon, User } from 'lucide-react';
 import { useState, useEffect, type MouseEvent } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useCart } from '../contexts/CartContext';
@@ -85,6 +85,15 @@ export function Header() {
               <span className="font-bold whitespace-nowrap">{settings.contact.phoneDisplay}</span>
             </div>
 
+            <a
+              href={pageHref('#account')}
+              className="p-2.5 rounded-lg hover:bg-primary/5 transition-colors"
+              aria-label={t({ ar: 'حسابي', fr: 'Mon compte', en: 'My account' })}
+              title={t({ ar: 'حسابي', fr: 'Mon compte', en: 'My account' })}
+            >
+              <User className="w-5 h-5 text-foreground/70" />
+            </a>
+
             <LanguageSwitcher />
 
             <button
@@ -120,6 +129,13 @@ export function Header() {
 
           {/* Mobile Actions */}
           <div className="flex lg:hidden items-center gap-1 min-[480px]:gap-2">
+            <a
+              href={pageHref('#account')}
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-muted transition-colors"
+              aria-label={t({ ar: 'حسابي', fr: 'Mon compte', en: 'My account' })}
+            >
+              <User className="w-5 h-5" />
+            </a>
             <LanguageSwitcher />
             <button
               onClick={toggleTheme}

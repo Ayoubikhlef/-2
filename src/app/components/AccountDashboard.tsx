@@ -16,7 +16,7 @@ const statusColors: Record<string, string> = {
   cancelled: 'text-red-600 bg-red-500/10 dark:text-red-400',
 };
 
-export function AccountDashboard() {
+export function AccountDashboard({ onSignIn }: { onSignIn?: () => void } = {}) {
   const { t, language } = useLanguage();
   const { user, logout } = useAuth();
   const [tab, setTab] = useState<'orders' | 'addresses' | 'loyalty'>('orders');
@@ -40,22 +40,33 @@ export function AccountDashboard() {
               <Lock className="w-8 h-8" />
             </div>
             <h1 className="text-2xl font-bold text-foreground mb-3">
-              {t({ ar: 'مساحة خاصة بمالك المتجر', fr: 'Espace réservé au propriétaire', en: 'Store owner area' })}
+              {t({ ar: 'سجّل الدخول إلى حسابك', fr: 'Connectez-vous à votre compte', en: 'Sign in to your account' })}
             </h1>
             <p className="text-sm leading-relaxed text-muted-foreground mb-6">
               {t({
-                ar: 'لا يوجد حساب للزوار. يمكنك تصفح المنتجات وإتمام طلبك مباشرة.',
-                fr: 'Aucun compte visiteur. Parcourez les produits et commandez directement.',
-                en: 'There is no visitor account. Browse products and order directly.',
+                ar: 'سجّل الدخول لتتابع طلباتك وتجمع نقاط الولاء. يمكنك أيضاً الشراء بدون حساب.',
+                fr: 'Connectez-vous pour suivre vos commandes et cumuler des points. Vous pouvez aussi commander sans compte.',
+                en: 'Sign in to track your orders and collect loyalty points. You can also order without an account.',
               })}
             </p>
-            <a
-              href="/"
-              className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary/90 transition-colors"
-            >
-              {t({ ar: 'العودة إلى الرئيسية', fr: 'Retour à l’accueil', en: 'Back to home' })}
-              <ChevronRight className="w-4 h-4" />
-            </a>
+            {onSignIn ? (
+              <button
+                type="button"
+                onClick={onSignIn}
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary/90 transition-colors"
+              >
+                {t({ ar: 'تسجيل الدخول أو إنشاء حساب', fr: 'Se connecter ou créer un compte', en: 'Sign in or create an account' })}
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            ) : (
+              <a
+                href="#account"
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground hover:bg-primary/90 transition-colors"
+              >
+                {t({ ar: 'تسجيل الدخول أو إنشاء حساب', fr: 'Se connecter ou créer un compte', en: 'Sign in or create an account' })}
+                <ChevronRight className="w-4 h-4" />
+              </a>
+            )}
           </div>
         </div>
       </section>

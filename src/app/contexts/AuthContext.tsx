@@ -34,9 +34,15 @@ interface AuthContextType {
     challengeToken: string,
     code: string
   ) => Promise<{ backupCodes: string[]; user: User }>;
-  register: (data: { email: string; password: string; name: string; phone?: string }) => Promise<void>;
+  register: (data: {
+    email: string;
+    password: string;
+    name: string;
+    phone?: string;
+  }) => Promise<{ ok: boolean; message: string }>;
   logout: () => Promise<void>;
   isAdmin: boolean;
+  isCustomer: boolean;
   /** Force a token refresh (used when an API call returns 401). */
   refreshAuth: () => Promise<boolean>;
 }
@@ -102,10 +108,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const register = useCallback(async (data: { email: string; password: string; name: string; phone?: string }) => {
-    const result = await api.auth.register(data);
-    setAccessToken(result.accessToken);
-    setStoredUser(result.user);
-    setUser(result.user);
+    // No session is created here: the account must confirm its email first.
+    return api.auth.register(data);
   }, []);
 
   const logout = useCallback(async () => {
@@ -126,6 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const isAdmin = user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN';
+  const isCustomer = user?.role === 'CUSTOMER';
 
   return (
     <AuthContext.Provider
@@ -138,6 +143,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         register,
         logout,
         isAdmin,
+        isCustomer,
         refreshAuth,
       }}
     >

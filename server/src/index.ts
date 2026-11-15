@@ -117,6 +117,8 @@ app.use((_req, res, next) => {
 const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100, handler: securityRateLimitHandler('auth'), validate: { xForwardedForHeader: false } });
 const adminGateLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, handler: securityRateLimitHandler('admin-gate'), validate: { xForwardedForHeader: false } });
 const passwordResetLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, handler: securityRateLimitHandler('password-reset'), validate: { xForwardedForHeader: false } });
+// Account creation sends an email, so it is limited per IP as well as per account.
+const registerLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 5, handler: securityRateLimitHandler('register'), validate: { xForwardedForHeader: false } });
 const orderLimiter = rateLimit({ windowMs: 60 * 1000, max: 600, handler: securityRateLimitHandler('orders'), validate: { xForwardedForHeader: false } });
 const generalLimiter = rateLimit({ windowMs: 60 * 1000, max: 600, handler: securityRateLimitHandler('general'), validate: { xForwardedForHeader: false } });
 const contactLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 12, handler: securityRateLimitHandler('contact'), validate: { xForwardedForHeader: false } });
@@ -127,6 +129,8 @@ app.use('/api/auth', authLimiter);
 app.use('/api/auth/admin-gate', adminGateLimiter);
 app.use('/api/auth/forgot-password', passwordResetLimiter);
 app.use('/api/auth/reset-password', passwordResetLimiter);
+app.use('/api/auth/register', registerLimiter);
+app.use('/api/auth/resend-verification', passwordResetLimiter);
 app.use('/api/newsletter', generalLimiter);
 app.use('/api/contact', contactLimiter);
 app.use('/api/chat', generalLimiter);
