@@ -16,3 +16,8 @@ Thumbs.db
 server/.env
 server/.env.*
 .neon
+
+# Local security notes and agent scratch — never publish
+SECURITY-REPORT.md
+memory/
+.claude/
