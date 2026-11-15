@@ -8,12 +8,10 @@ import { defaultServices, type ServiceCategory } from '../data/services';
 import { RefreshCw, Trash2, ChevronDown, Phone, MapPin, Mail, DollarSign, Package, Eye, Lightbulb, Wrench, FileText, Globe, Settings, Star, MailOpen, Download, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import { isMaintenanceMode, setMaintenanceMode, getMaintenanceMessage, setMaintenanceMessage } from '../utils/maintenanceStorage';
-import { setAccessToken, setStoredUser } from '../utils/api';
 import { syncAllFromServer, getSyncStatus, getLastSyncTime } from '../utils/globalSync';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../contexts/AuthContext';
 import { brand } from '../config/brand';
-import * as XLSX from 'xlsx';
 
 const ManageProductsTab = lazy(() => import('./ManageProductsTab').then(m => ({ default: m.ManageProductsTab })));
 const ManageServicesTab = lazy(() => import('./ManageServicesTab').then(m => ({ default: m.ManageServicesTab })));
@@ -134,13 +132,18 @@ function TabLoading() {
 
 export function Admin() {
   const { t, language } = useLanguage();
-  const { user, isAdmin, login } = useAuth();
+  const { user, isAdmin, login, logout, startTwoFactorSetup, confirmTwoFactorSetup } = useAuth();
   const [showAdmin, setShowAdmin] = useState(() => window.location.hash === '#hqpanel');
   const [isAuthenticated, setIsAuthenticated] = useState(!!user);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
   const [loginError, setLoginError] = useState('');
+  const [loginStep, setLoginStep] = useState<'credentials' | 'code' | 'enroll' | 'backup'>('credentials');
+  const [challengeToken, setChallengeToken] = useState('');
+  const [twoFactorCode, setTwoFactorCode] = useState('');
+  const [setupData, setSetupData] = useState<{ secret: string; otpauthUrl: string; account: string } | null>(null);
+  const [backupCodes, setBackupCodes] = useState<string[]>([]);
   const [orders, setOrders] = useState<OrderRecord[]>([]);
   const [filter, setFilter] = useState<FilterMode>('all');
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -204,10 +207,19 @@ export function Admin() {
     }
   }, [showAdmin, isAuthenticated, isAdmin]);
 
-  const handleLogout = () => {
+  const resetLoginFlow = () => {
+    setLoginStep('credentials');
+    setChallengeToken('');
+    setTwoFactorCode('');
+    setSetupData(null);
+    setBackupCodes([]);
+    setLoginError('');
+  };
+
+  const handleLogout = async () => {
     setIsAuthenticated(false);
-    setAccessToken(null);
-    setStoredUser(null);
+    resetLoginFlow();
+    await logout();
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -215,9 +227,54 @@ export function Admin() {
     setLoginError('');
     setLoginLoading(true);
     try {
-      await login(email.trim(), password.trim());
+      if (loginStep === 'credentials') {
+        const result = await login(email.trim(), password.trim());
+        if (result.setupRequired && result.challengeToken) {
+          const setup = await startTwoFactorSetup(result.challengeToken);
+          setChallengeToken(result.challengeToken);
+          setSetupData(setup);
+          setLoginStep('enroll');
+          return;
+        }
+        if (result.twoFactorRequired && result.challengeToken) {
+          setChallengeToken(result.challengeToken);
+          setLoginStep('code');
+          return;
+        }
+        setIsAuthenticated(true);
+        resetLoginFlow();
+        toast.success(t({ ar: 'تم تسجيل الدخول بنجاح', fr: 'Connexion réussie', en: 'Login successful' }));
+        return;
+      }
+
+      if (loginStep === 'code') {
+        const result = await login(email.trim(), password.trim(), twoFactorCode.trim());
+        if (result.user) {
+          setIsAuthenticated(true);
+          resetLoginFlow();
+          toast.success(t({ ar: 'تم تسجيل الدخول بنجاح', fr: 'Connexion réussie', en: 'Login successful' }));
+        }
+        return;
+      }
+
+      if (loginStep === 'enroll') {
+        const result = await confirmTwoFactorSetup(challengeToken, twoFactorCode.trim());
+        setBackupCodes(result.backupCodes);
+        setTwoFactorCode('');
+        setLoginStep('backup');
+        return;
+      }
+
+      // The recovery codes were displayed; the session already exists.
       setIsAuthenticated(true);
-      toast.success(t({ ar: 'تم تسجيل الدخول بنجاح', fr: 'Connexion réussie', en: 'Login successful' }));
+      resetLoginFlow();
+      toast.success(
+        t({
+          ar: 'تم تفعيل التحقق بخطوتين وتسجيل الدخول',
+          fr: 'Double authentification activée et connexion réussie',
+          en: 'Two-factor authentication enabled and signed in',
+        })
+      );
     } catch (err: any) {
       setLoginError(err.message || t({ ar: 'بيانات الاعتماد غير صحيحة', fr: 'Identifiants incorrects', en: 'Invalid credentials' }));
     } finally {
@@ -230,6 +287,18 @@ export function Admin() {
     setIsOn(next);
     document.documentElement.style.setProperty('--on', next ? '1' : '0');
     document.body.setAttribute('data-on', String(next));
+  };
+
+  const loginInputStyle = {
+    ...darkInput,
+    textAlign: 'center' as const,
+    ...(isOn
+      ? {}
+      : {
+          background: '#ffffff',
+          color: '#2d3436',
+          boxShadow: 'inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff',
+        }),
   };
 
   const loadOrders = useCallback(async () => {
@@ -307,7 +376,7 @@ export function Admin() {
     );
   };
 
-  const exportOrdersExcel = () => {
+  const exportOrdersCsv = () => {
     if (filteredOrders.length === 0) {
       toast.error(t({ ar: 'لا توجد طلبات للتصدير', fr: 'Aucune commande à exporter', en: 'No orders to export' }));
       return;
@@ -329,11 +398,30 @@ export function Admin() {
       [t({ ar: 'ملاحظات', fr: 'Notes', en: 'Notes' })]: order.note || '',
     }));
 
-    const ws = XLSX.utils.json_to_sheet(rows);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, t({ ar: 'الطلبات', fr: 'Commandes', en: 'Orders' }));
-    XLSX.writeFile(wb, `orders-${new Date().toISOString().slice(0, 10)}.xlsx`);
-    toast.success(t({ ar: 'تم تصدير ملف Excel', fr: 'Fichier Excel exporté', en: 'Excel file exported' }));
+    // CSV keeps the export dependency-free: the xlsx package has no fixed
+    // release for its known denial-of-service/prototype issues.
+    const headers = Object.keys(rows[0]);
+    const escapeCell = (value: unknown) => {
+      const text = String(value ?? '');
+      return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+    };
+    const lines = [
+      headers.map(escapeCell).join(','),
+      ...rows.map((row) =>
+        headers.map((header) => escapeCell((row as Record<string, unknown>)[header])).join(',')
+      ),
+    ];
+    // The BOM makes Excel read the Arabic text as UTF-8.
+    const blob = new Blob([`\uFEFF${lines.join('\r\n')}`], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `orders-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    toast.success(t({ ar: 'تم تصدير ملف CSV', fr: 'Fichier CSV exporté', en: 'CSV file exported' }));
   };
 
   const productOrders = orders.filter((o) => o.source !== 'service-booking');
@@ -441,43 +529,146 @@ export function Admin() {
             </button>
           </div>
           <form onSubmit={handleLogin} className="w-full flex flex-col gap-4">
-            <input
-              type="text"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={t({ ar: 'البريد الإلكتروني أو اسم المستخدم', fr: 'E-mail ou nom d\'utilisateur', en: 'Email or Username' })}
-              required
-              style={{
-                ...darkInput,
-                textAlign: 'center',
-                ...(isOn ? {} : {
-                  background: '#ffffff',
-                  color: '#2d3436',
-                  boxShadow: 'inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff',
-                }),
-              }}
-            />
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder={t({ ar: 'كلمة المرور', fr: 'Mot de passe', en: 'Password' })}
-              required
-              style={{
-                ...darkInput,
-                textAlign: 'center',
-                ...(isOn ? {} : {
-                  background: '#ffffff',
-                  color: '#2d3436',
-                  boxShadow: 'inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff',
-                }),
-              }}
-            />
+            {loginStep === 'credentials' && (
+              <>
+                <input
+                  type="text"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={t({ ar: 'البريد الإلكتروني أو اسم المستخدم', fr: 'E-mail ou nom d\'utilisateur', en: 'Email or Username' })}
+                  required
+                  style={loginInputStyle}
+                />
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder={t({ ar: 'كلمة المرور', fr: 'Mot de passe', en: 'Password' })}
+                  required
+                  style={loginInputStyle}
+                />
+              </>
+            )}
+
+            {loginStep === 'code' && (
+              <>
+                <p style={{ margin: 0, fontSize: 14, lineHeight: 1.6, color: isOn ? '#cbd5e1' : '#475569', textAlign: 'center' }}>
+                  {t({
+                    ar: 'أدخل الرمز المكوّن من 6 أرقام من تطبيق المصادقة، أو أحد الرموز الاحتياطية.',
+                    fr: 'Saisissez le code à 6 chiffres de votre application, ou un code de secours.',
+                    en: 'Enter the 6-digit code from your authenticator app, or a backup code.',
+                  })}
+                </p>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  value={twoFactorCode}
+                  onChange={(e) => setTwoFactorCode(e.target.value)}
+                  placeholder={t({ ar: 'رمز التحقق', fr: 'Code de vérification', en: 'Verification code' })}
+                  required
+                  autoFocus
+                  style={loginInputStyle}
+                />
+              </>
+            )}
+
+            {loginStep === 'enroll' && setupData && (
+              <>
+                <p style={{ margin: 0, fontSize: 14, lineHeight: 1.6, color: isOn ? '#cbd5e1' : '#475569', textAlign: 'center' }}>
+                  {t({
+                    ar: 'التحقق بخطوتين إلزامي. أضف هذا المفتاح إلى Google Authenticator أو Authy ثم أدخل الرمز الظاهر.',
+                    fr: 'La double authentification est obligatoire. Ajoutez cette clé à Google Authenticator ou Authy, puis saisissez le code affiché.',
+                    en: 'Two-factor authentication is mandatory. Add this key to Google Authenticator or Authy, then enter the displayed code.',
+                  })}
+                </p>
+                <code
+                  style={{
+                    display: 'block',
+                    padding: '10px 12px',
+                    borderRadius: 12,
+                    fontSize: 13,
+                    letterSpacing: 1,
+                    wordBreak: 'break-all',
+                    textAlign: 'center',
+                    background: isOn ? 'rgba(15,23,42,0.6)' : '#eef2f7',
+                    color: isOn ? '#e2e8f0' : '#0f172a',
+                  }}
+                >
+                  {setupData.secret}
+                </code>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard?.writeText(setupData.secret).then(
+                      () => toast.success(t({ ar: 'تم نسخ المفتاح', fr: 'Clé copiée', en: 'Key copied' })),
+                      () => {}
+                    );
+                  }}
+                  style={{
+                    alignSelf: 'center',
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    fontSize: 13,
+                    color: '#3b82f6',
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                    textDecoration: 'underline',
+                  }}
+                >
+                  {t({ ar: 'نسخ المفتاح', fr: 'Copier la clé', en: 'Copy key' })}
+                </button>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  value={twoFactorCode}
+                  onChange={(e) => setTwoFactorCode(e.target.value)}
+                  placeholder={t({ ar: 'الرمز من التطبيق', fr: 'Code de l\'application', en: 'App code' })}
+                  required
+                  autoFocus
+                  style={loginInputStyle}
+                />
+              </>
+            )}
+
+            {loginStep === 'backup' && (
+              <>
+                <p style={{ margin: 0, fontSize: 14, lineHeight: 1.6, color: isOn ? '#fbbf24' : '#b45309', textAlign: 'center', fontWeight: 600 }}>
+                  {t({
+                    ar: 'احفظ هذه الرموز الاحتياطية الآن. لن تظهر مرة أخرى، وكل رمز يعمل مرة واحدة.',
+                    fr: 'Conservez ces codes de secours maintenant. Ils ne seront plus affichés et chaque code ne fonctionne qu\'une fois.',
+                    en: 'Save these backup codes now. They will not be shown again, and each code works once.',
+                  })}
+                </p>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    gap: 6,
+                    padding: 12,
+                    borderRadius: 12,
+                    fontFamily: 'monospace',
+                    fontSize: 12,
+                    background: isOn ? 'rgba(15,23,42,0.6)' : '#eef2f7',
+                    color: isOn ? '#e2e8f0' : '#0f172a',
+                    direction: 'ltr',
+                  }}
+                >
+                  {backupCodes.map((code) => (
+                    <span key={code}>{code}</span>
+                  ))}
+                </div>
+              </>
+            )}
+
             {loginError && (
               <p style={{ margin: 0, fontSize: 14, color: '#ef4444', textAlign: 'center' }}>
                 {loginError}
               </p>
             )}
+
             <button
               type="submit"
               disabled={loginLoading}
@@ -498,10 +689,34 @@ export function Admin() {
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   {t({ ar: 'جاري التحقق...', fr: 'Vérification...', en: 'Checking...' })}
                 </div>
+              ) : loginStep === 'backup' ? (
+                t({ ar: 'لقد حفظت الرموز — متابعة', fr: 'Codes enregistrés — continuer', en: 'I saved the codes — continue' })
+              ) : loginStep === 'enroll' ? (
+                t({ ar: 'تفعيل ومتابعة', fr: 'Activer et continuer', en: 'Enable and continue' })
+              ) : loginStep === 'code' ? (
+                t({ ar: 'تحقق', fr: 'Vérifier', en: 'Verify' })
               ) : (
                 t({ ar: 'دخول', fr: 'Connexion', en: 'Login' })
               )}
             </button>
+
+            {loginStep !== 'credentials' && loginStep !== 'backup' && (
+              <button
+                type="button"
+                onClick={resetLoginFlow}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  fontSize: 13,
+                  color: isOn ? '#94a3b8' : '#64748b',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                }}
+              >
+                {t({ ar: 'العودة لبيانات الدخول', fr: 'Retour à la connexion', en: 'Back to sign in' })}
+              </button>
+            )}
           </form>
         </div>
       </section>
@@ -549,11 +764,11 @@ export function Admin() {
                 )}
               </div>
               <button
-                onClick={exportOrdersExcel}
+                onClick={exportOrdersCsv}
                 className="inline-flex items-center gap-2 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-5 py-3 text-sm font-semibold hover:bg-emerald-500/30 transition-all"
               >
                 <Download className="w-4 h-4" />
-                {t({ ar: 'تصدير Excel', fr: 'Exporter Excel', en: 'Export Excel' })}
+                {t({ ar: 'تصدير CSV', fr: 'Exporter CSV', en: 'Export CSV' })}
               </button>
               <button
                 onClick={handleRefresh}

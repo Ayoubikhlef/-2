@@ -35,7 +35,7 @@ paymentRouter.post('/init', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), as
       instructions: getInstructions(method),
     });
   } catch (err) {
-    if (err instanceof z.ZodError) return res.status(400).json({ error: 'Invalid data', details: err.errors });
+    if (err instanceof z.ZodError) return res.status(400).json({ error: 'Invalid data', details: err.issues });
     console.error('[Payment] Init error:', err);
     res.status(500).json({ error: 'Payment initialization failed' });
   }

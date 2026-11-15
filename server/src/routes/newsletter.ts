@@ -9,7 +9,11 @@ const subscribeSchema = z.object({
   email: z.string().email().max(254, 'Email is too long'),
 });
 
-newsletterRouter.delete('/:email', async (req: Request, res: Response) => {
+newsletterRouter.delete(
+  '/:email',
+  requireAuth,
+  requireRole('SUPER_ADMIN', 'ADMIN'),
+  async (req: AuthRequest, res: Response) => {
   try {
     const email = decodeURIComponent(req.params.email).toLowerCase().trim();
     if (!email || email.length > 254 || !email.includes('@')) {
@@ -36,7 +40,7 @@ newsletterRouter.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ subscribed: true, email });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation failed', details: err.errors });
+      return res.status(400).json({ error: 'Validation failed', details: err.issues });
     }
     console.error('[Newsletter] Subscribe error:', err);
     res.status(500).json({ error: 'Failed to subscribe' });

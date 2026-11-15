@@ -5,13 +5,25 @@ const PRIMARY_URL: string = isDev && typeof window !== 'undefined' && window.loc
   : '/api';
 const FALLBACK_URLS: string[] = [];
 
+// The access token lives only in memory. Persisting it to localStorage meant
+// any XSS could read a long-lived credential; the HttpOnly refresh cookie now
+// restores the session after a reload instead.
+let accessToken: string | null = null;
+
+if (typeof localStorage !== 'undefined') {
+  try {
+    localStorage.removeItem('aos_access_token');
+  } catch {
+    /* storage can be unavailable in private mode */
+  }
+}
+
 export function getAccessToken(): string | null {
-  return localStorage.getItem('aos_access_token');
+  return accessToken;
 }
 
 export function setAccessToken(token: string | null) {
-  if (token) localStorage.setItem('aos_access_token', token);
-  else localStorage.removeItem('aos_access_token');
+  accessToken = token || null;
 }
 
 export function getStoredUser(): any | null {
@@ -135,6 +147,15 @@ export async function refreshToken(): Promise<{
   }
 }
 
+export type LoginResponse =
+  | { user: any; accessToken: string; twoFactorRequired?: false; twoFactorSetupRequired?: false }
+  | { twoFactorRequired: true; challengeToken: string }
+  | {
+      twoFactorSetupRequired: true;
+      challengeToken: string;
+      user: { email: string; name: string };
+    };
+
 export const api = {
   get: <T>(path: string) => request<T>(path),
   post: <T>(path: string, body?: any) =>
@@ -149,10 +170,25 @@ export const api = {
         method: 'POST',
         body: JSON.stringify(data),
       }),
-    login: (data: { email: string; password: string }) =>
-      request<{ user: any; accessToken: string }>('/auth/login', {
+    login: (data: { email: string; password: string; twoFactorCode?: string }) =>
+      request<LoginResponse>('/auth/login', {
         method: 'POST',
         body: JSON.stringify(data),
+      }),
+    twoFactorStart: (challengeToken: string) =>
+      request<{ secret: string; otpauthUrl: string; issuer: string; account: string }>(
+        '/auth/2fa/setup/start',
+        { method: 'POST', body: JSON.stringify({ challengeToken }) }
+      ),
+    twoFactorConfirm: (data: { challengeToken: string; code: string }) =>
+      request<{ ok: boolean; backupCodes: string[]; user: any; accessToken: string }>(
+        '/auth/2fa/setup/confirm',
+        { method: 'POST', body: JSON.stringify(data) }
+      ),
+    regenerateBackupCodes: (code: string) =>
+      request<{ ok: boolean; backupCodes: string[] }>('/auth/2fa/backup-codes', {
+        method: 'POST',
+        body: JSON.stringify({ code }),
       }),
     me: () => request<any>('/auth/me'),
     logout: () => request<any>('/auth/logout', { method: 'POST' }),

@@ -113,7 +113,7 @@ dataRouter.post('/products/stock', requireAuth, requireRole('SUPER_ADMIN', 'ADMI
     res.json({ id, stock: result.stock });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation failed', details: err.errors });
+      return res.status(400).json({ error: 'Validation failed', details: err.issues });
     }
     console.error('[Data] Stock update error:', err);
     res.status(500).json({ error: 'Failed to update stock' });
@@ -151,7 +151,7 @@ dataRouter.post('/save', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), async
     res.json({ ok: true, key });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation failed', details: err.errors });
+      return res.status(400).json({ error: 'Validation failed', details: err.issues });
     }
     console.error('[Data] Save error:', err);
     res.status(500).json({ error: 'Failed to save data' });

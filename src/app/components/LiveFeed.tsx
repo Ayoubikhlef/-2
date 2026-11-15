@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useLanguage } from '../contexts/LanguageContext';
+import { getAccessToken } from '../utils/api';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingCart, Bell, Activity } from 'lucide-react';
 
@@ -35,7 +36,7 @@ export function LiveFeed() {
   const [liveCount, setLiveCount] = useState(0);
 
   useEffect(() => {
-    const token = localStorage.getItem('aos_access_token') || undefined;
+    const token = getAccessToken() || undefined;
     const s = io(WS_URL, {
       auth: { token },
       path: '/socket.io',

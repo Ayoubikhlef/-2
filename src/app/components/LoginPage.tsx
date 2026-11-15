@@ -47,7 +47,17 @@ export function LoginPage({ onClose }: { onClose: () => void; standalone?: boole
     setError('');
     setLoading(true);
     try {
-      await login(form.email.trim(), form.password.trim());
+      const result = await login(form.email.trim(), form.password.trim());
+      if (result.twoFactorRequired || result.setupRequired) {
+        setError(
+          t({
+            ar: 'أكمل التحقق بخطوتين من لوحة #hqpanel.',
+            fr: 'Terminez la double authentification depuis le panneau #hqpanel.',
+            en: 'Complete two-factor authentication from the #hqpanel panel.',
+          })
+        );
+        return;
+      }
       toast.success(t({ ar: 'تم تسجيل الدخول', fr: 'Connecté', en: 'Logged in' }));
       onClose();
     } catch (err: any) {

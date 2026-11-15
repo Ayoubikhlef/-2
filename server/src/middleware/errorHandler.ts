@@ -8,7 +8,7 @@ export function errorHandler(err: any, _req: Request, res: Response, _next: Next
   }
 
   if (err instanceof ZodError) {
-    return res.status(400).json({ error: 'Validation failed', details: err.errors });
+    return res.status(400).json({ error: 'Validation failed', details: err.issues });
   }
 
   console.error('[AOS Critical Error]:', {

@@ -63,6 +63,11 @@ export async function ensureSeedAdmin(): Promise<void> {
     const matchesLegacy = Boolean(legacy?.value) && legacy?.value === legacyFingerprint(password);
     const hasFingerprint = Boolean(stored?.value || legacy?.value);
     const seedUnchanged = matchesNew || matchesLegacy;
+    // The legacy public default must be replaced as soon as a valid seed
+    // password exists, even before a fingerprint was ever recorded.
+    const usesKnownDefaultPassword = existing?.passwordHash
+      ? await bcrypt.compare('hydra', existing.passwordHash).catch(() => false)
+      : false;
 
     if (!existing) {
       const passwordHash = await bcrypt.hash(password, 12);
@@ -89,7 +94,7 @@ export async function ensureSeedAdmin(): Promise<void> {
     if (existing.role !== 'SUPER_ADMIN' || !existing.isActive) {
       await prisma.user.update({
         where: { id: existing.id },
-        data: { role: 'SUPER_ADMIN', isActive: true },
+        data: { role: 'SUPER_ADMIN', isActive: true, tokenVersion: { increment: 1 } },
       });
       console.log(`[Admin] Restored SUPER_ADMIN access for ${email}`);
     }
@@ -109,7 +114,7 @@ export async function ensureSeedAdmin(): Promise<void> {
       return;
     }
 
-    if (!hasFingerprint) {
+    if (!hasFingerprint && !usesKnownDefaultPassword) {
       // First boot after an upgrade with no recorded fingerprint: adopt the
       // current environment value as the baseline WITHOUT changing the
       // account password. This avoids a surprise lockout.
@@ -128,7 +133,7 @@ export async function ensureSeedAdmin(): Promise<void> {
     const passwordHash = await bcrypt.hash(password, 12);
     await prisma.user.update({
       where: { id: existing.id },
-      data: { passwordHash, refreshToken: null },
+      data: { passwordHash, refreshToken: null, tokenVersion: { increment: 1 } },
     });
     await prisma.setting.upsert({
       where: { key: FINGERPRINT_KEY },

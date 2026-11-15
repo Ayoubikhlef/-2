@@ -19,6 +19,8 @@ export type SecurityEventType =
   | 'sensitive_path'
   | 'rate_limit'
   | 'failed_login'
+  | 'failed_totp'
+  | 'brute_force_detected'
   | 'admin_gate'
   | 'manual_block';
 

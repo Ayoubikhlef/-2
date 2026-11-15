@@ -40,7 +40,7 @@ loyaltyRouter.post('/add', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), asy
     });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation failed', details: err.errors });
+      return res.status(400).json({ error: 'Validation failed', details: err.issues });
     }
     console.error('[Loyalty] Add points error:', err);
     res.status(500).json({ error: 'Failed to add points' });
@@ -63,7 +63,7 @@ loyaltyRouter.post('/redeem', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), 
     res.json({ phone, pointsRedeemed: points, remaining: currentPoints - points });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation failed', details: err.errors });
+      return res.status(400).json({ error: 'Validation failed', details: err.issues });
     }
     console.error('[Loyalty] Redeem error:', err);
     res.status(500).json({ error: 'Failed to redeem points' });

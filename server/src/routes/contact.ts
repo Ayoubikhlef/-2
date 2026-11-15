@@ -64,7 +64,7 @@ contactRouter.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ id: created.id, received: true });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation failed', details: err.errors });
+      return res.status(400).json({ error: 'Validation failed', details: err.issues });
     }
     console.error('[Contact] Create error:', err);
     res.status(500).json({ error: 'Failed to save message' });
@@ -96,7 +96,7 @@ contactRouter.patch('/:id', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), as
     res.json(updated);
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation failed', details: err.errors });
+      return res.status(400).json({ error: 'Validation failed', details: err.issues });
     }
     console.error('[Contact] Update error:', err);
     res.status(500).json({ error: 'Failed to update message' });

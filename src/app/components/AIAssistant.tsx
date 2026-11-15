@@ -91,9 +91,28 @@ function renderMarkdown(text: string): string {
   html = html.replace(/(?:^|\n)(<li.*<\/li>\n?)+/g, '<ol class="chat-ol">$&</ol>');
   html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, text, url) => {
-    const safe = url.replace(/^\s*javascript\s*:/i, '#').replace(/^\s*data\s*:/i, '#');
-    return `<a href="${safe}" target="_blank" rel="noopener" class="chat-link">${text}</a>`;
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, text, rawUrl) => {
+    // Only absolute http(s)/mailto links are rendered, and the URL is escaped
+    // for the attribute context. A quote in the URL used to break out of href
+    // and inject an event handler (XSS).
+    const base = typeof window !== 'undefined' ? window.location.origin : 'https://aos-tech.store';
+    let safeUrl: string | null = null;
+    try {
+      const parsed = new URL(String(rawUrl).trim(), base);
+      if (parsed.protocol === 'http:' || parsed.protocol === 'https:' || parsed.protocol === 'mailto:') {
+        safeUrl = parsed.href;
+      }
+    } catch {
+      safeUrl = null;
+    }
+    if (!safeUrl) return text;
+    const escapedUrl = safeUrl
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    return `<a href="${escapedUrl}" target="_blank" rel="noopener noreferrer" class="chat-link">${text}</a>`;
   });
   html = html.replace(/\n/g, '<br>');
   html = html.replace(/(<br>)+<\/li>/g, '</li>');

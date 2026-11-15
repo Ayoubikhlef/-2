@@ -23,7 +23,14 @@ model User {
   avatar            String?
   role              Role      @default(CUSTOMER)
   isActive          Boolean   @default(true)
-  twoFactorSecret   String?
+  twoFactorEnabled       Boolean   @default(false)
+  twoFactorSecret        String?
+  twoFactorPendingSecret String?
+  twoFactorBackupCodes   String[]  @default([])
+  tokenVersion           Int       @default(0)
+  failedLoginAttempts    Int       @default(0)
+  lockedUntil            DateTime?
+  lastActivityAt         DateTime?
   refreshToken      String?
   resetToken        String?   @unique
   resetTokenExpires DateTime?

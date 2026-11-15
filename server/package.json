@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "scripts": {
     "dev": "tsx watch src/index.ts",
@@ -25,27 +25,31 @@
     "@types/express": "^4.17.21",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20.14.0",
-    "@types/nodemailer": "^8.0.1",
     "@types/pg": "^8.11.0",
     "@types/socket.io": "^3.0.1",
     "@xenova/transformers": "^2.17.2",
     "bcryptjs": "^2.4.3",
     "blake3-wasm": "^2.1.5",
-    "compression": "^1.8.1",
+    "compression": "^1.8.2",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
-    "express": "^4.21.0",
+    "express": "^4.22.3",
     "express-async-errors": "^3.1.1",
     "express-rate-limit": "^8.6.0",
     "helmet": "^8.3.0",
     "hpp": "^0.2.3",
     "jsonwebtoken": "^9.0.2",
-    "nodemailer": "^9.0.3",
+    "nodemailer": "^10.5.0",
     "pg": "^8.22.0",
     "prisma": "^6.0.0",
-    "socket.io": "^4.8.3",
+    "socket.io": "^4.8.4",
     "tsx": "^4.19.0",
     "typescript": "^5.5.0",
-    "zod": "^3.23.0"
+    "zod": "^4.6.7"
+  },
+  "overrides": {
+    "body-parser": "^1.20.9",
+    "engine.io": "^6.6.11",
+    "proxy-addr": "^2.0.8"
   }
 }

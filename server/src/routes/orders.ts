@@ -320,21 +320,19 @@ orderRouter.post('/', createOrderLimiter, async (req: Request, res: Response) =>
     const deliveryItems: PricedItemInput[] = [];
 
     if (isService) {
-      // Service bookings are free-form (no product catalog entry).
+      // Service bookings are quote-based: the owner agrees on a price after
+      // receiving the request. Never trust a client-supplied amount, which
+      // otherwise lets anyone create a booking for any price.
       for (const item of data.items) {
-        const itemTotal = Math.round(item.price * item.quantity);
-        serverTotal += itemTotal;
         validatedItems.push({
           name: item.name,
           quantity: item.quantity,
-          price: item.price,
-          total: itemTotal,
+          price: 0,
+          total: 0,
           productId: item.productId,
         });
       }
-      if (data.total > 0 && Math.abs(serverTotal - data.total) > 1) {
-        serverTotal = data.total;
-      }
+      serverTotal = 0;
     } else {
       const products = await loadProductCatalog();
 
@@ -685,8 +683,8 @@ orderRouter.post('/', createOrderLimiter, async (req: Request, res: Response) =>
     res.status(201).json(order);
   } catch (err) {
     if (err instanceof z.ZodError) {
-      console.warn('[Orders] Create validation failed:', JSON.stringify(err.errors), 'body keys:', Object.keys(req.body || {}));
-      return res.status(400).json({ error: 'Validation failed', details: err.errors });
+      console.warn('[Orders] Create validation failed:', JSON.stringify(err.issues), 'body keys:', Object.keys(req.body || {}));
+      return res.status(400).json({ error: 'Validation failed', details: err.issues });
     }
     if (err instanceof Error && err.message.includes('Insufficient stock')) {
       return res.status(400).json({ error: err.message });
@@ -843,7 +841,7 @@ orderRouter.patch('/:id/status', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'
     res.json(result.updated);
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation failed', details: err.errors });
+      return res.status(400).json({ error: 'Validation failed', details: err.issues });
     }
     console.error('[Orders] Status update error:', err);
     res.status(500).json({ error: 'Failed to update order status' });
@@ -875,7 +873,7 @@ orderRouter.post('/delete', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), as
     res.json({ deleted: true, id });
   } catch (err: any) {
     if (err instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation failed', details: err.errors });
+      return res.status(400).json({ error: 'Validation failed', details: err.issues });
     }
     if (err?.code === 'P2025') {
       return res.status(404).json({ error: 'Not found' });

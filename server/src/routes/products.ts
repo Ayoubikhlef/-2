@@ -70,7 +70,7 @@ productRouter.post('/sync', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), as
     res.json({ ok: true, indexed: products.length });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation failed', details: err.errors });
+      return res.status(400).json({ error: 'Validation failed', details: err.issues });
     }
     console.error('[Product Sync Error]', err);
     res.status(500).json({ error: 'Internal server error' });

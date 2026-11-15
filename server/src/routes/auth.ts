@@ -1,15 +1,29 @@
-import { Router, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { prisma } from '../utils/prisma';
-import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../utils/jwt';
+import {
+  signAccessToken,
+  signRefreshToken,
+  signTwoFactorChallenge,
+  verifyRefreshToken,
+  verifyTwoFactorChallenge,
+} from '../utils/jwt';
 import { AppError, BadRequest, Unauthorized } from '../utils/errors';
 import { requireAuth, AuthRequest } from '../middleware/auth';
 import nodemailer from 'nodemailer';
 import { logAction } from '../services/audit';
 import { clientIp, reportSecurityEvent, unblockIp } from '../services/security';
+import {
+  TWO_FACTOR_ISSUER,
+  buildOtpauthUrl,
+  consumeBackupCode,
+  generateBackupCodes,
+  generateTwoFactorSecret,
+  verifyTotp,
+} from '../services/twoFactor';
 
 export const authRouter = Router();
 
@@ -35,6 +49,8 @@ const transporter = createTransporter();
 const loginSchema = z.object({
   email: z.string().min(1),
   password: z.string().min(1),
+  // TOTP code or a one-time backup code, supplied on the second login step.
+  twoFactorCode: z.string().trim().max(32).optional(),
 });
 
 const forgotSchema = z.object({
@@ -43,19 +59,61 @@ const forgotSchema = z.object({
 
 const resetSchema = z.object({
   token: z.string().regex(/^[a-f0-9]{64}$/i),
-  password: z.string().min(8),
+  password: z.string().min(12),
 });
 
 const adminResetSchema = z.object({
   code: z.string().min(1),
   email: z.string().min(1),
   password: z.string().min(12),
+  // Also clear the second factor when the owner lost their authenticator and
+  // backup codes. Requires the admin gate code.
+  resetTwoFactor: z.boolean().optional(),
+});
+
+const twoFactorChallengeSchema = z.object({
+  challengeToken: z.string().min(20),
+});
+
+const twoFactorConfirmSchema = twoFactorChallengeSchema.extend({
+  code: z.string().trim().min(6).max(32),
 });
 
 const changePasswordSchema = z.object({
   currentPassword: z.string().min(1),
   newPassword: z.string().min(12),
 });
+
+const MAX_FAILED_LOGINS = 5;
+const LOGIN_LOCK_MINUTES = 15;
+const PASSWORD_RESET_MINUTES = 30;
+
+function isAdminRole(role: string): boolean {
+  return role === 'SUPER_ADMIN' || role === 'ADMIN';
+}
+
+// Mandatory for admin accounts. The escape hatch exists only for a deliberate
+// environment override during an emergency, never as the default.
+function twoFactorRequired(): boolean {
+  return String(process.env.TWO_FACTOR_REQUIRED ?? 'true').toLowerCase() !== 'false';
+}
+
+function escapeHtml(value: string): string {
+  return String(value || '').replace(/[&<>"']/g, (character) => {
+    switch (character) {
+      case '&':
+        return '&amp;';
+      case '<':
+        return '&lt;';
+      case '>':
+        return '&gt;';
+      case '"':
+        return '&quot;';
+      default:
+        return '&#39;';
+    }
+  });
+}
 
 // The old six-digit gate code was published in the repository. A gate code is
 // now only accepted when it is a long random value of at least 16 characters.
@@ -76,8 +134,90 @@ function gateCodeMatches(input: string, expected: string): boolean {
 async function generateResetToken(): Promise<{ token: string; tokenHash: string; expiresAt: Date }> {
   const rawToken = crypto.randomBytes(32).toString('hex');
   const tokenHash = crypto.createHash('sha256').update(rawToken).digest('hex');
-  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+  const expiresAt = new Date(Date.now() + PASSWORD_RESET_MINUTES * 60 * 1000);
   return { token: rawToken, tokenHash, expiresAt };
+}
+
+function publicUser(user: {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+  twoFactorEnabled?: boolean;
+}) {
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    role: user.role,
+    twoFactorEnabled: Boolean(user.twoFactorEnabled),
+  };
+}
+
+/** Issues a new access/refresh pair and keeps only this session alive. */
+async function createSession(
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+    tokenVersion: number;
+    twoFactorEnabled?: boolean;
+  },
+  res: Response
+): Promise<string> {
+  const accessToken = signAccessToken({
+    userId: user.id,
+    role: user.role,
+    tokenVersion: user.tokenVersion,
+  });
+  const refreshToken = signRefreshToken({ userId: user.id, tokenVersion: user.tokenVersion });
+
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { refreshToken, lastActivityAt: new Date() },
+  });
+
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
+  return accessToken;
+}
+
+/** Returns true when the failed attempt just triggered an account lock. */
+async function recordFailedLogin(user: {
+  id: string;
+  failedLoginAttempts: number;
+}): Promise<boolean> {
+  const attempts = (user.failedLoginAttempts || 0) + 1;
+  if (attempts >= MAX_FAILED_LOGINS) {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        failedLoginAttempts: 0,
+        lockedUntil: new Date(Date.now() + LOGIN_LOCK_MINUTES * 60 * 1000),
+      },
+    });
+    return true;
+  }
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { failedLoginAttempts: attempts },
+  });
+  return false;
+}
+
+async function resolveTwoFactorChallenge(token: unknown): Promise<string | null> {
+  try {
+    return verifyTwoFactorChallenge(String(token || '')).userId;
+  } catch {
+    return null;
+  }
 }
 
 async function sendResetEmail(email: string, token: string, userName: string) {
@@ -94,12 +234,12 @@ async function sendResetEmail(email: string, token: string, userName: string) {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #1e293b;">Reset Your Password</h2>
-        <p>Hello ${userName || ''},</p>
+        <p>Hello ${escapeHtml(userName)},</p>
         <p>We received a request to reset your password. Click the button below to create a new password:</p>
         <div style="text-align: center; margin: 30px 0;">
           <a href="${resetUrl}" style="background-color: #1e293b; color: #f1f5f9; padding: 12px 28px; text-decoration: none; border-radius: 20px; font-weight: 700;">Reset Password</a>
         </div>
-        <p>This link will expire in 24 hours.</p>
+        <p>This link will expire in ${PASSWORD_RESET_MINUTES} minutes.</p>
         <p>If you didn't request this reset, please ignore this email or contact support if you have concerns.</p>
         <hr style="margin: 30px 0; border: none; border-top: 1px solid #cbd5e1;">
         <p style="font-size: 12px; color: #64748b;">&copy; 2026 AOS Tech Store. All rights reserved.</p>
@@ -128,20 +268,40 @@ authRouter.post('/login', async (req, res: Response) => {
       return res.status(503).json({ error: 'Database is temporarily unavailable. Please try again later.' });
     }
 
-    const { email: rawEmail, password } = loginSchema.parse(req.body);
+    const { email: rawEmail, password, twoFactorCode } = loginSchema.parse(req.body);
     const email = normalizeEmail(rawEmail);
 
-    // 3. Normal Login Flow
+    // 2. Normal Login Flow
     const user = await prisma.user.findFirst({
       where: {
         email: email,
       },
     });
 
+    // A locked account stays locked even if the password is correct, so an
+    // attacker cannot keep guessing while the owner waits out the lock.
+    if (user?.lockedUntil && user.lockedUntil.getTime() > Date.now()) {
+      const minutes = Math.max(
+        1,
+        Math.ceil((user.lockedUntil.getTime() - Date.now()) / 60_000)
+      );
+      reportSecurityEvent({
+        type: 'brute_force_detected',
+        severity: 'high',
+        req,
+        details: `Login attempt on a locked account for ${email.slice(0, 3)}***`,
+        autoBlock: false,
+      });
+      return res.status(429).json({
+        error: `Too many failed attempts. Try again in ${minutes} minute(s).`,
+      });
+    }
+
     const valid = user?.passwordHash
       ? await bcrypt.compare(password, user.passwordHash)
       : false;
     if (!user || !valid) {
+      const locked = user ? await recordFailedLogin(user) : false;
       reportSecurityEvent({
         type: 'failed_login',
         severity: 'medium',
@@ -149,6 +309,11 @@ authRouter.post('/login', async (req, res: Response) => {
         details: `Failed login for ${email.slice(0, 3)}***`,
         autoBlock: false,
       });
+      if (locked) {
+        return res.status(429).json({
+          error: `Too many failed attempts. Try again in ${LOGIN_LOCK_MINUTES} minutes.`,
+        });
+      }
       throw new BadRequest('Invalid email or password');
     }
 
@@ -176,7 +341,7 @@ authRouter.post('/login', async (req, res: Response) => {
 
     // Only the owner's admin roles can sign in. Existing customer rows are
     // kept for order history but can never obtain a session.
-    if (user.role !== 'SUPER_ADMIN' && user.role !== 'ADMIN') {
+    if (!isAdminRole(user.role)) {
       reportSecurityEvent({
         type: 'failed_login',
         severity: 'medium',
@@ -189,30 +354,80 @@ authRouter.post('/login', async (req, res: Response) => {
       });
     }
 
-    // 4. Session Creation
-    const accessToken = signAccessToken({
-      userId: String(user.id),
-      role: String(user.role)
-    });
-    const refreshToken = signRefreshToken({
-      userId: String(user.id)
-    });
+    // 3. Mandatory two-factor authentication for the owner's account.
+    if (twoFactorRequired()) {
+      if (!user.twoFactorEnabled) {
+        // The password is correct, but the account must enrol before it can
+        // receive a session. The challenge token cannot access any API route.
+        return res.json({
+          twoFactorSetupRequired: true,
+          challengeToken: signTwoFactorChallenge(user.id),
+          user: { email: user.email, name: user.name },
+        });
+      }
 
+      const code = String(twoFactorCode || '').replace(/\s+/g, '');
+      if (!code) {
+        // 200: the password is valid and this is the expected next step, not
+        // an error the client should treat as a failed login.
+        return res.json({
+          twoFactorRequired: true,
+          challengeToken: signTwoFactorChallenge(user.id),
+        });
+      }
+
+      let secondFactorOk = false;
+      let remainingBackupCodes: string[] | null = null;
+
+      if (/^\d{6}$/.test(code)) {
+        secondFactorOk = verifyTotp(user.twoFactorSecret || '', code);
+      }
+      if (!secondFactorOk) {
+        const consumed = consumeBackupCode(user.twoFactorBackupCodes || [], code);
+        if (consumed.ok) {
+          secondFactorOk = true;
+          remainingBackupCodes = consumed.remaining;
+        }
+      }
+
+      if (!secondFactorOk) {
+        const locked = await recordFailedLogin(user);
+        reportSecurityEvent({
+          type: 'failed_totp',
+          severity: 'high',
+          req,
+          details: `Failed second factor for ${email.slice(0, 3)}***`,
+          autoBlock: false,
+        });
+        if (locked) {
+          return res.status(429).json({
+            error: `Too many failed attempts. Try again in ${LOGIN_LOCK_MINUTES} minutes.`,
+          });
+        }
+        return res.status(401).json({
+          twoFactorRequired: true,
+          error: 'Invalid two-factor code.',
+        });
+      }
+
+      if (remainingBackupCodes) {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { twoFactorBackupCodes: remainingBackupCodes },
+        });
+      }
+    }
+
+    // 4. Session Creation
     await prisma.user.update({
       where: { id: user.id },
-      data: { refreshToken }
+      data: { failedLoginAttempts: 0, lockedUntil: null },
     });
 
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+    const accessToken = await createSession(user, res);
 
     res.json({
-      user: { id: user.id, email: user.email, name: user.name, role: user.role },
+      user: publicUser(user),
       accessToken,
     });
 
@@ -220,10 +435,146 @@ authRouter.post('/login', async (req, res: Response) => {
   } catch (err: any) {
     if (err instanceof AppError) throw err;
     if (err instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation failed', details: err.errors });
+      return res.status(400).json({ error: 'Validation failed', details: err.issues });
     }
     console.error('[Auth Login Critical Error]:', err);
     throw new BadRequest('An unexpected error occurred. Please try again.');
+  }
+});
+
+// --- Two-factor enrolment ------------------------------------------------
+// These endpoints accept a short-lived challenge token, not a session: the
+// password was verified, but no API access is granted until enrolment ends.
+
+authRouter.post('/2fa/setup/start', async (req, res: Response) => {
+  try {
+    const { challengeToken } = twoFactorChallengeSchema.parse(req.body);
+    const userId = await resolveTwoFactorChallenge(challengeToken);
+    if (!userId) {
+      return res.status(401).json({ error: 'Setup session expired. Sign in again.' });
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user || !user.isActive || !isAdminRole(user.role)) {
+      return res.status(401).json({ error: 'Setup session is not valid for this account.' });
+    }
+    if (user.twoFactorEnabled) {
+      return res.status(400).json({ error: 'Two-factor authentication is already enabled.' });
+    }
+
+    const secret = generateTwoFactorSecret();
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { twoFactorPendingSecret: secret },
+    });
+
+    res.json({
+      issuer: TWO_FACTOR_ISSUER,
+      account: user.email,
+      secret,
+      otpauthUrl: buildOtpauthUrl(secret, user.email),
+    });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Validation failed', details: err.issues });
+    }
+    console.error('[Auth] 2FA setup start error:', err);
+    res.status(500).json({ error: 'Failed to start two-factor setup' });
+  }
+});
+
+authRouter.post('/2fa/setup/confirm', async (req, res: Response) => {
+  try {
+    const { challengeToken, code } = twoFactorConfirmSchema.parse(req.body);
+    const userId = await resolveTwoFactorChallenge(challengeToken);
+    if (!userId) {
+      return res.status(401).json({ error: 'Setup session expired. Sign in again.' });
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user || !user.isActive || !isAdminRole(user.role)) {
+      return res.status(401).json({ error: 'Setup session is not valid for this account.' });
+    }
+    if (user.twoFactorEnabled) {
+      return res.status(400).json({ error: 'Two-factor authentication is already enabled.' });
+    }
+    if (!user.twoFactorPendingSecret) {
+      return res.status(400).json({ error: 'Start the setup before confirming a code.' });
+    }
+
+    if (!verifyTotp(user.twoFactorPendingSecret, code)) {
+      reportSecurityEvent({
+        type: 'failed_totp',
+        severity: 'medium',
+        req,
+        details: 'Failed two-factor enrolment code',
+        autoBlock: false,
+      });
+      return res.status(400).json({
+        error: 'Invalid code. Check your phone clock and try again.',
+      });
+    }
+
+    const { codes, hashes } = generateBackupCodes();
+    const tokenVersion = user.tokenVersion + 1;
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        twoFactorEnabled: true,
+        twoFactorSecret: user.twoFactorPendingSecret,
+        twoFactorPendingSecret: null,
+        twoFactorBackupCodes: hashes,
+        tokenVersion,
+        refreshToken: null,
+        failedLoginAttempts: 0,
+        lockedUntil: null,
+      },
+    });
+
+    const accessToken = await createSession(
+      { ...user, tokenVersion, twoFactorEnabled: true },
+      res
+    );
+    await logAction(user.id, 'TWO_FACTOR_ENABLED', 'User', undefined, req.ip);
+
+    res.json({
+      ok: true,
+      backupCodes: codes,
+      user: publicUser({ ...user, twoFactorEnabled: true }),
+      accessToken,
+    });
+  } catch (err) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Validation failed', details: err.issues });
+    }
+    console.error('[Auth] 2FA setup confirm error:', err);
+    res.status(500).json({ error: 'Failed to enable two-factor authentication' });
+  }
+});
+
+// Rotates the recovery codes. Requires a valid session and a current TOTP code.
+authRouter.post('/2fa/backup-codes', requireAuth, async (req: AuthRequest, res: Response) => {
+  try {
+    const user = await prisma.user.findUnique({ where: { id: req.userId } });
+    if (!user || !user.twoFactorEnabled) {
+      return res.status(400).json({ error: 'Two-factor authentication is not enabled.' });
+    }
+    const code = String(req.body?.code || '').replace(/\s+/g, '');
+    if (!verifyTotp(user.twoFactorSecret || '', code)) {
+      return res.status(401).json({ error: 'Invalid two-factor code.' });
+    }
+
+    const { codes, hashes } = generateBackupCodes();
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { twoFactorBackupCodes: hashes },
+    });
+    await logAction(user.id, 'TWO_FACTOR_BACKUP_CODES_ROTATED', 'User', undefined, req.ip);
+    res.json({ ok: true, backupCodes: codes });
+  } catch (err) {
+    console.error('[Auth] 2FA backup codes error:', err);
+    res.status(500).json({ error: 'Failed to regenerate backup codes' });
   }
 });
 
@@ -289,7 +640,7 @@ authRouter.post('/forgot-password', async (req, res: Response) => {
     res.status(200).json({ ok: true });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation failed', details: err.errors });
+      return res.status(400).json({ error: 'Validation failed', details: err.issues });
     }
     console.error('[Auth] Forgot password error:', err);
     res.status(500).json({ error: 'Failed to process request' });
@@ -312,6 +663,9 @@ authRouter.post('/reset-password', async (req, res: Response) => {
         resetToken: null,
         resetTokenExpires: null,
         refreshToken: null,
+        failedLoginAttempts: 0,
+        lockedUntil: null,
+        tokenVersion: { increment: 1 },
       },
     });
     if (result.count !== 1) {
@@ -321,7 +675,7 @@ authRouter.post('/reset-password', async (req, res: Response) => {
     res.status(200).json({ ok: true });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation failed', details: err.errors });
+      return res.status(400).json({ error: 'Validation failed', details: err.issues });
     }
     console.error('[Auth] Reset password error:', err);
     res.status(500).json({ error: 'Failed to process request' });
@@ -336,7 +690,18 @@ authRouter.get('/reset-password', async (req, res) => {
     if (!token || !/^[a-f0-9]{64}$/i.test(token)) return res.status(400).send('Invalid reset token');
     const sanitizedToken = token;
 
-    res.send(`
+    // Helmet's global policy blocks inline scripts, so this page gets its own
+    // nonce-based policy. Without it the form silently does nothing in
+    // production.
+    const nonce = crypto.randomBytes(18).toString('base64');
+    res.setHeader(
+      'Content-Security-Policy',
+      `default-src 'none'; style-src 'unsafe-inline'; script-src 'nonce-${nonce}'; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'`
+    );
+    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('Referrer-Policy', 'no-referrer');
+
+    res.type('html').send(`
       <!DOCTYPE html>
       <html lang="ar" dir="rtl">
       <head>
@@ -355,16 +720,16 @@ authRouter.get('/reset-password', async (req, res) => {
       <body>
         <div class="card">
           <h2>Reset Password</h2>
-          <p>Enter your new password:</p>
+          <p>Enter your new password (at least 12 characters):</p>
           <form id="resetForm">
-            <input type="password" name="password" required minlength="8" placeholder="New password">
-            <input type="password" name="confirmPassword" required minlength="8" placeholder="Confirm password">
+            <input type="password" name="password" required minlength="12" autocomplete="new-password" placeholder="New password">
+            <input type="password" name="confirmPassword" required minlength="12" autocomplete="new-password" placeholder="Confirm password">
             <button type="submit">Set New Password</button>
           </form>
           <div id="error" class="error"></div>
           <div id="success" class="success"></div>
         </div>
-        <script>
+        <script nonce="${nonce}">
           const form = document.getElementById('resetForm');
           const errorDiv = document.getElementById('error');
           const successDiv = document.getElementById('success');
@@ -379,8 +744,8 @@ authRouter.get('/reset-password', async (req, res) => {
               return;
             }
 
-            if (password.length < 8) {
-              errorDiv.textContent = 'Password must be at least 8 characters';
+            if (password.length < 12) {
+              errorDiv.textContent = 'Password must be at least 12 characters';
               return;
             }
 
@@ -391,7 +756,7 @@ authRouter.get('/reset-password', async (req, res) => {
               const response = await fetch('/api/auth/reset-password', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token: "${sanitizedToken}", password })
+                body: JSON.stringify({ token: ${JSON.stringify(sanitizedToken)}, password })
               });
               const data = await response.json();
 
@@ -399,7 +764,7 @@ authRouter.get('/reset-password', async (req, res) => {
                 successDiv.textContent = 'Password reset successful! You can now log in.';
                 setTimeout(() => window.location.href = '/', 2000);
               } else {
-                errorDiv.textContent = 'Failed to reset password';
+                errorDiv.textContent = data.error || 'Failed to reset password';
               }
             } catch (err) {
               errorDiv.textContent = 'An error occurred';
@@ -417,7 +782,7 @@ authRouter.get('/reset-password', async (req, res) => {
 
 authRouter.post('/admin-reset-password', async (req, res: Response) => {
   try {
-    const { code, email, password } = adminResetSchema.parse(req.body);
+    const { code, email, password, resetTwoFactor } = adminResetSchema.parse(req.body);
     const envCode = resolveGateCode();
     if (!envCode) {
       return res.status(503).json({
@@ -443,74 +808,36 @@ authRouter.post('/admin-reset-password', async (req, res: Response) => {
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     const passwordHash = await bcrypt.hash(password, 12);
-    await prisma.user.update({ where: { id: user.id }, data: { passwordHash, refreshToken: null } });
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordHash,
+        tokenVersion: { increment: 1 },
+        refreshToken: null,
+        failedLoginAttempts: 0,
+        lockedUntil: null,
+        ...(resetTwoFactor
+          ? {
+              twoFactorEnabled: false,
+              twoFactorSecret: null,
+              twoFactorPendingSecret: null,
+              twoFactorBackupCodes: [],
+            }
+          : {}),
+      },
+    });
     res.clearCookie('refreshToken');
+    if (resetTwoFactor) {
+      console.log('[Auth] Admin reset also cleared two-factor authentication');
+    }
     console.log(`[Auth] Admin reset password for ${email.slice(0, 3)}***`);
     res.json({ ok: true });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation failed', details: err.errors });
+      return res.status(400).json({ error: 'Validation failed', details: err.issues });
     }
     console.error('[Auth] Admin reset error:', err);
     res.status(500).json({ error: 'Failed to reset password' });
-  }
-});
-
-authRouter.post('/create-admin', async (req, res: Response) => {
-  try {
-    const code = req.body.code || '';
-    const envCode = resolveGateCode();
-    if (!envCode) {
-      return res.status(503).json({
-        error:
-          'Admin gate is disabled. Set a new ADMIN_GATE_CODE of at least 16 characters in the server environment.',
-      });
-    }
-    if (!gateCodeMatches(code, envCode)) {
-      reportSecurityEvent({
-        type: 'admin_gate',
-        severity: 'high',
-        req,
-        details: 'Invalid admin gate code (create admin)',
-        autoBlock: false,
-      });
-      return res.status(401).json({ error: 'Invalid gate code' });
-    }
-
-    const adminEmail = process.env.ADMIN_EMAIL;
-    const adminPassword = process.env.ADMIN_PASSWORD;
-
-    if (!adminEmail || !adminPassword) {
-      return res.status(500).json({
-        error: 'Admin provisioning failed: ADMIN_EMAIL or ADMIN_PASSWORD not set in environment'
-      });
-    }
-
-    const normalizedAdminEmail = normalizeEmail(adminEmail);
-    const passwordHash = await bcrypt.hash(adminPassword, 12);
-
-    const admin = await prisma.user.upsert({
-      where: { email: normalizedAdminEmail },
-      update: { passwordHash, isActive: true },
-      create: {
-        email: normalizedAdminEmail,
-        passwordHash,
-        name: 'Admin AOS',
-        role: 'SUPER_ADMIN',
-        phone: '+213600000000',
-        isActive: true,
-      },
-    });
-
-    console.log('[Auth] Admin account created/updated:', admin.email);
-    res.json({
-      ok: true,
-      message: 'Admin account ready',
-      email: admin.email,
-    });
-  } catch (err) {
-    console.error('[Auth] Create admin error:', err);
-    res.status(500).json({ error: 'Failed to create admin account' });
   }
 });
 
@@ -518,7 +845,7 @@ authRouter.post('/refresh', async (req, res: Response) => {
   const token = req.cookies?.refreshToken;
   if (!token) throw new Unauthorized('No refresh token');
 
-  let payload: { userId: string };
+  let payload: { userId: string; tokenVersion: number };
   try {
     payload = verifyRefreshToken(token);
   } catch {
@@ -530,27 +857,40 @@ authRouter.post('/refresh', async (req, res: Response) => {
     throw new Unauthorized('Invalid refresh token');
   }
 
+  // A password change or a second-factor change bumps tokenVersion and must
+  // terminate every session issued before it.
+  if (payload.tokenVersion !== user.tokenVersion) {
+    await prisma.user.update({ where: { id: user.id }, data: { refreshToken: null } });
+    throw new Unauthorized('Session expired. Sign in again.');
+  }
+
   // Revoke any customer session created before public login was removed.
-  if (user.role !== 'SUPER_ADMIN' && user.role !== 'ADMIN') {
+  if (!isAdminRole(user.role)) {
     await prisma.user.update({ where: { id: user.id }, data: { refreshToken: null } });
     throw new Unauthorized('Access is restricted to the store owner');
   }
 
-  const accessToken = signAccessToken({ userId: user.id, role: user.role });
-  const refreshToken = signRefreshToken({ userId: user.id });
+  // Idle sessions are closed server-side, not only by the browser cookie.
+  const idleMinutes = Math.max(5, Number(process.env.SESSION_IDLE_MINUTES || 120) || 120);
+  if (
+    user.lastActivityAt &&
+    Date.now() - user.lastActivityAt.getTime() > idleMinutes * 60 * 1000
+  ) {
+    await prisma.user.update({ where: { id: user.id }, data: { refreshToken: null } });
+    throw new Unauthorized('Session expired due to inactivity');
+  }
 
-  await prisma.user.update({ where: { id: user.id }, data: { refreshToken } });
+  // Never keep a long-lived session for an account that has not enrolled in
+  // the mandatory second factor.
+  if (twoFactorRequired() && !user.twoFactorEnabled) {
+    await prisma.user.update({ where: { id: user.id }, data: { refreshToken: null } });
+    throw new Unauthorized('Two-factor authentication setup is required');
+  }
 
-  res.cookie('refreshToken', refreshToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    path: '/',
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  });
+  const accessToken = await createSession(user, res);
 
   res.json({
-    user: { id: user.id, email: user.email, name: user.name, role: user.role },
+    user: publicUser(user),
     accessToken,
   });
 });
@@ -590,18 +930,16 @@ authRouter.post('/change-password', requireAuth, async (req: AuthRequest, res: R
   }
 
   const passwordHash = await bcrypt.hash(newPassword, 12);
-  await prisma.user.update({
+  const updated = await prisma.user.update({
     where: { id: user.id },
-    data: { passwordHash, refreshToken: null },
+    data: { passwordHash, tokenVersion: { increment: 1 }, refreshToken: null },
   });
-  res.clearCookie('refreshToken', {
-    path: '/',
-    sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
-    httpOnly: true,
-  });
+
+  // Keep this device signed in with a fresh token pair; every other session
+  // is invalidated by the tokenVersion bump above.
+  const accessToken = await createSession(updated, res);
   await logAction(req.userId, 'PASSWORD_CHANGED', 'User', { role: user.role }, req.ip);
-  res.json({ ok: true });
+  res.json({ ok: true, accessToken });
 });
 
 authRouter.get('/me', requireAuth, async (req: AuthRequest, res: Response) => {
@@ -618,6 +956,7 @@ authRouter.get('/me', requireAuth, async (req: AuthRequest, res: Response) => {
     phone: user.phone,
     avatar: user.avatar,
     role: user.role,
+    twoFactorEnabled: user.twoFactorEnabled,
     addresses: user.addresses,
   });
 });

@@ -61,7 +61,7 @@ emailRouter.post('/send', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), asyn
     res.json({ sent: true, count: recipients.length, messageId: info.messageId });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation failed', details: err.errors });
+      return res.status(400).json({ error: 'Validation failed', details: err.issues });
     }
     console.error('[Email] Send error:', err);
     res.status(500).json({ error: 'Failed to send email' });

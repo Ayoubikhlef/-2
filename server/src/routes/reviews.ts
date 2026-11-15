@@ -101,7 +101,7 @@ reviewRouter.patch('/admin/:id', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'
     res.json(toAdminReview(updated));
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation failed', details: err.errors });
+      return res.status(400).json({ error: 'Validation failed', details: err.issues });
     }
     console.error('[Reviews] Moderation error:', err);
     res.status(500).json({ error: 'Failed to update review' });
@@ -191,7 +191,7 @@ reviewRouter.post('/', async (req: Request, res: Response) => {
     res.status(201).json({ ok: true, pending: true, id: review.id });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation failed', details: err.errors });
+      return res.status(400).json({ error: 'Validation failed', details: err.issues });
     }
     console.error('[Reviews] Create error:', err);
     res.status(500).json({ error: 'Failed to create review' });

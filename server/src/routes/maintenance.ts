@@ -50,7 +50,7 @@ maintenanceRouter.post('/', requireAuth, requireRole('SUPER_ADMIN', 'ADMIN'), as
     res.json({ ok: true, enabled: body.enabled });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation failed', details: err.errors });
+      return res.status(400).json({ error: 'Validation failed', details: err.issues });
     }
     console.error('[Maintenance] Save error:', err);
     res.status(500).json({ error: 'Failed to save maintenance' });

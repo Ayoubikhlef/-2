@@ -14,8 +14,13 @@ export async function requireAuth(req: AuthRequest, _res: Response, next: NextFu
     if (!header?.startsWith('Bearer ')) return next(new Unauthorized('No token provided'));
 
     const payload = verifyAccessToken(header.slice(7));
-    const user = await prisma.user.findUnique({ where: { id: payload.userId }, select: { isActive: true, role: true } });
+    const user = await prisma.user.findUnique({ where: { id: payload.userId }, select: { isActive: true, role: true, tokenVersion: true } });
     if (!user || !user.isActive) return next(new Unauthorized('Account is deactivated'));
+    // Bumped on password or second-factor changes, which revokes every token
+    // issued before the change.
+    if (user.tokenVersion !== payload.tokenVersion) {
+      return next(new Unauthorized('Session expired. Sign in again.'));
+    }
     req.userId = payload.userId;
     // Always authorize against the current database role, so role changes
     // take effect immediately instead of when an old access token expires.

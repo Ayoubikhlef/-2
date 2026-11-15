@@ -29,7 +29,6 @@ import { initLive } from './services/live';
 import { initRAG } from './services/rag';
 import { prisma } from './utils/prisma';
 import { isOriginAllowed } from './utils/cors';
-import { isTelegramConfigured } from './services/telegram';
 import { fixMojibakeData } from './utils/encoding';
 import { ensureSiteFactoryDefaults } from './site-factory/service';
 
@@ -150,9 +149,11 @@ app.use('/api/site-factory', siteFactoryRouter);
 app.get('/api/health', async (_req, res) => {
   try {
     await prisma.$queryRaw`SELECT 1`;
-    res.json({ status: 'ok', db: 'connected', uptime: process.uptime(), timestamp: new Date().toISOString(), keepAlive: keepAliveStatus, telegram: isTelegramConfigured() });
+    // Public liveness only: no uptime, environment flags or error internals.
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
   } catch (err: any) {
-    res.json({ status: 'ok', db: 'error', dbError: err.message, uptime: process.uptime() });
+    console.error('[Health] Database check failed:', err?.message || err);
+    res.status(503).json({ status: 'error', timestamp: new Date().toISOString() });
   }
 });
 

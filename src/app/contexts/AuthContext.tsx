@@ -8,12 +8,32 @@ interface User {
   role: string;
   phone?: string;
   avatar?: string;
+  twoFactorEnabled?: boolean;
+}
+
+export interface LoginResult {
+  user?: User;
+  twoFactorRequired?: boolean;
+  setupRequired?: boolean;
+  challengeToken?: string;
+}
+
+export interface TwoFactorSetupData {
+  secret: string;
+  otpauthUrl: string;
+  issuer: string;
+  account: string;
 }
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string, twoFactorCode?: string) => Promise<LoginResult>;
+  startTwoFactorSetup: (challengeToken: string) => Promise<TwoFactorSetupData>;
+  confirmTwoFactorSetup: (
+    challengeToken: string,
+    code: string
+  ) => Promise<{ backupCodes: string[]; user: User }>;
   register: (data: { email: string; password: string; name: string; phone?: string }) => Promise<void>;
   logout: () => Promise<void>;
   isAdmin: boolean;
@@ -35,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (refreshed) {
           setUser(refreshed.user);
         } else if (getStoredUser()) {
-          // Refresh failed (network) but session still stored — keep user
+          // Refresh failed (network) but session still stored - keep user
           // so admin dashboard can retry; only force logout on hard reject.
           setUser(getStoredUser());
         } else {
@@ -47,11 +67,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     init();
   }, []);
 
-  const login = useCallback(async (email: string, password: string) => {
-    const data = await api.auth.login({ email, password });
-    setAccessToken(data.accessToken);
-    setStoredUser(data.user);
-    setUser(data.user);
+  const login = useCallback(
+    async (email: string, password: string, twoFactorCode?: string): Promise<LoginResult> => {
+      // The response is a discriminated step result rather than an error.
+      const data: any = await api.auth.login({ email, password, twoFactorCode });
+
+      if (data?.accessToken) {
+        setAccessToken(data.accessToken);
+        setStoredUser(data.user);
+        setUser(data.user);
+        return { user: data.user };
+      }
+
+      if (data?.twoFactorSetupRequired) {
+        return { setupRequired: true, challengeToken: data.challengeToken };
+      }
+
+      return { twoFactorRequired: true, challengeToken: data.challengeToken };
+    },
+    []
+  );
+
+  const startTwoFactorSetup = useCallback(
+    (challengeToken: string) => api.auth.twoFactorStart(challengeToken),
+    []
+  );
+
+  const confirmTwoFactorSetup = useCallback(async (challengeToken: string, code: string) => {
+    const result = await api.auth.twoFactorConfirm({ challengeToken, code });
+    setAccessToken(result.accessToken);
+    setStoredUser(result.user);
+    setUser(result.user);
+    return { backupCodes: result.backupCodes, user: result.user };
   }, []);
 
   const register = useCallback(async (data: { email: string; password: string; name: string; phone?: string }) => {
@@ -81,7 +128,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isAdmin = user?.role === 'SUPER_ADMIN' || user?.role === 'ADMIN';
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, isAdmin, refreshAuth }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        login,
+        startTwoFactorSetup,
+        confirmTwoFactorSetup,
+        register,
+        logout,
+        isAdmin,
+        refreshAuth,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
