@@ -114,10 +114,33 @@ const SENSITIVE_PATH_RULE =
 const SCANNER_UA_RULE =
   /sqlmap|nikto|nmap|masscan|acunetix|nessus|dirbuster|gobuster|wpscan|zgrab|nuclei|hydra|metasploit|w3af|appscan|netsparker|openvas|qualys|burp\s*suite/i;
 
-function clientIp(req: Request): string {
-  const forwarded = req.headers['x-forwarded-for'];
-  const raw = Array.isArray(forwarded) ? forwarded[0] : forwarded?.split(',')[0];
-  const ip = String(raw || req.ip || req.socket?.remoteAddress || 'unknown').trim();
+// Authentication and health checks must never be locked out. Otherwise one
+// stray request (or a spoofed X-Forwarded-For value) can lock the owner out of
+// the panel with no way back in.
+const ALWAYS_ALLOWED_PATH = /^\/api\/(auth|health)(\/|$)/i;
+
+function isAlwaysAllowedPath(pathname: string): boolean {
+  return ALWAYS_ALLOWED_PATH.test(pathname);
+}
+
+function allowlistedIps(): Set<string> {
+  return new Set(
+    String(process.env.SECURITY_IP_ALLOWLIST || '')
+      .split(',')
+      .map((value) => value.trim().replace(/^::ffff:/, ''))
+      .filter(Boolean)
+  );
+}
+
+function isAllowlistedIp(ip: string): boolean {
+  return allowlistedIps().has(ip);
+}
+
+export function clientIp(req: Request): string {
+  // Express resolves req.ip using the configured `trust proxy` setting. Never
+  // read the left-most X-Forwarded-For value directly: it is attacker-controlled
+  // and would let anyone block an arbitrary IP (including the owner's).
+  const ip = String(req.ip || req.socket?.remoteAddress || 'unknown').trim();
   return ip.replace(/^::ffff:/, '');
 }
 
@@ -170,7 +193,11 @@ export function detectThreats(req: Request): ThreatRule[] {
   const url = safeDecode(String(req.originalUrl || req.url || ''));
   const userAgent = String(req.headers['user-agent'] || '');
   const parts = [url, userAgent];
-  if (req.body && typeof req.body === 'object') {
+  // A password may legitimately contain quotes, angle brackets or SQL-looking
+  // text. Scanning the login body turns a valid password into a false positive
+  // (and an automatic block), so auth bodies are never inspected.
+  const isAuthPath = /^\/api\/auth(\/|$)/i.test(url);
+  if (!isAuthPath && req.body && typeof req.body === 'object') {
     const bodyStrings: string[] = [];
     collectStrings(req.body, bodyStrings);
     parts.push(...bodyStrings);
@@ -321,7 +348,13 @@ export function reportSecurityEvent(options: ReportSecurityEventOptions): Securi
   persistIncident(incident);
   maybeSendAlert(incident);
 
-  if (autoBlock && isBlockableIp(ip) && (severity === 'critical' || severity === 'high')) {
+  if (
+    autoBlock &&
+    isBlockableIp(ip) &&
+    !isAllowlistedIp(ip) &&
+    !isAlwaysAllowedPath(incident.path) &&
+    (severity === 'critical' || severity === 'high')
+  ) {
     blockIp(ip, AUTO_BLOCK_MINUTES, `${type}: ${details || incident.path}`);
   }
 
@@ -330,7 +363,7 @@ export function reportSecurityEvent(options: ReportSecurityEventOptions): Securi
 
 export function blockIp(ip: string, minutes: number, reason: string): BlockedIp | null {
   const normalized = ip.replace(/^::ffff:/, '').trim();
-  if (!isBlockableIp(normalized)) return null;
+  if (!isBlockableIp(normalized) || isAllowlistedIp(normalized)) return null;
   const duration = Math.min(Math.max(Math.floor(minutes), 1), 24 * 60);
   const entry = {
     reason: reason.slice(0, 250),
@@ -417,13 +450,20 @@ export async function sendTestSecurityAlert(): Promise<TestAlertResult> {
 
 export function securityMonitor(req: Request, res: Response, next: NextFunction): void {
   const ip = clientIp(req);
+  const pathname = String(req.originalUrl || req.url || '/');
+  const allowedPath = isAlwaysAllowedPath(pathname);
+
   const entry = blockedIps.get(ip);
   if (entry) {
     if (entry.until > Date.now()) {
-      res.status(403).json({ error: 'Forbidden' });
-      return;
+      // Keep login/refresh/health reachable so the owner can always recover.
+      if (!allowedPath) {
+        res.status(403).json({ error: 'Forbidden' });
+        return;
+      }
+    } else {
+      blockedIps.delete(ip);
     }
-    blockedIps.delete(ip);
   }
 
   const threats = detectThreats(req);
@@ -440,6 +480,9 @@ export function securityMonitor(req: Request, res: Response, next: NextFunction)
     severity: worst.severity,
     req,
     details: threats.map((threat) => threat.label).join('; '),
+    // Never auto-block an auth/health request: a false positive there would
+    // lock the owner out of the panel.
+    autoBlock: !allowedPath && !isAllowlistedIp(ip),
   });
 
   next();

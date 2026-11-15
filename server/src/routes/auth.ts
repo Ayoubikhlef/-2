@@ -9,7 +9,7 @@ import { AppError, BadRequest, Unauthorized } from '../utils/errors';
 import { requireAuth, AuthRequest } from '../middleware/auth';
 import nodemailer from 'nodemailer';
 import { logAction } from '../services/audit';
-import { reportSecurityEvent } from '../services/security';
+import { clientIp, reportSecurityEvent, unblockIp } from '../services/security';
 
 export const authRouter = Router();
 
@@ -57,13 +57,19 @@ const changePasswordSchema = z.object({
   newPassword: z.string().min(12),
 });
 
-// The old gate code was published in render.yaml. Refuse it (and anything
-// short) so a leaked value cannot be used to reset an admin password.
-const LEAKED_GATE_CODE = '752918';
+// The old six-digit gate code was published in the repository. A gate code is
+// now only accepted when it is a long random value of at least 16 characters.
 function resolveGateCode(): string | null {
   const code = (process.env.ADMIN_GATE_CODE || '').trim();
-  if (!code || code === LEAKED_GATE_CODE || code.length < 12) return null;
+  if (!code || code.length < 16) return null;
   return code;
+}
+
+function gateCodeMatches(input: string, expected: string): boolean {
+  const provided = Buffer.from(String(input || ''), 'utf8');
+  const wanted = Buffer.from(String(expected || ''), 'utf8');
+  if (!provided.length || provided.length !== wanted.length) return false;
+  return crypto.timingSafeEqual(provided, wanted);
 }
 
 // --- Helpers ---
@@ -218,6 +224,37 @@ authRouter.post('/login', async (req, res: Response) => {
     }
     console.error('[Auth Login Critical Error]:', err);
     throw new BadRequest('An unexpected error occurred. Please try again.');
+  }
+});
+
+// Emergency recovery: if the security monitor blocked the owner's IP, this
+// endpoint can clear that block with the admin gate code. It is deliberately
+// reachable even while blocked (auth paths are exempt from the block check),
+// and it never reveals the gate code.
+authRouter.post('/unblock', async (req, res: Response) => {
+  try {
+    const code = String(req.body?.code || '');
+    const envCode = resolveGateCode();
+    if (!envCode) {
+      return res.status(503).json({
+        error: 'Admin gate is disabled. Set a new ADMIN_GATE_CODE of at least 16 characters in the server environment.',
+      });
+    }
+    if (!gateCodeMatches(code, envCode)) {
+      reportSecurityEvent({
+        type: 'admin_gate',
+        severity: 'high',
+        req,
+        details: 'Invalid admin gate code (unblock)',
+        autoBlock: false,
+      });
+      return res.status(401).json({ error: 'Invalid gate code' });
+    }
+    const ip = clientIp(req);
+    const removed = unblockIp(ip);
+    res.json({ ok: true, unblocked: removed });
+  } catch {
+    res.status(500).json({ error: 'Failed to unblock' });
   }
 });
 
@@ -385,11 +422,10 @@ authRouter.post('/admin-reset-password', async (req, res: Response) => {
     if (!envCode) {
       return res.status(503).json({
         error:
-          'Admin gate is disabled. Set a new ADMIN_GATE_CODE of at least 12 characters in the server environment.',
+          'Admin gate is disabled. Set a new ADMIN_GATE_CODE of at least 16 characters in the server environment.',
       });
     }
-    const validCodes = [envCode];
-    if (!validCodes.includes(code)) {
+    if (!gateCodeMatches(code, envCode)) {
       reportSecurityEvent({
         type: 'admin_gate',
         severity: 'high',
@@ -427,11 +463,10 @@ authRouter.post('/create-admin', async (req, res: Response) => {
     if (!envCode) {
       return res.status(503).json({
         error:
-          'Admin gate is disabled. Set a new ADMIN_GATE_CODE of at least 12 characters in the server environment.',
+          'Admin gate is disabled. Set a new ADMIN_GATE_CODE of at least 16 characters in the server environment.',
       });
     }
-    const validCodes = [envCode];
-    if (!validCodes.includes(code)) {
+    if (!gateCodeMatches(code, envCode)) {
       reportSecurityEvent({
         type: 'admin_gate',
         severity: 'high',
