@@ -4,7 +4,9 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { getSiteContent } from '../utils/siteContentStorage';
 import { motion } from 'motion/react';
 
-const cardIcons = [Printer, FileText, Calendar, Wifi, Server];
+import { Database } from 'lucide-react';
+
+const cardIcons = [Printer, FileText, Calendar, Wifi, Server, Brain, Zap, TrendingUp];
 const digiIcons = [FileCheck, Zap, Shield];
 
 export function Services() {

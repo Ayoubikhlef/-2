@@ -21,3 +21,4 @@ server/.env.*
 SECURITY-REPORT.md
 memory/
 .claude/
+.env*

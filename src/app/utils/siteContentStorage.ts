@@ -212,6 +212,20 @@ const defaultContent: SiteContent = {
         image: '/products/05.jpg',
         color: 'from-cyan-500 to-blue-600',
       },
+      {
+        id: 'ai-tools',
+        title: { ar: 'أدوات الذكاء الاصطناعي للتجارة الإلكترونية', fr: 'Outils IA pour le e-commerce', en: 'AI Tools for E-commerce' },
+        description: { ar: 'توليد أوصاف منتجات بالذكاء الاصطناعي، دردشات العملاء الآلية، تحليل المخزون الذكي', fr: 'Génération d\'descriptions de produits par IA, chatbots clients automatisés, analyse intelligente des stocks', en: 'AI-generated product descriptions, automated customer service chatbots, intelligent inventory analysis' },
+        image: '/products/ai-tools.jpg',
+        color: 'from-violet-500 to-purple-600',
+      },
+      {
+        id: 'ai-automation',
+        title: { ar: 'قوالب الأتمتة الذكية', fr: 'Modèles d\'automatisation intelligente', en: 'Smart Automation Templates' },
+        description: { ar: 'قوالب أتمتة التسويق، إدارة المبيعات الآلية، وتحسين تجربة العملاء بالذكاء الاصطناعي', fr: 'Templates d\'automatisation marketing, vente automatisée, et amélioration de l\'expérience client par IA', en: 'Marketing automation templates, sales automation, and AI-powered customer experience optimization' },
+        image: '/products/ai-automation.jpg',
+        color: 'from-fuchsia-500 to-pink-600',
+      },
     ],
     digitizationItems: [
       { title: { ar: 'تنسيقات متعددة', fr: 'Formats multiples', en: 'Multiple Formats' }, description: { ar: 'PDF، Word، Excel وجميع التنسيقات الشائعة', fr: 'PDF, Word, Excel et tous les formats courants', en: 'PDF, Word, Excel and all common formats' }, color: 'from-emerald-500 to-emerald-600' },
