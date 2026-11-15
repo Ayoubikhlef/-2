@@ -5,7 +5,7 @@ import { getStoredProducts, initializeProducts, pullProductsFromServer } from '.
 import { products as defaultProducts, type Product } from '../data/products';
 import { getStoredServices, initializeServices } from '../utils/serviceStorage';
 import { defaultServices, type ServiceCategory } from '../data/services';
-import { RefreshCw, Trash2, ChevronDown, Phone, MapPin, Mail, DollarSign, Package, Eye, Lightbulb, Wrench, FileText, Globe, Settings, Star, MailOpen, Download, Shield } from 'lucide-react';
+import { RefreshCw, Trash2, ChevronDown, Phone, MapPin, Mail, DollarSign, Package, Eye, EyeOff, Lock, Lightbulb, Wrench, FileText, Globe, Settings, Star, MailOpen, Download, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import { isMaintenanceMode, setMaintenanceMode, getMaintenanceMessage, setMaintenanceMessage } from '../utils/maintenanceStorage';
 import { syncAllFromServer, getSyncStatus, getLastSyncTime } from '../utils/globalSync';
@@ -52,69 +52,6 @@ const statusConfig: Record<OrderStatus, { label: Record<string, string>; color: 
 
 type FilterMode = 'all' | OrderStatus;
 
-const neumorphic: React.CSSProperties = {
-  background: '#e0e5ec',
-  borderRadius: 20,
-  boxShadow: '10px 10px 20px #a3b1c6, -10px -10px 20px #ffffff',
-};
-
-const neumorphicInset: React.CSSProperties = {
-  background: '#e0e5ec',
-  borderRadius: 20,
-  boxShadow: 'inset 10px 10px 20px #a3b1c6, inset -10px -10px 20px #ffffff',
-};
-
-const neumorphicCard: React.CSSProperties = {
-  ...neumorphic,
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center',
-  alignItems: 'center',
-  padding: 30,
-  textAlign: 'center',
-  border: '1px solid rgba(255,255,255,0.5)',
-};
-
-const darkCard: React.CSSProperties = {
-  background: 'rgba(15, 23, 42, 0.7)',
-  backdropFilter: 'blur(16px)',
-  borderRadius: 20,
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center',
-  alignItems: 'center',
-  padding: 30,
-  textAlign: 'center',
-  boxShadow: '0 0 40px rgba(59,130,246,0.2), 0 0 80px rgba(59,130,246,0.1)',
-  border: '1px solid rgba(59,130,246,0.3)',
-};
-
-const darkInput: React.CSSProperties = {
-  background: '#1e293b',
-  borderRadius: 20,
-  boxShadow: 'inset 4px 4px 8px #0f172a, inset -4px -4px 8px #2d3a4c',
-  width: '100%',
-  padding: '14px 18px',
-  fontSize: 15,
-  color: '#e2e8f0',
-  border: 'none',
-  outline: 'none',
-  fontFamily: 'inherit',
-};
-
-const darkButton: React.CSSProperties = {
-  background: '#1e293b',
-  borderRadius: 20,
-  boxShadow: '4px 4px 8px #0f172a, -4px -4px 8px #2d3a4c',
-  padding: '14px 40px',
-  fontSize: 15,
-  fontWeight: 700,
-  color: '#e2e8f0',
-  border: 'none',
-  cursor: 'pointer',
-  fontFamily: 'inherit',
-};
-
 function TabLoading() {
   return (
     <div className="flex items-center justify-center py-24">
@@ -137,6 +74,7 @@ export function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(!!user);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
   const [loginError, setLoginError] = useState('');
   const [loginStep, setLoginStep] = useState<'credentials' | 'code' | 'enroll' | 'backup'>('credentials');
@@ -148,7 +86,6 @@ export function Admin() {
   const [filter, setFilter] = useState<FilterMode>('all');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  const [isOn, setIsOn] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [tab, setTab] = useState<'dashboard' | 'orders' | 'products' | 'services' | 'manage-products' | 'manage-services' | 'customers' | 'coupons' | 'content' | 'settings' | 'reviews' | 'newsletter' | 'messages' | 'security' | 'factory'>('orders');
   const [manageProducts, setManageProducts] = useState<Product[]>([]);
@@ -280,25 +217,6 @@ export function Admin() {
     } finally {
       setLoginLoading(false);
     }
-  };
-
-  const toggleLamp = () => {
-    const next = !isOn;
-    setIsOn(next);
-    document.documentElement.style.setProperty('--on', next ? '1' : '0');
-    document.body.setAttribute('data-on', String(next));
-  };
-
-  const loginInputStyle = {
-    ...darkInput,
-    textAlign: 'center' as const,
-    ...(isOn
-      ? {}
-      : {
-          background: '#ffffff',
-          color: '#2d3436',
-          boxShadow: 'inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff',
-        }),
   };
 
   const loadOrders = useCallback(async () => {
@@ -481,252 +399,291 @@ export function Admin() {
 
   if (showAdmin && !isAuthenticated) {
     return (
-      <section
-        id="admin"
-        className="min-h-screen flex items-center justify-center relative overflow-hidden"
-        style={{ background: isOn ? '#0B1120' : '#e0e5ec', transition: 'background 0.6s' }}
-      >
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          {isOn ? (
-            <>
-              <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-600/20 blur-[120px] animate-pulse" />
-              <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-600/20 blur-[120px] animate-pulse delay-700" />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-[60%] rounded-full bg-cyan-600/10 blur-[150px] animate-pulse delay-1000" />
-            </>
-          ) : (
-            <>
-              <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-white/50 blur-[100px] animate-pulse" />
-              <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-slate-300/50 blur-[100px] animate-pulse delay-700" />
-            </>
-          )}
+      <section id="admin" className="relative min-h-screen overflow-hidden bg-[#eef5ff] px-4 py-10 sm:px-6 lg:px-8">
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          <div className="absolute -left-24 -top-24 h-[420px] w-[420px] rounded-full bg-[#8ec4ff]/45 blur-[110px]" />
+          <div className="absolute -bottom-32 -right-24 h-[460px] w-[460px] rounded-full bg-[#5aa2ff]/35 blur-[120px]" />
+          <div className="absolute left-1/2 top-1/3 h-[320px] w-[320px] -translate-x-1/2 rounded-full bg-white/70 blur-[90px]" />
+          <div
+            className="absolute inset-0 opacity-60"
+            style={{
+              backgroundImage: 'radial-gradient(circle, rgba(29,123,255,0.16) 1.5px, transparent 1.6px)',
+              backgroundSize: '34px 34px',
+            }}
+          />
         </div>
 
-        <div className="flex flex-col items-center text-center relative z-10" style={{
-          ...(isOn ? darkCard : neumorphicCard),
-          width: 360,
-          transition: 'background 0.6s, box-shadow 0.6s',
-        }}>
-          <div className="flex items-center gap-3 mb-8">
-            <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700, color: isOn ? '#f1f5f9' : '#2d3436' }}>
-              {t({ ar: 'دخول الأدمين', fr: 'Connexion Admin', en: 'Admin Login' })}
-            </h1>
-            <button
-              type="button"
-              onClick={toggleLamp}
-              className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 cursor-pointer"
-              style={{
-                background: isOn ? '#fbbf24' : '#e0e5ec',
-                boxShadow: isOn
-                  ? '0 0 20px rgba(251,191,36,0.5), 0 0 40px rgba(251,191,36,0.2)'
-                  : '6px 6px 12px #a3b1c6, -6px -6px 12px #ffffff',
-              }}
-            >
-              <Lightbulb
-                className="w-5 h-5 transition-all duration-300"
-                style={{ color: isOn ? '#1e293b' : '#64748b', fill: isOn ? '#fbbf24' : 'none' }}
-              />
-            </button>
-          </div>
-          <form onSubmit={handleLogin} className="w-full flex flex-col gap-4">
-            {loginStep === 'credentials' && (
-              <>
-                <input
-                  type="text"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder={t({ ar: 'البريد الإلكتروني أو اسم المستخدم', fr: 'E-mail ou nom d\'utilisateur', en: 'Email or Username' })}
-                  required
-                  style={loginInputStyle}
-                />
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder={t({ ar: 'كلمة المرور', fr: 'Mot de passe', en: 'Password' })}
-                  required
-                  style={loginInputStyle}
-                />
-              </>
-            )}
-
-            {loginStep === 'code' && (
-              <>
-                <p style={{ margin: 0, fontSize: 14, lineHeight: 1.6, color: isOn ? '#cbd5e1' : '#475569', textAlign: 'center' }}>
-                  {t({
-                    ar: 'أدخل الرمز المكوّن من 6 أرقام من تطبيق المصادقة، أو أحد الرموز الاحتياطية.',
-                    fr: 'Saisissez le code à 6 chiffres de votre application, ou un code de secours.',
-                    en: 'Enter the 6-digit code from your authenticator app, or a backup code.',
-                  })}
-                </p>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  autoComplete="one-time-code"
-                  value={twoFactorCode}
-                  onChange={(e) => setTwoFactorCode(e.target.value)}
-                  placeholder={t({ ar: 'رمز التحقق', fr: 'Code de vérification', en: 'Verification code' })}
-                  required
-                  autoFocus
-                  style={loginInputStyle}
-                />
-              </>
-            )}
-
-            {loginStep === 'enroll' && setupData && (
-              <>
-                <p style={{ margin: 0, fontSize: 14, lineHeight: 1.6, color: isOn ? '#cbd5e1' : '#475569', textAlign: 'center' }}>
-                  {t({
-                    ar: 'التحقق بخطوتين إلزامي. أضف هذا المفتاح إلى Google Authenticator أو Authy ثم أدخل الرمز الظاهر.',
-                    fr: 'La double authentification est obligatoire. Ajoutez cette clé à Google Authenticator ou Authy, puis saisissez le code affiché.',
-                    en: 'Two-factor authentication is mandatory. Add this key to Google Authenticator or Authy, then enter the displayed code.',
-                  })}
-                </p>
-                <code
-                  style={{
-                    display: 'block',
-                    padding: '10px 12px',
-                    borderRadius: 12,
-                    fontSize: 13,
-                    letterSpacing: 1,
-                    wordBreak: 'break-all',
-                    textAlign: 'center',
-                    background: isOn ? 'rgba(15,23,42,0.6)' : '#eef2f7',
-                    color: isOn ? '#e2e8f0' : '#0f172a',
-                  }}
-                >
-                  {setupData.secret}
-                </code>
-                <button
-                  type="button"
-                  onClick={() => {
-                    navigator.clipboard?.writeText(setupData.secret).then(
-                      () => toast.success(t({ ar: 'تم نسخ المفتاح', fr: 'Clé copiée', en: 'Key copied' })),
-                      () => {}
-                    );
-                  }}
-                  style={{
-                    alignSelf: 'center',
-                    background: 'none',
-                    border: 'none',
-                    padding: 0,
-                    fontSize: 13,
-                    color: '#3b82f6',
-                    cursor: 'pointer',
-                    fontFamily: 'inherit',
-                    textDecoration: 'underline',
-                  }}
-                >
-                  {t({ ar: 'نسخ المفتاح', fr: 'Copier la clé', en: 'Copy key' })}
-                </button>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  autoComplete="one-time-code"
-                  maxLength={6}
-                  dir="ltr"
-                  value={twoFactorCode}
-                  onChange={(e) => setTwoFactorCode(e.target.value)}
-                  placeholder={t({ ar: 'الرمز من التطبيق', fr: 'Code de l\'application', en: 'App code' })}
-                  required
-                  autoFocus
-                  style={loginInputStyle}
-                />
-                <p style={{ margin: 0, fontSize: 12, lineHeight: 1.6, color: isOn ? '#94a3b8' : '#64748b', textAlign: 'center' }}>
-                  {t({
-                    ar: 'أدخل الأرقام الستة التي يعرضها التطبيق، وليس المفتاح الطويل أعلاه.',
-                    fr: 'Saisissez les 6 chiffres affichés par l\'application, et non la clé de configuration ci-dessus.',
-                    en: 'Enter the 6 digits shown by the app, not the setup key above.',
-                  })}
-                </p>
-              </>
-            )}
-
-            {loginStep === 'backup' && (
-              <>
-                <p style={{ margin: 0, fontSize: 14, lineHeight: 1.6, color: isOn ? '#fbbf24' : '#b45309', textAlign: 'center', fontWeight: 600 }}>
-                  {t({
-                    ar: 'احفظ هذه الرموز الاحتياطية الآن. لن تظهر مرة أخرى، وكل رمز يعمل مرة واحدة.',
-                    fr: 'Conservez ces codes de secours maintenant. Ils ne seront plus affichés et chaque code ne fonctionne qu\'une fois.',
-                    en: 'Save these backup codes now. They will not be shown again, and each code works once.',
-                  })}
-                </p>
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 1fr',
-                    gap: 6,
-                    padding: 12,
-                    borderRadius: 12,
-                    fontFamily: 'monospace',
-                    fontSize: 12,
-                    background: isOn ? 'rgba(15,23,42,0.6)' : '#eef2f7',
-                    color: isOn ? '#e2e8f0' : '#0f172a',
-                    direction: 'ltr',
-                  }}
-                >
-                  {backupCodes.map((code) => (
-                    <span key={code}>{code}</span>
-                  ))}
+        <div className="relative z-10 mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-6xl items-center justify-center">
+          <div className="grid w-full overflow-hidden rounded-[32px] border border-white bg-white/85 shadow-[0_30px_90px_-35px_rgba(11,94,215,0.55)] ring-1 ring-[#0b5ed7]/5 backdrop-blur-xl lg:grid-cols-[1.15fr_0.85fr]">
+            <div className="px-6 py-9 sm:px-10 sm:py-11 lg:px-12">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0a49c7] to-[#1d7bff] text-white shadow-lg shadow-blue-600/25">
+                    <Shield className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="bg-gradient-to-r from-[#0a49c7] via-[#1d7bff] to-[#0a49c7] bg-clip-text text-xl font-black leading-none tracking-tight text-transparent">
+                      AOS
+                    </p>
+                    <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.28em] text-[#5b7ba6]">Tech Store</p>
+                  </div>
                 </div>
-              </>
-            )}
+                <a
+                  href="/"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[#d5e5f8] bg-white/80 px-3.5 py-2 text-xs font-semibold text-[#3c5a80] transition hover:border-[#9dc4f0] hover:text-[#0a49c7]"
+                >
+                  <Globe className="h-3.5 w-3.5" />
+                  aos-tech.store
+                </a>
+              </div>
 
-            {loginError && (
-              <p style={{ margin: 0, fontSize: 14, color: '#ef4444', textAlign: 'center' }}>
-                {loginError}
+              <div className="mt-7 flex items-center gap-3 rounded-2xl border border-[#dbe9fb] bg-gradient-to-r from-[#f4f9ff] to-white p-3 lg:hidden">
+                <span
+                  aria-hidden
+                  className="h-12 w-12 shrink-0 rounded-full border-2 border-white bg-[#dfeeff] shadow-md"
+                  style={{
+                    backgroundImage: "url('/aos-login-poster.jpg')",
+                    backgroundSize: '190px',
+                    backgroundPosition: '26% 24%',
+                  }}
+                />
+                <p className="text-xs leading-relaxed text-[#3c5a80]">
+                  {t({
+                    ar: 'أهلًا بعودتك. سجّل الدخول لإدارة متجرك بأمان.',
+                    fr: 'Bon retour. Connectez-vous pour gérer votre boutique en toute sécurité.',
+                    en: 'Welcome back. Sign in to manage your store securely.',
+                  })}
+                </p>
+              </div>
+
+              <h1 className="mt-7 text-[30px] font-black leading-tight text-[#0b2a5b] sm:text-[34px]">
+                {t({ ar: 'لوحة التحكم', fr: 'Panneau d’administration', en: 'Admin Panel' })}
+              </h1>
+              <p className="mt-2 text-sm leading-relaxed text-[#5b7ba6]">
+                {t({
+                  ar: 'مرحبًا بعودتك. سجّل الدخول لإدارة الطلبات والمنتجات وإعدادات المتجر.',
+                  fr: 'Bon retour. Connectez-vous pour gérer les commandes, les produits et les paramètres de la boutique.',
+                  en: 'Welcome back. Sign in to manage orders, products and store settings.',
+                })}
               </p>
-            )}
 
-            <button
-              type="submit"
-              disabled={loginLoading}
-              style={isOn ? darkButton : {
-                ...neumorphic,
-                padding: '14px 40px',
-                fontSize: 15,
-                fontWeight: 700,
-                color: '#2d3436',
-                border: 'none',
-                cursor: loginLoading ? 'not-allowed' : 'pointer',
-                fontFamily: 'inherit',
-                opacity: loginLoading ? 0.6 : 1,
-              }}
-            >
-              {loginLoading ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  {t({ ar: 'جاري التحقق...', fr: 'Vérification...', en: 'Checking...' })}
-                </div>
-              ) : loginStep === 'backup' ? (
-                t({ ar: 'لقد حفظت الرموز — متابعة', fr: 'Codes enregistrés — continuer', en: 'I saved the codes — continue' })
-              ) : loginStep === 'enroll' ? (
-                t({ ar: 'تفعيل ومتابعة', fr: 'Activer et continuer', en: 'Enable and continue' })
-              ) : loginStep === 'code' ? (
-                t({ ar: 'تحقق', fr: 'Vérifier', en: 'Verify' })
-              ) : (
-                t({ ar: 'دخول', fr: 'Connexion', en: 'Login' })
-              )}
-            </button>
+              <form onSubmit={handleLogin} className="mt-7 flex flex-col gap-4">
+                {loginStep === 'credentials' && (
+                  <>
+                    <div>
+                      <label htmlFor="admin-email" className="text-xs font-bold uppercase tracking-wide text-[#5b7ba6]">
+                        {t({ ar: 'البريد الإلكتروني أو اسم المستخدم', fr: 'E-mail ou nom d’utilisateur', en: 'Email or Username' })}
+                      </label>
+                      <div className="relative mt-2">
+                        <Mail className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#8aa6c8]" />
+                        <input
+                          id="admin-email"
+                          type="text"
+                          autoComplete="username"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder={t({ ar: 'name@example.com', fr: 'nom@exemple.com', en: 'name@example.com' })}
+                          required
+                          className="w-full rounded-2xl border border-[#cfe0f5] bg-white py-3.5 pl-12 pr-4 text-[15px] font-medium text-[#0b2a5b] shadow-sm outline-none transition placeholder:text-[#9db2cd] focus:border-[#1d7bff] focus:ring-4 focus:ring-[#1d7bff]/15"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label htmlFor="admin-password" className="text-xs font-bold uppercase tracking-wide text-[#5b7ba6]">
+                        {t({ ar: 'كلمة المرور', fr: 'Mot de passe', en: 'Password' })}
+                      </label>
+                      <div className="relative mt-2">
+                        <Lock className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#8aa6c8]" />
+                        <input
+                          id="admin-password"
+                          type={showPassword ? 'text' : 'password'}
+                          autoComplete="current-password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          placeholder={t({ ar: '••••••••', fr: '••••••••', en: '••••••••' })}
+                          required
+                          dir="ltr"
+                          className="w-full rounded-2xl border border-[#cfe0f5] bg-white py-3.5 pl-12 pr-12 text-[15px] font-medium text-[#0b2a5b] shadow-sm outline-none transition placeholder:text-[#9db2cd] focus:border-[#1d7bff] focus:ring-4 focus:ring-[#1d7bff]/15"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword((value) => !value)}
+                          aria-label={t({
+                            ar: showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور',
+                            fr: showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe',
+                            en: showPassword ? 'Hide password' : 'Show password',
+                          })}
+                          className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-xl text-[#8aa6c8] transition hover:bg-[#eef5ff] hover:text-[#1d7bff]"
+                        >
+                          {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
 
-            {loginStep !== 'credentials' && loginStep !== 'backup' && (
-              <button
-                type="button"
-                onClick={resetLoginFlow}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  padding: 0,
-                  fontSize: 13,
-                  color: isOn ? '#94a3b8' : '#64748b',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                }}
-              >
-                {t({ ar: 'العودة لبيانات الدخول', fr: 'Retour à la connexion', en: 'Back to sign in' })}
-              </button>
-            )}
-          </form>
+                {loginStep === 'code' && (
+                  <>
+                    <p className="rounded-2xl border border-[#dbe9fb] bg-[#f6faff] px-4 py-3 text-sm leading-relaxed text-[#3c5a80]">
+                      {t({
+                        ar: 'أدخل الرمز المكوّن من 6 أرقام من تطبيق المصادقة، أو أحد الرموز الاحتياطية.',
+                        fr: 'Saisissez le code à 6 chiffres de votre application, ou un code de secours.',
+                        en: 'Enter the 6-digit code from your authenticator app, or a backup code.',
+                      })}
+                    </p>
+                    <div>
+                      <label htmlFor="admin-code" className="text-xs font-bold uppercase tracking-wide text-[#5b7ba6]">
+                        {t({ ar: 'رمز التحقق', fr: 'Code de vérification', en: 'Verification code' })}
+                      </label>
+                      <div className="relative mt-2">
+                        <Shield className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#8aa6c8]" />
+                        <input
+                          id="admin-code"
+                          type="text"
+                          inputMode="numeric"
+                          autoComplete="one-time-code"
+                          value={twoFactorCode}
+                          onChange={(e) => setTwoFactorCode(e.target.value)}
+                          placeholder={t({ ar: '000 000', fr: '000 000', en: '000 000' })}
+                          required
+                          autoFocus
+                          className="w-full rounded-2xl border border-[#cfe0f5] bg-white py-3.5 pl-12 pr-4 text-center text-lg font-bold tracking-[0.35em] text-[#0b2a5b] shadow-sm outline-none transition placeholder:text-[#9db2cd] focus:border-[#1d7bff] focus:ring-4 focus:ring-[#1d7bff]/15"
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {loginStep === 'enroll' && setupData && (
+                  <>
+                    <p className="rounded-2xl border border-[#dbe9fb] bg-[#f6faff] px-4 py-3 text-sm leading-relaxed text-[#3c5a80]">
+                      {t({
+                        ar: 'التحقق بخطوتين إلزامي. أضف هذا المفتاح إلى Google Authenticator أو Authy ثم أدخل الرمز الظاهر.',
+                        fr: 'La double authentification est obligatoire. Ajoutez cette clé à Google Authenticator ou Authy, puis saisissez le code affiché.',
+                        en: 'Two-factor authentication is mandatory. Add this key to Google Authenticator or Authy, then enter the displayed code.',
+                      })}
+                    </p>
+                    <code className="block rounded-2xl border border-[#cfe0f5] bg-white px-3 py-3 text-center text-[13px] font-semibold tracking-[0.08em] text-[#0b2a5b] shadow-sm [word-break:break-all]">
+                      {setupData.secret}
+                    </code>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard?.writeText(setupData.secret).then(
+                          () => toast.success(t({ ar: 'تم نسخ المفتاح', fr: 'Clé copiée', en: 'Key copied' })),
+                          () => {}
+                        );
+                      }}
+                      className="self-center text-sm font-semibold text-[#1d7bff] underline-offset-4 hover:underline"
+                    >
+                      {t({ ar: 'نسخ المفتاح', fr: 'Copier la clé', en: 'Copy key' })}
+                    </button>
+                    <div>
+                      <label htmlFor="admin-enroll-code" className="text-xs font-bold uppercase tracking-wide text-[#5b7ba6]">
+                        {t({ ar: 'الرمز من التطبيق', fr: 'Code de l’application', en: 'App code' })}
+                      </label>
+                      <div className="relative mt-2">
+                        <Shield className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#8aa6c8]" />
+                        <input
+                          id="admin-enroll-code"
+                          type="text"
+                          inputMode="numeric"
+                          autoComplete="one-time-code"
+                          maxLength={6}
+                          dir="ltr"
+                          value={twoFactorCode}
+                          onChange={(e) => setTwoFactorCode(e.target.value)}
+                          placeholder={t({ ar: '000000', fr: '000000', en: '000000' })}
+                          required
+                          autoFocus
+                          className="w-full rounded-2xl border border-[#cfe0f5] bg-white py-3.5 pl-12 pr-4 text-center text-lg font-bold tracking-[0.35em] text-[#0b2a5b] shadow-sm outline-none transition placeholder:text-[#9db2cd] focus:border-[#1d7bff] focus:ring-4 focus:ring-[#1d7bff]/15"
+                        />
+                      </div>
+                      <p className="mt-2 text-center text-xs leading-relaxed text-[#7c96b7]">
+                        {t({
+                          ar: 'أدخل الأرقام الستة التي يعرضها التطبيق، وليس المفتاح الطويل أعلاه.',
+                          fr: 'Saisissez les 6 chiffres affichés par l’application, et non la clé de configuration ci-dessus.',
+                          en: 'Enter the 6 digits shown by the app, not the setup key above.',
+                        })}
+                      </p>
+                    </div>
+                  </>
+                )}
+
+                {loginStep === 'backup' && (
+                  <>
+                    <p className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold leading-relaxed text-amber-800">
+                      {t({
+                        ar: 'احفظ هذه الرموز الاحتياطية الآن. لن تظهر مرة أخرى، وكل رمز يعمل مرة واحدة.',
+                        fr: 'Conservez ces codes de secours maintenant. Ils ne seront plus affichés et chaque code ne fonctionne qu’une fois.',
+                        en: 'Save these backup codes now. They will not be shown again, and each code works once.',
+                      })}
+                    </p>
+                    <div className="grid grid-cols-2 gap-2 rounded-2xl border border-[#cfe0f5] bg-white p-3 font-mono text-xs text-[#0b2a5b] shadow-sm" dir="ltr">
+                      {backupCodes.map((code) => (
+                        <span key={code}>{code}</span>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {loginError && (
+                  <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm font-semibold text-red-600">
+                    {loginError}
+                  </p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={loginLoading}
+                  className="mt-1 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#0a49c7] via-[#1568f0] to-[#0a49c7] px-6 py-3.5 text-[15px] font-bold text-white shadow-lg shadow-blue-600/30 transition hover:brightness-110 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {loginLoading ? (
+                    <>
+                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                      {t({ ar: 'جاري التحقق...', fr: 'Vérification...', en: 'Checking...' })}
+                    </>
+                  ) : loginStep === 'backup' ? (
+                    t({ ar: 'لقد حفظت الرموز — متابعة', fr: 'Codes enregistrés — continuer', en: 'I saved the codes — continue' })
+                  ) : loginStep === 'enroll' ? (
+                    t({ ar: 'تفعيل ومتابعة', fr: 'Activer et continuer', en: 'Enable and continue' })
+                  ) : loginStep === 'code' ? (
+                    t({ ar: 'تحقق', fr: 'Vérifier', en: 'Verify' })
+                  ) : (
+                    t({ ar: 'دخول', fr: 'Connexion', en: 'Login' })
+                  )}
+                </button>
+
+                {loginStep !== 'credentials' && loginStep !== 'backup' && (
+                  <button
+                    type="button"
+                    onClick={resetLoginFlow}
+                    className="self-center text-sm font-semibold text-[#5b7ba6] transition hover:text-[#0a49c7]"
+                  >
+                    {t({ ar: 'العودة لبيانات الدخول', fr: 'Retour à la connexion', en: 'Back to sign in' })}
+                  </button>
+                )}
+              </form>
+
+              <p className="mt-7 flex items-center justify-center gap-1.5 text-center text-[11px] font-medium text-[#7c96b7]">
+                <Lock className="h-3 w-3" />
+                {t({
+                  ar: 'اتصال مشفّر ومحمي بالتحقق بخطوتين',
+                  fr: 'Connexion chiffrée et protégée par la double authentification',
+                  en: 'Encrypted connection protected by two-factor authentication',
+                })}
+              </p>
+            </div>
+
+            <div className="relative hidden bg-[#dcecff] lg:block">
+              <img
+                src="/aos-login-poster.jpg"
+                alt="AOS Tech Store"
+                className="h-full w-full object-cover"
+              />
+              <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/40" />
+            </div>
+          </div>
         </div>
       </section>
     );
