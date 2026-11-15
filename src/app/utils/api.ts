@@ -201,10 +201,17 @@ export const api = {
   delete: <T>(path: string) => request<T>(path, { method: 'DELETE' }),
 
   auth: {
+    // Registration only creates an unconfirmed account; the session starts
+    // after the customer clicks the link in the confirmation email.
     register: (data: { email: string; password: string; name: string; phone?: string }) =>
-      request<{ user: any; accessToken: string }>('/auth/register', {
+      request<{ ok: boolean; message: string }>('/auth/register', {
         method: 'POST',
         body: JSON.stringify(data),
+      }),
+    resendVerification: (email: string) =>
+      request<{ ok: boolean }>('/auth/resend-verification', {
+        method: 'POST',
+        body: JSON.stringify({ email }),
       }),
     login: (data: { email: string; password: string; twoFactorCode?: string }) =>
       request<LoginResponse>('/auth/login', {

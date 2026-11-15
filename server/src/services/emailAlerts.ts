@@ -64,6 +64,74 @@ export function isEmailAlertConfigured(): boolean {
   return getEmailAlertProvider() !== null;
 }
 
+/**
+ * Transactional mail (account verification, password resets) is separate from
+ * security alerts: it has no fixed recipient and needs the store's sender
+ * identity. Resend is preferred because Render Free blocks SMTP ports.
+ */
+function transactionalFrom(): string {
+  const configured = (process.env.MAIL_FROM || '').trim();
+  if (configured) return configured;
+  if (resendApiKey()) return 'AOS Tech Store <onboarding@resend.dev>';
+  return `"AOS Tech Store" <${smtpUser()}>`;
+}
+
+export function isTransactionalEmailConfigured(): boolean {
+  if (resendApiKey()) return true;
+  const config = smtpConfig();
+  return Boolean(config.host && config.auth.user && config.auth.pass);
+}
+
+export async function sendTransactionalEmail(
+  recipient: string,
+  subject: string,
+  text: string,
+  html: string
+): Promise<boolean> {
+  if (!isValidEmail(recipient)) return false;
+  const safeSubject = subject.replace(/[\r\n]+/g, ' ').slice(0, 180);
+
+  try {
+    if (resendApiKey()) {
+      const response = await fetch(RESEND_API_URL, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${resendApiKey()}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: transactionalFrom(),
+          to: [recipient],
+          subject: safeSubject,
+          text,
+          html,
+        }),
+      });
+      if (!response.ok) {
+        const body = await response.text().catch(() => '');
+        throw new Error(`Resend API ${response.status}: ${body.slice(0, 200)}`);
+      }
+    } else {
+      const config = smtpConfig();
+      if (!config.host || !config.auth.pass) return false;
+      const transporter = nodemailer.createTransport(config);
+      await transporter.sendMail({
+        from: transactionalFrom(),
+        to: recipient,
+        subject: safeSubject,
+        text,
+        html,
+      });
+    }
+    return true;
+  } catch (err) {
+    lastEmailError = sanitizeError(err);
+    console.error('[Email] Transactional send error:', lastEmailError);
+    return false;
+  }
+}
+
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, '&amp;')

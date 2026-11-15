@@ -21,7 +21,7 @@ import { ScrollProgress } from './components/ScrollProgress';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { CartProvider } from './contexts/CartContext';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ScrollToTop } from './components/ScrollToTop';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { NotFound } from './components/NotFound';
@@ -41,6 +41,7 @@ const WebStudioPage = lazy(() => import('./components/WebStudioPage').then(m => 
 const SiteFactoryPage = lazy(() => import('./components/SiteFactoryPage').then(m => ({ default: m.SiteFactoryPage })));
 const DemoStorePage = lazy(() => import('./components/DemoStorePage').then(m => ({ default: m.DemoStorePage })));
 const AccountDashboard = lazy(() => import('./components/AccountDashboard').then(m => ({ default: m.AccountDashboard })));
+const LoginPage = lazy(() => import('./components/LoginPage').then(m => ({ default: m.LoginPage })));
 const WABubble = lazy(() => import('./components/WABubble').then(m => ({ default: m.WABubble })));
 const AIAssistant = lazy(() => import('./components/AIAssistant').then(m => ({ default: m.AIAssistant })));
 const ProductPage = lazy(() => import('./components/ProductPage').then(m => ({ default: m.ProductPage })));
@@ -82,6 +83,38 @@ function AdminFallback() {
         </div>
       </div>
     </section>
+  );
+}
+
+/**
+ * Storefront account area. Customers must sign in before their orders are
+ * fetched; the dialog opens automatically and can be reopened from the card.
+ */
+function AccountArea() {
+  const { user, loading } = useAuth();
+  const [authOpen, setAuthOpen] = useState(true);
+
+  useEffect(() => {
+    if (user) setAuthOpen(false);
+  }, [user]);
+
+  if (loading) return <AdminFallback />;
+
+  return (
+    <>
+      <Suspense fallback={<AdminFallback />}>
+        {user ? (
+          <AccountDashboard />
+        ) : (
+          <AccountDashboard onSignIn={() => setAuthOpen(true)} />
+        )}
+      </Suspense>
+      {!user && authOpen && (
+        <Suspense fallback={null}>
+          <LoginPage onClose={() => setAuthOpen(false)} />
+        </Suspense>
+      )}
+    </>
   );
 }
 
@@ -412,11 +445,7 @@ export default function App() {
                         <AccountDashboard />
                       </Suspense>
                     )}
-                    {hash === '#account' && (
-                      <Suspense fallback={<AdminFallback />}>
-                        <AccountDashboard />
-                      </Suspense>
-                    )}
+                    {hash === '#account' && <AccountArea />}
                   </>
                 ) : (
                   <>
