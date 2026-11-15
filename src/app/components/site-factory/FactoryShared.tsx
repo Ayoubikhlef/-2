@@ -458,7 +458,17 @@ export function TemplateCard({
       }`}
     >
       <button type="button" onClick={onSelect} aria-pressed={active} className="w-full text-start">
-        <TemplatePreview slug={template.slug} accent={template.accent} />
+        <div className="relative">
+          <TemplatePreview slug={template.slug} accent={template.accent} />
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden rounded-xl"
+          >
+            <span className="-rotate-[22deg] select-none text-lg font-black uppercase tracking-[0.32em] text-slate-900/10">
+              AOS TECH
+            </span>
+          </span>
+        </div>
         <div className="px-1 pb-0.5 pt-2.5">
           <div className="flex items-center gap-2">
             <span

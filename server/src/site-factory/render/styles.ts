@@ -403,6 +403,9 @@ ul{margin:0;padding:0;list-style:none}
 .preview-banner{position:fixed;top:0;inset-inline:0;z-index:200;background:#111827;color:#fbbf24;text-align:center;padding:8px 14px;font-size:.75rem;font-weight:800;letter-spacing:.03em;box-shadow:0 6px 20px rgba(0,0,0,.25)}
 body.has-preview{padding-top:36px}
 body.has-preview .site-header{top:36px}
+.preview-watermark{position:fixed;inset:0;z-index:55;pointer-events:none;overflow:hidden;display:flex;flex-direction:column;justify-content:space-around;align-items:center;padding:10vh 0}
+.preview-watermark span{font-family:'Outfit','Cairo',system-ui,sans-serif;font-size:clamp(1.6rem,6vw,4.5rem);font-weight:900;letter-spacing:.18em;color:rgba(15,23,42,.055);transform:rotate(-22deg);white-space:nowrap;user-select:none;text-transform:uppercase}
+html[data-theme="dark"] .preview-watermark span{color:rgba(255,255,255,.06)}
 
 /* company hero variant */
 .company-hero{background:linear-gradient(125deg,#0b1220 0%,#132a44 58%,var(--p2) 130%);color:#fff;overflow:hidden}

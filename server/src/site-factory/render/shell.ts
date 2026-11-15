@@ -548,6 +548,9 @@ export function renderShell(options: ShellOptions): string {
   const previewBanner = config.preview
     ? `<div class="preview-banner">${esc(s.previewNote)}</div>`
     : '';
+  const previewWatermark = config.preview
+    ? `<div class="preview-watermark" aria-hidden="true"><span>AOS TECH</span><span>AOS TECH</span><span>AOS TECH</span></div>`
+    : '';
   const headerHtml = hasHeader ? `<header class="site-header">
     <div class="container header-inner">
       <a class="brand" href="index.html">
@@ -695,6 +698,7 @@ ${extraHead || ''}
 </head>
 <body class="tpl-${attr(config.templateSlug)}${config.preview ? ' has-preview' : ''}">
 ${previewBanner}
+${previewWatermark}
 ${headerHtml}
 ${mainContent}
 ${footerHtml}
