@@ -342,9 +342,24 @@ export function isEmail(value: string): boolean {
 export function usesServices(slug: string): boolean {
   return [
     'company', 'portfolio', 'landing',
-    'medical', 'lawyer', 'realestate', 'education', 'construction',
+    'lawyer', 'realestate', 'education', 'construction',
     'beauty', 'photography', 'wedding',
     'fitness', 'travel', 'nonprofit', 'events',
+    'clinic', 'hotel', 'showroom',
+    // Visual styles rendered with the portfolio/company pages.
+    'dark-gallery', 'minimalist-portfolio', 'elegant-portfolio', 'storyteller',
+    'bold-portfolio', 'graphic-design', 'video-production', 'gradient-corporate',
+    'photography-studio',
+    // Niche templates.
+    'insurance-company',
+    'automotive-service', 'car-wash',
+    'translation-company', 'plumbing-service', 'electrician-service', 'pest-control',
+    'moving-service', 'landscaping',
+    'web-development', 'content-writer',
+    'personal-trainer', 'dance-studio', 'yoga-studio',
+    'lawyer-corporate', 'accounting-office', 'financial-advisor',
+    'online-courses', 'language-school', 'tutoring-service',
+    'travel-tourism', 'hotel-resort', 'airbnb-property',
   ].includes(slug);
 }
 
@@ -352,6 +367,19 @@ export function usesProducts(slug: string): boolean {
   return [
     'store', 'restaurant',
     'pharmacy', 'agriculture', 'electronics', 'fashion', 'carrental', 'bakery',
+    'medical', 'clinic', 'hotel', 'showroom', 'digital', 'saas', 'cleaning',
+    'boutique', 'bistro', 'gym', 'salon', 'construction', 'education',
+    'car-showroom-dz',
+    // New visual / niche templates.
+    'vibrant-commerce', 'premium-lifestyle',
+    'neumorphic', 'tech-dashboard',
+    'auto-tuning', 'tire-service',
+    'private-clinic', 'dental-center', 'mental-health', 'hospital',
+    'bakery-patisserie', 'pizzeria', 'coffee-cafe', 'restaurant-mediterranean', 'delivery-service',
+    'cleaning-service',
+    'ecommerce-dz', 'fashion-boutique', 'jewelry-showroom', 'handcrafts', 'digital-products',
+    'online-courses', 'language-school', 'tutoring-service',
+    'hotel-resort', 'airbnb-property',
   ].includes(slug);
 }
 

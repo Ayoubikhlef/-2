@@ -11,9 +11,9 @@
  * library in ./images.
  */
 
-import type { Lang } from './defaults';
+import { TEMPLATES, type Lang } from './defaults';
 import { photo, photos, type PhotoGroup } from './images';
-import { renderSite } from './render';
+import { renderSite, resolveLayout } from './render';
 import type { RenderConfig, RenderedSite, RenderProduct, RenderService, RenderTeamMember, RentalSpecs } from './render/types';
 
 interface DemoSeed {
@@ -1166,6 +1166,243 @@ export const DEMO: Record<string, DemoSeed> = {
   },
 };
 
+/* -------------------------------------------------------------------------
+ * Category demos for new catalog templates
+ *
+ * Several new templates reuse a layout family but need business-appropriate
+ * demo copy, otherwise a car-wash preview would show a home-cleaning company.
+ * These seeds keep the shared layout while giving each trade a credible name,
+ * services and photos.
+ * ---------------------------------------------------------------------- */
+
+interface DemoIdentity {
+  name: string;
+  tagline: string;
+  category: string;
+  description?: string;
+  services?: RenderService[];
+}
+
+function addDemoIdentities(base: DemoSeed, identities: Record<string, DemoIdentity>): void {
+  for (const [slug, identity] of Object.entries(identities)) {
+    DEMO[slug] = {
+      ...base,
+      name: identity.name,
+      tagline: identity.tagline,
+      category: identity.category,
+      description: identity.description || base.description,
+      services: identity.services || base.services,
+    };
+  }
+}
+
+const TRADE_SEED: DemoSeed = {
+  name: 'شركة الخدمات السريعة',
+  tagline: 'خدمة احترافية تصلك أينما كنت',
+  description: 'فريق تقني متخصص في الصيانة والإصلاح للمنازل والمحلات، بتدخل سريع وأسعار واضحة وضمان على كل خدمة.',
+  category: 'خدمات منزلية',
+  hours: 'السبت – الخميس: 08:00 – 19:00',
+  cover: photo('construction', 3, 1600, 1000),
+  gallery: photos('construction', 6, 900, 700, 1),
+  services: services([
+    ['تدخل سريع', 'فريقنا يصلك في نفس اليوم ويشخّص المشكلة بدقة قبل بدء العمل.'],
+    ['إصلاح بضمان', 'إصلاح احترافي بمواد وقطع أصلية مع ضمان مكتوب على الأشغال.'],
+    ['عقود صيانة', 'برامج صيانة دورية للمنازل والمحلات بأسعار شهرية واضحة.'],
+    ['أسعار شفافة', 'عرض سعر مفصل قبل التنفيذ دون مصاريف مفاجئة.'],
+  ]),
+};
+
+addDemoIdentities(TRADE_SEED, {
+  'translation-company': {
+    name: 'مكتب اللسان للترجمة',
+    tagline: 'كلماتك تصل كما تقصدها',
+    category: 'ترجمة وتفسير',
+    services: services([
+      ['ترجمة قانونية', 'ترجمة العقود والوثائق الرسمية بدقة معتمدة.'],
+      ['ترجمة تقنية', 'مصطلحات تقنية وطبية موحدة لفريقك ومشاريعك.'],
+      ['ترجمة فورية', 'مترجمون محترفون للاجتماعات والمؤتمرات.'],
+      ['تصديق الوثائق', 'متابعة التصديق والتوثيق لدى الجهات المختصة.'],
+    ]),
+  },
+  'plumbing-service': {
+    name: 'شركة الماء الصافي',
+    tagline: 'تسريب اليوم… حل دائم غداً',
+    category: 'سباكة وصرف',
+    services: services([
+      ['تسليك المجاري', 'معالجة الانسدادات بأجهزة حديثة دون إتلاف الأنابيب.'],
+      ['إصلاح التسريبات', 'كشف دقيق للتسريبات وإصلاحها مع ضمان.'],
+      ['سخانات المياه', 'تركيب وصيانة السخانات الغازية والكهربائية.'],
+      ['أدوات صحية', 'تركيب الأحواض والمراحيض والخلاطات باحترافية.'],
+    ]),
+  },
+  'electrician-service': {
+    name: 'نور المدينة للكهرباء',
+    tagline: 'كهرباء آمنة بلا انقطاع',
+    category: 'كهرباء وصيانة',
+    services: services([
+      ['تركيبات كهربائية', 'تمديدات ولوحات كهربائية مطابقة لمعايير السلامة.'],
+      ['صيانة الشبكات', 'تشخيص الأعطال وإصلاح الشبكات والأجهزة.'],
+      ['إنارة LED', 'حلول إنارة موفرة للمنزل والمحل والورشة.'],
+      ['أنظمة الأمان', 'تركيب قواطع الحماية وأنظمة التأريض.'],
+    ]),
+  },
+  'pest-control': {
+    name: 'درع الوقاية',
+    tagline: 'بيئة نظيفة بلا حشرات',
+    category: 'مكافحة حشرات',
+    services: services([
+      ['مكافحة الحشرات الزاحفة', 'معالجة آمنة للمنازل والمطاعم والمكاتب.'],
+      ['مكافحة القوارض', 'خطة شاملة للمراقبة والمكافحة مع سد منافذ الدخول.'],
+      ['تعقيم الوقاية', 'مواد معتمدة وآمنة على الأطفال والحيوانات الأليفة.'],
+      ['متابعة دورية', 'زيارات متابعة للتأكد من استمرار النتيجة.'],
+    ]),
+  },
+  'moving-service': {
+    name: 'نقل الأمين',
+    tagline: 'ننقل أثاثك بكل عناية',
+    category: 'نقل وتخزين',
+    services: services([
+      ['نقل المنازل', 'فك وتغليف ونقل وتركيب الأثاث في اليوم نفسه.'],
+      ['نقل المكاتب', 'تجهيز ونقل مكاتبكم دون توقف النشاط.'],
+      ['تخزين مؤقت', 'مستودعات نظيفة وآمنة بعقود شهرية مرنة.'],
+      ['فك وتركيب', 'فريق نجارة متخصص للأثاث القابل للفك.'],
+    ]),
+  },
+  landscaping: {
+    name: 'حدائق الواحة',
+    tagline: 'مساحات خضراء تنبض بالحياة',
+    category: 'تنسيق حدائق',
+    services: services([
+      ['تصميم الحدائق', 'مخططات عصرية تناسب مساحة منزلك أو مشروعك.'],
+      ['زراعة الأشجار', 'اختيار وزراعة نباتات مناسبة للمناخ المحلي.'],
+      ['عشب طبيعي وصناعي', 'تركيب وصيانة عشب أخضر طوال السنة.'],
+      ['صيانة دورية', 'ري وتقليم وتسميد بزيارات منتظمة.'],
+    ]),
+  },
+});
+
+const AUTO_CARE_SEED: DemoSeed = {
+  name: 'مركز العناية بالسيارات',
+  tagline: 'سيارتك في أيدٍ أمينة',
+  description: 'مركز متخصص في صيانة وتنظيف وتلميع السيارات، بفريق تقني وأجهزة حديثة ومواعيد مرنة.',
+  category: 'خدمات سيارات',
+  hours: 'السبت – الخميس: 08:00 – 18:00',
+  cover: photo('car', 2, 1600, 1000),
+  gallery: photos('car', 6, 900, 700, 1),
+  services: services([
+    ['فحص شامل', 'تشخيص إلكتروني دقيق قبل أي إصلاح.'],
+    ['تغيير الزيت والفلاتر', 'زيوت أصلية وفلاتر مناسبة لمحرك سيارتك.'],
+    ['فرامل وإطارات', 'فحص وتغيير آمن مع ضبط التوازن.'],
+    ['تكييف السيارة', 'تنظيف وشحن وصيانة نظام التكييف.'],
+  ]),
+};
+
+addDemoIdentities(AUTO_CARE_SEED, {
+  'automotive-service': {
+    name: 'مركز الروّاد للسيارات',
+    tagline: 'صيانة دقيقة تعيد لسيارتك قوتها',
+    category: 'صيانة سيارات',
+  },
+  'car-wash': {
+    name: 'لمعة الأناقة',
+    tagline: 'غسيل احترافي يعيد لها اللمعان',
+    category: 'غسيل وتلميع سيارات',
+    services: services([
+      ['غسيل خارجي', 'غسيل يدوي آمن مع تجفيف وتلميع سريع.'],
+      ['تنظيف داخلي', 'تنظيف المقاعد والسجاد وتعقيم المقصورة.'],
+      ['تلميع وحماية', 'تلميع الطلاء وطبقة حماية تدوم أشهراً.'],
+      ['غسيل المحرك', 'تنظيف المحرك بمواد آمنة على الأجزاء الكهربائية.'],
+    ]),
+  },
+});
+
+const PRO_SEED: DemoSeed = {
+  name: 'مكتب الاستشارات المهنية',
+  tagline: 'خبرة ترافقك في كل خطوة',
+  description: 'فريق من الخبراء يقدم استشارات دقيقة ومتابعة عملية للأفراد والشركات، بسرية تامة ومواعيد مرنة.',
+  category: 'خدمات مهنية',
+  hours: 'الأحد – الخميس: 08:30 – 17:00',
+  cover: photo('office', 0, 1600, 1000),
+  gallery: photos('office', 6, 900, 700, 1),
+  services: services([
+    ['استشارة أولية', 'جلسة تشخيص لفهم وضعك وأهدافك قبل أي التزام.'],
+    ['متابعة دورية', 'تقارير واضحة واجتماعات متابعة حسب الحاجة.'],
+    ['تمثيل ومتابعة', 'نتكفل بالإجراءات والمتابعة نيابة عنك.'],
+    ['سرية تامة', 'حماية كاملة لبياناتك وملفاتك.'],
+  ]),
+};
+
+addDemoIdentities(PRO_SEED, {
+  'accounting-office': {
+    name: 'مكتب الميزان للمحاسبة',
+    tagline: 'أرقامك في أيدٍ خبيرة',
+    category: 'محاسبة ومالية',
+    services: services([
+      ['مسك الحسابات', 'تنظيم يومية ودفاتر المحاسبة بدقة.'],
+      ['التصريحات الضريبية', 'إعداد وإيداع التصريحات في آجالها.'],
+      ['الإيداع السنوي', 'إعداد القوائم المالية والإيداع لدى الجهات المختصة.'],
+      ['مراجعة الحسابات', 'تدقيق داخلي يكشف الأخطاء قبل أن تكلفك.'],
+    ]),
+  },
+  'financial-advisor': {
+    name: 'مستشار الاستثمار',
+    tagline: 'قرارات مالية أكثر ثقة',
+    category: 'استشارات مالية',
+    services: services([
+      ['خطة ادخار', 'ميزانية شخصية وهدف ادخار واقعي.'],
+      ['استثمار', 'توزيع محفظة يناسب أهدافك ومخاطرك.'],
+      ['تأمين', 'حماية عائلتك وممتلكاتك من المفاجآت.'],
+      ['تقاعد', 'تحضير مالي هادئ لمرحلة التقاعد.'],
+    ]),
+  },
+  'insurance-company': {
+    name: 'شركة الأمان لتأمين السيارات',
+    tagline: 'تغطية شاملة بسعر عادل',
+    category: 'تأمين سيارات',
+    services: services([
+      ['تأمين شامل', 'تغطية الحوادث والسرقة والأضرار بشرط واضح.'],
+      ['تأمين ضد الغير', 'الحد الأدنى القانوني بسعر مناسب.'],
+      ['مساعدة على الطريق', 'سطحة ومساعدة فورية عند العطل.'],
+      ['تعويض سريع', 'ملف بسيط ومتابعة حتى استلام التعويض.'],
+    ]),
+  },
+});
+
+const WEB_SEED: DemoSeed = {
+  name: 'استوديو الويب',
+  tagline: 'مواقع سريعة تبيع نيابة عنك',
+  description: 'استوديو رقمي يصمم ويطور مواقع وتطبيقات سريعة، بهوية واضحة وتجربة استخدام مريحة ودعم مستمر.',
+  category: 'تطوير ويب',
+  hours: 'الأحد – الخميس: 09:00 – 18:00',
+  cover: photo('tech', 2, 1600, 1000),
+  gallery: photos('design', 6, 900, 700, 1),
+  services: services([
+    ['تصميم واجهات', 'تصميم UI/UX يركز على العميل ويحول الزائر إلى طلب.'],
+    ['تطوير المواقع', 'مواقع سريعة ومتجاوبة مع لوحة تحكم سهلة.'],
+    ['متاجر إلكترونية', 'بيع أونلاين مع دفع وتوصيل وإدارة مخزون.'],
+    ['دعم وتحسين', 'متابعة بعد الإطلاق وتحسين السرعة والظهور.'],
+  ]),
+};
+
+addDemoIdentities(WEB_SEED, {
+  'web-development': {
+    name: 'استوديو الويب',
+    tagline: 'مواقع سريعة تبيع نيابة عنك',
+    category: 'تطوير ويب',
+  },
+  'content-writer': {
+    name: 'قلم المحتوى',
+    tagline: 'كلمات تصنع الثقة وتبيع',
+    category: 'كتابة محتوى',
+    services: services([
+      ['مقالات SEO', 'محتوى مفيد يستهدف كلمات يبحث عنها عملاؤك.'],
+      ['محتوى تسويقي', 'نصوص صفحات ورسائل بريد تدفع للتصرف.'],
+      ['نصوص إعلانية', 'عبارات قصيرة قوية لحملات التواصل والإعلانات.'],
+      ['تحرير وتدقيق', 'مراجعة لغوية وأسلوبية قبل النشر.'],
+    ]),
+  },
+});
+
 const ACCENTS: Record<string, [string, string]> = {
   store: ['#0b5ed7', '#1e3a8a'],
   company: ['#0f766e', '#134e4a'],
@@ -1204,15 +1441,36 @@ const ACCENTS: Record<string, [string, string]> = {
 
 const cache = new Map<string, RenderedSite>();
 
-export const DEMO_SLUGS = Object.keys(DEMO);
+export const DEMO_SLUGS = Array.from(
+  new Set([
+    ...Object.keys(DEMO),
+    ...TEMPLATES.filter(
+      (template) =>
+        !Object.prototype.hasOwnProperty.call(DEMO, template.slug) &&
+        Object.prototype.hasOwnProperty.call(DEMO, resolveLayout(template.slug)),
+    ).map((template) => template.slug),
+  ]),
+);
 
 export function isDemoTemplate(slug: string): boolean {
-  return Object.prototype.hasOwnProperty.call(DEMO, slug);
+  return (
+    Object.prototype.hasOwnProperty.call(DEMO, slug) ||
+    Object.prototype.hasOwnProperty.call(DEMO, resolveLayout(slug))
+  );
 }
 
 export function buildDemoConfig(slug: string, lang: Lang): RenderConfig {
-  const seed = DEMO[slug] || DEMO.landing;
-  const [primary, secondary] = ACCENTS[slug] || ACCENTS.landing;
+  const layout = resolveLayout(slug);
+  const seed = Object.prototype.hasOwnProperty.call(DEMO, slug)
+    ? DEMO[slug]
+    : DEMO[layout] || DEMO.landing;
+  const template = TEMPLATES.find((item) => item.slug === slug);
+  const accent: [string, string] =
+    ACCENTS[slug] ||
+    (template
+      ? [template.accent, ACCENTS[layout]?.[1] || '#0f172a']
+      : ACCENTS.landing);
+  const [primary, secondary] = accent;
   return {
     siteId: `demo-${slug}`,
     templateSlug: isDemoTemplate(slug) ? slug : 'landing',

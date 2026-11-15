@@ -894,7 +894,7 @@ export function FactoryWizard({
                   <Section
                     icon={Sparkles}
                     title={
-                      ['portfolio', 'beauty', 'photography', 'wedding'].includes(draft.templateSlug)
+                      ['portfolio', 'beauty', 'photography', 'wedding', 'dark-gallery', 'minimalist-portfolio', 'elegant-portfolio', 'storyteller', 'bold-portfolio', 'graphic-design', 'video-production', 'photography-studio'].includes(draft.templateSlug)
                         ? t({ ar: 'المشاريع والأعمال', fr: 'Projets & réalisations', en: 'Projects & work' })
                         : draft.templateSlug === 'landing'
                           ? t({ ar: 'مزايا العرض', fr: 'Avantages de l’offre', en: 'Offer benefits' })
@@ -930,7 +930,7 @@ export function FactoryWizard({
                               }}
                               maxLength={120}
                               placeholder={
-                                ['portfolio', 'beauty', 'photography', 'wedding'].includes(draft.templateSlug)
+                                ['portfolio', 'beauty', 'photography', 'wedding', 'dark-gallery', 'minimalist-portfolio', 'elegant-portfolio', 'storyteller', 'bold-portfolio', 'graphic-design', 'video-production', 'photography-studio'].includes(draft.templateSlug)
                                   ? t({ ar: 'اسم المشروع', fr: 'Nom du projet', en: 'Project name' })
                                   : draft.templateSlug === 'landing'
                                     ? t({ ar: 'اسم الميزة', fr: 'Nom de l’avantage', en: 'Benefit name' })
@@ -1094,13 +1094,13 @@ export function FactoryWizard({
                 {!isServiceTemplate && !isProductTemplate && (
                   <div className="rounded-xl border border-dashed border-border p-4 text-xs leading-relaxed text-muted-foreground">
                     <p className="font-bold text-foreground">
-                      {t({ ar: 'بطاقة أعمال رقمية', fr: 'Carte de visite numérique', en: 'Digital business card' })}
+                      {t({ ar: 'محتوى القالب جاهز', fr: 'Contenu du modèle intégré', en: 'Template content included' })}
                     </p>
                     <p className="mt-1">
                       {t({
-                        ar: 'هذا القالب يعتمد على معلومات التواصل والهوية البصرية. لا تحتاج إلى إضافة خدمات أو منتجات.',
-                        fr: 'Ce modèle utilise vos coordonnées et votre identité visuelle. Aucun produit requis.',
-                        en: 'This template relies on your contact details and branding. No products needed.',
+                        ar: 'هذا القالب يعرض أعمالك وباقاته الجاهزة اعتماداً على معلومات التواصل والهوية البصرية. لا تحتاج إلى إضافة خدمات أو منتجات.',
+                        fr: 'Ce modèle présente vos réalisations et ses formules intégrées à partir de vos coordonnées et de votre identité visuelle. Aucun service ni produit requis.',
+                        en: 'This template showcases your work and built-in packages using your contact details and branding. No services or products needed.',
                       })}
                     </p>
                   </div>

@@ -13,9 +13,90 @@ const LANGS: Lang[] = ['ar', 'fr', 'en'];
  * The alias is applied once here so navigation, JSON-LD, styles and the
  * published body class all resolve to the right renderer family.
  */
-const LAYOUT_ALIAS: Record<string, string> = {
+export const LAYOUT_ALIAS: Record<string, string> = {
   'car-showroom-dz': 'showroom',
+
+  // Visual / branding family
+  'dark-gallery': 'portfolio',
+  'gradient-corporate': 'company',
+  'minimalist-portfolio': 'portfolio',
+  'bold-branding': 'agency',
+  'neumorphic': 'saas',
+  'vibrant-commerce': 'store',
+  'elegant-portfolio': 'portfolio',
+  'tech-dashboard': 'saas',
+  'storyteller': 'portfolio',
+  'premium-lifestyle': 'boutique',
+  'bold-portfolio': 'portfolio',
+  'graphic-design': 'portfolio',
+  'video-production': 'portfolio',
+  'photography-studio': 'photography',
+
+  // Automotive family
+  'automotive-service': 'company',
+  'auto-tuning': 'showroom',
+  'insurance-company': 'company',
+  'car-wash': 'company',
+  'tire-service': 'showroom',
+
+  // Medical family
+  'private-clinic': 'clinic',
+  'dental-center': 'clinic',
+  'mental-health': 'medical',
+  'hospital': 'clinic',
+
+  // Food family
+  'bakery-patisserie': 'bakery',
+  'pizzeria': 'restaurant',
+  'coffee-cafe': 'bistro',
+  'restaurant-mediterranean': 'restaurant',
+  'delivery-service': 'restaurant',
+
+  // Fitness family
+  'personal-trainer': 'fitness',
+  'dance-studio': 'fitness',
+  'yoga-studio': 'fitness',
+
+  // Professional services family
+  'lawyer-corporate': 'lawyer',
+  'accounting-office': 'lawyer',
+  'financial-advisor': 'lawyer',
+  'translation-company': 'company',
+  'cleaning-service': 'cleaning',
+  'plumbing-service': 'company',
+  'electrician-service': 'company',
+  'pest-control': 'company',
+  'moving-service': 'company',
+  'landscaping': 'company',
+
+  // Digital family
+  'web-development': 'company',
+  'digital-marketing': 'agency',
+  'seo-services': 'agency',
+  'content-writer': 'company',
+
+  // Retail family
+  'ecommerce-dz': 'store',
+  'fashion-boutique': 'boutique',
+  'jewelry-showroom': 'boutique',
+  'handcrafts': 'boutique',
+  'digital-products': 'digital',
+
+  // Education family
+  'online-courses': 'education',
+  'language-school': 'education',
+  'tutoring-service': 'education',
+
+  // Travel family
+  'travel-tourism': 'travel',
+  'hotel-resort': 'hotel',
+  'airbnb-property': 'hotel',
 };
+
+/** Resolve a catalog slug to the page layout that renders it. */
+export function resolveLayout(slug: string): string {
+  return LAYOUT_ALIAS[slug] || slug;
+}
 
 function shortHash(text: string): string {
   let hash = 5381;
@@ -45,7 +126,7 @@ function siteDescription(config: RenderConfig): string {
 export function renderSite(input: RenderConfig): RenderedSite {
   const config: RenderConfig = {
     ...input,
-    templateSlug: LAYOUT_ALIAS[input.templateSlug] || input.templateSlug,
+    templateSlug: resolveLayout(input.templateSlug),
     primaryColor: safeColor(input.primaryColor, '#0b5ed7'),
     secondaryColor: safeColor(input.secondaryColor, '#1e3a8a'),
     products: (input.products || []).map((p) => ({ ...p })),
