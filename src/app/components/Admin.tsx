@@ -5,7 +5,7 @@ import { getStoredProducts, initializeProducts, pullProductsFromServer } from '.
 import { products as defaultProducts, type Product } from '../data/products';
 import { getStoredServices, initializeServices } from '../utils/serviceStorage';
 import { defaultServices, type ServiceCategory } from '../data/services';
-import { RefreshCw, Trash2, ChevronDown, Phone, MapPin, Mail, DollarSign, Package, Eye, EyeOff, Lock, Lightbulb, Wrench, FileText, Globe, Settings, Star, MailOpen, Download, Shield } from 'lucide-react';
+import { RefreshCw, Trash2, ChevronDown, Phone, MapPin, Mail, DollarSign, Package, Eye, EyeOff, Lock, Lightbulb, Wrench, FileText, Globe, Settings, Star, MailOpen, Download, Shield, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { isMaintenanceMode, setMaintenanceMode, getMaintenanceMessage, setMaintenanceMessage } from '../utils/maintenanceStorage';
 import { syncAllFromServer, getSyncStatus, getLastSyncTime } from '../utils/globalSync';
@@ -75,6 +75,7 @@ export function Admin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [lampOn, setLampOn] = useState(true);
   const [loginLoading, setLoginLoading] = useState(false);
   const [loginError, setLoginError] = useState('');
   const [loginStep, setLoginStep] = useState<'credentials' | 'code' | 'enroll' | 'backup'>('credentials');
@@ -398,72 +399,179 @@ export function Admin() {
   ];
 
   if (showAdmin && !isAuthenticated) {
+    const welcome =
+      language === 'ar'
+        ? { lead: 'مرحبًا ', accent: 'بعودتك.' }
+        : language === 'fr'
+          ? { lead: 'Bon ', accent: 'retour.' }
+          : { lead: 'Welcome ', accent: 'Back.' };
+
     return (
-      <section id="admin" className="relative min-h-screen overflow-hidden bg-[#eef5ff] px-4 py-10 sm:px-6 lg:px-8">
-        <div aria-hidden className="pointer-events-none absolute inset-0">
-          <div className="absolute -left-24 -top-24 h-[420px] w-[420px] rounded-full bg-[#8ec4ff]/45 blur-[110px]" />
-          <div className="absolute -bottom-32 -right-24 h-[460px] w-[460px] rounded-full bg-[#5aa2ff]/35 blur-[120px]" />
-          <div className="absolute left-1/2 top-1/3 h-[320px] w-[320px] -translate-x-1/2 rounded-full bg-white/70 blur-[90px]" />
-          <div
-            className="absolute inset-0 opacity-60"
-            style={{
-              backgroundImage: 'radial-gradient(circle, rgba(29,123,255,0.16) 1.5px, transparent 1.6px)',
-              backgroundSize: '34px 34px',
-            }}
-          />
-        </div>
+      <section
+        id="admin"
+        className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10 sm:px-6"
+        style={{
+          backgroundColor: '#070b14',
+          backgroundImage:
+            'radial-gradient(circle at 20% 30%, #1a2436 0 6px, transparent 7px), radial-gradient(circle at 70% 70%, #141d2b 0 9px, transparent 10px), radial-gradient(circle at 50% 40%, #0d1727 0%, #070b14 70%)',
+          backgroundSize: '46px 46px, 71px 71px, 100% 100%',
+        }}
+      >
+        <style>{`
+          @keyframes aosLampDrop { from { opacity: 0; transform: translateY(-60px); } to { opacity: 1; transform: translateY(0); } }
+          @keyframes aosPhotoIn { from { opacity: 0; transform: scale(.86); } to { opacity: 1; transform: scale(1); } }
+          @keyframes aosPanelIn { from { opacity: 0; transform: translateX(38px); } to { opacity: 1; transform: translateX(0); } }
+          @keyframes aosConeOn {
+            0% { opacity: 0; transform: scaleY(.12); }
+            18% { opacity: 1; }
+            38% { opacity: .42; }
+            62% { opacity: .95; }
+            100% { opacity: .8; transform: scaleY(1); }
+          }
+          @keyframes aosConePulse { 0%, 100% { filter: brightness(.9); } 50% { filter: brightness(1.2); } }
+          @keyframes aosBulbPulse { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.3); } }
+          @keyframes aosHaloOn {
+            0% { opacity: 0; transform: translateX(-50%) scale(.9); }
+            22% { opacity: 1; }
+            40% { opacity: .42; }
+            62% { opacity: .9; }
+            100% { opacity: .62; transform: translateX(-50%) scale(1); }
+          }
+          .aos-lamp { animation: aosLampDrop .7s cubic-bezier(.3, 1.4, .5, 1) both; }
+          .aos-photo { animation: aosPhotoIn .7s .35s cubic-bezier(.3, 1.4, .5, 1) both; }
+          .aos-panel { animation: aosPanelIn .8s .25s cubic-bezier(.2, .8, .2, 1) both; }
+          .aos-bulb { animation: aosBulbPulse 3.2s 1.9s ease-in-out infinite; }
+          .aos-halo {
+            background: radial-gradient(closest-side, rgba(56, 189, 248, .6), rgba(56, 189, 248, .22) 58%, rgba(56, 189, 248, 0) 78%);
+            filter: blur(24px);
+            animation: aosHaloOn 1.9s ease-out both;
+          }
+          .aos-cone {
+            background: linear-gradient(to bottom, rgba(125, 211, 252, .45), rgba(56, 189, 248, .14) 55%, rgba(56, 189, 248, 0));
+            clip-path: polygon(43% 0, 57% 0, 100% 100%, 0 100%);
+            transform-origin: top;
+            animation: aosConeOn 1.9s ease-out both, aosConePulse 3.2s 1.9s ease-in-out infinite;
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .aos-lamp, .aos-photo, .aos-panel, .aos-bulb, .aos-halo, .aos-cone {
+              animation-duration: .01s !important;
+              animation-delay: 0s !important;
+              animation-iteration-count: 1 !important;
+            }
+          }
+        `}</style>
 
-        <div className="relative z-10 mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-6xl items-center justify-center">
-          <div className="grid w-full overflow-hidden rounded-[32px] border border-white bg-white/85 shadow-[0_30px_90px_-35px_rgba(11,94,215,0.55)] ring-1 ring-[#0b5ed7]/5 backdrop-blur-xl lg:grid-cols-[1.15fr_0.85fr]">
-            <div className="px-6 py-9 sm:px-10 sm:py-11 lg:px-12">
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#0a49c7] to-[#1d7bff] text-white shadow-lg shadow-blue-600/25">
-                    <Shield className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <p className="bg-gradient-to-r from-[#0a49c7] via-[#1d7bff] to-[#0a49c7] bg-clip-text text-xl font-black leading-none tracking-tight text-transparent">
-                      AOS
-                    </p>
-                    <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.28em] text-[#5b7ba6]">Tech Store</p>
-                  </div>
-                </div>
-                <a
-                  href="/"
-                  className="inline-flex items-center gap-1.5 rounded-full border border-[#d5e5f8] bg-white/80 px-3.5 py-2 text-xs font-semibold text-[#3c5a80] transition hover:border-[#9dc4f0] hover:text-[#0a49c7]"
+        <div className="relative z-10 w-full max-w-[940px] overflow-hidden rounded-[26px] border border-white/[0.07] p-2.5 shadow-[0_30px_90px_-30px_rgba(0,0,0,0.9)] sm:p-3.5" style={{ background: 'linear-gradient(135deg, #0a1d33, #060c16 65%)' }}>
+          <div className="grid gap-2 lg:grid-cols-[0.82fr_1.18fr]" dir="ltr">
+            <div
+              className="relative flex items-center justify-center overflow-hidden rounded-[18px] px-5 py-6 sm:px-8"
+              style={{ background: 'radial-gradient(circle at 50% 30%, rgba(56,189,248,.16), transparent 70%)' }}
+            >
+              <div className="relative flex min-h-[360px] w-full max-w-[360px] flex-col items-center justify-start">
+                <div
+                  className="aos-lamp relative z-20 h-[34px] w-[74px] shrink-0 sm:w-[84px]"
+                  style={{ clipPath: 'polygon(35% 0, 65% 0, 100% 100%, 0 100%)', background: 'linear-gradient(180deg, #223243, #0a1422)' }}
                 >
-                  <Globe className="h-3.5 w-3.5" />
-                  aos-tech.store
-                </a>
-              </div>
+                  <span
+                    className="absolute inset-x-0 bottom-0 h-[3px]"
+                    style={{
+                      background: lampOn ? '#7dd3fc' : 'rgba(100, 116, 139, .45)',
+                      boxShadow: lampOn ? '0 0 18px 4px rgba(56,189,248,.6)' : 'none',
+                      transition: 'background .35s, box-shadow .35s',
+                    }}
+                  />
+                </div>
 
-              <div className="mt-7 flex items-center gap-3 rounded-2xl border border-[#dbe9fb] bg-gradient-to-r from-[#f4f9ff] to-white p-3 lg:hidden">
                 <span
                   aria-hidden
-                  className="h-12 w-12 shrink-0 rounded-full border-2 border-white bg-[#dfeeff] shadow-md"
+                  className={lampOn ? 'aos-bulb absolute left-1/2 top-[33px] z-30 h-2.5 w-[26px] -translate-x-1/2 rounded-b-[26px]' : 'absolute left-1/2 top-[33px] z-30 h-2.5 w-[26px] -translate-x-1/2 rounded-b-[26px]'}
                   style={{
-                    backgroundImage: "url('/aos-login-poster.jpg')",
-                    backgroundSize: '190px',
-                    backgroundPosition: '26% 24%',
+                    background: lampOn ? 'rgba(186, 230, 253, .98)' : '#475569',
+                    boxShadow: lampOn ? '0 0 30px 12px rgba(56,189,248,.55)' : 'none',
+                    transition: 'background .35s, box-shadow .35s',
                   }}
                 />
-                <p className="text-xs leading-relaxed text-[#3c5a80]">
-                  {t({
-                    ar: 'أهلًا بعودتك. سجّل الدخول لإدارة متجرك بأمان.',
-                    fr: 'Bon retour. Connectez-vous pour gérer votre boutique en toute sécurité.',
-                    en: 'Welcome back. Sign in to manage your store securely.',
-                  })}
-                </p>
-              </div>
 
-              <h1 className="mt-7 text-[30px] font-black leading-tight text-[#0b2a5b] sm:text-[34px]">
-                {t({ ar: 'لوحة التحكم', fr: 'Panneau d’administration', en: 'Admin Panel' })}
+                <button
+                  type="button"
+                  onClick={() => setLampOn((value) => !value)}
+                  aria-pressed={lampOn}
+                  aria-label={t({
+                    ar: lampOn ? 'إطفاء الضوء' : 'تشغيل الضوء',
+                    fr: lampOn ? 'Éteindre la lumière' : 'Allumer la lumière',
+                    en: lampOn ? 'Turn the light off' : 'Turn the light on',
+                  })}
+                  title={t({
+                    ar: 'اسحب الخيط لتشغيل الضوء أو إطفائه',
+                    fr: 'Tirez la corde pour allumer ou éteindre la lumière',
+                    en: 'Pull the cord to turn the light on or off',
+                  })}
+                  className="group absolute left-1/2 top-0 z-30 ml-[30px] flex h-[64px] w-7 cursor-pointer items-start justify-center rounded-full"
+                >
+                  <span className="h-full w-[2px] bg-slate-400/60 transition-all duration-150 group-active:h-[calc(100%+14px)] group-active:bg-sky-300/80" />
+                  <span className="absolute bottom-[-5px] left-1/2 h-3 w-3 -translate-x-1/2 rounded-full bg-slate-200 shadow-[0_0_12px_rgba(226,232,240,.65)] transition group-active:-translate-y-[14px]" />
+                </button>
+
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute left-1/2 top-[36px] z-20 h-[420px] w-[380px] -translate-x-1/2 sm:w-[400px]"
+                  style={{ opacity: lampOn ? 1 : 0, transition: 'opacity .35s' }}
+                >
+                  {lampOn && <div className="aos-cone h-full w-full" />}
+                </div>
+
+                {lampOn && (
+                  <div
+                    aria-hidden
+                    className="aos-halo pointer-events-none absolute left-1/2 top-[30px] z-0 h-[420px] w-[300px] -translate-x-1/2 rounded-[40px] sm:w-[340px]"
+                  />
+                )}
+
+                <div
+                  className="aos-photo relative z-10 mt-[14px] w-[230px] shrink-0 overflow-hidden rounded-[14px] border-2 sm:w-[260px]"
+                  style={{
+                    aspectRatio: '460 / 604',
+                    borderColor: lampOn ? 'rgba(125, 211, 252, .8)' : 'rgba(71, 85, 105, .55)',
+                    boxShadow: lampOn
+                      ? '0 0 34px rgba(56,189,248,.5), 0 0 90px rgba(56,189,248,.18), inset 0 0 60px rgba(2,6,23,.3)'
+                      : 'inset 0 0 60px rgba(2,6,23,.6)',
+                    transition: 'border-color .35s, box-shadow .35s',
+                  }}
+                >
+                  <img
+                    src="/aos-login-poster.jpg"
+                    alt="AOS Tech Store"
+                    className="h-full w-full object-cover"
+                    style={{
+                      filter: lampOn ? 'brightness(1) saturate(1.02)' : 'brightness(.35) saturate(.85)',
+                      transition: 'filter .4s',
+                    }}
+                  />
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0"
+                    style={{
+                      background: lampOn
+                        ? 'radial-gradient(120% 62% at 50% -4%, rgba(224, 247, 255, .38), rgba(56, 189, 248, .12) 46%, rgba(56, 189, 248, 0) 78%)'
+                        : 'transparent',
+                      transition: 'background .4s',
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div dir={language === 'ar' ? 'rtl' : 'ltr'} className="aos-panel rounded-[18px] border border-white/10 bg-gradient-to-b from-white/[0.09] to-white/[0.03] px-5 py-7 sm:px-8 sm:py-9">
+              <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-sky-400/80">AOS Tech Store</p>
+              <h1 className="mt-3 text-[30px] font-black leading-tight text-slate-100 sm:text-[34px]">
+                {welcome.lead}
+                <span className="bg-gradient-to-r from-sky-400 to-cyan-300 bg-clip-text text-transparent">{welcome.accent}</span>
               </h1>
-              <p className="mt-2 text-sm leading-relaxed text-[#5b7ba6]">
+              <p className="mt-2 text-sm leading-relaxed text-slate-400">
                 {t({
-                  ar: 'مرحبًا بعودتك. سجّل الدخول لإدارة الطلبات والمنتجات وإعدادات المتجر.',
-                  fr: 'Bon retour. Connectez-vous pour gérer les commandes, les produits et les paramètres de la boutique.',
-                  en: 'Welcome back. Sign in to manage orders, products and store settings.',
+                  ar: 'اسحب الحبل لتضيء طريقك، ثم سجّل الدخول إلى لوحة التحكم.',
+                  fr: 'Tirez la corde pour éclairer votre chemin, puis connectez-vous au panneau.',
+                  en: 'Pull the cord to illuminate your path, then sign in to the dashboard.',
                 })}
               </p>
 
@@ -471,29 +579,26 @@ export function Admin() {
                 {loginStep === 'credentials' && (
                   <>
                     <div>
-                      <label htmlFor="admin-email" className="text-xs font-bold uppercase tracking-wide text-[#5b7ba6]">
-                        {t({ ar: 'البريد الإلكتروني أو اسم المستخدم', fr: 'E-mail ou nom d’utilisateur', en: 'Email or Username' })}
+                      <label htmlFor="admin-email" className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                        {t({ ar: 'اسم المستخدم', fr: 'Nom d’utilisateur', en: 'Username' })}
                       </label>
-                      <div className="relative mt-2">
-                        <Mail className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#8aa6c8]" />
-                        <input
-                          id="admin-email"
-                          type="text"
-                          autoComplete="username"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          placeholder={t({ ar: 'name@example.com', fr: 'nom@exemple.com', en: 'name@example.com' })}
-                          required
-                          className="w-full rounded-2xl border border-[#cfe0f5] bg-white py-3.5 pl-12 pr-4 text-[15px] font-medium text-[#0b2a5b] shadow-sm outline-none transition placeholder:text-[#9db2cd] focus:border-[#1d7bff] focus:ring-4 focus:ring-[#1d7bff]/15"
-                        />
-                      </div>
+                      <input
+                        id="admin-email"
+                        type="text"
+                        autoComplete="username"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder={t({ ar: 'البريد الإلكتروني أو اسم المستخدم', fr: 'E-mail ou nom d’utilisateur', en: 'Email or username' })}
+                        required
+                        dir="auto"
+                        className="mt-2 w-full rounded-xl border border-white/15 bg-white/[0.04] px-4 py-3.5 text-start text-[15px] text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-sky-400/70 focus:bg-white/[0.07] focus:ring-4 focus:ring-sky-500/15"
+                      />
                     </div>
                     <div>
-                      <label htmlFor="admin-password" className="text-xs font-bold uppercase tracking-wide text-[#5b7ba6]">
+                      <label htmlFor="admin-password" className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                         {t({ ar: 'كلمة المرور', fr: 'Mot de passe', en: 'Password' })}
                       </label>
                       <div className="relative mt-2">
-                        <Lock className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#8aa6c8]" />
                         <input
                           id="admin-password"
                           type={showPassword ? 'text' : 'password'}
@@ -503,7 +608,7 @@ export function Admin() {
                           placeholder={t({ ar: '••••••••', fr: '••••••••', en: '••••••••' })}
                           required
                           dir="ltr"
-                          className="w-full rounded-2xl border border-[#cfe0f5] bg-white py-3.5 pl-12 pr-12 text-[15px] font-medium text-[#0b2a5b] shadow-sm outline-none transition placeholder:text-[#9db2cd] focus:border-[#1d7bff] focus:ring-4 focus:ring-[#1d7bff]/15"
+                          className="w-full rounded-xl border border-white/15 bg-white/[0.04] px-4 py-3.5 pr-12 text-left text-[15px] text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-sky-400/70 focus:bg-white/[0.07] focus:ring-4 focus:ring-sky-500/15"
                         />
                         <button
                           type="button"
@@ -513,7 +618,7 @@ export function Admin() {
                             fr: showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe',
                             en: showPassword ? 'Hide password' : 'Show password',
                           })}
-                          className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-xl text-[#8aa6c8] transition hover:bg-[#eef5ff] hover:text-[#1d7bff]"
+                          className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-slate-500 transition hover:bg-white/5 hover:text-sky-300"
                         >
                           {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                         </button>
@@ -524,7 +629,7 @@ export function Admin() {
 
                 {loginStep === 'code' && (
                   <>
-                    <p className="rounded-2xl border border-[#dbe9fb] bg-[#f6faff] px-4 py-3 text-sm leading-relaxed text-[#3c5a80]">
+                    <p className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm leading-relaxed text-slate-300">
                       {t({
                         ar: 'أدخل الرمز المكوّن من 6 أرقام من تطبيق المصادقة، أو أحد الرموز الاحتياطية.',
                         fr: 'Saisissez le code à 6 chiffres de votre application, ou un code de secours.',
@@ -532,38 +637,36 @@ export function Admin() {
                       })}
                     </p>
                     <div>
-                      <label htmlFor="admin-code" className="text-xs font-bold uppercase tracking-wide text-[#5b7ba6]">
+                      <label htmlFor="admin-code" className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                         {t({ ar: 'رمز التحقق', fr: 'Code de vérification', en: 'Verification code' })}
                       </label>
-                      <div className="relative mt-2">
-                        <Shield className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#8aa6c8]" />
-                        <input
-                          id="admin-code"
-                          type="text"
-                          inputMode="numeric"
-                          autoComplete="one-time-code"
-                          value={twoFactorCode}
-                          onChange={(e) => setTwoFactorCode(e.target.value)}
-                          placeholder={t({ ar: '000 000', fr: '000 000', en: '000 000' })}
-                          required
-                          autoFocus
-                          className="w-full rounded-2xl border border-[#cfe0f5] bg-white py-3.5 pl-12 pr-4 text-center text-lg font-bold tracking-[0.35em] text-[#0b2a5b] shadow-sm outline-none transition placeholder:text-[#9db2cd] focus:border-[#1d7bff] focus:ring-4 focus:ring-[#1d7bff]/15"
-                        />
-                      </div>
+                      <input
+                        id="admin-code"
+                        type="text"
+                        inputMode="numeric"
+                        autoComplete="one-time-code"
+                        value={twoFactorCode}
+                        onChange={(e) => setTwoFactorCode(e.target.value)}
+                        placeholder="000 000"
+                        required
+                        autoFocus
+                        dir="ltr"
+                        className="mt-2 w-full rounded-xl border border-white/15 bg-white/[0.04] px-4 py-3.5 text-center text-lg font-bold tracking-[0.35em] text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-400/70 focus:bg-white/[0.07] focus:ring-4 focus:ring-sky-500/15"
+                      />
                     </div>
                   </>
                 )}
 
                 {loginStep === 'enroll' && setupData && (
                   <>
-                    <p className="rounded-2xl border border-[#dbe9fb] bg-[#f6faff] px-4 py-3 text-sm leading-relaxed text-[#3c5a80]">
+                    <p className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm leading-relaxed text-slate-300">
                       {t({
                         ar: 'التحقق بخطوتين إلزامي. أضف هذا المفتاح إلى Google Authenticator أو Authy ثم أدخل الرمز الظاهر.',
                         fr: 'La double authentification est obligatoire. Ajoutez cette clé à Google Authenticator ou Authy, puis saisissez le code affiché.',
                         en: 'Two-factor authentication is mandatory. Add this key to Google Authenticator or Authy, then enter the displayed code.',
                       })}
                     </p>
-                    <code className="block rounded-2xl border border-[#cfe0f5] bg-white px-3 py-3 text-center text-[13px] font-semibold tracking-[0.08em] text-[#0b2a5b] shadow-sm [word-break:break-all]">
+                    <code className="block rounded-xl border border-sky-400/20 bg-slate-950/60 px-3 py-3 text-center text-[13px] font-semibold tracking-[0.08em] text-sky-200 [word-break:break-all]">
                       {setupData.secret}
                     </code>
                     <button
@@ -574,32 +677,29 @@ export function Admin() {
                           () => {}
                         );
                       }}
-                      className="self-center text-sm font-semibold text-[#1d7bff] underline-offset-4 hover:underline"
+                      className="self-center text-sm font-semibold text-sky-300 underline-offset-4 hover:underline"
                     >
                       {t({ ar: 'نسخ المفتاح', fr: 'Copier la clé', en: 'Copy key' })}
                     </button>
                     <div>
-                      <label htmlFor="admin-enroll-code" className="text-xs font-bold uppercase tracking-wide text-[#5b7ba6]">
+                      <label htmlFor="admin-enroll-code" className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                         {t({ ar: 'الرمز من التطبيق', fr: 'Code de l’application', en: 'App code' })}
                       </label>
-                      <div className="relative mt-2">
-                        <Shield className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#8aa6c8]" />
-                        <input
-                          id="admin-enroll-code"
-                          type="text"
-                          inputMode="numeric"
-                          autoComplete="one-time-code"
-                          maxLength={6}
-                          dir="ltr"
-                          value={twoFactorCode}
-                          onChange={(e) => setTwoFactorCode(e.target.value)}
-                          placeholder={t({ ar: '000000', fr: '000000', en: '000000' })}
-                          required
-                          autoFocus
-                          className="w-full rounded-2xl border border-[#cfe0f5] bg-white py-3.5 pl-12 pr-4 text-center text-lg font-bold tracking-[0.35em] text-[#0b2a5b] shadow-sm outline-none transition placeholder:text-[#9db2cd] focus:border-[#1d7bff] focus:ring-4 focus:ring-[#1d7bff]/15"
-                        />
-                      </div>
-                      <p className="mt-2 text-center text-xs leading-relaxed text-[#7c96b7]">
+                      <input
+                        id="admin-enroll-code"
+                        type="text"
+                        inputMode="numeric"
+                        autoComplete="one-time-code"
+                        maxLength={6}
+                        dir="ltr"
+                        value={twoFactorCode}
+                        onChange={(e) => setTwoFactorCode(e.target.value)}
+                        placeholder="000000"
+                        required
+                        autoFocus
+                        className="mt-2 w-full rounded-xl border border-white/15 bg-white/[0.04] px-4 py-3.5 text-center text-lg font-bold tracking-[0.35em] text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-400/70 focus:bg-white/[0.07] focus:ring-4 focus:ring-sky-500/15"
+                      />
+                      <p className="mt-2 text-center text-xs leading-relaxed text-slate-500">
                         {t({
                           ar: 'أدخل الأرقام الستة التي يعرضها التطبيق، وليس المفتاح الطويل أعلاه.',
                           fr: 'Saisissez les 6 chiffres affichés par l’application, et non la clé de configuration ci-dessus.',
@@ -612,14 +712,14 @@ export function Admin() {
 
                 {loginStep === 'backup' && (
                   <>
-                    <p className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold leading-relaxed text-amber-800">
+                    <p className="rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm font-semibold leading-relaxed text-amber-200">
                       {t({
                         ar: 'احفظ هذه الرموز الاحتياطية الآن. لن تظهر مرة أخرى، وكل رمز يعمل مرة واحدة.',
                         fr: 'Conservez ces codes de secours maintenant. Ils ne seront plus affichés et chaque code ne fonctionne qu’une fois.',
                         en: 'Save these backup codes now. They will not be shown again, and each code works once.',
                       })}
                     </p>
-                    <div className="grid grid-cols-2 gap-2 rounded-2xl border border-[#cfe0f5] bg-white p-3 font-mono text-xs text-[#0b2a5b] shadow-sm" dir="ltr">
+                    <div className="grid grid-cols-2 gap-2 rounded-xl border border-white/10 bg-slate-950/50 p-3 font-mono text-xs text-slate-200" dir="ltr">
                       {backupCodes.map((code) => (
                         <span key={code}>{code}</span>
                       ))}
@@ -628,7 +728,7 @@ export function Admin() {
                 )}
 
                 {loginError && (
-                  <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center text-sm font-semibold text-red-600">
+                  <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-center text-sm font-semibold text-red-300">
                     {loginError}
                   </p>
                 )}
@@ -636,7 +736,7 @@ export function Admin() {
                 <button
                   type="submit"
                   disabled={loginLoading}
-                  className="mt-1 flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#0a49c7] via-[#1568f0] to-[#0a49c7] px-6 py-3.5 text-[15px] font-bold text-white shadow-lg shadow-blue-600/30 transition hover:brightness-110 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="mt-1 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 px-6 py-3.5 text-[15px] font-bold text-white shadow-[0_12px_34px_-12px_rgba(56,189,248,.9)] transition hover:brightness-110 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {loginLoading ? (
                     <>
@@ -650,7 +750,10 @@ export function Admin() {
                   ) : loginStep === 'code' ? (
                     t({ ar: 'تحقق', fr: 'Vérifier', en: 'Verify' })
                   ) : (
-                    t({ ar: 'دخول', fr: 'Connexion', en: 'Login' })
+                    <>
+                      {t({ ar: 'دخول', fr: 'Connexion', en: 'Sign in' })}
+                      <ArrowRight className="h-4 w-4" style={{ transform: language === 'ar' ? 'rotate(180deg)' : undefined }} />
+                    </>
                   )}
                 </button>
 
@@ -658,14 +761,14 @@ export function Admin() {
                   <button
                     type="button"
                     onClick={resetLoginFlow}
-                    className="self-center text-sm font-semibold text-[#5b7ba6] transition hover:text-[#0a49c7]"
+                    className="self-center text-sm font-semibold text-slate-400 transition hover:text-sky-300"
                   >
                     {t({ ar: 'العودة لبيانات الدخول', fr: 'Retour à la connexion', en: 'Back to sign in' })}
                   </button>
                 )}
               </form>
 
-              <p className="mt-7 flex items-center justify-center gap-1.5 text-center text-[11px] font-medium text-[#7c96b7]">
+              <p className="mt-7 flex items-center justify-center gap-1.5 text-center text-[11px] font-medium text-slate-600">
                 <Lock className="h-3 w-3" />
                 {t({
                   ar: 'اتصال مشفّر ومحمي بالتحقق بخطوتين',
@@ -673,15 +776,6 @@ export function Admin() {
                   en: 'Encrypted connection protected by two-factor authentication',
                 })}
               </p>
-            </div>
-
-            <div className="relative hidden bg-[#dcecff] lg:block">
-              <img
-                src="/aos-login-poster.jpg"
-                alt="AOS Tech Store"
-                className="h-full w-full object-cover"
-              />
-              <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/40" />
             </div>
           </div>
         </div>
