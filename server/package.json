@@ -13,6 +13,7 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx src/seed.ts",
+    "backup:key": "tsx scripts/generate-backup-key.ts",
     "db:studio": "prisma studio",
     "deploy": "npm run build && npx prisma db push && npx tsx src/seed.ts && npm start"
   },
