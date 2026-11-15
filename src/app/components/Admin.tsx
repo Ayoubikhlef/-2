@@ -437,6 +437,8 @@ export function Admin() {
             62% { opacity: .9; }
             100% { opacity: .62; transform: translateX(-50%) scale(1); }
           }
+          @keyframes aosHaloFade { 0% { opacity: 0; } 22% { opacity: 1; } 40% { opacity: .42; } 62% { opacity: .9; } 100% { opacity: .62; } }
+          @keyframes aosConeFade { 0% { opacity: 0; } 18% { opacity: 1; } 38% { opacity: .42; } 62% { opacity: .95; } 100% { opacity: .8; } }
           .aos-lamp { animation: aosLampDrop .7s cubic-bezier(.3, 1.4, .5, 1) both; }
           .aos-photo { animation: aosPhotoIn .7s .35s cubic-bezier(.3, 1.4, .5, 1) both; }
           .aos-panel { animation: aosPanelIn .8s .25s cubic-bezier(.2, .8, .2, 1) both; }
@@ -453,11 +455,13 @@ export function Admin() {
             animation: aosConeOn 1.9s ease-out both, aosConePulse 3.2s 1.9s ease-in-out infinite;
           }
           @media (prefers-reduced-motion: reduce) {
-            .aos-lamp, .aos-photo, .aos-panel, .aos-bulb, .aos-halo, .aos-cone {
+            .aos-lamp, .aos-photo, .aos-panel, .aos-bulb {
               animation-duration: .01s !important;
               animation-delay: 0s !important;
               animation-iteration-count: 1 !important;
             }
+            .aos-halo { animation: aosHaloFade 1.9s ease-out both; }
+            .aos-cone { animation: aosConeFade 1.9s ease-out both; }
           }
         `}</style>
 
