@@ -21,12 +21,14 @@ import { maintenanceRouter } from './routes/maintenance';
 import { emailRouter } from './routes/email';
 import { paymentRouter } from './routes/payment';
 import { securityRouter } from './routes/security';
+import { backupRouter } from './routes/backup';
 import { siteFactoryRouter } from './routes/siteFactory';
 import { errorHandler } from './middleware/errorHandler';
 import { securityMonitor, securityRateLimitHandler } from './services/security';
 import { ensureSeedAdmin } from './services/adminBootstrap';
 import { initLive } from './services/live';
 import { initRAG } from './services/rag';
+import { startBackupScheduler } from './services/backup';
 import { prisma } from './utils/prisma';
 import { isOriginAllowed } from './utils/cors';
 import { fixMojibakeData } from './utils/encoding';
@@ -115,6 +117,9 @@ const passwordResetLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, hand
 const orderLimiter = rateLimit({ windowMs: 60 * 1000, max: 600, handler: securityRateLimitHandler('orders'), validate: { xForwardedForHeader: false } });
 const generalLimiter = rateLimit({ windowMs: 60 * 1000, max: 600, handler: securityRateLimitHandler('general'), validate: { xForwardedForHeader: false } });
 const contactLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 12, handler: securityRateLimitHandler('contact'), validate: { xForwardedForHeader: false } });
+// A snapshot contains the whole database, so it is limited to a handful of
+// owner-triggered downloads per hour.
+const snapshotLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 6, handler: securityRateLimitHandler('snapshot'), validate: { xForwardedForHeader: false } });
 app.use('/api/auth', authLimiter);
 app.use('/api/auth/admin-gate', adminGateLimiter);
 app.use('/api/auth/forgot-password', passwordResetLimiter);
@@ -144,6 +149,13 @@ app.use('/api/maintenance', maintenanceRouter);
 app.use('/api/email', emailRouter);
 app.use('/api/payment', paymentRouter);
 app.use('/api/security', generalLimiter, securityRouter);
+// Deliberately not mounted at /api/backup: the security monitor treats
+// /backup as a scanner path and would block the owner. Only the routes that
+// touch the whole database share the strict limit; /status is polled by the
+// admin panel every 30 seconds and must not exhaust it.
+app.use('/api/snapshots/download', snapshotLimiter);
+app.use('/api/snapshots/run', snapshotLimiter);
+app.use('/api/snapshots', generalLimiter, backupRouter);
 app.use('/api/site-factory', siteFactoryRouter);
 
 app.get('/api/health', async (_req, res) => {
@@ -383,6 +395,7 @@ async function startServer() {
     const ip: string = networkInterfaces.find((i: any) => i.family === 'IPv4' && !i.internal)?.address || 'localhost';
     console.log(`[AOS Server] Running on http://localhost:${PORT}`);
     startKeepAlive();
+    startBackupScheduler();
 
     // Unconfirmed product orders reserve stock; release it after the timeout
     // instead of leaving the catalog permanently drained.

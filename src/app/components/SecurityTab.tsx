@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import { api } from '../utils/api';
-import { Shield, ShieldAlert, ShieldCheck, RefreshCw, Ban, Send, AlertTriangle, Clock, Search, Unlock } from 'lucide-react';
+import { api, getStoredUser } from '../utils/api';
+import { Shield, ShieldAlert, ShieldCheck, RefreshCw, Ban, Send, AlertTriangle, Clock, Search, Unlock, Database, Download } from 'lucide-react';
 import { toast } from 'sonner';
 
 type Severity = 'low' | 'medium' | 'high' | 'critical';
@@ -42,6 +42,33 @@ interface SecurityData {
   history: any[];
 }
 
+interface BackupStatus {
+  encryptionConfigured: boolean;
+  autoEnabled: boolean;
+  destination: 'github' | 'disk';
+  githubConfigured: boolean;
+  diskPath: string;
+  keep: number;
+  last: {
+    at: string;
+    status: 'ok' | 'error';
+    destination?: 'github' | 'disk' | null;
+    filename?: string;
+    size?: number;
+    sha256?: string;
+    tables?: number;
+    rows?: number;
+    error?: string;
+  } | null;
+}
+
+function formatBytes(bytes?: number): string {
+  if (!bytes || bytes <= 0) return '—';
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 const severityStyle: Record<Severity, string> = {
   low: 'bg-slate-500/20 text-slate-300 border-slate-500/30',
   medium: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
@@ -58,6 +85,8 @@ export function SecurityTab() {
   const [blockMinutes, setBlockMinutes] = useState(60);
   const [blocking, setBlocking] = useState(false);
   const [query, setQuery] = useState('');
+  const [backup, setBackup] = useState<BackupStatus | null>(null);
+  const [backupBusy, setBackupBusy] = useState<'download' | 'run' | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -71,11 +100,23 @@ export function SecurityTab() {
     }
   }, [t]);
 
+  const loadBackup = useCallback(async () => {
+    try {
+      setBackup(await api.snapshots.status());
+    } catch {
+      /* the security view still works when backups are not configured */
+    }
+  }, []);
+
   useEffect(() => {
     void load();
-    const timer = setInterval(() => void load(), 30_000);
+    void loadBackup();
+    const timer = setInterval(() => {
+      void load();
+      void loadBackup();
+    }, 30_000);
     return () => clearInterval(timer);
-  }, [load]);
+  }, [load, loadBackup]);
 
   const rows = useMemo<Incident[]>(() => {
     if (!data) return [];
@@ -150,7 +191,55 @@ export function SecurityTab() {
     }
   };
 
+  const handleDownloadBackup = async () => {
+    setBackupBusy('download');
+    try {
+      const { blob, filename } = await api.snapshots.download();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      toast.success(
+        t({
+          ar: 'تم تنزيل النسخة المشفّرة. احفظها خارج الخادم ومعها مفتاح التشفير.',
+          fr: 'Sauvegarde chiffrée téléchargée. Conservez-la hors du serveur avec la clé.',
+          en: 'Encrypted backup downloaded. Keep it off the server together with the key.',
+        })
+      );
+      await loadBackup();
+    } catch (err: any) {
+      toast.error(err?.message || t({ ar: 'تعذر إنشاء النسخة الاحتياطية', fr: 'Impossible de créer la sauvegarde', en: 'Could not create the backup' }));
+    } finally {
+      setBackupBusy(null);
+    }
+  };
+
+  const handleStoreBackup = async () => {
+    setBackupBusy('run');
+    try {
+      const result = await api.snapshots.run();
+      toast.success(
+        t({
+          ar: `تم حفظ النسخة عند: ${result?.storedAt || result?.destination || 'الوجهة'}`,
+          fr: `Sauvegarde enregistrée sur : ${result?.storedAt || result?.destination || 'destination'}`,
+          en: `Backup stored at: ${result?.storedAt || result?.destination || 'destination'}`,
+        })
+      );
+      await loadBackup();
+    } catch (err: any) {
+      toast.error(err?.message || t({ ar: 'تعذر حفظ النسخة بعيدًا عن الخادم', fr: 'Impossible de stocker la sauvegarde hors du serveur', en: 'Could not store the backup off the server' }));
+      await loadBackup();
+    } finally {
+      setBackupBusy(null);
+    }
+  };
+
   const status = data?.status;
+  const isSuperAdmin = getStoredUser()?.role === 'SUPER_ADMIN';
 
   const cards = [
     {
@@ -248,6 +337,109 @@ export function SecurityTab() {
           </div>
         ))}
       </div>
+
+      {isSuperAdmin && (
+      <div className="rounded-2xl border border-white/10 bg-slate-900/70 p-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h3 className="font-bold text-white text-sm flex items-center gap-2">
+              <Database className="w-4 h-4 text-sky-400" />
+              {t({ ar: 'النسخ الاحتياطي المشفّر', fr: 'Sauvegarde chiffrée', en: 'Encrypted backup' })}
+            </h3>
+            <p className="text-xs text-white/50 mt-1 max-w-2xl">
+              {t({
+                ar: 'نسخة كاملة من قاعدة البيانات، مشفّرة بمفتاح لا يغادر الخادم. نزّلها واحفظها خارج الخادم مع مفتاح التشفير.',
+                fr: 'Copie complète de la base, chiffrée avec une clé qui ne quitte pas le serveur. Téléchargez-la et conservez-la hors du serveur avec la clé.',
+                en: 'A full database copy encrypted with a key that never leaves the server. Download it and keep it off the server together with the key.',
+              })}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => void handleDownloadBackup()}
+              disabled={backupBusy !== null || backup?.encryptionConfigured === false}
+              className="inline-flex items-center gap-2 rounded-xl border border-sky-500/30 bg-sky-500/15 px-4 py-2.5 text-sm font-bold text-sky-300 hover:bg-sky-500/25 transition disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <Download className={`w-4 h-4 ${backupBusy === 'download' ? 'animate-bounce' : ''}`} />
+              {t({ ar: 'تنزيل نسخة', fr: 'Télécharger', en: 'Download' })}
+            </button>
+            {backup?.githubConfigured && (
+              <button
+                onClick={() => void handleStoreBackup()}
+                disabled={backupBusy !== null}
+                className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/15 px-4 py-2.5 text-sm font-bold text-emerald-300 hover:bg-emerald-500/25 transition disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <ShieldCheck className={`w-4 h-4 ${backupBusy === 'run' ? 'animate-pulse' : ''}`} />
+                {t({ ar: 'حفظ خارجي الآن', fr: 'Stocker maintenant', en: 'Store now' })}
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="mt-3 grid grid-cols-2 lg:grid-cols-4 gap-2 text-[11px] text-white/50">
+          <span>
+            {t({ ar: 'التشفير', fr: 'Chiffrement', en: 'Encryption' })}:{' '}
+            <span className={backup?.encryptionConfigured ? 'text-emerald-400' : 'text-red-400'}>
+              {backup ? (backup.encryptionConfigured ? '✓' : '✗') : '…'}
+            </span>
+          </span>
+          <span>
+            {t({ ar: 'الجدولة اليومية', fr: 'Planification quotidienne', en: 'Daily schedule' })}:{' '}
+            <span className={backup?.autoEnabled ? 'text-emerald-400' : 'text-white/40'}>
+              {backup ? (backup.autoEnabled ? t({ ar: 'مفعّلة', fr: 'Activée', en: 'On' }) : t({ ar: 'معطّلة', fr: 'Désactivée', en: 'Off' })) : '…'}
+            </span>
+          </span>
+          <span>
+            {t({ ar: 'الوجهة', fr: 'Destination', en: 'Destination' })}:{' '}
+            <span className="text-white/70">
+              {backup
+                ? backup.destination === 'github'
+                  ? 'GitHub'
+                  : t({ ar: 'قرص الخادم', fr: 'Disque du serveur', en: 'Server disk' })
+                : '…'}
+            </span>
+          </span>
+          <span className="truncate" title={backup?.last?.filename || ''}>
+            {t({ ar: 'آخر نسخة', fr: 'Dernière sauvegarde', en: 'Last backup' })}:{' '}
+            <span className={backup?.last?.status === 'error' ? 'text-red-400' : 'text-white/70'}>
+              {backup?.last ? new Date(backup.last.at).toLocaleString() : '—'}
+            </span>
+            {backup?.last?.size ? ` · ${formatBytes(backup.last.size)}` : ''}
+            {backup?.last?.rows !== undefined ? ` · ${backup.last.rows} ${t({ ar: 'صفًا', fr: 'lignes', en: 'rows' })}` : ''}
+          </span>
+        </div>
+
+        {backup && !backup.encryptionConfigured && (
+          <p className="mt-3 rounded-xl border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-[11px] text-amber-200/80">
+            {t({
+              ar: 'التشفير غير مهيأ. أضف BACKUP_ENCRYPTION_KEY بطول 32 حرفًا على الأقل في متغيرات Render ثم أعد التشغيل.',
+              fr: 'Chiffrement non configuré. Ajoutez BACKUP_ENCRYPTION_KEY (32 caractères minimum) dans Render puis redémarrez.',
+              en: 'Encryption is not configured. Add BACKUP_ENCRYPTION_KEY (32+ characters) in Render and restart.',
+            })}
+          </p>
+        )}
+
+        {backup?.autoEnabled &&
+          backup.last?.status === 'ok' &&
+          backup.last.at &&
+          Date.now() - Date.parse(backup.last.at) > 36 * 60 * 60 * 1000 && (
+            <p className="mt-3 rounded-xl border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-[11px] text-amber-200/80">
+              {t({
+                ar: 'آخر نسخة ناجحة أقدم من 36 ساعة. تحقق من الجدولة أو نفّذ نسخة يدوية الآن.',
+                fr: 'La dernière sauvegarde réussie date de plus de 36 heures. Vérifiez la planification ou lancez une sauvegarde manuelle.',
+                en: 'The last successful backup is over 36 hours old. Check the schedule or take a manual backup now.',
+              })}
+            </p>
+          )}
+
+        {backup?.last?.status === 'error' && backup.last.error && (
+          <p className="mt-3 rounded-xl border border-red-500/20 bg-red-500/10 px-3 py-2 text-[11px] text-red-200/80 break-all">
+            {t({ ar: 'آخر محاولة فشلت', fr: 'La dernière tentative a échoué', en: 'The last attempt failed' })}:{' '}
+            <span className="font-mono">{backup.last.error}</span>
+          </p>
+        )}
+      </div>
+      )}
 
       {status && (
         <div className="flex flex-wrap items-center gap-4 px-1 text-[11px] text-white/40">

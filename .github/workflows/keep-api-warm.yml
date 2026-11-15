@@ -1,8 +1,9 @@
-name: Keep API warm
+name: Monitor and keep the API warm
 
-# Render's free instance sleeps after 15 minutes without traffic, and the
-# first order after a sleep can take ~1 minute (cold start). A request every
-# 5 minutes keeps the API ready for customers.
+# Render's free instance sleeps after 15 minutes without traffic, so a request
+# every 5 minutes keeps the API ready for customers. The same run is the
+# uptime monitor: a failure opens one GitHub issue (and GitHub emails the
+# owner); the issue is closed automatically after recovery.
 on:
   schedule:
     # GitHub may delay scheduled jobs under load; 5 minutes is the minimum.
@@ -15,6 +16,7 @@ on:
 
 permissions:
   contents: read
+  issues: write
 
 concurrency:
   group: keep-api-warm
@@ -23,18 +25,104 @@ concurrency:
 jobs:
   ping:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 6
     steps:
-      - name: Ping the public health endpoint
+      - name: Check the public site and API
+        id: check
+        shell: bash
         run: |
+          set -uo pipefail
+          failures=0
+
+          api_ok=0
           for attempt in 1 2 3; do
             code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 70 \
               https://aos-tech.store/api/health || true)
-            echo "attempt ${attempt} -> HTTP ${code}"
+            echo "health attempt ${attempt} -> HTTP ${code}"
             if [ "${code}" = "200" ]; then
-              exit 0
+              api_ok=1
+              break
             fi
             sleep 15
           done
-          echo "health endpoint did not answer 200 after 3 attempts" >&2
-          exit 1
+          if [ "${api_ok}" != "1" ]; then
+            echo "::error::/api/health did not return 200 after 3 attempts"
+            failures=$((failures + 1))
+          fi
+
+          check() {
+            local name="$1" url="$2" expected="$3"
+            local code
+            code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 60 "$url" || true)
+            echo "${name}: HTTP ${code} (expected ${expected})"
+            if [ "${code}" != "${expected}" ]; then
+              echo "::error::${name} returned ${code}, expected ${expected}"
+              failures=$((failures + 1))
+            fi
+          }
+
+          check "homepage" "https://aos-tech.store/" "200"
+          check "www redirect" "https://www.aos-tech.store/" "308"
+          check "http redirect" "http://aos-tech.store/" "308"
+
+          www_target=$(curl -sS -o /dev/null -w '%{redirect_url}' --max-time 60 \
+            https://www.aos-tech.store/ || true)
+          http_target=$(curl -sS -o /dev/null -w '%{redirect_url}' --max-time 60 \
+            http://aos-tech.store/ || true)
+          final_target=$(curl -sS -L -o /dev/null -w '%{url_effective}' --max-time 90 \
+            http://www.aos-tech.store/ || true)
+          echo "www target: ${www_target}"
+          echo "http target: ${http_target}"
+          echo "http://www final target: ${final_target}"
+
+          if [ "${www_target}" != "https://aos-tech.store/" ]; then
+            echo "::error::www did not redirect to the canonical origin"
+            failures=$((failures + 1))
+          fi
+          if [ "${http_target}" != "https://aos-tech.store/" ]; then
+            echo "::error::http did not redirect to the canonical origin"
+            failures=$((failures + 1))
+          fi
+          if [ "${final_target}" != "https://aos-tech.store/" ]; then
+            echo "::error::http://www did not end at the canonical origin"
+            failures=$((failures + 1))
+          fi
+
+          echo "failures=${failures}" >> "$GITHUB_OUTPUT"
+          if [ "${failures}" -gt 0 ]; then
+            exit 1
+          fi
+
+      - name: Open the monitoring issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          title='aos-tech.store health check failing'
+          existing=$(gh issue list --state open --search "in:title \"${title}\"" \
+            --json number --jq '.[0].number // empty')
+          if [ -n "${existing}" ]; then
+            echo "Issue #${existing} is already open; skipping duplicate creation."
+            exit 0
+          fi
+          body=$(printf 'The scheduled check failed at %s.\n\nRun: %s\n\nExpected: `/api/health` 200, homepage 200, and www/http 308 redirects to https://aos-tech.store/.\n' \
+            "$(date -u +%FT%TZ)" "${RUN_URL}")
+          gh issue create --title "${title}" --body "${body}"
+
+      - name: Close the monitoring issue after recovery
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          title='aos-tech.store health check failing'
+          existing=$(gh issue list --state open --search "in:title \"${title}\"" \
+            --json number --jq '.[0].number // empty')
+          if [ -n "${existing}" ]; then
+            gh issue close "${existing}" \
+              --comment "Recovered: the scheduled health check passed at $(date -u +%FT%TZ)."
+          fi

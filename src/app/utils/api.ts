@@ -123,6 +123,42 @@ async function request<T>(
   throw lastError || new Error('All API URLs failed');
 }
 
+/**
+ * Binary downloads cannot go through request(), which always parses JSON.
+ * The access token still travels in the Authorization header, never in the
+ * URL, and an expired token is refreshed once just like a JSON request.
+ */
+async function requestBlob(
+  path: string,
+  options: RequestInit = {},
+  retryAuth = true
+): Promise<{ blob: Blob; filename: string }> {
+  const token = getAccessToken();
+  const headers: Record<string, string> = { ...(options.headers as Record<string, string>) };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const response = await fetch(getUrls(path)[0], {
+    ...options,
+    headers,
+    credentials: 'include',
+  });
+
+  if (response.status === 401 && retryAuth) {
+    const refreshed = await refreshToken();
+    if (refreshed) return requestBlob(path, options, false);
+  }
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    const error: any = new Error(body.error || `Request failed (${response.status})`);
+    error.status = response.status;
+    throw error;
+  }
+
+  const disposition = response.headers.get('content-disposition') || '';
+  const filename = /filename="?([^";]+)"?/i.exec(disposition)?.[1] || 'aos-backup.enc';
+  return { blob: await response.blob(), filename };
+}
+
 export async function refreshToken(): Promise<{
   user: any;
   accessToken: string;
@@ -247,6 +283,12 @@ export const api = {
     block: (ip: string, minutes = 60, reason?: string) =>
       request<{ ok: boolean }>('/security/block', { method: 'POST', body: JSON.stringify({ ip, minutes, reason }) }),
     unblock: (ip: string) => request<{ ok: boolean }>(`/security/block/${encodeURIComponent(ip)}`, { method: 'DELETE' }),
+  },
+
+  snapshots: {
+    status: () => request<any>('/snapshots/status'),
+    download: () => requestBlob('/snapshots/download', { method: 'POST' }),
+    run: () => request<any>('/snapshots/run', { method: 'POST' }),
   },
 
   orders: {

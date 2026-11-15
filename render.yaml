@@ -46,3 +46,21 @@ services:
         sync: false
       - key: SECURITY_ALERT_FROM
         sync: false
+      # Encrypted database snapshots. They stay disabled until the owner sets
+      # a key in the dashboard and flips BACKUP_AUTO to true.
+      - key: BACKUP_ENCRYPTION_KEY
+        sync: false
+      - key: BACKUP_AUTO
+        sync: false
+      - key: BACKUP_HOUR_UTC
+        value: "3"
+      - key: BACKUP_GITHUB_REPO
+        sync: false
+      - key: BACKUP_GITHUB_TOKEN
+        sync: false
+      - key: BACKUP_GITHUB_PATH
+        value: "backups"
+      - key: BACKUP_DIR
+        value: "backups"
+      - key: BACKUP_KEEP
+        value: "7"
