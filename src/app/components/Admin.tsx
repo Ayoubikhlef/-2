@@ -623,6 +623,8 @@ export function Admin() {
                   type="text"
                   inputMode="numeric"
                   autoComplete="one-time-code"
+                  maxLength={6}
+                  dir="ltr"
                   value={twoFactorCode}
                   onChange={(e) => setTwoFactorCode(e.target.value)}
                   placeholder={t({ ar: 'الرمز من التطبيق', fr: 'Code de l\'application', en: 'App code' })}
@@ -630,6 +632,13 @@ export function Admin() {
                   autoFocus
                   style={loginInputStyle}
                 />
+                <p style={{ margin: 0, fontSize: 12, lineHeight: 1.6, color: isOn ? '#94a3b8' : '#64748b', textAlign: 'center' }}>
+                  {t({
+                    ar: 'أدخل الأرقام الستة التي يعرضها التطبيق، وليس المفتاح الطويل أعلاه.',
+                    fr: 'Saisissez les 6 chiffres affichés par l\'application, et non la clé de configuration ci-dessus.',
+                    en: 'Enter the 6 digits shown by the app, not the setup key above.',
+                  })}
+                </p>
               </>
             )}
 

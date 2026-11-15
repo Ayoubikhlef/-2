@@ -71,11 +71,26 @@ function safeEqualText(a: string, b: string): boolean {
 }
 
 /**
+ * A phone keyboard set to Arabic or Persian can produce U+0660..U+0669 or
+ * U+06F0..U+06F9 digits. They are valid numerals to the user but would fail a
+ * plain /^\d{6}$/ check, so every numeric code is mapped to ASCII first.
+ * Zero-width and bidi marks are removed at the same time because copy/paste
+ * from a right-to-left page can add them.
+ */
+export function normalizeNumericCode(input: string): string {
+  return String(input || '')
+    .replace(/[\u0660-\u0669]/g, (digit) => String(digit.charCodeAt(0) - 0x0660))
+    .replace(/[\u06f0-\u06f9]/g, (digit) => String(digit.charCodeAt(0) - 0x06f0))
+    .replace(/[\u200c\u200d\u200e\u200f\u202a-\u202e]/g, '')
+    .replace(/\s+/g, '');
+}
+
+/**
  * Verifies a 6-digit TOTP code with a one-step clock-skew window in each
  * direction, matching the behaviour of common authenticator apps.
  */
 export function verifyTotp(secret: string, token: string, window = TOTP_WINDOW): boolean {
-  const normalized = String(token || '').replace(/\s+/g, '');
+  const normalized = normalizeNumericCode(token);
   if (!/^\d{6}$/.test(normalized) || !secret) return false;
   const counter = Math.floor(Date.now() / (TOTP_PERIOD_SECONDS * 1000));
   for (let offset = -window; offset <= window; offset += 1) {

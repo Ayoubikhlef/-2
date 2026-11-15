@@ -22,6 +22,7 @@ import {
   consumeBackupCode,
   generateBackupCodes,
   generateTwoFactorSecret,
+  normalizeNumericCode,
   verifyTotp,
 } from '../services/twoFactor';
 
@@ -366,7 +367,7 @@ authRouter.post('/login', async (req, res: Response) => {
         });
       }
 
-      const code = String(twoFactorCode || '').replace(/\s+/g, '');
+      const code = normalizeNumericCode(twoFactorCode || '');
       if (!code) {
         // 200: the password is valid and this is the expected next step, not
         // an error the client should treat as a failed login.
