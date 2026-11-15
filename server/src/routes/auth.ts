@@ -432,7 +432,7 @@ authRouter.post('/login', async (req, res: Response) => {
       accessToken,
     });
 
-    await logAction(user.id, 'LOGIN', 'User', { email: user.email }, req.ip);
+    await logAction(user.id, 'LOGIN', 'User', { email: user.email }, clientIp(req));
   } catch (err: any) {
     if (err instanceof AppError) throw err;
     if (err instanceof z.ZodError) {
@@ -537,7 +537,7 @@ authRouter.post('/2fa/setup/confirm', async (req, res: Response) => {
       { ...user, tokenVersion, twoFactorEnabled: true },
       res
     );
-    await logAction(user.id, 'TWO_FACTOR_ENABLED', 'User', undefined, req.ip);
+    await logAction(user.id, 'TWO_FACTOR_ENABLED', 'User', undefined, clientIp(req));
 
     res.json({
       ok: true,
@@ -571,7 +571,7 @@ authRouter.post('/2fa/backup-codes', requireAuth, async (req: AuthRequest, res: 
       where: { id: user.id },
       data: { twoFactorBackupCodes: hashes },
     });
-    await logAction(user.id, 'TWO_FACTOR_BACKUP_CODES_ROTATED', 'User', undefined, req.ip);
+    await logAction(user.id, 'TWO_FACTOR_BACKUP_CODES_ROTATED', 'User', undefined, clientIp(req));
     res.json({ ok: true, backupCodes: codes });
   } catch (err) {
     console.error('[Auth] 2FA backup codes error:', err);
@@ -903,7 +903,7 @@ authRouter.post('/logout', requireAuth, async (req: AuthRequest, res: Response) 
   });
 
   res.clearCookie('refreshToken', { path: '/', sameSite: 'lax', secure: process.env.NODE_ENV === 'production', httpOnly: true });
-  await logAction(req.userId, 'LOGOUT', 'User', undefined, req.ip);
+  await logAction(req.userId, 'LOGOUT', 'User', undefined, clientIp(req));
   res.json({ message: 'Logged out' });
 });
 
@@ -939,7 +939,7 @@ authRouter.post('/change-password', requireAuth, async (req: AuthRequest, res: R
   // Keep this device signed in with a fresh token pair; every other session
   // is invalidated by the tokenVersion bump above.
   const accessToken = await createSession(updated, res);
-  await logAction(req.userId, 'PASSWORD_CHANGED', 'User', { role: user.role }, req.ip);
+  await logAction(req.userId, 'PASSWORD_CHANGED', 'User', { role: user.role }, clientIp(req));
   res.json({ ok: true, accessToken });
 });
 

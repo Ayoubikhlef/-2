@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import { requireAuth, requireRole, type AuthRequest } from '../middleware/auth';
 import { logAction } from '../services/audit';
+import { clientIp } from '../services/security';
 import {
   createEncryptedBackup,
   getBackupStatus,
@@ -38,7 +39,7 @@ backupRouter.post('/download', async (req: AuthRequest, res: Response) => {
       'BACKUP_DOWNLOADED',
       'Backup',
       { filename: meta.filename, size: meta.size, sha256: meta.sha256, tables: meta.tables, rows: meta.rows },
-      req.ip
+      clientIp(req)
     );
     res.setHeader('Content-Type', 'application/octet-stream');
     res.setHeader('Content-Disposition', `attachment; filename="${meta.filename}"`);
@@ -74,7 +75,7 @@ backupRouter.post('/run', async (req: AuthRequest, res: Response) => {
         sha256: result.sha256,
         destination: result.destination,
       },
-      req.ip
+      clientIp(req)
     );
     res.json(result);
   } catch (err) {

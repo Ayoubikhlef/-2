@@ -31,6 +31,7 @@ import { initRAG } from './services/rag';
 import { startBackupScheduler } from './services/backup';
 import { prisma } from './utils/prisma';
 import { isOriginAllowed } from './utils/cors';
+import { isTrustedProxy } from './utils/trustProxy';
 import { fixMojibakeData } from './utils/encoding';
 import { ensureSiteFactoryDefaults } from './site-factory/service';
 
@@ -38,9 +39,11 @@ const app = express();
 const server = http.createServer(app);
 const PORT = Number(process.env.PORT) || 3001;
 
-// Vercel/Render terminate TLS in front of the API, so trust one proxy hop
-// to get the real client IP for rate limiting and security alerts.
-app.set('trust proxy', 1);
+// Vercel/Render terminate TLS in front of the API and may forward through
+// more than one internal hop. Trust only private hops so the real client IP is
+// resolved for rate limiting and security alerts, while a public address from
+// X-Forwarded-For (attacker-controlled) is never trusted.
+app.set('trust proxy', isTrustedProxy);
 
 app.use(helmet({
   strictTransportSecurity: { maxAge: 31536000, includeSubDomains: true, preload: true },
