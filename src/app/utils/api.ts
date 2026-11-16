@@ -193,6 +193,54 @@ export type LoginResponse =
       user: { email: string; name: string };
     };
 
+export type CustomerAddress = {
+  id: string;
+  label: string | null;
+  fullName: string;
+  phone: string;
+  wilaya: string;
+  municipality: string;
+  address: string;
+  isDefault: boolean;
+  createdAt: string;
+};
+
+export type CustomerOrderSummary = {
+  id: string;
+  total: number;
+  status: string;
+  createdAt: string;
+  wilaya: string;
+  municipality: string;
+  customer: string;
+  phone: string;
+  email: string | null;
+  items: { name: string; quantity: number; price: number }[];
+};
+
+export type CustomerAccount = {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  avatar: string | null;
+  emailVerified: boolean;
+  isActive: boolean;
+  twoFactorEnabled: boolean;
+  isLocked: boolean;
+  failedLoginAttempts: number;
+  lastActivityAt: string | null;
+  createdAt: string;
+  addresses: CustomerAddress[];
+  ordersCount: number;
+  cancelledCount: number;
+  completedCount: number;
+  totalSpent: number;
+  lastOrderAt: string | null;
+  orderIds: string[];
+  orders: CustomerOrderSummary[];
+};
+
 export const api = {
   get: <T>(path: string) => request<T>(path),
   post: <T>(path: string, body?: any) =>
@@ -317,6 +365,13 @@ export const api = {
       });
     },
     clearAll: () => request<{ deleted: boolean; count: number }>('/orders/clear-all', { method: 'POST' }),
+  },
+
+  customers: {
+    list: (search?: string) =>
+      request<{ customers: CustomerAccount[]; totals: { accounts: number; matchedOrders: number } }>(
+        `/customers${search?.trim() ? `?search=${encodeURIComponent(search.trim())}` : ''}`
+      ),
   },
 
   reviews: {
