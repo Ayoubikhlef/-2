@@ -426,83 +426,108 @@ authRouter.post('/register', async (req, res: Response) => {
 });
 
 /**
+ * Minimal branded HTML for the confirmation screen. It is deliberately
+ * script-free: the storefront is served through Vercel, whose CSP applies to
+ * every path and would block an inline handler, so the button is a plain form.
+ */
+function verificationPage(options: {
+  title: string;
+  body: string;
+  token?: string;
+  status: number;
+}): string {
+  const { title, body, token, status } = options;
+  const back = `${siteUrl()}/#account`;
+  return `
+    <!DOCTYPE html>
+    <html lang="ar" dir="rtl">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>${escapeHtml(title)} - AOS Tech Store</title>
+      <style>
+        body { font-family: Arial, sans-serif; background: #0f172a; color: #e2e8f0; margin: 0; padding: 20px; }
+        .card { background: #1e293b; border-radius: 28px; box-shadow: 0 0 40px rgba(59,130,246,.15); padding: 40px; max-width: 420px; margin: 40px auto; text-align: center; }
+        button { width: 100%; padding: 15px; background: #3b82f6; color: #fff; border: none; border-radius: 20px; font-size: 16px; font-weight: 700; cursor: pointer; }
+        a { color: #93c5fd; }
+        .hint { color: #94a3b8; font-size: 13px; line-height: 1.6; }
+        .ok { color: #22c55e; }
+        .bad { color: #ef4444; }
+      </style>
+    </head>
+    <body data-status="${status}">
+      <div class="card">
+        <h2>${escapeHtml(title)}</h2>
+        ${body}
+        <p class="hint"><a href="${back}">العودة إلى المتجر / Back to the store</a></p>
+      </div>
+    </body>
+    </html>
+  `;
+}
+
+/**
  * Confirmation page opened from the email. GET only renders; the POST below
  * performs the change so mail scanners that prefetch links cannot consume it.
  */
 authRouter.get('/verify-email', (req, res) => {
   const token = String(req.query.token || '');
   if (!/^[a-f0-9]{64}$/i.test(token)) {
-    return res.status(400).send('Invalid verification link');
+    return res
+      .status(400)
+      .type('html')
+      .send(
+        verificationPage({
+          title: 'رابط غير صالح',
+          status: 400,
+          body: '<p class="bad">الرابط غير صالح أو منتهي الصلاحية.</p><p class="hint">Invalid or expired link.</p>',
+        })
+      );
   }
 
-  const nonce = crypto.randomBytes(18).toString('base64');
   res.setHeader(
     'Content-Security-Policy',
-    `default-src 'none'; style-src 'unsafe-inline'; script-src 'nonce-${nonce}'; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'`
+    "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'"
   );
   res.setHeader('Cache-Control', 'no-store');
   res.setHeader('Referrer-Policy', 'no-referrer');
 
-  res.type('html').send(`
-    <!DOCTYPE html>
-    <html lang="ar" dir="rtl">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Confirm email - AOS Tech Store</title>
-      <style>
-        body { font-family: Arial, sans-serif; background: #0f172a; color: #e2e8f0; margin: 0; padding: 20px; }
-        .card { background: #1e293b; border-radius: 28px; box-shadow: 0 0 40px rgba(59,130,246,.15); padding: 40px; max-width: 420px; margin: 40px auto; text-align: center; }
-        button { width: 100%; padding: 15px; background: #3b82f6; color: #fff; border: none; border-radius: 20px; font-size: 16px; font-weight: 700; cursor: pointer; }
-        a { color: #93c5fd; }
-        .error { color: #ef4444; margin: 14px 0; }
-        .success { color: #22c55e; margin: 14px 0; }
-        .hint { color: #94a3b8; font-size: 13px; line-height: 1.6; }
-      </style>
-    </head>
-    <body>
-      <div class="card">
-        <h2>تأكيد البريد الإلكتروني</h2>
+  res.type('html').send(
+    verificationPage({
+      title: 'تأكيد البريد الإلكتروني',
+      status: 200,
+      body: `
         <p class="hint">Confirm your email address to activate your AOS Tech Store account.</p>
-        <button id="confirm" type="button">تأكيد البريد / Confirm email</button>
-        <div id="error" class="error"></div>
-        <div id="success" class="success"></div>
-        <p class="hint"><a href="${siteUrl()}/#account">العودة إلى المتجر / Back to the store</a></p>
-      </div>
-      <script nonce="${nonce}">
-        const button = document.getElementById('confirm');
-        const errorDiv = document.getElementById('error');
-        const successDiv = document.getElementById('success');
-
-        button.addEventListener('click', async () => {
-          button.disabled = true;
-          errorDiv.textContent = '';
-          try {
-            const response = await fetch('/api/auth/verify-email', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ token: ${JSON.stringify(token)} })
-            });
-            const data = await response.json().catch(() => ({}));
-            if (response.ok && data.ok) {
-              successDiv.textContent = 'تم تأكيد بريدك. يمكنك تسجيل الدخول الآن. / Email confirmed. You can sign in now.';
-              setTimeout(() => { window.location.href = ${JSON.stringify(`${siteUrl()}/#account`)}; }, 2500);
-            } else {
-              errorDiv.textContent = data.error || 'Verification failed';
-              button.disabled = false;
-            }
-          } catch (err) {
-            errorDiv.textContent = 'An error occurred. Please try again.';
-            button.disabled = false;
-          }
-        });
-      </script>
-    </body>
-    </html>
-  `);
+        <form method="POST" action="/api/auth/verify-email">
+          <input type="hidden" name="token" value="${escapeHtml(token)}">
+          <button type="submit">تأكيد البريد / Confirm email</button>
+        </form>
+      `,
+    })
+  );
 });
 
 authRouter.post('/verify-email', async (req, res: Response) => {
+  // The confirmation screen posts a normal form; scripts and API clients post JSON.
+  const contentType = String(req.headers['content-type'] || '');
+  const wantsHtml = contentType.startsWith('application/x-www-form-urlencoded');
+
+  const respond = (status: number, payload: { ok?: boolean; error?: string }) => {
+    if (!wantsHtml) return res.status(status).json(payload);
+    return res
+      .status(status)
+      .type('html')
+      .send(
+        verificationPage({
+          title: payload.ok ? 'تم تأكيد البريد' : 'تعذّر التأكيد',
+          status,
+          body: payload.ok
+            ? '<p class="ok">تم تأكيد بريدك. يمكنك تسجيل الدخول الآن.</p><p class="hint">Email confirmed. You can sign in now.</p>'
+            : `<p class="bad">${escapeHtml(payload.error || 'Verification failed')}</p>`,
+        })
+      );
+  };
+
   try {
     const { token } = verifyEmailSchema.parse(req.body);
     // Conditional update makes the token single-use even with concurrent clicks.
@@ -518,15 +543,15 @@ authRouter.post('/verify-email', async (req, res: Response) => {
       },
     });
     if (result.count !== 1) {
-      return res.status(400).json({ error: 'Verification link is invalid or expired' });
+      return respond(400, { error: 'Verification link is invalid or expired' });
     }
-    res.status(200).json({ ok: true });
+    return respond(200, { ok: true });
   } catch (err) {
     if (err instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Verification link is invalid or expired' });
+      return respond(400, { error: 'Verification link is invalid or expired' });
     }
     console.error('[Auth] Verify email error:', err);
-    res.status(500).json({ error: 'Failed to confirm the email address' });
+    return respond(500, { error: 'Failed to confirm the email address' });
   }
 });
 

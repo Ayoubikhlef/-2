@@ -106,6 +106,10 @@ app.use((req, res, next) => {
 app.use(cookieParser());
 app.use(hpp());
 
+// The email-confirmation screen submits a plain HTML form (no JavaScript), so
+// that one endpoint accepts form encoding in addition to JSON.
+app.use('/api/auth/verify-email', express.urlencoded({ extended: false, limit: '8kb' }));
+
 app.use(securityMonitor);
 
 app.use((_req, res, next) => {

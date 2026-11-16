@@ -24,6 +24,13 @@ services:
         generateValue: true
       - key: CORS_ORIGIN
         value: "https://aos-tech.store,https://www.aos-tech.store,https://aostech.vercel.app,http://localhost:5173,http://localhost:4173,http://localhost:3001"
+      # Storefront URL used in the links inside customer emails.
+      - key: PUBLIC_SITE_URL
+        value: "https://aos-tech.store"
+      # Sender identity for account emails. It must be an address on a domain
+      # verified in Resend, otherwise registration fails with a send error.
+      - key: MAIL_FROM
+        sync: false
       - key: NODE_ENV
         value: production
       - key: SEED_ADMIN_PASSWORD
