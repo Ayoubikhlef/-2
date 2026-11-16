@@ -138,7 +138,14 @@ export function DigitalServices() {
   const quoteRef = useRef<HTMLDivElement>(null);
 
   const money = (value: number) => value.toLocaleString('en-US').replace(/,/g, ' ');
-  const priceLabel = (value: number) => `${money(value)} ${brand.currency[language]}`;
+  // RTL text flips numeric ranges ("5 – 14" renders as "14 – 5") and
+  // space-grouped amounts ("35 000" renders as "000 35"). Unicode isolates
+  // keep each number in reading order without changing the Arabic layout.
+  const LRI = '\u2066';
+  const PDI = '\u2069';
+  const bidiRanges = (text: string) =>
+    text.replace(/\d+(?:\s\d{3})*\s*[–—-]\s*\d+(?:\s\d{3})*/g, (match) => `${LRI}${match}${PDI}`);
+  const priceLabel = (value: number) => `${LRI}${money(value)}${PDI} ${brand.currency[language]}`;
 
   const selectedPackage = useMemo(
     () => DIGITAL_PACKAGES.find((pkg) => pkg.id === form.packageId),
@@ -412,7 +419,7 @@ export function DigitalServices() {
 
                   <div className="mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-muted px-3 py-1 text-[11px] font-semibold text-muted-foreground">
                     <Clock3 className="h-3.5 w-3.5" />
-                    {t(service.delivery)}
+                    {bidiRanges(t(service.delivery))}
                   </div>
 
                   <ul className="mt-4 space-y-2">
@@ -421,7 +428,7 @@ export function DigitalServices() {
                         <span className="mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
                           <Check className="h-3 w-3" strokeWidth={3} />
                         </span>
-                        <span className="text-muted-foreground">{t(feature)}</span>
+                        <span className="text-muted-foreground">{bidiRanges(t(feature))}</span>
                       </li>
                     ))}
                   </ul>
@@ -511,7 +518,7 @@ export function DigitalServices() {
                       >
                         <Check className="h-2.5 w-2.5" strokeWidth={3.5} />
                       </span>
-                      <span className={pkg.featured ? 'text-white/90' : 'text-muted-foreground'}>{t(feature)}</span>
+                      <span className={pkg.featured ? 'text-white/90' : 'text-muted-foreground'}>{bidiRanges(t(feature))}</span>
                     </li>
                   ))}
                 </ul>
@@ -633,7 +640,7 @@ export function DigitalServices() {
                         transition={{ duration: 0.25 }}
                         className="overflow-hidden"
                       >
-                        <p className="px-4 pb-4 text-sm leading-relaxed text-muted-foreground">{t(faq.answer)}</p>
+                        <p className="px-4 pb-4 text-sm leading-relaxed text-muted-foreground">{bidiRanges(t(faq.answer))}</p>
                       </motion.div>
                     )}
                   </div>
