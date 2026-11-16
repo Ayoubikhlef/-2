@@ -142,7 +142,7 @@ export function LoginPage({ onClose, onAuthenticated }: { onClose: () => void; o
   const [registeredEmail, setRegisteredEmail] = useState('');
   const [unverifiedEmail, setUnverifiedEmail] = useState('');
   const [twoFactorCode, setTwoFactorCode] = useState('');
-  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotEmail, setForgotEmail] = useState(() => readRememberedEmail());
   const [resetForm, setResetForm] = useState({ password: '', confirmPassword: '' });
   const [token, setToken] = useState<string | null>(null);
   const [showLoginPassword, setShowLoginPassword] = useState(false);
@@ -150,14 +150,17 @@ export function LoginPage({ onClose, onAuthenticated }: { onClose: () => void; o
   const [showResetPassword, setShowResetPassword] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
 
-  // Password-reset links may still arrive as ?token=... on the storefront.
+  // Password-reset links may still arrive as ?token=... on the storefront;
+  // the "invalid link" page links back with ?forgot=1 to open recovery.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const extracted = params.get('token');
     if (extracted) {
       setToken(extracted);
       setMode('reset');
+      return;
     }
+    if (params.get('forgot') === '1') setMode('forgot');
   }, []);
 
   // The dialog is full-screen; keep the storefront behind it from scrolling.
@@ -376,7 +379,18 @@ export function LoginPage({ onClose, onAuthenticated }: { onClose: () => void; o
       cleanUrl.searchParams.delete('token');
       window.history.replaceState(null, '', `${cleanUrl.pathname}${cleanUrl.search}${cleanUrl.hash}`);
     } catch (err: any) {
-      setError(err.message || t({ ar: 'تعذّر تغيير كلمة المرور', fr: 'Impossible de changer le mot de passe', en: 'Could not change the password' }));
+      // The API answers with a generic English message; guide the customer in
+      // their own language and point at the recovery form.
+      const raw = String(err?.message || '');
+      setError(
+        /invalid|expired/i.test(raw)
+          ? t({
+              ar: 'الرابط غير صالح أو انتهت صلاحيته. اطلب رابطاً جديداً من «نسيت كلمة المرور؟».',
+              fr: 'Lien invalide ou expiré. Demandez un nouveau lien via « Mot de passe oublié ? ».',
+              en: 'Invalid or expired link. Request a new one from “Forgot password?”.',
+            })
+          : raw || t({ ar: 'تعذّر تغيير كلمة المرور', fr: 'Impossible de changer le mot de passe', en: 'Could not change the password' })
+      );
     } finally {
       setLoading(false);
     }
@@ -945,6 +959,17 @@ export function LoginPage({ onClose, onAuthenticated }: { onClose: () => void; o
               <button
                 type="button"
                 onClick={() => {
+                  setMode('forgot');
+                  setError('');
+                }}
+                className={`${linkClass} mx-auto block`}
+              >
+                {t({ ar: 'انتهت صلاحية الرابط؟ اطلب رابطاً جديداً', fr: 'Lien expiré ? Demandez-en un nouveau', en: 'Link expired? Request a new one' })}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
                   setMode('login');
                   setError('');
                   setToken(null);
@@ -967,6 +992,16 @@ export function LoginPage({ onClose, onAuthenticated }: { onClose: () => void; o
               <p className="text-[13px] leading-6 text-slate-400">
                 {t({ ar: 'الرابط غير صالح أو منتهي الصلاحية', fr: 'Le lien est invalide ou expiré', en: 'The link is invalid or expired' })}
               </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setMode('forgot');
+                  setError('');
+                }}
+                className="aos-auth-sweep flex h-11 items-center justify-center rounded-2xl bg-gradient-to-r from-blue-600 to-sky-500 px-6 text-[14px] font-bold text-white shadow-[0_14px_30px_-14px_rgba(37,99,235,.95)] transition hover:-translate-y-0.5"
+              >
+                {t({ ar: 'طلب رابط جديد', fr: 'Demander un nouveau lien', en: 'Request a new link' })}
+              </button>
               <button
                 type="button"
                 onClick={() => {

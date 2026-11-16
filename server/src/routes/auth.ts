@@ -43,7 +43,8 @@ const forgotSchema = z.object({
 });
 
 const resetSchema = z.object({
-  token: z.string().regex(/^[a-f0-9]{64}$/i),
+  // Copying a link from an email can pick up a trailing space or newline.
+  token: z.string().trim().regex(/^[a-f0-9]{64}$/i),
   password: z.string().min(12),
 });
 
@@ -335,6 +336,54 @@ async function sendResetEmail(email: string, token: string, userName: string) {
       </div>
     `
   );
+}
+
+/**
+ * Friendly page for reset links that lost their token or were altered. A raw
+ * 400 text left the customer with no way forward; this page points them back
+ * to the recovery form so they can request a fresh link.
+ */
+function sendInvalidResetPage(res: Response) {
+  const storeUrl = siteUrl();
+  res.status(400);
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; frame-ancestors 'none'"
+  );
+  res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  res.type('html').send(`
+      <!DOCTYPE html>
+      <html lang="ar" dir="rtl">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="robots" content="noindex, nofollow" />
+        <title>رابط إعادة التعيين غير صالح | AOS Tech Store</title>
+        <style>
+          body { font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif; background: radial-gradient(circle at 50% 25%, #1e3a8a 0%, #0f172a 55%, #020617 100%); color: #e2e8f0; margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+          .card { background: #111f38; border: 1px solid rgba(96,165,250,.25); border-radius: 28px; box-shadow: 0 0 60px rgba(59,130,246,.18); padding: 40px 32px; max-width: 440px; width: 100%; box-sizing: border-box; text-align: center; }
+          .icon { display: grid; place-items: center; width: 64px; height: 64px; margin: 0 auto 18px; border-radius: 20px; background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.3); font-size: 30px; }
+          h1 { margin: 0 0 10px; font-size: 21px; }
+          p { margin: 0 0 8px; font-size: 14px; line-height: 1.9; color: #94a3b8; }
+          .btn { display: block; margin: 24px 0 12px; padding: 14px 24px; border-radius: 16px; background: linear-gradient(90deg,#2563eb,#38bdf8); color: #fff; text-decoration: none; font-weight: 800; font-size: 15px; }
+          .link { color: #94a3b8; font-size: 13px; }
+          .muted { margin-top: 20px; font-size: 12px; color: #64748b; line-height: 1.8; }
+        </style>
+      </head>
+      <body>
+        <main class="card">
+          <div class="icon" aria-hidden="true">🔒</div>
+          <h1>رابط إعادة التعيين غير صالح</h1>
+          <p>الرابط الذي فتحته غير مكتمل أو لم يعد صالحاً.</p>
+          <p>اطلب رابطاً جديداً ثم أعد المحاولة.</p>
+          <a class="btn" href="${storeUrl}/login?forgot=1">طلب رابط جديد</a>
+          <a class="link" href="${storeUrl}">العودة إلى المتجر</a>
+          <p class="muted" dir="ltr">Lien invalide ou incomplet. Demandez un nouveau lien.<br />Invalid or incomplete link. Request a new one.</p>
+        </main>
+      </body>
+      </html>
+    `);
 }
 
 // --- Routes ---
@@ -1061,8 +1110,9 @@ authRouter.get('/reset-password', async (req, res) => {
     const { token } = req.query as { token?: string };
     // Tokens are generated as 32 random bytes encoded in hex. Enforcing that
     // format also keeps the value safe when the reset page embeds it in JS.
-    if (!token || !/^[a-f0-9]{64}$/i.test(token)) return res.status(400).send('Invalid reset token');
-    const sanitizedToken = token;
+    // Trim first: copying a link from an email often adds a trailing space.
+    const sanitizedToken = String(token || '').trim();
+    if (!/^[a-f0-9]{64}$/i.test(sanitizedToken)) return sendInvalidResetPage(res);
 
     // Helmet's global policy blocks inline scripts, so this page gets its own
     // nonce-based policy. Without it the form silently does nothing in
@@ -1075,56 +1125,71 @@ authRouter.get('/reset-password', async (req, res) => {
     res.setHeader('Cache-Control', 'no-store');
     res.setHeader('Referrer-Policy', 'no-referrer');
 
+    const loginUrl = `${siteUrl()}/login`;
+
     res.type('html').send(`
       <!DOCTYPE html>
       <html lang="ar" dir="rtl">
       <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Reset Password</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="robots" content="noindex, nofollow" />
+        <title>إعادة تعيين كلمة المرور | AOS Tech Store</title>
         <style>
-          body { font-family: Arial, sans-serif; background: #0f172a; color: #e2e8f0; margin: 0; padding: 20px; }
-          .card { background: #1e293b; border-radius: 28px; box-shadow: 0 0 40px rgba(59,130,246,.15); padding: 40px; max-width: 400px; margin: 0 auto; }
-          input { width: 100%; padding: 15px; margin: 10px 0; background: #1e293b; border: none; border-radius: 20px; color: #e2e8f0; }
-          button { width: 100%; padding: 15px; background: #1e293b; color: #e2e8f0; border: none; border-radius: 20px; font-size: 16px; font-weight: 700; cursor: pointer; }
-          .error { color: #ef4444; margin: 10px 0; }
-          .success { color: #22c55e; margin: 10px 0; }
+          body { font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif; background: radial-gradient(circle at 50% 25%, #1e3a8a 0%, #0f172a 55%, #020617 100%); color: #e2e8f0; margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+          .card { background: #111f38; border: 1px solid rgba(96,165,250,.22); border-radius: 28px; box-shadow: 0 0 50px rgba(59,130,246,.16); padding: 40px 32px; max-width: 420px; width: 100%; box-sizing: border-box; }
+          .brand { text-align: center; font-size: 12px; letter-spacing: .3em; color: #60a5fa; font-weight: 800; margin-bottom: 22px; }
+          h1 { margin: 0 0 10px; font-size: 21px; text-align: center; }
+          .hint { margin: 0 0 20px; font-size: 13.5px; line-height: 1.9; color: #94a3b8; text-align: center; }
+          label { display: block; font-size: 12.5px; font-weight: 700; color: #cbd5e1; margin: 14px 0 6px; }
+          input { width: 100%; box-sizing: border-box; padding: 14px 18px; background: #0a162b; border: 1px solid rgba(255,255,255,.08); border-radius: 16px; color: #e2e8f0; font-size: 15px; outline: none; }
+          input:focus { border-color: rgba(56,189,248,.7); background: #0b1a32; }
+          button { width: 100%; margin-top: 22px; padding: 15px; background: linear-gradient(90deg,#2563eb,#38bdf8); color: #fff; border: none; border-radius: 16px; font-size: 16px; font-weight: 800; cursor: pointer; }
+          button:disabled { opacity: .6; cursor: not-allowed; }
+          .error { color: #fca5a5; background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.25); border-radius: 14px; padding: 10px 14px; margin: 16px 0 0; font-size: 13px; line-height: 1.8; display: none; }
+          .success { color: #86efac; background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.25); border-radius: 14px; padding: 10px 14px; margin: 16px 0 0; font-size: 13px; line-height: 1.8; display: none; }
+          .muted { margin-top: 18px; font-size: 11.5px; color: #64748b; text-align: center; line-height: 1.8; }
         </style>
       </head>
       <body>
-        <div class="card">
-          <h2>Reset Password</h2>
-          <p>Enter your new password (at least 12 characters):</p>
-          <form id="resetForm">
-            <input type="password" name="password" required minlength="12" autocomplete="new-password" placeholder="New password">
-            <input type="password" name="confirmPassword" required minlength="12" autocomplete="new-password" placeholder="Confirm password">
-            <button type="submit">Set New Password</button>
+        <main class="card">
+          <div class="brand">AOS TECH STORE</div>
+          <h1>إعادة تعيين كلمة المرور</h1>
+          <p class="hint">أدخل كلمة المرور الجديدة (12 حرفاً على الأقل).</p>
+          <form id="resetForm" novalidate>
+            <label for="password">كلمة المرور الجديدة</label>
+            <input id="password" type="password" name="password" required minlength="12" autocomplete="new-password" placeholder="••••••••••••" />
+            <label for="confirmPassword">تأكيد كلمة المرور</label>
+            <input id="confirmPassword" type="password" name="confirmPassword" required minlength="12" autocomplete="new-password" placeholder="••••••••••••" />
+            <button type="submit" id="submitBtn">حفظ كلمة المرور</button>
           </form>
-          <div id="error" class="error"></div>
-          <div id="success" class="success"></div>
-        </div>
+          <div id="error" class="error" role="alert"></div>
+          <div id="success" class="success" role="status"></div>
+          <p class="muted" dir="ltr">New password (12+ characters) · Nouveau mot de passe (12 caractères minimum)</p>
+        </main>
         <script nonce="${nonce}">
           const form = document.getElementById('resetForm');
           const errorDiv = document.getElementById('error');
           const successDiv = document.getElementById('success');
+          const submitBtn = document.getElementById('submitBtn');
+
+          const showError = (message) => {
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            successDiv.style.display = 'none';
+          };
 
           form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const password = form.password.value;
             const confirmPassword = form.confirmPassword.value;
 
-            if (password !== confirmPassword) {
-              errorDiv.textContent = 'Passwords do not match';
-              return;
-            }
+            if (password !== confirmPassword) return showError('كلمتا المرور غير متطابقتين.');
+            if (password.length < 12) return showError('كلمة المرور يجب أن تكون 12 حرفاً على الأقل.');
 
-            if (password.length < 12) {
-              errorDiv.textContent = 'Password must be at least 12 characters';
-              return;
-            }
-
-            errorDiv.textContent = '';
-            successDiv.textContent = '';
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+            submitBtn.disabled = true;
 
             try {
               const response = await fetch('/api/auth/reset-password', {
@@ -1132,16 +1197,22 @@ authRouter.get('/reset-password', async (req, res) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ token: ${JSON.stringify(sanitizedToken)}, password })
               });
-              const data = await response.json();
+              const data = await response.json().catch(() => ({}));
 
-              if (data.ok) {
-                successDiv.textContent = 'Password reset successful! You can now log in.';
-                setTimeout(() => window.location.href = '/', 2000);
+              if (response.ok && data.ok) {
+                form.style.display = 'none';
+                successDiv.textContent = 'تم تغيير كلمة المرور بنجاح. سيتم تحويلك لتسجيل الدخول...';
+                successDiv.style.display = 'block';
+                setTimeout(() => { window.location.href = ${JSON.stringify(loginUrl)}; }, 2200);
+              } else if (data.error === 'Reset link is invalid or expired') {
+                showError('الرابط غير صالح أو انتهت صلاحيته. اطلب رابطاً جديداً من صفحة الدخول.');
               } else {
-                errorDiv.textContent = data.error || 'Failed to reset password';
+                showError(data.error || 'تعذّر تغيير كلمة المرور. حاول مرة أخرى.');
               }
             } catch (err) {
-              errorDiv.textContent = 'An error occurred';
+              showError('تعذّر الاتصال بالخادم. تحقق من الشبكة وحاول مرة أخرى.');
+            } finally {
+              submitBtn.disabled = false;
             }
           });
         </script>
