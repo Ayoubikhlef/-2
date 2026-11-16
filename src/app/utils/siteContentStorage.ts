@@ -215,15 +215,15 @@ const defaultContent: SiteContent = {
       {
         id: 'ai-tools',
         title: { ar: 'أدوات الذكاء الاصطناعي للتجارة الإلكترونية', fr: 'Outils IA pour le e-commerce', en: 'AI Tools for E-commerce' },
-        description: { ar: 'توليد أوصاف منتجات بالذكاء الاصطناعي، دردشات العملاء الآلية، تحليل المخزون الذكي', fr: 'Génération d\'descriptions de produits par IA, chatbots clients automatisés, analyse intelligente des stocks', en: 'AI-generated product descriptions, automated customer service chatbots, intelligent inventory analysis' },
-        image: '/products/ai-tools.jpg',
+        description: { ar: 'توليد أوصاف منتجات بالذكاء الاصطناعي، دردشات العملاء الآلية، تحليل المخزون الذكي', fr: 'Génération de descriptions de produits par IA, chatbots clients automatisés, analyse intelligente des stocks', en: 'AI-generated product descriptions, automated customer service chatbots, intelligent inventory analysis' },
+        image: '/products/30.jpg',
         color: 'from-violet-500 to-purple-600',
       },
       {
         id: 'ai-automation',
         title: { ar: 'قوالب الأتمتة الذكية', fr: 'Modèles d\'automatisation intelligente', en: 'Smart Automation Templates' },
         description: { ar: 'قوالب أتمتة التسويق، إدارة المبيعات الآلية، وتحسين تجربة العملاء بالذكاء الاصطناعي', fr: 'Templates d\'automatisation marketing, vente automatisée, et amélioration de l\'expérience client par IA', en: 'Marketing automation templates, sales automation, and AI-powered customer experience optimization' },
-        image: '/products/ai-automation.jpg',
+        image: '/products/34.webp',
         color: 'from-fuchsia-500 to-pink-600',
       },
     ],

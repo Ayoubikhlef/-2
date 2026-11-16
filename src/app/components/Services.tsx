@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Printer, FileText, Calendar, Wifi, Server, FileCheck, Zap, Shield, Globe, ArrowRight } from 'lucide-react';
+import { Printer, FileText, Calendar, Wifi, Server, FileCheck, Zap, Shield, Globe, ArrowRight, Brain, TrendingUp } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getSiteContent } from '../utils/siteContentStorage';
 import { motion } from 'motion/react';
-
-import { Database } from 'lucide-react';
 
 const cardIcons = [Printer, FileText, Calendar, Wifi, Server, Brain, Zap, TrendingUp];
 const digiIcons = [FileCheck, Zap, Shield];
