@@ -1,7 +1,8 @@
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getOrders, loadOrdersFromServer, type OrderRecord, type OrderStatus } from '../utils/orderStorage';
-import { api, type CustomerAccount } from '../utils/api';
+import { api, type CustomerAccount, type CustomerFlag } from '../utils/api';
+import { normalizePhone } from '../utils/phone';
 import {
   Search, Phone, Mail, ShoppingBag, Calendar, ChevronDown, ChevronUp, Download,
   AlertTriangle, FileText, Users, RefreshCw, BadgeCheck, ShieldCheck, MapPin, UserPlus,
@@ -35,6 +36,8 @@ export function CustomersTab() {
   const [noteInput, setNoteInput] = useState<Record<string, string>>({});
   const [orders, setOrders] = useState<OrderRecord[]>(() => getOrders());
   const [accounts, setAccounts] = useState<CustomerAccount[]>([]);
+  const [flags, setFlags] = useState<CustomerFlag[]>([]);
+  const [busyKey, setBusyKey] = useState<string | null>(null);
   const [accountsError, setAccountsError] = useState(false);
   const [loadingAccounts, setLoadingAccounts] = useState(true);
 
@@ -68,6 +71,7 @@ export function CustomersTab() {
     try {
       const data = await api.customers.list();
       setAccounts(data.customers);
+      setFlags(data.flags);
       setAccountsError(false);
     } catch {
       setAccountsError(true);
@@ -117,7 +121,8 @@ export function CustomersTab() {
     const guests = new Map<string, CustomerRow>();
     for (const order of orders) {
       if (claimed.has(order.id)) continue;
-      const key = order.phone || order.id;
+      const normalizedPhone = normalizePhone(order.phone);
+      const key = normalizedPhone ? `guest:${normalizedPhone}` : `guest:order:${order.id}`;
       const existing = guests.get(key);
       const history: HistoryOrder = {
         id: order.id,
@@ -169,58 +174,100 @@ export function CustomersTab() {
     );
   }, [customers, search]);
 
-  const getBlockedCustomers = (): string[] => {
-    if (typeof window === 'undefined') return [];
-    try {
-      const raw = localStorage.getItem('aos_blocked_customers');
-      return raw ? JSON.parse(raw) : [];
-    } catch {
-      return [];
+  // Blocks and notes live on the server so they follow the owner between
+  // devices and actually stop orders placed with a blocked phone.
+  const flagFor = useCallback(
+    (row: CustomerRow) => {
+      if (row.account) {
+        return (
+          flags.find((flag) => flag.userId === row.account!.id) ??
+          flags.find((flag) => flag.key === row.account!.flagKey)
+        );
+      }
+      return flags.find((flag) => flag.key === row.key);
+    },
+    [flags]
+  );
+
+  const isBlocked = (row: CustomerRow) => Boolean(row.account?.blocked || flagFor(row)?.blocked);
+
+  const getNote = (row: CustomerRow) => flagFor(row)?.note ?? row.account?.note ?? '';
+
+  const applyFlag = (flag: CustomerFlag) => {
+    setFlags((prev) => [flag, ...prev.filter((entry) => entry.key !== flag.key)]);
+    if (flag.userId) {
+      setAccounts((prev) =>
+        prev.map((account) =>
+          account.id === flag.userId
+            ? {
+                ...account,
+                blocked: flag.blocked,
+                isActive: !flag.blocked,
+                blockReason: flag.reason,
+                note: flag.note,
+                flagKey: flag.key,
+              }
+            : account
+        )
+      );
     }
   };
 
-  const isBlocked = (key: string) => getBlockedCustomers().includes(key);
-
-  const toggleBlock = (key: string) => {
-    const current = getBlockedCustomers();
-    const next = current.includes(key)
-      ? current.filter((entry) => entry !== key)
-      : [...current, key];
-    localStorage.setItem('aos_blocked_customers', JSON.stringify(next));
-    toast.success(
-      current.includes(key)
-        ? t({ ar: 'تم إلغاء حظر العميل', fr: 'Client débloqué', en: 'Customer unblocked' })
-        : t({ ar: 'تم حظر العميل', fr: 'Client bloqué', en: 'Customer blocked' })
-    );
-  };
-
-  const getNotes = (): Record<string, string> => {
-    if (typeof window === 'undefined') return {};
+  const toggleBlock = async (row: CustomerRow) => {
+    if (busyKey) return;
+    const blocked = !isBlocked(row);
+    setBusyKey(row.key);
     try {
-      const raw = localStorage.getItem('aos_customer_notes');
-      return raw ? JSON.parse(raw) : {};
-    } catch {
-      return {};
+      const { flag } = await api.customers.updateFlag(
+        row.account
+          ? { accountId: row.account.id, blocked }
+          : { phone: row.phone, email: row.email || undefined, name: row.name, blocked }
+      );
+      applyFlag(flag);
+      toast.success(
+        blocked
+          ? t({ ar: 'تم حظر العميل', fr: 'Client bloqué', en: 'Customer blocked' })
+          : t({ ar: 'تم إلغاء حظر العميل', fr: 'Client débloqué', en: 'Customer unblocked' })
+      );
+    } catch (err: any) {
+      toast.error(
+        err?.message ||
+          t({ ar: 'تعذّر تحديث الحظر', fr: 'Impossible de mettre à jour le blocage', en: 'Could not update the block' })
+      );
+    } finally {
+      setBusyKey(null);
     }
-  };
-
-  const getNote = (key: string) => getNotes()[key] || '';
-
-  const saveNote = (key: string, text: string) => {
-    const current = getNotes();
-    const next = { ...current, [key]: text };
-    localStorage.setItem('aos_customer_notes', JSON.stringify(next));
   };
 
   const handleNoteChange = (key: string, value: string) => {
     setNoteInput((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleNoteSave = (key: string) => {
-    const text = noteInput[key] || '';
-    saveNote(key, text);
-    toast.success(t({ ar: 'تم حفظ الملاحظة', fr: 'Note enregistrée', en: 'Note saved' }));
-    setNoteInput((prev) => ({ ...prev, [key]: '' }));
+  const handleNoteSave = async (row: CustomerRow) => {
+    if (busyKey) return;
+    const text = noteInput[row.key] ?? getNote(row);
+    setBusyKey(row.key);
+    try {
+      const { flag } = await api.customers.updateFlag(
+        row.account
+          ? { accountId: row.account.id, note: text }
+          : { phone: row.phone, email: row.email || undefined, name: row.name, note: text }
+      );
+      applyFlag(flag);
+      setNoteInput((prev) => {
+        const next = { ...prev };
+        delete next[row.key];
+        return next;
+      });
+      toast.success(t({ ar: 'تم حفظ الملاحظة', fr: 'Note enregistrée', en: 'Note saved' }));
+    } catch (err: any) {
+      toast.error(
+        err?.message ||
+          t({ ar: 'تعذّر حفظ الملاحظة', fr: "Impossible d'enregistrer la note", en: 'Could not save the note' })
+      );
+    } finally {
+      setBusyKey(null);
+    }
   };
 
   const formatDate = (dateStr: string | null) => {
@@ -260,7 +307,7 @@ export function CustomersTab() {
         c.orderCount,
         c.totalSpent,
         c.lastOrderDate ? new Date(c.lastOrderDate).toLocaleDateString('en-CA') : '—',
-        isBlocked(c.key)
+        isBlocked(c)
           ? t({ ar: 'محظور', fr: 'Bloqué', en: 'Blocked' })
           : t({ ar: 'نشط', fr: 'Actif', en: 'Active' }),
       ].join(',')
@@ -276,6 +323,8 @@ export function CustomersTab() {
     toast.success(t({ ar: 'تم تصدير البيانات', fr: 'Données exportées', en: 'Data exported' }));
   };
 
+  const blockedCount = customers.filter((row) => isBlocked(row)).length;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -285,9 +334,9 @@ export function CustomersTab() {
           </h3>
           <p className="text-sm text-white/50 mt-1">
             {t({
-              ar: `${customers.length} عميل (${accounts.length} حساب مسجّل) - ${orders.length} طلب`,
-              fr: `${customers.length} clients (${accounts.length} comptes) - ${orders.length} commandes`,
-              en: `${customers.length} customers (${accounts.length} accounts) - ${orders.length} orders`,
+              ar: `${customers.length} عميل (${accounts.length} حساب مسجّل${blockedCount ? ` · ${blockedCount} محظور` : ''}) - ${orders.length} طلب`,
+              fr: `${customers.length} clients (${accounts.length} comptes${blockedCount ? ` · ${blockedCount} bloqués` : ''}) - ${orders.length} commandes`,
+              en: `${customers.length} customers (${accounts.length} accounts${blockedCount ? ` · ${blockedCount} blocked` : ''}) - ${orders.length} orders`,
             })}
           </p>
         </div>
@@ -345,9 +394,9 @@ export function CustomersTab() {
       ) : (
         <div className="space-y-3">
           {filtered.map((customer) => {
-            const blocked = isBlocked(customer.key);
+            const blocked = isBlocked(customer);
             const isExpanded = expandedKey === customer.key;
-            const existingNote = getNote(customer.key);
+            const existingNote = getNote(customer);
             const showNoteInput = noteInput[customer.key] !== undefined;
             const account = customer.account;
 
@@ -408,12 +457,24 @@ export function CustomersTab() {
                           </span>
                         )}
                         {blocked && (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-500/20 text-red-400 border border-red-500/30">
+                          <span
+                            title={flagFor(customer)?.reason || undefined}
+                            className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-500/20 text-red-400 border border-red-500/30"
+                          >
                             <AlertTriangle className="w-3 h-3" />
                             {t({ ar: 'محظور', fr: 'Bloqué', en: 'Blocked' })}
                           </span>
                         )}
                       </div>
+                      {blocked && (
+                        <p className="mt-1.5 text-xs text-red-300/80">
+                          {t({
+                            ar: 'الطلبات القادمة من هذا الهاتف أو البريد ستُرفض تلقائياً، والحساب المحظور لا يستطيع تسجيل الدخول.',
+                            fr: 'Les commandes avec ce téléphone ou cet email seront refusées, et le compte bloqué ne peut plus se connecter.',
+                            en: 'Orders from this phone or email are rejected automatically, and a blocked account cannot sign in.',
+                          })}
+                        </p>
+                      )}
                       <div className="flex items-center gap-4 mt-2 text-sm text-white/60 flex-wrap">
                         {customer.phone && (
                           <span className="inline-flex items-center gap-1.5">
@@ -460,13 +521,17 @@ export function CustomersTab() {
                       </div>
 
                       <button
-                        onClick={() => toggleBlock(customer.key)}
-                        className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all border ${
+                        onClick={() => toggleBlock(customer)}
+                        disabled={busyKey !== null}
+                        className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all border disabled:opacity-50 ${
                           blocked
                             ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/30'
                             : 'bg-red-500/20 text-red-400 border-red-500/30 hover:bg-red-500/30'
                         }`}
                       >
+                        {busyKey === customer.key && (
+                          <RefreshCw className="inline w-3.5 h-3.5 mr-1 animate-spin" />
+                        )}
                         {blocked
                           ? t({ ar: 'إلغاء الحظر', fr: 'Débloquer', en: 'Unblock' })
                           : t({ ar: 'حظر', fr: 'Bloquer', en: 'Block' })}
@@ -592,8 +657,9 @@ export function CustomersTab() {
                           className="flex-1 rounded-xl border border-white/10 bg-slate-800 px-4 py-2.5 text-sm text-white outline-none focus:border-primary"
                         />
                         <button
-                          onClick={() => handleNoteSave(customer.key)}
-                          className="px-4 py-2.5 rounded-xl bg-primary text-slate-950 text-sm font-bold hover:bg-primary/90 transition-all"
+                          onClick={() => handleNoteSave(customer)}
+                          disabled={busyKey !== null}
+                          className="px-4 py-2.5 rounded-xl bg-primary text-slate-950 text-sm font-bold hover:bg-primary/90 transition-all disabled:opacity-50"
                         >
                           {t({ ar: 'حفظ', fr: 'Sauvegarder', en: 'Save' })}
                         </button>

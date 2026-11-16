@@ -152,6 +152,16 @@ export function LoginPage({ onClose }: { onClose: () => void }) {
       toast.success(t({ ar: 'تم تسجيل الدخول', fr: 'Connecté', en: 'Signed in' }));
       onClose();
     } catch (err: any) {
+      if (err?.code === 'ACCOUNT_BLOCKED') {
+        setError(
+          t({
+            ar: 'تم حظر هذا الحساب من المتجر. إن كنت تعتقد أن ذلك خطأ، تواصل معنا.',
+            fr: 'Ce compte a été bloqué par la boutique. Contactez-nous si vous pensez qu’il s’agit d’une erreur.',
+            en: 'This account has been blocked by the store. Contact us if you think this is a mistake.',
+          })
+        );
+        return;
+      }
       if (err?.code === 'EMAIL_NOT_VERIFIED') {
         setUnverifiedEmail(form.email.trim());
         setError(

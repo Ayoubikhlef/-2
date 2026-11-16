@@ -652,7 +652,18 @@ authRouter.post('/login', async (req, res: Response) => {
       }
     }
 
-    if (!user.isActive) throw new Unauthorized('Account is deactivated');
+    if (!user.isActive) {
+      // A customer blocked from the owner's dashboard must not learn anything
+      // beyond the fact that the account is closed. Admins keep the generic
+      // deactivation response used by the rest of the auth flow.
+      if (user.role === 'CUSTOMER') {
+        return res.status(403).json({
+          error: 'This account has been blocked by the store. Please contact us if you think this is a mistake.',
+          code: 'ACCOUNT_BLOCKED',
+        });
+      }
+      throw new Unauthorized('Account is deactivated');
+    }
 
     // Only the owner's admins and customers may sign in.
     if (!canSignIn(user.role)) {

@@ -13,6 +13,7 @@ import { getCached, setCache, clearCache } from '../utils/cache';
 import { fixMojibakeData } from '../utils/encoding';
 import { quoteOrderDelivery, parseLocalityIdFromLabel } from '../services/delivery';
 import type { PricedItemInput } from '../data/deliveryTariff';
+import { findActiveBlock } from '../services/customerFlags';
 
 export const orderRouter = Router();
 
@@ -298,6 +299,17 @@ orderRouter.post('/', createOrderLimiter, async (req: Request, res: Response) =>
       `[Orders] POST create source=${data.source} email=${data.email ? 'yes' : 'empty'} ` +
       `wilaya=${JSON.stringify(data.wilaya)} items=${data.items.length} ua=${req.headers['user-agent'] || 'n/a'}`
     );
+
+    // Owner-imposed block: checked before pricing, stock or duplicate handling
+    // so a blocked phone/email cannot place any order, signed in or as a guest.
+    const activeBlock = await findActiveBlock({ phone: data.phone, email: data.email });
+    if (activeBlock) {
+      console.warn(`[Orders] Blocked customer rejected (${activeBlock.key})`);
+      return res.status(403).json({
+        error: 'This phone number has been blocked by the store. Please contact us if you think this is a mistake.',
+        code: 'CUSTOMER_BLOCKED',
+      });
+    }
     const isService = data.source === 'service-booking';
 
     // The client sends a stable id. If the same submit is retried (timeout,

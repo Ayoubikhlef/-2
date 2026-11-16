@@ -65,6 +65,11 @@ export function describeOrderError(err: any, language: 'ar' | 'fr' | 'en'): stri
     if (language === 'fr') return "Ce produit n'est plus disponible. Actualisez la page et choisissez un autre produit.";
     return 'This product is no longer available. Refresh the page and choose another item.';
   }
+  if (err?.code === 'CUSTOMER_BLOCKED') {
+    if (language === 'ar') return 'لا يمكن إتمام الطلب بهذا الرقم لأنه محظور من المتجر. تواصل معنا إن كنت تعتقد أن ذلك خطأ.';
+    if (language === 'fr') return 'Ce numéro est bloqué par la boutique, la commande ne peut pas être passée. Contactez-nous si vous pensez qu’il s’agit d’une erreur.';
+    return 'This phone number is blocked by the store, so the order cannot be placed. Contact us if you think this is a mistake.';
+  }
   return null;
 }
 

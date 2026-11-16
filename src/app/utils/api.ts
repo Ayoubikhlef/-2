@@ -218,6 +218,28 @@ export type CustomerOrderSummary = {
   items: { name: string; quantity: number; price: number }[];
 };
 
+export type CustomerFlag = {
+  key: string;
+  userId: string | null;
+  phone: string | null;
+  email: string | null;
+  name: string | null;
+  blocked: boolean;
+  reason: string | null;
+  note: string | null;
+  updatedAt: string;
+};
+
+export type CustomerFlagUpdate = {
+  accountId?: string;
+  phone?: string;
+  email?: string;
+  name?: string;
+  blocked?: boolean;
+  reason?: string | null;
+  note?: string | null;
+};
+
 export type CustomerAccount = {
   id: string;
   name: string;
@@ -228,6 +250,10 @@ export type CustomerAccount = {
   isActive: boolean;
   twoFactorEnabled: boolean;
   isLocked: boolean;
+  blocked: boolean;
+  blockReason: string | null;
+  note: string | null;
+  flagKey: string;
   failedLoginAttempts: number;
   lastActivityAt: string | null;
   createdAt: string;
@@ -239,6 +265,12 @@ export type CustomerAccount = {
   lastOrderAt: string | null;
   orderIds: string[];
   orders: CustomerOrderSummary[];
+};
+
+export type CustomerListResponse = {
+  customers: CustomerAccount[];
+  flags: CustomerFlag[];
+  totals: { accounts: number; matchedOrders: number; blocked: number };
 };
 
 export const api = {
@@ -369,9 +401,14 @@ export const api = {
 
   customers: {
     list: (search?: string) =>
-      request<{ customers: CustomerAccount[]; totals: { accounts: number; matchedOrders: number } }>(
+      request<CustomerListResponse>(
         `/customers${search?.trim() ? `?search=${encodeURIComponent(search.trim())}` : ''}`
       ),
+    updateFlag: (data: CustomerFlagUpdate) =>
+      request<{ flag: CustomerFlag }>('/customers/flag', {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      }),
   },
 
   reviews: {
