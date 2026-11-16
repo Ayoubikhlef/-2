@@ -145,6 +145,21 @@ export const defaultServices: ServiceCategory[] = [
       { value: 'design-poster', ar: 'تصميم بوستر', fr: 'Design poster', en: 'Poster Design' },
     ],
   },
+  {
+    id: 13,
+    key: 'digital',
+    label: { ar: '💻 الخدمات الرقمية', fr: '💻 Services numériques', en: '💻 Digital Services' },
+    options: [
+      { value: 'digital-store', ar: 'متجر إلكتروني كامل', fr: 'Boutique en ligne complète', en: 'Complete online store' },
+      { value: 'digital-website', ar: 'موقع تعريفي احترافي', fr: 'Site vitrine professionnel', en: 'Professional presentation website' },
+      { value: 'digital-social', ar: 'إدارة السوشيال ميديا والإعلانات', fr: 'Réseaux sociaux et publicités', en: 'Social media & ads management' },
+      { value: 'digital-hosting', ar: 'استضافة ونطاق وبريد ونسخ احتياطي', fr: 'Hébergement, domaine, e-mail et sauvegardes', en: 'Hosting, domain, email & backups' },
+      { value: 'digital-pos', ar: 'نظام نقاط البيع والمحاسبة', fr: 'Système de caisse et comptabilité', en: 'POS & accounting system' },
+      { value: 'digital-network', ar: 'شبكات وكاميرات مراقبة', fr: 'Réseaux et caméras de surveillance', en: 'Networks & CCTV cameras' },
+      { value: 'digital-training', ar: 'تكوين Excel وCanva والذكاء الاصطناعي', fr: 'Formation Excel, Canva et IA', en: 'Excel, Canva & AI training' },
+      { value: 'digital-maintenance', ar: 'صيانة وحماية الموقع', fr: 'Maintenance et protection du site', en: 'Website maintenance & protection' },
+    ],
+  },
 ];
 
 export function getAllServiceOptions(services: ServiceCategory[]): ServiceOption[] {

@@ -7,6 +7,7 @@ import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { Products } from './components/Products';
 import { Services } from './components/Services';
+import { DigitalServices } from './components/DigitalServices';
 import { ServiceBooking } from './components/ServiceBooking';
 import { WhyUs } from './components/WhyUs';
 import { FAQ } from './components/FAQ';
@@ -223,7 +224,7 @@ export default function App() {
     typeof window !== 'undefined' && window.location.pathname.replace(/\/+$/, '') === '/create-website';
   const productSlug = typeof window !== 'undefined' ? productPathFromUrl(window.location.pathname) : null;
   const isProductPage = Boolean(productSlug);
-  const is404 = !isFactoryPage && !isProductPage && !isLoginRoute && typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#hqpanel', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq', '#web', '#demo', '#order-tracking'].includes(hash);
+  const is404 = !isFactoryPage && !isProductPage && !isLoginRoute && typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#digital-services', '#digital-quote', '#hqpanel', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq', '#web', '#demo', '#order-tracking'].includes(hash);
   const [maintenance, setMaintenance] = useState(false);
   // Render immediately for returning visitors (the flag is cached locally)
   // and refresh it in the background. Only the very first visit waits, with
@@ -246,7 +247,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const sectionHash = ['#products', '#booking', '#services', '#contact', '#wishlist', '#faq', '#order-tracking'];
+    const sectionHash = ['#products', '#booking', '#services', '#digital-services', '#digital-quote', '#contact', '#wishlist', '#faq', '#order-tracking'];
     if (sectionHash.includes(hash)) {
       const id = hash.slice(1);
       const timer = setTimeout(() => {
@@ -536,6 +537,7 @@ export default function App() {
                     <Wishlist />
                     <ServiceBooking />
                     <Services />
+                    <DigitalServices />
                     <WhyUs />
                     <Testimonials />
                     <FAQ />
