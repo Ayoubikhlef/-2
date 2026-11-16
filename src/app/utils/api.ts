@@ -36,6 +36,25 @@ export function setStoredUser(user: any | null) {
   else localStorage.removeItem('aos_user');
 }
 
+const SESSION_MARKER = 'aos_session';
+
+/**
+ * The refresh token is HttpOnly, so JavaScript cannot see it. This readable,
+ * non-sensitive marker tells the storefront that a session may exist and that
+ * calling /auth/refresh is worthwhile (for example after an OAuth redirect).
+ */
+export function hasSessionMarker(): boolean {
+  if (typeof document === 'undefined') return false;
+  return document.cookie
+    .split(';')
+    .some((entry) => entry.trim() === `${SESSION_MARKER}=1`);
+}
+
+export function clearSessionMarker() {
+  if (typeof document === 'undefined') return;
+  document.cookie = `${SESSION_MARKER}=; Max-Age=0; path=/; SameSite=Lax`;
+}
+
 function getUrls(path: string): string[] {
   const urls = [PRIMARY_URL];
   if (PRIMARY_URL === '/api') {
@@ -58,6 +77,17 @@ export function resolveApiUrl(path: string): string {
     : PRIMARY_URL;
   const origin = base.replace(/\/api\/?$/i, '');
   return `${origin}${path.startsWith('/') ? path : `/${path}`}`;
+}
+
+/**
+ * Absolute URL for a top-level browser navigation to the API (OAuth start).
+ * Keeps the provider redirect on the same origin as the session cookies.
+ */
+export function apiUrl(path: string): string {
+  const base = PRIMARY_URL === '/api'
+    ? `${typeof window !== 'undefined' ? window.location.origin : ''}/api`
+    : PRIMARY_URL;
+  return `${base}${path.startsWith('/') ? path : `/${path}`}`;
 }
 
 async function request<T>(
@@ -177,6 +207,7 @@ export async function refreshToken(): Promise<{
     if (err?.status && err.status >= 400 && err.status < 500) {
       setAccessToken(null);
       setStoredUser(null);
+      clearSessionMarker();
     }
     return null;
   } finally {

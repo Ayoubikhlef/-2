@@ -1,19 +1,22 @@
 import { useEffect, useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
-import { api } from '../utils/api';
+import { api, apiUrl } from '../utils/api';
 import {
   AlertCircle,
   Check,
   Eye,
   EyeOff,
+  Globe,
   Headphones,
+  KeyRound,
   Loader2,
   Lock,
   LogIn,
   Mail,
   Phone,
   ShieldCheck,
+  TimerReset,
   User,
   Zap,
 } from 'lucide-react';
@@ -43,6 +46,68 @@ const SERVICES = [
   { ar: 'الصيانة', fr: 'Maintenance', en: 'Maintenance' },
 ];
 
+/**
+ * Only claims that are actually implemented server-side. Keeping this list
+ * honest matters more than looking impressive.
+ */
+const SECURITY_POINTS = [
+  {
+    icon: Globe,
+    title: { ar: 'اتصال مشفّر', fr: 'Connexion chiffrée', en: 'Encrypted link' },
+    body: {
+      ar: 'HTTPS/TLS على كل الصفحات',
+      fr: 'HTTPS/TLS sur toutes les pages',
+      en: 'HTTPS/TLS on every page',
+    },
+  },
+  {
+    icon: KeyRound,
+    title: { ar: 'تخزين bcrypt', fr: 'Stockage bcrypt', en: 'bcrypt storage' },
+    body: {
+      ar: 'كلمات المرور مجزّأة ولا تُقرأ',
+      fr: 'Mots de passe hachés, jamais lisibles',
+      en: 'Passwords hashed, never readable',
+    },
+  },
+  {
+    icon: TimerReset,
+    title: { ar: 'قفل تلقائي', fr: 'Verrouillage auto', en: 'Auto lockout' },
+    body: {
+      ar: '15 دقيقة بعد 5 محاولات',
+      fr: '15 min après 5 tentatives',
+      en: '15 minutes after 5 attempts',
+    },
+  },
+  {
+    icon: Lock,
+    title: { ar: 'جلسات محمية', fr: 'Sessions protégées', en: 'Protected sessions' },
+    body: {
+      ar: 'رموز HttpOnly ضد سرقة الجلسة',
+      fr: 'Jetons HttpOnly contre le vol de session',
+      en: 'HttpOnly tokens against session theft',
+    },
+  },
+];
+
+function GoogleMark() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-[18px] w-[18px] shrink-0" aria-hidden="true">
+      <path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47a5.53 5.53 0 0 1-2.4 3.63v3h3.88c2.27-2.09 3.54-5.17 3.54-8.87z" />
+      <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.94-2.91l-3.88-3c-1.08.72-2.45 1.15-4.06 1.15-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09A12 12 0 0 0 12 24z" />
+      <path fill="#FBBC05" d="M5.27 14.28a7.2 7.2 0 0 1 0-4.56V6.63H1.29a12 12 0 0 0 0 10.74l3.98-3.09z" />
+      <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.44-3.44A11.97 11.97 0 0 0 12 0 12 12 0 0 0 1.29 6.63l3.98 3.09C6.22 6.86 8.87 4.75 12 4.75z" />
+    </svg>
+  );
+}
+
+function GitHubMark() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-[18px] w-[18px] shrink-0 fill-current" aria-hidden="true">
+      <path d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2.17c-3.2.7-3.88-1.37-3.88-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.74.4-1.25.73-1.54-2.56-.29-5.25-1.28-5.25-5.68 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.06 0 0 .96-.31 3.15 1.18a10.9 10.9 0 0 1 5.74 0c2.19-1.49 3.15-1.18 3.15-1.18.63 1.59.23 2.77.11 3.06.74.81 1.19 1.84 1.19 3.1 0 4.41-2.69 5.38-5.26 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.79.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z" />
+    </svg>
+  );
+}
+
 const AUTH_STYLES = `
   @keyframes aosAuthUp {
     from { opacity: 0; transform: translate3d(0, 22px, 0); }
@@ -64,9 +129,16 @@ const AUTH_STYLES = `
     0% { transform: translateX(-140%) skewX(-18deg); }
     60%, 100% { transform: translateX(260%) skewX(-18deg); }
   }
+  @keyframes aosSecuritySweep {
+    0% { transform: translateY(-130%); opacity: 0; }
+    12% { opacity: .5; }
+    100% { transform: translateY(720%); opacity: 0; }
+  }
   .aos-auth-card { animation: aosAuthUp .72s cubic-bezier(.22, 1, .36, 1) .08s both; }
   .aos-auth-brand { animation: aosAuthFade 1s ease .05s both; }
   .aos-auth-panel { animation: aosAuthUp .5s cubic-bezier(.22, 1, .36, 1) both; }
+  .aos-auth-security { animation: aosAuthFade .8s ease .3s both; }
+  .aos-auth-security-scan { animation: aosSecuritySweep 6.5s ease-in-out infinite; }
   .aos-auth-logo { animation: aosAuthGlow 4.5s ease-in-out infinite; }
   .aos-auth-orb { animation: aosAuthFloat 15s ease-in-out infinite; }
   .aos-auth-sweep { position: relative; overflow: hidden; }
@@ -98,6 +170,8 @@ const AUTH_STYLES = `
     .aos-auth-card,
     .aos-auth-brand,
     .aos-auth-panel,
+    .aos-auth-security,
+    .aos-auth-security-scan,
     .aos-auth-logo,
     .aos-auth-orb { animation: none !important; }
     .aos-auth-sweep::after { display: none; }
@@ -149,9 +223,12 @@ export function LoginPage({ onClose, onAuthenticated }: { onClose: () => void; o
   const [showRegisterPassword, setShowRegisterPassword] = useState(false);
   const [showResetPassword, setShowResetPassword] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [oauthProviders, setOauthProviders] = useState({ google: false, github: false });
+  const [oauthProvider, setOauthProvider] = useState<'google' | 'github' | null>(null);
 
   // Password-reset links may still arrive as ?token=... on the storefront;
   // the "invalid link" page links back with ?forgot=1 to open recovery.
+  // OAuth callbacks that fail come back with a short reason code.
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const extracted = params.get('token');
@@ -161,6 +238,65 @@ export function LoginPage({ onClose, onAuthenticated }: { onClose: () => void; o
       return;
     }
     if (params.get('forgot') === '1') setMode('forgot');
+
+    const oauth = params.get('oauth');
+    if (!oauth) return;
+
+    const messages: Record<string, { ar: string; fr: string; en: string }> = {
+      admin: {
+        ar: 'حسابات الإدارة لا تستخدم الدخول عبر Google أو GitHub. ادخل من لوحة الإدارة.',
+        fr: 'Les comptes administrateur ne passent pas par Google ou GitHub. Utilisez le panneau d’administration.',
+        en: 'Admin accounts do not use Google or GitHub sign-in. Use the admin panel.',
+      },
+      unavailable: {
+        ar: 'تسجيل الدخول عبر Google أو GitHub غير مفعّل حالياً. استخدم بريدك وكلمة المرور.',
+        fr: 'La connexion Google ou GitHub n’est pas encore activée. Utilisez votre email et mot de passe.',
+        en: 'Google or GitHub sign-in is not enabled yet. Use your email and password.',
+      },
+      denied: {
+        ar: 'لم نتمكن من التحقق من بريدك لدى المزوّد. استخدم بريداً موثّقاً أو ادخل بكلمة المرور.',
+        fr: 'Impossible de vérifier votre email chez le fournisseur. Utilisez un email vérifié ou votre mot de passe.',
+        en: 'We could not verify your provider email. Use a verified email or sign in with your password.',
+      },
+      disabled: {
+        ar: 'هذا الحساب معطّل. تواصل مع الدعم لمراجعة الحالة.',
+        fr: 'Ce compte est désactivé. Contactez le support pour vérifier la situation.',
+        en: 'This account is disabled. Contact support to review it.',
+      },
+      failed: {
+        ar: 'تعذّر إكمال تسجيل الدخول. حاول مرة أخرى أو ادخل بكلمة المرور.',
+        fr: 'La connexion n’a pas abouti. Réessayez ou utilisez votre mot de passe.',
+        en: 'Sign-in could not be completed. Try again or use your password.',
+      },
+    };
+    setError(t(messages[oauth] || messages.failed));
+
+    // Drop the one-time reason so a refresh does not repeat the banner.
+    params.delete('oauth');
+    const query = params.toString();
+    window.history.replaceState(
+      null,
+      '',
+      `${window.location.pathname}${query ? `?${query}` : ''}${window.location.hash}`
+    );
+  }, []);
+
+  // Buttons only appear for providers that really have credentials configured.
+  useEffect(() => {
+    let active = true;
+    api
+      .get<{ google?: boolean; github?: boolean }>('/auth/oauth/providers')
+      .then((data) => {
+        if (active) {
+          setOauthProviders({ google: Boolean(data?.google), github: Boolean(data?.github) });
+        }
+      })
+      .catch(() => {
+        if (active) setOauthProviders({ google: false, github: false });
+      });
+    return () => {
+      active = false;
+    };
   }, []);
 
   // The dialog is full-screen; keep the storefront behind it from scrolling.
@@ -206,6 +342,13 @@ export function LoginPage({ onClose, onAuthenticated }: { onClose: () => void; o
     } catch {
       /* storage can be unavailable in private mode */
     }
+  };
+
+  const handleOAuthStart = (provider: 'google' | 'github') => {
+    setError('');
+    setOauthProvider(provider);
+    // Top-level navigation, not fetch: the provider must redirect the browser.
+    window.location.assign(apiUrl(`/auth/oauth/${provider}`));
   };
 
   const handleLogin = async (event: React.FormEvent) => {
@@ -606,6 +749,55 @@ export function LoginPage({ onClose, onAuthenticated }: { onClose: () => void; o
                 en: 'Sign in to get all the latest updates',
               })}
             </p>
+          )}
+
+          {mode === 'login' && (oauthProviders.google || oauthProviders.github) && (
+            <div className="aos-auth-panel mt-5">
+              <div
+                className={`grid gap-2.5 ${
+                  oauthProviders.google && oauthProviders.github ? 'grid-cols-2' : 'grid-cols-1'
+                }`}
+              >
+                {oauthProviders.google && (
+                  <button
+                    type="button"
+                    onClick={() => handleOAuthStart('google')}
+                    disabled={Boolean(oauthProvider)}
+                    className="group flex h-[52px] items-center justify-center gap-2.5 rounded-2xl border border-white/10 bg-white/[0.035] px-4 text-[13.5px] font-bold text-slate-200 transition duration-300 hover:-translate-y-0.5 hover:border-sky-400/45 hover:bg-white/[0.07] hover:text-white disabled:cursor-wait disabled:opacity-60"
+                  >
+                    {oauthProvider === 'google' ? (
+                      <Loader2 className="h-[18px] w-[18px] animate-spin" aria-hidden="true" />
+                    ) : (
+                      <GoogleMark />
+                    )}
+                    <span>Google</span>
+                  </button>
+                )}
+                {oauthProviders.github && (
+                  <button
+                    type="button"
+                    onClick={() => handleOAuthStart('github')}
+                    disabled={Boolean(oauthProvider)}
+                    className="group flex h-[52px] items-center justify-center gap-2.5 rounded-2xl border border-white/10 bg-white/[0.035] px-4 text-[13.5px] font-bold text-slate-200 transition duration-300 hover:-translate-y-0.5 hover:border-sky-400/45 hover:bg-white/[0.07] hover:text-white disabled:cursor-wait disabled:opacity-60"
+                  >
+                    {oauthProvider === 'github' ? (
+                      <Loader2 className="h-[18px] w-[18px] animate-spin" aria-hidden="true" />
+                    ) : (
+                      <GitHubMark />
+                    )}
+                    <span>GitHub</span>
+                  </button>
+                )}
+              </div>
+
+              <div className="my-5 flex items-center gap-3">
+                <span aria-hidden="true" className="h-px flex-1 bg-white/10" />
+                <span className="text-[10.5px] font-bold uppercase tracking-[0.32em] text-slate-600">
+                  {t({ ar: 'أو', fr: 'ou', en: 'or' })}
+                </span>
+                <span aria-hidden="true" className="h-px flex-1 bg-white/10" />
+              </div>
+            </div>
           )}
 
           {mode === 'login' && (
@@ -1023,6 +1215,64 @@ export function LoginPage({ onClose, onAuthenticated }: { onClose: () => void; o
             >
               {t({ ar: 'متابعة التصفح بدون حساب', fr: 'Continuer sans compte', en: 'Continue without an account' })}
             </button>
+          )}
+
+          {(mode === 'login' || mode === 'register') && (
+            <section
+              className="aos-auth-security relative mt-6 overflow-hidden rounded-2xl border border-sky-400/20 bg-[linear-gradient(155deg,rgba(13,38,72,.9),rgba(5,14,29,.95))] p-4"
+              aria-labelledby="aos-account-security"
+            >
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-sky-400/80 to-transparent"
+              />
+              <span
+                aria-hidden="true"
+                className="aos-auth-security-scan pointer-events-none absolute inset-x-0 top-0 h-16 bg-[linear-gradient(180deg,transparent,rgba(56,189,248,.10),transparent)]"
+              />
+
+              <div className="relative flex items-center gap-2.5">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-sky-400/30 bg-sky-500/10 text-sky-300 shadow-[0_0_22px_rgba(56,189,248,.22)]">
+                  <ShieldCheck className="h-[18px] w-[18px]" aria-hidden="true" />
+                </span>
+                <div className="min-w-0">
+                  <h2 id="aos-account-security" className="text-[13.5px] font-extrabold text-white">
+                    {t({ ar: 'حسابك محمي كيف؟', fr: 'Comment votre compte est protégé', en: 'How your account is protected' })}
+                  </h2>
+                  <p className="truncate text-[10.5px] text-sky-300/75">
+                    {t({
+                      ar: 'حماية متعددة الطبقات بأحدث المعايير',
+                      fr: 'Protection multicouche aux standards actuels',
+                      en: 'Multi-layer protection, current standards',
+                    })}
+                  </p>
+                </div>
+                <span className="ms-auto flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-1 text-[9.5px] font-bold text-emerald-300">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" aria-hidden="true" />
+                  {t({ ar: 'نشط', fr: 'Actif', en: 'Active' })}
+                </span>
+              </div>
+
+              <ul className="relative mt-3.5 grid grid-cols-2 gap-2">
+                {SECURITY_POINTS.map(({ icon: Icon, title, body }) => (
+                  <li key={title.en} className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-2.5">
+                    <Icon className="h-4 w-4 text-sky-300" aria-hidden="true" />
+                    <p className="mt-1.5 text-[11px] font-bold text-slate-100">{t(title)}</p>
+                    <p className="mt-0.5 text-[9.5px] leading-4 text-slate-500">{t(body)}</p>
+                  </li>
+                ))}
+              </ul>
+
+              {(oauthProviders.google || oauthProviders.github) && (
+                <p className="relative mt-3 text-[10px] leading-5 text-slate-500">
+                  {t({
+                    ar: 'الدخول عبر Google أو GitHub يتم دون مشاركة كلمة مرورك معنا.',
+                    fr: 'La connexion Google ou GitHub se fait sans partager votre mot de passe.',
+                    en: 'Google or GitHub sign-in never shares your password with us.',
+                  })}
+                </p>
+              )}
+            </section>
           )}
         </div>
       </div>

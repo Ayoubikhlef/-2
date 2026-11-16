@@ -57,6 +57,19 @@ services:
       # a key in the dashboard and flips BACKUP_AUTO to true.
       - key: BACKUP_ENCRYPTION_KEY
         sync: false
+      # Customer social sign-in. Create the apps in Google Cloud Console and
+      # GitHub Developer Settings, then paste the credentials in the Render
+      # dashboard. Redirect URIs:
+      #   https://aos-tech.store/api/auth/oauth/google/callback
+      #   https://aos-tech.store/api/auth/oauth/github/callback
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GITHUB_CLIENT_ID
+        sync: false
+      - key: GITHUB_CLIENT_SECRET
+        sync: false
       - key: BACKUP_AUTO
         sync: false
       - key: BACKUP_HOUR_UTC

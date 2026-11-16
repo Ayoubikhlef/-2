@@ -206,8 +206,11 @@ function LoginRoute({ onClose, onAuthenticated }: { onClose: () => void; onAuthe
   const { user, loading } = useAuth();
 
   useEffect(() => {
-    const isResetLink = new URLSearchParams(window.location.search).has('token');
-    if (!loading && user && !isResetLink) onAuthenticated();
+    const params = new URLSearchParams(window.location.search);
+    // Never bounce away from a recovery link, a "forgot password" request or
+    // an OAuth error: those screens must stay reachable even when signed in.
+    const keepOpen = params.has('token') || params.get('forgot') === '1' || params.has('oauth');
+    if (!loading && user && !keepOpen) onAuthenticated();
   }, [loading, user, onAuthenticated]);
 
   return <LoginPage onClose={onClose} onAuthenticated={onAuthenticated} />;

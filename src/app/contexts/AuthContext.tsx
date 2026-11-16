@@ -1,5 +1,13 @@
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { api, setAccessToken, setStoredUser, getStoredUser, refreshToken } from '../utils/api';
+import {
+  api,
+  setAccessToken,
+  setStoredUser,
+  getStoredUser,
+  refreshToken,
+  hasSessionMarker,
+  clearSessionMarker,
+} from '../utils/api';
 
 interface User {
   id: string;
@@ -56,7 +64,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const init = async () => {
       const stored = getStoredUser();
-      if (stored) {
+      // OAuth callbacks land on /#account with no localStorage snapshot yet,
+      // but they do carry the readable session marker. Probe refresh in both
+      // cases so the account area can open straight away.
+      if (stored || hasSessionMarker()) {
         const refreshed = await refreshToken();
         if (refreshed) {
           setUser(refreshed.user);
@@ -116,6 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try { await api.auth.logout(); } catch {}
     setAccessToken(null);
     setStoredUser(null);
+    clearSessionMarker();
     setUser(null);
   }, []);
 

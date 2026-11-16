@@ -180,6 +180,190 @@ function apiBaseUrl(): string {
   return `${siteUrl()}/api`;
 }
 
+// --- Social sign-in (Google / GitHub) ---
+// Customers may sign in with a verified provider email. Owner/admin accounts
+// stay on the password + second-factor flow in #hqpanel and are refused here.
+
+type OAuthProvider = 'google' | 'github';
+
+const OAUTH_FLOW_MINUTES = 10;
+const OAUTH_COOKIE = 'aos_oauth';
+
+function oauthCredentials(
+  provider: OAuthProvider
+): { clientId: string; clientSecret: string } | null {
+  const prefix = provider === 'google' ? 'GOOGLE' : 'GITHUB';
+  const clientId = (process.env[`${prefix}_CLIENT_ID`] || '').trim();
+  const clientSecret = (process.env[`${prefix}_CLIENT_SECRET`] || '').trim();
+  return clientId && clientSecret ? { clientId, clientSecret } : null;
+}
+
+function isOAuthProvider(value: string): value is OAuthProvider {
+  return value === 'google' || value === 'github';
+}
+
+/**
+ * Public callback URL. It must be registered verbatim in the provider console.
+ * Defaults to the storefront domain because the browser reaches the API through
+ * the Vercel /api rewrite, so the flow cookies live on the storefront origin.
+ */
+function oauthCallbackUrl(provider: OAuthProvider): string {
+  const explicit = (process.env.OAUTH_CALLBACK_BASE || '').trim();
+  if (/^https?:\/\//i.test(explicit)) {
+    return `${explicit.replace(/\/+$/, '').replace(/\/api$/, '')}/api/auth/oauth/${provider}/callback`;
+  }
+  return `${siteUrl()}/api/auth/oauth/${provider}/callback`;
+}
+
+interface OAuthFlow {
+  provider: OAuthProvider;
+  state: string;
+  verifier?: string;
+  exp: number;
+}
+
+function oauthCookieOptions() {
+  return {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax' as const,
+    path: '/api/auth/oauth',
+    maxAge: OAUTH_FLOW_MINUTES * 60 * 1000,
+  };
+}
+
+/** Same attributes minus maxAge, as required by clearCookie. */
+function oauthCookieClearOptions() {
+  return {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax' as const,
+    path: '/api/auth/oauth',
+  };
+}
+
+/**
+ * The OAuth flow cookie is signed so the state, provider and PKCE verifier
+ * cannot be forged or swapped between providers.
+ */
+function signOAuthFlow(flow: OAuthFlow): string {
+  const payload = Buffer.from(JSON.stringify(flow), 'utf8').toString('base64url');
+  const signature = crypto
+    .createHmac('sha256', process.env.JWT_SECRET || '')
+    .update(payload)
+    .digest('base64url');
+  return `${payload}.${signature}`;
+}
+
+function readOAuthFlow(value: string | undefined): OAuthFlow | null {
+  if (!value) return null;
+  const [payload, signature] = value.split('.');
+  if (!payload || !signature) return null;
+
+  const expected = crypto
+    .createHmac('sha256', process.env.JWT_SECRET || '')
+    .update(payload)
+    .digest('base64url');
+  const received = Buffer.from(signature);
+  const wanted = Buffer.from(expected);
+  if (received.length !== wanted.length || !crypto.timingSafeEqual(received, wanted)) {
+    return null;
+  }
+
+  try {
+    const flow = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')) as OAuthFlow;
+    if (!isOAuthProvider(flow.provider) || !flow.state || flow.exp < Date.now()) return null;
+    return flow;
+  } catch {
+    return null;
+  }
+}
+
+interface OAuthProfile {
+  email: string;
+  name: string;
+  avatar?: string;
+  emailVerified: boolean;
+}
+
+async function exchangeOAuthCode(
+  provider: OAuthProvider,
+  credentials: { clientId: string; clientSecret: string },
+  code: string,
+  redirectUri: string,
+  verifier?: string
+): Promise<string | null> {
+  const body = new URLSearchParams({
+    client_id: credentials.clientId,
+    client_secret: credentials.clientSecret,
+    code,
+    redirect_uri: redirectUri,
+    grant_type: 'authorization_code',
+  });
+  if (verifier) body.set('code_verifier', verifier);
+
+  const tokenUrl =
+    provider === 'google'
+      ? 'https://oauth2.googleapis.com/token'
+      : 'https://github.com/login/oauth/access_token';
+
+  const response = await fetch(tokenUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' },
+    body: body.toString(),
+    signal: AbortSignal.timeout(15_000),
+  });
+  const data: any = await response.json().catch(() => ({}));
+  if (!response.ok || data?.error || !data?.access_token) return null;
+  return String(data.access_token);
+}
+
+async function fetchOAuthProfile(
+  provider: OAuthProvider,
+  accessToken: string
+): Promise<OAuthProfile | null> {
+  if (provider === 'google') {
+    const response = await fetch('https://openidconnect.googleapis.com/v1/userinfo', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      signal: AbortSignal.timeout(15_000),
+    });
+    const data: any = await response.json().catch(() => ({}));
+    if (!response.ok || !data?.email) return null;
+    return {
+      email: normalizeEmail(String(data.email)),
+      name: String(data.name || data.email.split('@')[0]).slice(0, 120),
+      avatar: typeof data.picture === 'string' ? data.picture : undefined,
+      emailVerified: data.email_verified === true,
+    };
+  }
+
+  const headers = {
+    Authorization: `Bearer ${accessToken}`,
+    Accept: 'application/vnd.github+json',
+    'User-Agent': 'aos-tech-store',
+    'X-GitHub-Api-Version': '2022-11-28',
+  };
+  const [userResponse, emailsResponse] = await Promise.all([
+    fetch('https://api.github.com/user', { headers, signal: AbortSignal.timeout(15_000) }),
+    fetch('https://api.github.com/user/emails', { headers, signal: AbortSignal.timeout(15_000) }),
+  ]);
+  const user: any = await userResponse.json().catch(() => ({}));
+  if (!userResponse.ok || !user?.login) return null;
+
+  const emails: any = await emailsResponse.json().catch(() => []);
+  const list = Array.isArray(emails) ? emails : [];
+  const primary =
+    list.find((entry: any) => entry?.primary && entry?.verified) ||
+    list.find((entry: any) => entry?.verified);
+
+  return {
+    email: primary?.email ? normalizeEmail(String(primary.email)) : '',
+    name: String(user.name || user.login).slice(0, 120),
+    avatar: typeof user.avatar_url === 'string' ? user.avatar_url : undefined,
+    emailVerified: Boolean(primary),
+  };
+}
+
 async function sendVerificationEmail(email: string, token: string, userName: string): Promise<boolean> {
   const verifyUrl = `${apiBaseUrl()}/auth/verify-email?token=${encodeURIComponent(token)}`;
   const storeUrl = siteUrl();
@@ -268,6 +452,17 @@ async function createSession(
 
   res.cookie('refreshToken', refreshToken, {
     httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
+  // Non-sensitive companion marker. The refresh token stays HttpOnly, but the
+  // storefront needs a readable hint that a session may exist so it can restore
+  // signed-in users (including OAuth redirects) without probing on every visit.
+  res.cookie('aos_session', '1', {
+    httpOnly: false,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
@@ -1346,6 +1541,7 @@ authRouter.post('/logout', requireAuth, async (req: AuthRequest, res: Response) 
   });
 
   res.clearCookie('refreshToken', { path: '/', sameSite: 'lax', secure: process.env.NODE_ENV === 'production', httpOnly: true });
+  res.clearCookie('aos_session', { path: '/', sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
   await logAction(req.userId, 'LOGOUT', 'User', undefined, clientIp(req));
   res.json({ message: 'Logged out' });
 });
@@ -1404,4 +1600,161 @@ authRouter.get('/me', requireAuth, async (req: AuthRequest, res: Response) => {
     twoFactorEnabled: user.twoFactorEnabled,
     addresses: user.addresses,
   });
+});
+
+// --- Social sign-in routes ---
+
+/**
+ * Public capability probe. The storefront only renders a provider button when
+ * that provider is actually configured, so customers never hit a dead button.
+ * Credentials are never returned.
+ */
+authRouter.get('/oauth/providers', (_req, res) => {
+  res.setHeader('Cache-Control', 'no-store');
+  res.json({
+    google: Boolean(oauthCredentials('google')),
+    github: Boolean(oauthCredentials('github')),
+  });
+});
+
+authRouter.get('/oauth/:provider', (req, res) => {
+  const provider = String(req.params.provider || '').toLowerCase();
+  if (!isOAuthProvider(provider)) return res.redirect(302, `${siteUrl()}/login?oauth=unavailable`);
+
+  const credentials = oauthCredentials(provider);
+  if (!credentials) return res.redirect(302, `${siteUrl()}/login?oauth=unavailable`);
+
+  const state = crypto.randomBytes(24).toString('hex');
+  const verifier = provider === 'google' ? crypto.randomBytes(48).toString('base64url') : undefined;
+  const flow: OAuthFlow = {
+    provider,
+    state,
+    verifier,
+    exp: Date.now() + OAUTH_FLOW_MINUTES * 60 * 1000,
+  };
+
+  res.cookie(OAUTH_COOKIE, signOAuthFlow(flow), oauthCookieOptions());
+  res.setHeader('Cache-Control', 'no-store');
+
+  const redirectUri = oauthCallbackUrl(provider);
+
+  if (provider === 'google') {
+    const params = new URLSearchParams({
+      client_id: credentials.clientId,
+      redirect_uri: redirectUri,
+      response_type: 'code',
+      scope: 'openid email profile',
+      state,
+      prompt: 'select_account',
+      code_challenge: crypto
+        .createHash('sha256')
+        .update(verifier as string)
+        .digest('base64url'),
+      code_challenge_method: 'S256',
+    });
+    return res.redirect(302, `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`);
+  }
+
+  // GitHub OAuth Apps do not support PKCE; the signed state cookie still binds
+  // the callback to this browser.
+  const params = new URLSearchParams({
+    client_id: credentials.clientId,
+    redirect_uri: redirectUri,
+    scope: 'read:user user:email',
+    state,
+    allow_signup: 'true',
+  });
+  return res.redirect(302, `https://github.com/login/oauth/authorize?${params.toString()}`);
+});
+
+authRouter.get('/oauth/:provider/callback', async (req, res) => {
+  const provider = String(req.params.provider || '').toLowerCase();
+  const fail = (reason: string) =>
+    res.redirect(302, `${siteUrl()}/login?oauth=${encodeURIComponent(reason)}`);
+
+  // The flow cookie is single-use, whatever the outcome.
+  res.clearCookie(OAUTH_COOKIE, oauthCookieClearOptions());
+
+  if (!isOAuthProvider(provider)) return fail('unavailable');
+  const credentials = oauthCredentials(provider);
+  if (!credentials) return fail('unavailable');
+
+  // `error=access_denied` means the customer pressed cancel on the provider.
+  if (req.query.error) return fail('denied');
+
+  const flow = readOAuthFlow(req.cookies?.[OAUTH_COOKIE]);
+  const state = String(req.query.state || '');
+  if (!flow || flow.provider !== provider || flow.state !== state) return fail('failed');
+
+  const code = String(req.query.code || '');
+  if (!code) return fail('denied');
+
+  try {
+    const accessToken = await exchangeOAuthCode(
+      provider,
+      credentials,
+      code,
+      oauthCallbackUrl(provider),
+      flow.verifier
+    );
+    if (!accessToken) return fail('failed');
+
+    const profile = await fetchOAuthProfile(provider, accessToken);
+    if (!profile) return fail('failed');
+    if (!profile.email || !profile.emailVerified) return fail('denied');
+
+    let user = await prisma.user.findUnique({ where: { email: profile.email } });
+
+    if (user && user.role !== 'CUSTOMER') {
+      // Owner/admin accounts remain on the password + second-factor path.
+      // This is an admin sign-in attempt, so it alerts the owner.
+      reportSecurityEvent({
+        type: 'failed_login',
+        severity: 'high',
+        req,
+        details: `Admin account attempted ${provider} social sign-in`,
+        autoBlock: false,
+        notify: true,
+      });
+      return fail('admin');
+    }
+
+    if (user && !user.isActive) return fail('disabled');
+
+    if (!user) {
+      // OAuth accounts start without a usable password. Forgot-password is the
+      // path to set one later; the provider already verified the email.
+      const passwordHash = await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 12);
+      user = await prisma.user.create({
+        data: {
+          email: profile.email,
+          name: profile.name || profile.email.split('@')[0],
+          passwordHash,
+          emailVerified: true,
+          avatar: profile.avatar ?? null,
+          role: 'CUSTOMER',
+        },
+      });
+      await logAction(user.id, 'OAUTH_REGISTER', 'User', { provider }, clientIp(req));
+    } else {
+      // The provider proved ownership of this address. Clear any password
+      // lockout and fill a missing avatar without touching the local password.
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          emailVerified: true,
+          failedLoginAttempts: 0,
+          lockedUntil: null,
+          avatar: user.avatar || profile.avatar || null,
+        },
+      });
+      await logAction(user.id, 'OAUTH_LOGIN', 'User', { provider }, clientIp(req));
+    }
+
+    await createSession(user, res);
+    return res.redirect(302, `${siteUrl()}/#account`);
+  } catch (err) {
+    console.error('[Auth] OAuth callback failed:', err);
+    return fail('failed');
+  }
 });
