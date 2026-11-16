@@ -289,7 +289,7 @@ export function DigitalServices() {
       viewport={{ once: true, margin: '-100px' }}
       transition={{ duration: 0.6 }}
       id="digital-services"
-      className="relative overflow-hidden bg-gradient-to-b from-slate-50 via-white to-slate-50 py-16 dark:from-slate-950 dark:via-slate-900/40 dark:to-slate-950 md:py-24"
+      className="relative scroll-mt-24 overflow-hidden bg-gradient-to-b from-slate-50 via-white to-slate-50 py-16 dark:from-slate-950 dark:via-slate-900/40 dark:to-slate-950 md:py-24"
     >
       <div aria-hidden="true" className="pointer-events-none absolute -left-24 top-24 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
       <div aria-hidden="true" className="pointer-events-none absolute -right-24 top-[45%] h-80 w-80 rounded-full bg-cyan-400/10 blur-3xl" />
