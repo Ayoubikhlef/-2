@@ -36,6 +36,13 @@ const FEATURES = [
   { icon: Headphones, ar: 'دعم فني متوفر', fr: 'Support technique disponible', en: 'Technical support' },
 ];
 
+const SERVICES = [
+  { ar: 'إنشاء المواقع', fr: 'Création de sites', en: 'Website creation' },
+  { ar: 'بيع الإعلام الآلي', fr: 'Vente informatique', en: 'IT products' },
+  { ar: 'التكوين', fr: 'Formation', en: 'Training' },
+  { ar: 'الصيانة', fr: 'Maintenance', en: 'Maintenance' },
+];
+
 const AUTH_STYLES = `
   @keyframes aosAuthUp {
     from { opacity: 0; transform: translate3d(0, 22px, 0); }
@@ -491,15 +498,21 @@ export function LoginPage({ onClose }: { onClose: () => void }) {
               </p>
             </div>
 
-            <div className="mt-10 max-w-[430px]">
-              <p className="text-[21px] font-extrabold leading-[1.75] text-white">
-                {t({
-                  ar: 'متجركم المعتمد لبيع جميع منتجات الإعلام الآلي والتكوين',
-                  fr: 'Votre boutique agréée de matériel informatique et de formation',
-                  en: 'Your trusted store for computer equipment and training',
-                })}
+            <div className="mt-9 max-w-[440px]">
+              <p className="text-[10.5px] font-bold uppercase tracking-[0.34em] text-sky-300/80">
+                {t({ ar: 'خدماتنا', fr: 'Nos services', en: 'Our services' })}
               </p>
-              <span className="mt-3 block h-[3px] w-16 rounded-full bg-gradient-to-r from-sky-400 via-blue-500 to-blue-700 shadow-[0_0_18px_rgba(56,189,248,.7)]" />
+              <ul className="mt-3.5 flex flex-wrap gap-2">
+                {SERVICES.map((service) => (
+                  <li
+                    key={service.en}
+                    className="rounded-full border border-sky-400/25 bg-sky-500/10 px-3.5 py-1.5 text-[12.5px] font-bold text-sky-100 shadow-[inset_0_1px_0_rgba(255,255,255,.06)]"
+                  >
+                    {t(service)}
+                  </li>
+                ))}
+              </ul>
+              <span className="mt-4 block h-[3px] w-16 rounded-full bg-gradient-to-r from-sky-400 via-blue-500 to-blue-700 shadow-[0_0_18px_rgba(56,189,248,.7)]" />
             </div>
 
             <ul className="mt-8 space-y-3">
@@ -573,9 +586,9 @@ export function LoginPage({ onClose }: { onClose: () => void }) {
           {mode === 'login' && (
             <p className="mt-1.5 text-[13.5px] leading-6 text-slate-400">
               {t({
-                ar: 'تابع طلباتك ونقاط الولاء من مكان واحد',
-                fr: 'Suivez vos commandes et vos points de fidélité en un seul endroit',
-                en: 'Track your orders and loyalty points in one place',
+                ar: 'سجل الدخول ليصلك كل جديد',
+                fr: 'Connectez-vous pour recevoir toutes les nouveautés',
+                en: 'Sign in to get all the latest updates',
               })}
             </p>
           )}
