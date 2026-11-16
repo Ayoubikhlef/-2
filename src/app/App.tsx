@@ -86,6 +86,28 @@ function AdminFallback() {
   );
 }
 
+/** Neutral splash for the customer login route (never the admin one). */
+function LoginFallback() {
+  return (
+    <div className="fixed inset-0 z-[100] grid place-items-center bg-[#050b18]" dir="rtl">
+      <div className="text-center">
+        <img
+          src="/aos-logo-white.png"
+          alt="AOS Tech Store"
+          width="908"
+          height="520"
+          className="mx-auto w-[132px]"
+        />
+        <p className="mt-3 text-[12px] font-extrabold tracking-[0.32em] text-white">TECH STORE</p>
+        <div className="mx-auto mt-6 h-1 w-40 overflow-hidden rounded-full bg-white/10" dir="ltr">
+          <div className="h-full w-1/2 rounded-full bg-gradient-to-r from-sky-500 to-blue-500 animate-[aos-login-loading_1.2s_ease-in-out_infinite]" />
+        </div>
+      </div>
+      <style>{`@keyframes aos-login-loading { 0% { margin-left: -50%; } 100% { margin-left: 100%; } }`}</style>
+    </div>
+  );
+}
+
 /**
  * Storefront account area. Customers must sign in before their orders are
  * fetched; the dialog opens automatically and can be reopened from the card.
@@ -166,13 +188,39 @@ function readNormalizedHash(): string {
   return normalized;
 }
 
+/**
+ * The customer login is reachable both as a dialog inside the store and as a
+ * standalone /login route. Legacy password-reset links may also land on the
+ * home page with ?token=..., so those open the same reset screen.
+ */
+function readLoginRoute(): boolean {
+  if (typeof window === 'undefined') return false;
+  const pathname = window.location.pathname.replace(/\/+$/, '') || '/';
+  if (pathname === '/login') return true;
+  return pathname === '/' && new URLSearchParams(window.location.search).has('token');
+}
+
+/** Standalone login route; signed-in customers skip the form unless they are
+ *  opening a password-reset link. */
+function LoginRoute({ onClose }: { onClose: () => void }) {
+  const { user, loading } = useAuth();
+
+  useEffect(() => {
+    const isResetLink = new URLSearchParams(window.location.search).has('token');
+    if (!loading && user && !isResetLink) onClose();
+  }, [loading, user, onClose]);
+
+  return <LoginPage onClose={onClose} />;
+}
+
 export default function App() {
   const [hash, setHash] = useState(readNormalizedHash);
+  const [isLoginRoute, setIsLoginRoute] = useState(readLoginRoute);
   const isFactoryPage =
     typeof window !== 'undefined' && window.location.pathname.replace(/\/+$/, '') === '/create-website';
   const productSlug = typeof window !== 'undefined' ? productPathFromUrl(window.location.pathname) : null;
   const isProductPage = Boolean(productSlug);
-  const is404 = !isFactoryPage && !isProductPage && typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#hqpanel', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq', '#web', '#demo', '#order-tracking'].includes(hash);
+  const is404 = !isFactoryPage && !isProductPage && !isLoginRoute && typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#hqpanel', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq', '#web', '#demo', '#order-tracking'].includes(hash);
   const [maintenance, setMaintenance] = useState(false);
   // Render immediately for returning visitors (the flag is cached locally)
   // and refresh it in the background. Only the very first visit waits, with
@@ -180,7 +228,10 @@ export default function App() {
   const [maintenanceChecked, setMaintenanceChecked] = useState(() => hasMaintenanceCache());
 
   useEffect(() => {
-    const onHashChange = () => setHash(readNormalizedHash());
+    const onHashChange = () => {
+      setHash(readNormalizedHash());
+      setIsLoginRoute(readLoginRoute());
+    };
     window.addEventListener('hashchange', onHashChange);
     // Client-side navigation (see utils/navigation.ts) uses pushState, so the
     // back/forward buttons must update the view as well.
@@ -259,6 +310,11 @@ export default function App() {
       const hash = normalizeNavHref(window.location.hash);
       const pathname = window.location.pathname.replace(/\/+$/, '');
       const lang = (localStorage.getItem('language') || 'en') as 'ar' | 'fr' | 'en';
+      if (pathname === '/login') {
+        const loginTitle = { ar: 'تسجيل الدخول', fr: 'Connexion', en: 'Sign in' }[lang];
+        document.title = `${loginTitle} | ${brand.name}`;
+        return;
+      }
       if (pathname === '/create-website') {
         const factoryTitle = { ar: 'أنشئ موقعك', fr: 'Créez votre site', en: 'Create Your Website' }[lang];
         document.title = `${factoryTitle} | ${brand.name}`;
@@ -374,6 +430,14 @@ export default function App() {
     isProductPage ||
     ['#about', '#terms', '#privacy', '#checkout', '#loyalty', '#account', '#web', '#demo'].includes(currentHash);
 
+  const closeLoginRoute = () => {
+    window.history.pushState(null, '', '/');
+    setIsLoginRoute(false);
+    setHash('');
+    window.dispatchEvent(new Event('hashchange'));
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  };
+
   return (
     <ThemeProvider>
       <LanguageProvider>
@@ -387,6 +451,10 @@ export default function App() {
                 </Suspense>
                 <ScrollToTop />
               </div>
+            ) : isLoginRoute ? (
+              <Suspense fallback={<LoginFallback />}>
+                <LoginRoute onClose={closeLoginRoute} />
+              </Suspense>
             ) : (
             <div className="min-h-screen relative">
               <Suspense fallback={null}>
