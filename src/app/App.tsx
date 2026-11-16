@@ -200,17 +200,17 @@ function readLoginRoute(): boolean {
   return pathname === '/' && new URLSearchParams(window.location.search).has('token');
 }
 
-/** Standalone login route; signed-in customers skip the form unless they are
- *  opening a password-reset link. */
-function LoginRoute({ onClose }: { onClose: () => void }) {
+/** Standalone login route; signed-in customers go straight to their account
+ *  unless they are opening a password-reset link. */
+function LoginRoute({ onClose, onAuthenticated }: { onClose: () => void; onAuthenticated: () => void }) {
   const { user, loading } = useAuth();
 
   useEffect(() => {
     const isResetLink = new URLSearchParams(window.location.search).has('token');
-    if (!loading && user && !isResetLink) onClose();
-  }, [loading, user, onClose]);
+    if (!loading && user && !isResetLink) onAuthenticated();
+  }, [loading, user, onAuthenticated]);
 
-  return <LoginPage onClose={onClose} />;
+  return <LoginPage onClose={onClose} onAuthenticated={onAuthenticated} />;
 }
 
 export default function App() {
@@ -438,6 +438,16 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'auto' });
   };
 
+  const openAccount = () => {
+    if (window.location.pathname !== '/' || window.location.hash !== '#account') {
+      window.history.pushState(null, '', '/#account');
+    }
+    setIsLoginRoute(false);
+    setHash('#account');
+    window.dispatchEvent(new Event('hashchange'));
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  };
+
   return (
     <ThemeProvider>
       <LanguageProvider>
@@ -453,7 +463,7 @@ export default function App() {
               </div>
             ) : isLoginRoute ? (
               <Suspense fallback={<LoginFallback />}>
-                <LoginRoute onClose={closeLoginRoute} />
+                <LoginRoute onClose={closeLoginRoute} onAuthenticated={openAccount} />
               </Suspense>
             ) : (
             <div className="min-h-screen relative">

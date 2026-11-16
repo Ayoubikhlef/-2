@@ -129,7 +129,7 @@ function readRememberedEmail(): string {
  * Customer sign-in and registration. The owner's admin login lives in
  * #hqpanel (Admin.tsx); this dialog is the storefront account entry.
  */
-export function LoginPage({ onClose }: { onClose: () => void }) {
+export function LoginPage({ onClose, onAuthenticated }: { onClose: () => void; onAuthenticated?: () => void }) {
   const { t, language } = useLanguage();
   const { login, register } = useAuth();
 
@@ -236,7 +236,8 @@ export function LoginPage({ onClose }: { onClose: () => void }) {
 
       rememberEmail(form.email.trim());
       toast.success(t({ ar: 'تم تسجيل الدخول', fr: 'Connecté', en: 'Signed in' }));
-      onClose();
+      // Customers land inside their account area, not back on the home page.
+      (onAuthenticated ?? onClose)();
     } catch (err: any) {
       if (err?.code === 'ACCOUNT_BLOCKED') {
         setError(
