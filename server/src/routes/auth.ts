@@ -188,8 +188,12 @@ function siteUrl(): string {
 
 /** Base URL of this API, used by links inside transactional emails. */
 function apiBaseUrl(): string {
-  const configured = (process.env.API_PUBLIC_URL || process.env.VITE_API_URL || 'https://aos-tech.store/api').replace(/\/+$/, '');
-  return configured.endsWith('/api') ? configured : `${configured}/api`;
+  // The storefront proxies /api/* to this service, so building the link on the
+  // public site keeps it valid even if the API host is renamed or moved.
+  const configured = (process.env.API_PUBLIC_URL || '').trim();
+  const usable = /^https?:\/\//i.test(configured) && !/aostech\.vercel\.app|localhost|127\.0\.0\.1/i.test(configured);
+  if (usable) return configured.replace(/\/+$/, '').replace(/\/api$/, '') + '/api';
+  return `${siteUrl()}/api`;
 }
 
 async function sendVerificationEmail(email: string, token: string, userName: string): Promise<boolean> {
