@@ -606,6 +606,7 @@ authRouter.post('/login', async (req, res: Response) => {
         req,
         details: `Login attempt on a locked account for ${email.slice(0, 3)}***`,
         autoBlock: false,
+        notify: isAdminAccount(user.role),
       });
       return res.status(429).json({
         error: `Too many failed attempts. Try again in ${minutes} minute(s).`,
@@ -623,6 +624,8 @@ authRouter.post('/login', async (req, res: Response) => {
         req,
         details: `Failed login for ${email.slice(0, 3)}***`,
         autoBlock: false,
+        // Customer sign-in noise stays in the audit log without paging the owner.
+        notify: Boolean(user && isAdminAccount(user.role)),
       });
       if (locked) {
         return res.status(429).json({
@@ -673,6 +676,7 @@ authRouter.post('/login', async (req, res: Response) => {
         req,
         details: `Blocked unknown role login for ${email.slice(0, 3)}***`,
         autoBlock: false,
+        notify: false,
       });
       return res.status(403).json({
         error: 'This account does not have valid credentials.',
@@ -737,6 +741,7 @@ authRouter.post('/login', async (req, res: Response) => {
           req,
           details: `Failed second factor for ${email.slice(0, 3)}***`,
           autoBlock: false,
+          notify: isAdminAccount(user.role),
         });
         if (locked) {
           return res.status(429).json({
@@ -771,6 +776,18 @@ authRouter.post('/login', async (req, res: Response) => {
     });
 
     await logAction(user.id, 'LOGIN', 'User', { email: user.email }, clientIp(req));
+
+    // The owner asked to be paged for admin-panel sign-ins only; customer
+    // logins stay quiet (their failures are still recorded without alerts).
+    if (isAdminAccount(user.role)) {
+      reportSecurityEvent({
+        type: 'admin_login',
+        severity: 'medium',
+        req,
+        details: `Admin signed in: ${email.slice(0, 3)}*** (${user.role})`,
+        autoBlock: false,
+      });
+    }
   } catch (err: any) {
     if (err instanceof AppError) throw err;
     if (err instanceof z.ZodError) {
@@ -849,6 +866,7 @@ authRouter.post('/2fa/setup/confirm', async (req, res: Response) => {
         req,
         details: 'Failed two-factor enrolment code',
         autoBlock: false,
+        notify: isAdminAccount(user.role),
       });
       return res.status(400).json({
         error: 'Invalid code. Check your phone clock and try again.',
@@ -877,6 +895,16 @@ authRouter.post('/2fa/setup/confirm', async (req, res: Response) => {
       res
     );
     await logAction(user.id, 'TWO_FACTOR_ENABLED', 'User', undefined, clientIp(req));
+
+    if (isAdminAccount(user.role)) {
+      reportSecurityEvent({
+        type: 'admin_login',
+        severity: 'medium',
+        req,
+        details: `Admin completed 2FA setup and signed in: ${user.email.slice(0, 3)}*** (${user.role})`,
+        autoBlock: false,
+      });
+    }
 
     res.json({
       ok: true,
@@ -1266,6 +1294,7 @@ authRouter.post('/change-password', requireAuth, async (req: AuthRequest, res: R
       req,
       details: 'Failed password change attempt',
       autoBlock: false,
+      notify: isAdminAccount(user.role),
     });
     throw new BadRequest('Current password is incorrect');
   }

@@ -22,6 +22,7 @@ export type SecurityEventType =
   | 'failed_totp'
   | 'brute_force_detected'
   | 'admin_gate'
+  | 'admin_login'
   | 'manual_block';
 
 export interface SecurityIncident {
@@ -326,10 +327,16 @@ export interface ReportSecurityEventOptions {
   req: Request;
   details?: string;
   autoBlock?: boolean;
+  /**
+   * Whether this incident should trigger an outbound alert (Telegram/Discord/
+   * email). Customer login noise is still recorded in the audit log but does
+   * not page the owner; admin sign-in attempts keep alerting.
+   */
+  notify?: boolean;
 }
 
 export function reportSecurityEvent(options: ReportSecurityEventOptions): SecurityIncident {
-  const { type, severity, req, details, autoBlock = true } = options;
+  const { type, severity, req, details, autoBlock = true, notify = true } = options;
   const ip = clientIp(req);
   const incident: SecurityIncident = {
     id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
@@ -348,7 +355,7 @@ export function reportSecurityEvent(options: ReportSecurityEventOptions): Securi
     `[Security] ${severity.toUpperCase()} ${type} from ${ip} ${incident.method} ${incident.path}`
   );
   persistIncident(incident);
-  maybeSendAlert(incident);
+  if (notify) maybeSendAlert(incident);
 
   if (
     autoBlock &&
