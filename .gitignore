@@ -19,6 +19,7 @@ server/.env.*
 
 # Local security notes and agent scratch — never publish
 SECURITY-REPORT.md
+SECURITY_AUDIT_REPORT.md
 memory/
 .claude/
 .env*
