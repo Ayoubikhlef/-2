@@ -44,6 +44,7 @@ export function LoginPage({ onClose }: { onClose: () => void }) {
   const [form, setForm] = useState({ email: '', password: '' });
   const [registerForm, setRegisterForm] = useState({ email: '', password: '', name: '', phone: '' });
   const [registeredEmail, setRegisteredEmail] = useState('');
+  const [unverifiedEmail, setUnverifiedEmail] = useState('');
   const [twoFactorCode, setTwoFactorCode] = useState('');
   const [forgotEmail, setForgotEmail] = useState('');
   const [resetForm, setResetForm] = useState({ password: '', confirmPassword: '' });
@@ -122,6 +123,7 @@ export function LoginPage({ onClose }: { onClose: () => void }) {
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
     setError('');
+    setUnverifiedEmail('');
     setLoading(true);
     try {
       const result = await login(
@@ -150,6 +152,17 @@ export function LoginPage({ onClose }: { onClose: () => void }) {
       toast.success(t({ ar: 'تم تسجيل الدخول', fr: 'Connecté', en: 'Signed in' }));
       onClose();
     } catch (err: any) {
+      if (err?.code === 'EMAIL_NOT_VERIFIED') {
+        setUnverifiedEmail(form.email.trim());
+        setError(
+          t({
+            ar: 'أكّد بريدك الإلكتروني أولاً. افتح رسالة التأكيد في بريدك، أو أعد إرسالها من الأسفل.',
+            fr: 'Confirmez d’abord votre email. Ouvrez le message de confirmation ou renvoyez-le ci-dessous.',
+            en: 'Confirm your email first. Open the confirmation message or send it again below.',
+          })
+        );
+        return;
+      }
       setError(err.message || t({ ar: 'بريد إلكتروني أو كلمة مرور خاطئة', fr: 'Identifiants incorrects', en: 'Invalid email or password' }));
     } finally {
       setLoading(false);
@@ -181,17 +194,38 @@ export function LoginPage({ onClose }: { onClose: () => void }) {
       setRegisterForm({ email: '', password: '', name: '', phone: '' });
       setMode('registered');
     } catch (err: any) {
+      if (err?.status === 409) {
+        setError(
+          t({
+            ar: 'هذا البريد مسجّل مسبقاً. سجّل الدخول أو استرجع كلمة المرور.',
+            fr: 'Cet email est déjà enregistré. Connectez-vous ou récupérez votre mot de passe.',
+            en: 'This email is already registered. Sign in or recover your password.',
+          })
+        );
+        return;
+      }
+      if (err?.status === 502 || err?.status === 503) {
+        setError(
+          t({
+            ar: 'إنشاء الحسابات متوقف مؤقتاً لسبب تقني. يمكنك إتمام الطلب كزائر، وسنعيد تشغيل التسجيل قريباً.',
+            fr: 'La création de comptes est momentanément indisponible. Vous pouvez commander en tant qu’invité.',
+            en: 'Account creation is temporarily unavailable. You can still order as a guest.',
+          })
+        );
+        return;
+      }
       setError(err.message || t({ ar: 'تعذّر إنشاء الحساب', fr: 'Impossible de créer le compte', en: 'Could not create the account' }));
     } finally {
       setLoading(false);
     }
   };
 
-  const handleResend = async () => {
+  const handleResend = async (emailArg?: string) => {
+    const email = emailArg || registeredEmail;
     setError('');
     setLoading(true);
     try {
-      await api.auth.resendVerification(registeredEmail);
+      await api.auth.resendVerification(email);
       toast.success(t({ ar: 'أُرسلت رسالة التأكيد مرة أخرى', fr: 'Email de confirmation renvoyé', en: 'Confirmation email sent again' }));
     } catch {
       toast.error(t({ ar: 'تعذّر إرسال الرسالة، حاول لاحقاً', fr: 'Envoi impossible, réessayez plus tard', en: 'Could not send the email, try again later' }));
@@ -370,6 +404,17 @@ export function LoginPage({ onClose }: { onClose: () => void }) {
             <button type="button" onClick={() => { setMode('forgot'); setError(''); }} style={linkStyle}>
               {t({ ar: 'نسيت كلمة المرور؟', fr: 'Mot de passe oublié ?', en: 'Forgot password?' })}
             </button>
+
+            {unverifiedEmail && (
+              <button
+                type="button"
+                onClick={() => handleResend(unverifiedEmail)}
+                disabled={loading}
+                style={{ ...linkStyle, color: '#22c55e' }}
+              >
+                {t({ ar: 'إعادة إرسال رابط التأكيد', fr: 'Renvoyer le lien de confirmation', en: 'Resend confirmation link' })}
+              </button>
+            )}
           </form>
         )}
 
@@ -471,7 +516,7 @@ export function LoginPage({ onClose }: { onClose: () => void }) {
               {t({ ar: 'افتح الرسالة واضغط «تأكيد البريد»، ثم سجّل الدخول.', fr: 'Ouvrez l’email, cliquez sur « Confirmer », puis connectez-vous.', en: 'Open the email, click “Confirm”, then sign in.' })}
             </p>
             {errorBlock}
-            <button type="button" onClick={handleResend} disabled={loading} style={buttonStyle}>
+            <button type="button" onClick={() => handleResend()} disabled={loading} style={buttonStyle}>
               {loading ? <Loader2 className="animate-spin" size={22} /> : null}
               {t({ ar: 'إعادة إرسال الرسالة', fr: 'Renvoyer l’email', en: 'Resend email' })}
             </button>

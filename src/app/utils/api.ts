@@ -88,6 +88,7 @@ async function request<T>(
         const message = body.error || body.details?.[0]?.message || `Request failed (${res.status})`;
         const error: any = new Error(message);
         error.status = res.status;
+        error.code = body.code;
         error.details = body.details;
         // Auto-refresh once on expired token (admin polling on mobile/Safari).
         if (res.status === 401 && retryAuth && path !== '/auth/refresh' && path !== '/auth/login') {

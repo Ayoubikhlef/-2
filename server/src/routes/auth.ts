@@ -689,6 +689,7 @@ authRouter.post('/login', async (req, res: Response) => {
       return res.status(403).json({
         error:
           'Please confirm your email address before signing in. Check your inbox for the confirmation link.',
+        code: 'EMAIL_NOT_VERIFIED',
       });
     }
 
