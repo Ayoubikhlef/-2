@@ -13,7 +13,6 @@ import {
 } from '../utils/jwt';
 import { AppError, BadRequest, Unauthorized } from '../utils/errors';
 import { requireAuth, AuthRequest } from '../middleware/auth';
-import nodemailer from 'nodemailer';
 import { logAction } from '../services/audit';
 import { isTransactionalEmailConfigured, sendTransactionalEmail } from '../services/emailAlerts';
 import { clientIp, reportSecurityEvent, unblockIp } from '../services/security';
@@ -30,22 +29,6 @@ import {
 export const authRouter = Router();
 
 const normalizeEmail = (email: string) => email.trim().toLowerCase();
-
-// --- Email Configuration ---
-const createTransporter = () => {
-  return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT || '587', 10),
-    secure: process.env.SMTP_SECURE === 'true',
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
-};
-
-const resetEmail = process.env.RESET_EMAIL || process.env.SMTP_USER;
-const transporter = createTransporter();
 
 // --- Validation Schemas ---
 const loginSchema = z.object({
@@ -325,17 +308,16 @@ async function resolveTwoFactorChallenge(token: unknown): Promise<string | null>
 }
 
 async function sendResetEmail(email: string, token: string, userName: string) {
-  const configuredApiUrl = (process.env.API_PUBLIC_URL || process.env.VITE_API_URL || 'https://aos-tech.store/api').replace(/\/+$/, '');
-  const resetEndpoint = configuredApiUrl.endsWith('/api')
-    ? `${configuredApiUrl}/auth/reset-password`
-    : `${configuredApiUrl}/api/auth/reset-password`;
-  const resetUrl = `${resetEndpoint}?token=${encodeURIComponent(token)}`;
+  const resetUrl = `${apiBaseUrl()}/auth/reset-password?token=${encodeURIComponent(token)}`;
+  const storeUrl = siteUrl();
 
-  await transporter.sendMail({
-    from: `"AOS Tech Store" <${resetEmail}>`,
-    to: email,
-    subject: 'Reset your password - AOS Tech Store',
-    html: `
+  // Uses the same transactional channel as the verification email: Render Free
+  // blocks outbound SMTP ports, so Resend is the reliable path here.
+  return sendTransactionalEmail(
+    email,
+    'Reset your password - AOS Tech Store',
+    `Hello ${userName},\n\nWe received a request to reset your AOS Tech Store password:\n${resetUrl}\n\nThis link expires in ${PASSWORD_RESET_MINUTES} minutes. If you did not request this, ignore this message.`,
+    `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #1e293b;">Reset Your Password</h2>
         <p>Hello ${escapeHtml(userName)},</p>
@@ -344,12 +326,15 @@ async function sendResetEmail(email: string, token: string, userName: string) {
           <a href="${resetUrl}" style="background-color: #1e293b; color: #f1f5f9; padding: 12px 28px; text-decoration: none; border-radius: 20px; font-weight: 700;">Reset Password</a>
         </div>
         <p>This link will expire in ${PASSWORD_RESET_MINUTES} minutes.</p>
+        <p>If the button does not work, copy this address into your browser:</p>
+        <p style="word-break: break-all; color: #475569;">${resetUrl}</p>
         <p>If you didn't request this reset, please ignore this email or contact support if you have concerns.</p>
         <hr style="margin: 30px 0; border: none; border-top: 1px solid #cbd5e1;">
         <p style="font-size: 12px; color: #64748b;">&copy; 2026 AOS Tech Store. All rights reserved.</p>
+        <p style="font-size: 12px;"><a href="${storeUrl}" style="color: #64748b;">${storeUrl}</a></p>
       </div>
-    `,
-  });
+    `
+  );
 }
 
 // --- Routes ---
