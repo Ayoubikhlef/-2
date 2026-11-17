@@ -136,6 +136,7 @@ const defaultSettings: SiteSettings = {
     { href: '#privacy', label: { ar: 'سياسة الخصوصية', fr: 'Confidentialité', en: 'Privacy' } },
     { href: '#', label: { ar: 'طباعة ونسخ', fr: 'Impression et copie', en: 'Printing and copying' } },
     { href: '#', label: { ar: 'خدمات الرقمنة', fr: 'Services de numérisation', en: 'Digitization services' } },
+    { href: '/premium-services', label: { ar: 'الخدمات المميزة', fr: 'Services premium', en: 'Premium Services' } },
   ],
   footerQuickLinksTitle: { ar: 'روابط سريعة', fr: 'Liens rapides', en: 'Quick Links' },
   footerContactTitle: { ar: 'معلومات الاتصال', fr: 'Coordonnées', en: 'Contact Info' },
