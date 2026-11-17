@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { AiError, generateContent, isAiAvailable, isAiMock } from '../services/aiProvider';
+import { AiError, generateContent, isAiAvailable, isAiKeyless, isAiMock } from '../services/aiProvider';
 
 export const aiRouter = Router();
 
@@ -16,7 +16,7 @@ const generateSchema = z.object({
 
 aiRouter.get('/status', (_req: Request, res: Response) => {
   // Public flag only: the provider name, model and key stay on the server.
-  res.json({ available: isAiAvailable(), mock: isAiMock() });
+  res.json({ available: isAiAvailable(), mock: isAiMock(), keyless: isAiKeyless() });
 });
 
 aiRouter.post('/generate', async (req: Request, res: Response) => {
