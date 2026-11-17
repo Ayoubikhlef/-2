@@ -278,6 +278,7 @@ export function AiStudio({ onRequestService, cvServiceValue, contentServiceValue
   const [result, setResult] = useState<AiStudioResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [slow, setSlow] = useState(false);
   const [copied, setCopied] = useState(false);
   const [status, setStatus] = useState<{ available: boolean; mock: boolean } | null>(null);
 
@@ -387,9 +388,13 @@ export function AiStudio({ onRequestService, cvServiceValue, contentServiceValue
     }
 
     setLoading(true);
+    setSlow(false);
     setError(null);
     setResult(null);
     setCopied(false);
+    // A cold Render instance or a slow provider can take a while; tell the
+    // visitor that the request is still running instead of leaving a bare spinner.
+    const slowTimer = window.setTimeout(() => setSlow(true), 8000);
     try {
       const data = await api.ai.generate({
         tool,
@@ -404,6 +409,8 @@ export function AiStudio({ onRequestService, cvServiceValue, contentServiceValue
       }
       setError(describeError(err));
     } finally {
+      window.clearTimeout(slowTimer);
+      setSlow(false);
       setLoading(false);
     }
   };
@@ -606,7 +613,13 @@ export function AiStudio({ onRequestService, cvServiceValue, contentServiceValue
             {loading ? (
               <>
                 <Loader2 className="h-[18px] w-[18px] animate-spin" />
-                {t({ ar: 'جارٍ التوليد...', fr: 'Génération en cours…', en: 'Generating…' })}
+                {slow
+                  ? t({
+                      ar: 'جارٍ التوليد… قد يستغرق حتى 30 ثانية',
+                      fr: 'Génération… jusqu’à 30 secondes',
+                      en: 'Generating… may take up to 30 seconds',
+                    })
+                  : t({ ar: 'جارٍ التوليد...', fr: 'Génération en cours…', en: 'Generating…' })}
               </>
             ) : (
               <>
