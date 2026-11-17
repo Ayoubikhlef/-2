@@ -432,8 +432,6 @@ export default function App() {
   }
 
   const currentHash = hash;
-  // Handle premium-services route (separate Next.js route)
-  const isPremiumServicesRoute = window.location.pathname === '/premium-services';
   const isPage =
     isFactoryPage ||
     isProductPage ||
@@ -534,30 +532,6 @@ export default function App() {
                     )}
                     {hash === '#account' && <AccountArea />}
                   </>
-                ) : isPremiumServicesRoute ? (
-                  // Premium Services Route - Show 404 until Vercel rebuilds, or link to existing build
-                  (() => {
-                    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-                    return (
-                      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-secondary to-accent">
-                        <div className="text-center p-8 max-w-md space-y-6">
-                          <h1 className="text-4xl font-bold mb-4">🚧 صفحة قيد الإنشاء</h1>
-                          <p className="text-lg text-white/90">
-                            نعتذر، الصفحة التي تبحث عنها في طور إعادة البناء.
-                          </p>
-                          <p className="text-white/75">
-                            تم تفعيل الروابط الجديدة في الموقع، لكن المنصة لا تزال تحت الإنشاء.
-                          </p>
-                          <a
-                            href="/premium-services"
-                            className="inline-block px-6 py-3 bg-white text-primary font-bold rounded-lg hover:bg-white/90 transition-colors mt-4"
-                          >
-                            انتظر لحظة... جاري تحميل صفحة الخدمات المميزة
-                          </a>
-                        </div>
-                      </div>
-                    );
-                  })()
                 ) : (
                   <>
                     <Hero />
