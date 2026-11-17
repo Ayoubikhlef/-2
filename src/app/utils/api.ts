@@ -304,6 +304,17 @@ export type CustomerListResponse = {
   totals: { accounts: number; matchedOrders: number; blocked: number };
 };
 
+export type AiStudioTool = 'cv' | 'post' | 'product';
+export type AiStudioLanguage = 'ar' | 'fr' | 'en';
+
+export type AiStudioResult = {
+  text: string;
+  tool: AiStudioTool;
+  language: AiStudioLanguage;
+  /** True when the server answered from AI_MOCK instead of a provider. */
+  mock?: boolean;
+};
+
 export const api = {
   get: <T>(path: string) => request<T>(path),
   post: <T>(path: string, body?: any) =>
@@ -356,6 +367,22 @@ export const api = {
     }),
 
   fetchProducts: () => request<{ products: any[] }>('/products'),
+
+  ai: {
+    status: () => request<{ available: boolean; mock: boolean }>('/ai/status', {}, true, 15000),
+    generate: (data: {
+      tool: AiStudioTool;
+      language: AiStudioLanguage;
+      fields: Record<string, string>;
+    }) =>
+      request<AiStudioResult>(
+        '/ai/generate',
+        { method: 'POST', body: JSON.stringify(data) },
+        true,
+        // Provider calls can take a few seconds; the server gives up at 25s.
+        60000,
+      ),
+  },
 
   data: {
     save: (key: string, value: any) =>

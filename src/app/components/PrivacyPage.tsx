@@ -24,6 +24,10 @@ export function PrivacyPage() {
             <h2 className="text-xl font-bold text-foreground mb-3">{t({ ar: 'حماية البيانات', fr: 'Protection des données', en: 'Data Protection' })}</h2>
             <p>{t({ ar: 'نستخدم إجراءات أمان مناسبة لحماية معلوماتك من الوصول غير المصرح به أو الاستخدام.', fr: 'Nous utilisons des mesures de sécurité appropriées pour protéger vos données.', en: 'We use appropriate security measures to protect your data from unauthorized access.' })}</p>
           </div>
+          <div>
+            <h2 className="text-xl font-bold text-foreground mb-3">{t({ ar: 'أداة توليد النصوص (AI Studio)', fr: 'Générateur de texte (AI Studio)', en: 'Text generator (AI Studio)' })}</h2>
+            <p>{t({ ar: 'عند استخدام أداة AI Studio، يُرسل النص الذي تكتبه في الحقول إلى مزوّد خدمة توليد النصوص لمعالجته وإرجاع النتيجة فقط. لا نحفظ هذه المدخلات في قاعدة بياناتنا ولا نستخدمها لأي غرض آخر. ننصح بعدم إدخال معلومات حساسة (كلمات المرور، أرقام البطاقات البنكية، معطيات صحية).', fr: 'Lorsque vous utilisez AI Studio, le texte saisi dans les champs est transmis à un fournisseur de génération de texte uniquement pour produire le résultat. Ces saisies ne sont pas enregistrées dans notre base de données et ne servent à aucune autre fin. Ne saisissez pas de données sensibles (mots de passe, numéros de carte bancaire, données de santé).', en: 'When you use AI Studio, the text you enter is sent to a text-generation provider only to produce the result. These inputs are not stored in our database and are not used for any other purpose. Do not enter sensitive information (passwords, bank card numbers, health data).' })}</p>
+          </div>
         </div>
       </div>
     </section>

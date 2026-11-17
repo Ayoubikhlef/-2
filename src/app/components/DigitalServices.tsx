@@ -42,6 +42,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { brand } from '../config/brand';
 import { describeOrderError, saveOrder } from '../utils/orderStorage';
 import { submitOrderToSheet } from '../utils/googleForm';
+import { AiStudio } from './AiStudio';
 import {
   DIGITAL_CATEGORIES,
   DIGITAL_FAQS,
@@ -573,21 +574,37 @@ export function DigitalServices() {
                 </p>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() =>
-                openQuote(
-                  services.find((service) => service.category === 'ai')?.bookingValue ??
-                    services[0]?.bookingValue,
-                )
-              }
-              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-black text-primary shadow-lg transition hover:-translate-y-0.5"
-            >
-              {t({ ar: 'اطلب خدمة AI', fr: 'Demander un service IA', en: 'Request an AI service' })}
-              <ArrowRight className="h-4 w-4 rtl:rotate-180" />
-            </button>
+            <div className="flex shrink-0 flex-col gap-2 sm:flex-row md:items-center">
+              <a
+                href="#ai-studio"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white/10 px-5 py-3 text-sm font-black text-white ring-1 ring-white/25 transition hover:bg-white/20"
+              >
+                <Sparkles className="h-4 w-4" />
+                {t({ ar: 'جرّب AI Studio', fr: 'Essayer AI Studio', en: 'Try AI Studio' })}
+              </a>
+              <button
+                type="button"
+                onClick={() =>
+                  openQuote(
+                    services.find((service) => service.category === 'ai')?.bookingValue ??
+                      services[0]?.bookingValue,
+                  )
+                }
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-black text-primary shadow-lg transition hover:-translate-y-0.5"
+              >
+                {t({ ar: 'اطلب خدمة AI', fr: 'Demander un service IA', en: 'Request an AI service' })}
+                <ArrowRight className="h-4 w-4 rtl:rotate-180" />
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Live generator: the key stays on the server; the browser only gets the text. */}
+        <AiStudio
+          onRequestService={openQuote}
+          cvServiceValue={services.find((service) => service.id === 'ai-cv')?.bookingValue}
+          contentServiceValue={services.find((service) => service.id === 'ai-content')?.bookingValue}
+        />
 
         {/* Category filter + search */}
         <div id="digital-filters" className="mt-10 space-y-3">

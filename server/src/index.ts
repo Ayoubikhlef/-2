@@ -10,6 +10,7 @@ import path from 'path';
 import http from 'http';
 import { authRouter } from './routes/auth';
 import { chatRouter } from './routes/chat';
+import { aiRouter } from './routes/ai';
 import { productRouter } from './routes/products';
 import { orderRouter, cancelStaleOrders } from './routes/orders';
 import { customersRouter } from './routes/customers';
@@ -127,6 +128,9 @@ const registerLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 5, handler: s
 const orderLimiter = rateLimit({ windowMs: 60 * 1000, max: 600, handler: securityRateLimitHandler('orders'), validate: { xForwardedForHeader: false } });
 const generalLimiter = rateLimit({ windowMs: 60 * 1000, max: 600, handler: securityRateLimitHandler('general'), validate: { xForwardedForHeader: false } });
 const contactLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 12, handler: securityRateLimitHandler('contact'), validate: { xForwardedForHeader: false } });
+// Generation costs a provider quota, so the public generator is stricter than
+// the general API limit: 12 answers per IP per 10 minutes.
+const aiLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 12, handler: securityRateLimitHandler('ai'), validate: { xForwardedForHeader: false } });
 // A snapshot contains the whole database, so it is limited to a handful of
 // owner-triggered downloads per hour.
 const snapshotLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 6, handler: securityRateLimitHandler('snapshot'), validate: { xForwardedForHeader: false } });
@@ -139,6 +143,7 @@ app.use('/api/auth/resend-verification', passwordResetLimiter);
 app.use('/api/newsletter', generalLimiter);
 app.use('/api/contact', contactLimiter);
 app.use('/api/chat', generalLimiter);
+app.use('/api/ai/generate', aiLimiter);
 app.use('/api/orders', orderLimiter);
 app.use('/api/customers', generalLimiter);
 app.use('/api/loyalty', orderLimiter);
@@ -151,6 +156,7 @@ app.use('/api/payment', orderLimiter);
 
 app.use('/api/auth', authRouter);
 app.use('/api/chat', chatRouter);
+app.use('/api/ai', aiRouter);
 app.use('/api/products', productRouter);
 app.use('/api/orders', orderRouter);
 app.use('/api/customers', customersRouter);

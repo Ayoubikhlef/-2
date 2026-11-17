@@ -224,7 +224,7 @@ export default function App() {
     typeof window !== 'undefined' && window.location.pathname.replace(/\/+$/, '') === '/create-website';
   const productSlug = typeof window !== 'undefined' ? productPathFromUrl(window.location.pathname) : null;
   const isProductPage = Boolean(productSlug);
-  const is404 = !isFactoryPage && !isProductPage && !isLoginRoute && typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#digital-services', '#digital-quote', '#hqpanel', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq', '#web', '#demo', '#order-tracking'].includes(hash);
+  const is404 = !isFactoryPage && !isProductPage && !isLoginRoute && typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#digital-services', '#digital-quote', '#ai-studio', '#hqpanel', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq', '#web', '#demo', '#order-tracking'].includes(hash);
   const [maintenance, setMaintenance] = useState(false);
   // Render immediately for returning visitors (the flag is cached locally)
   // and refresh it in the background. Only the very first visit waits, with
@@ -247,7 +247,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const sectionHash = ['#products', '#booking', '#services', '#digital-services', '#digital-quote', '#contact', '#wishlist', '#faq', '#order-tracking'];
+    const sectionHash = ['#products', '#booking', '#services', '#digital-services', '#digital-quote', '#ai-studio', '#contact', '#wishlist', '#faq', '#order-tracking'];
     if (sectionHash.includes(hash)) {
       const id = hash.slice(1);
       const timer = setTimeout(() => {
@@ -336,6 +336,7 @@ export default function App() {
         '#products': { ar: 'المنتجات', fr: 'Produits', en: 'Products' },
         '#services': { ar: 'الخدمات', fr: 'Services', en: 'Services' },
         '#digital-services': { ar: 'الخدمات الرقمية والذكاء الاصطناعي', fr: 'Services digitaux et IA', en: 'Digital & AI Services' },
+        '#ai-studio': { ar: 'AI Studio — توليد النصوص', fr: 'AI Studio — génération de texte', en: 'AI Studio — text generation' },
         '#web':      { ar: 'إنشاء المواقع', fr: 'Création de sites web', en: 'Web Design' },
         '#demo':     { ar: 'متجر تجريبي', fr: 'Boutique démo', en: 'Demo store' },
         '#contact':  { ar: 'اتصل بنا', fr: 'Contact', en: 'Contact Us' },
