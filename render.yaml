@@ -84,15 +84,18 @@ services:
         value: "backups"
       - key: BACKUP_KEEP
         value: "7"
-      # AI Studio. Create a free key at https://aistudio.google.com/app/apikey
-      # and paste it in the Render dashboard (Environment → AI_API_KEY).
-      # The key stays server-side and always takes priority.
-      # With no key, the server uses a free keyless OpenAI-compatible provider;
-      # set AI_ALLOW_KEYLESS=false in the dashboard to disable generation instead.
+      # AI Studio. Two ways to add a key, both server-side only:
+      #   AI_API_KEY          — Gemini (free tier) https://aistudio.google.com/app/apikey
+      #   OPENROUTER_API_KEY  — Claude and others https://openrouter.ai/keys
+      # When OPENROUTER_API_KEY is set it runs first and the other configured
+      # keys act as fallbacks; with no key, a free keyless provider is used.
+      # Set AI_ALLOW_KEYLESS=false in the dashboard to disable that fallback.
       - key: AI_PROVIDER
         value: "gemini"
       - key: AI_API_KEY
         sync: false
-      # Soft daily cap that protects the free provider quota.
+      - key: OPENROUTER_API_KEY
+        sync: false
+      # Soft daily cap that protects the provider quota.
       - key: AI_DAILY_LIMIT
         value: "200"

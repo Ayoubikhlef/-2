@@ -2,18 +2,20 @@
  * Text generation for the public AI Studio.
  *
  * Every supported provider exposes an OpenAI-compatible /chat/completions
- * endpoint, so a single request shape covers Gemini, Groq and OpenAI (or any
- * custom compatible endpoint). The API key is read from the server environment
- * and never reaches the browser or the logs.
+ * endpoint, so a single request shape covers Gemini, OpenRouter, Groq and
+ * OpenAI (or any custom compatible endpoint). The API key is read from the
+ * server environment and never reaches the browser or the logs.
  *
- * Provider selection (first match wins):
+ * Provider order:
+ *   AI_PROVIDER + AI_API_KEY when both are set (explicit choice)
+ *   OPENROUTER_API_KEY (Claude and other models through openrouter.ai)
  *   AI_API_KEY + AI_PROVIDER (default "gemini")
  *   GEMINI_API_KEY
  *   GROQ_API_KEY
  *   OPENAI_API_KEY
  *   keyless fallback (free OpenAI-compatible endpoint) unless AI_ALLOW_KEYLESS=false
- * A keyed provider that times out, is rate-limited or returns a 5xx answer is
- * retried once on the keyless endpoint when it is enabled.
+ * A provider that times out, is rate-limited, returns a 5xx or runs out of
+ * credit is skipped in favour of the next one in the chain.
  * Optional overrides: AI_BASE_URL, AI_MODEL, AI_KEYLESS_BASE_URL, AI_KEYLESS_MODEL, AI_TIMEOUT_MS.
  * AI_MOCK=1 answers with a local sample so the UI can be tested without a key.
  */
@@ -64,6 +66,13 @@ const PROVIDER_DEFAULTS: Record<string, { baseUrl: string; model: string }> = {
   groq: {
     baseUrl: 'https://api.groq.com/openai/v1',
     model: 'llama-3.3-70b-versatile',
+  },
+  openrouter: {
+    // One key for Claude and hundreds of other models. Model ids are namespaced:
+    // https://openrouter.ai/models. Haiku keeps a public page affordable; set
+    // AI_MODEL="anthropic/claude-sonnet-5.5" for higher writing quality.
+    baseUrl: 'https://openrouter.ai/api/v1',
+    model: 'anthropic/claude-haiku-5.5',
   },
   openai: {
     baseUrl: 'https://api.openai.com/v1',
@@ -142,30 +151,7 @@ function keylessConfig(): ProviderConfig | null {
   };
 }
 
-function resolveProvider(): ProviderConfig | null {
-  let apiKey = env('AI_API_KEY');
-  let provider = (env('AI_PROVIDER') || 'gemini').toLowerCase();
-
-  if (!apiKey && env('GEMINI_API_KEY')) {
-    apiKey = env('GEMINI_API_KEY');
-    provider = 'gemini';
-  }
-  if (!apiKey && env('GROQ_API_KEY')) {
-    apiKey = env('GROQ_API_KEY');
-    provider = 'groq';
-  }
-  if (!apiKey && env('OPENAI_API_KEY')) {
-    apiKey = env('OPENAI_API_KEY');
-    provider = 'openai';
-  }
-
-  if (!apiKey) {
-    // Keep the public generator usable without forcing the owner to create a
-    // key. A configured key always wins, so adding Gemini later needs no
-    // code change.
-    return keylessConfig();
-  }
-
+function providerConfig(provider: string, apiKey: string): ProviderConfig {
   const defaults = PROVIDER_DEFAULTS[provider] || PROVIDER_DEFAULTS.gemini;
   return {
     apiKey,
@@ -173,6 +159,45 @@ function resolveProvider(): ProviderConfig | null {
     baseUrl: (env('AI_BASE_URL') || defaults.baseUrl).replace(/\/+$/, ''),
     model: env('AI_MODEL') || defaults.model,
   };
+}
+
+function resolveProviders(): ProviderConfig[] {
+  const chain: ProviderConfig[] = [];
+  const add = (config: ProviderConfig | null) => {
+    if (!config) return;
+    // The same provider + model is never tried twice, even when two env vars
+    // happen to point at it.
+    if (chain.some((item) => item.provider === config.provider && item.model === config.model)) return;
+    chain.push(config);
+  };
+
+  const explicit = (env('AI_PROVIDER') || '').toLowerCase();
+  const apiKey = env('AI_API_KEY');
+  const openrouterKey = env('OPENROUTER_API_KEY');
+  // "gemini" is the historical default and what render.yaml shipped, so it is
+  // not treated as an explicit override. Any other AI_PROVIDER is.
+  const customExplicit = explicit !== '' && explicit !== 'gemini';
+
+  // An explicit AI_PROVIDER means the owner chose it deliberately, so it stays
+  // first. Otherwise OpenRouter leads when its key is present, and Gemini acts
+  // as the second provider instead of the first.
+  if (apiKey && customExplicit) add(providerConfig(explicit, apiKey));
+  if (openrouterKey) add(providerConfig('openrouter', openrouterKey));
+  if (apiKey) add(providerConfig(customExplicit ? explicit : 'gemini', apiKey));
+
+  if (env('GEMINI_API_KEY')) add(providerConfig('gemini', env('GEMINI_API_KEY')));
+  if (env('GROQ_API_KEY')) add(providerConfig('groq', env('GROQ_API_KEY')));
+  if (env('OPENAI_API_KEY')) add(providerConfig('openai', env('OPENAI_API_KEY')));
+
+  // Keep the public generator usable without forcing the owner to create a
+  // key. Free endpoints always come last.
+  add(keylessConfig());
+
+  return chain;
+}
+
+function resolveProvider(): ProviderConfig | null {
+  return resolveProviders()[0] || null;
 }
 
 export function isAiAvailable(): boolean {
@@ -347,17 +372,23 @@ function normalizeContent(content: unknown): string {
 async function callProvider(
   provider: ProviderConfig,
   options: { system: string; prompt: string; maxTokens: number; temperature: number },
+  deadline: number,
 ): Promise<string> {
-  // Fail over to the keyless provider quickly when a keyed provider is slow.
-  // The browser waits up to 60s, and the fallback has its own 25s budget.
-  // AI_TIMEOUT_MS only tunes the keyed provider.
+  // Fail over quickly when a provider is slow: the browser waits up to 60s and
+  // the fallback needs time of its own. AI_TIMEOUT_MS only tunes keyed
+  // providers; the keyless free endpoint keeps a fixed 25s budget.
   const configuredTimeout = Number(env('AI_TIMEOUT_MS'));
-  const timeoutMs =
+  const baseTimeout =
     provider.provider === 'keyless'
       ? 25000
       : Number.isFinite(configuredTimeout) && configuredTimeout > 0
         ? configuredTimeout
         : 20000;
+  const remaining = deadline - Date.now();
+  if (remaining < 1500) {
+    throw new AiError('ai_timeout', 504, 'AI provider timed out');
+  }
+  const timeoutMs = Math.min(baseTimeout, remaining);
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -367,6 +398,10 @@ async function callProvider(
   // Other providers reject the field, so it is only sent to Gemini 2.5.
   const supportsNoThinking =
     provider.provider === 'gemini' && /2\.5/i.test(provider.model);
+  // OpenRouter/Anthropic models think by default too. Copywriting does not
+  // need that budget, so ask for no reasoning to keep the answer fast and cheap.
+  const isOpenRouterClaude =
+    provider.provider === 'openrouter' && /anthropic\/claude/i.test(provider.model);
 
   try {
     const response = await fetch(`${provider.baseUrl}/chat/completions`, {
@@ -375,6 +410,10 @@ async function callProvider(
         'Content-Type': 'application/json',
         // The keyless free provider rejects an empty Bearer header.
         ...(provider.apiKey ? { Authorization: `Bearer ${provider.apiKey}` } : {}),
+        // Optional attribution headers recommended by OpenRouter.
+        ...(provider.provider === 'openrouter'
+          ? { 'HTTP-Referer': 'https://aos-tech.store', 'X-Title': 'AOS Tech Store' }
+          : {}),
       },
       body: JSON.stringify({
         model: provider.model,
@@ -385,6 +424,7 @@ async function callProvider(
         temperature: options.temperature,
         max_tokens: options.maxTokens,
         ...(supportsNoThinking ? { reasoning_effort: 'none' } : {}),
+        ...(isOpenRouterClaude ? { reasoning: { effort: 'none' } } : {}),
       }),
       signal: controller.signal,
     });
@@ -404,6 +444,9 @@ async function callProvider(
 
       if (response.status === 401 || response.status === 403) {
         throw new AiError('ai_provider_auth', 502, 'AI provider rejected the credentials');
+      }
+      if (response.status === 402) {
+        throw new AiError('ai_provider_credit', 502, 'AI provider account has no credit');
       }
       if (response.status === 429) {
         throw new AiError('ai_rate_limited', 429, 'AI provider rate limit reached');
@@ -512,8 +555,8 @@ function mockText(tool: AiTool, language: AiLanguage, fields: Record<string, str
 
 export async function generateContent(input: GenerateInput): Promise<GenerateResult> {
   const mock = isAiMock();
-  const provider = mock ? null : resolveProvider();
-  if (!mock && !provider) {
+  const providers = mock ? [] : resolveProviders();
+  if (!mock && providers.length === 0) {
     throw new AiError('ai_not_configured', 503, 'AI generation is not configured');
   }
 
@@ -541,18 +584,24 @@ export async function generateContent(input: GenerateInput): Promise<GenerateRes
   consumeBudget();
 
   const options = buildPrompt(input.tool, input.language, fields);
-  try {
-    const text = await callProvider(provider!, options);
-    return { text, model: provider!.model, mock: false };
-  } catch (error) {
-    // A configured key can hit a rate limit or a 503 demand spike. Keep the
-    // public generator usable by answering from the free endpoint instead of
-    // showing a timeout to the visitor.
-    if (provider!.provider === 'keyless' || !(error instanceof AiError)) throw error;
-    const fallback = keylessConfig();
-    if (!fallback) throw error;
-    console.warn(`[AI] Primary provider failed (${error.code}); using keyless fallback`);
-    const text = await callProvider(fallback, options);
-    return { text, model: fallback.model, mock: false };
+  // The browser aborts at 60s, so stop trying providers before that and leave
+  // room to serialise the answer. A provider that fails for any reason (auth,
+  // credit, rate limit, outage, timeout) is skipped instead of surfacing an
+  // error to the visitor.
+  const deadline = Date.now() + 55000;
+  let lastError: unknown = null;
+
+  for (const provider of providers) {
+    try {
+      const text = await callProvider(provider, options, deadline);
+      return { text, model: provider.model, mock: false };
+    } catch (error) {
+      if (!(error instanceof AiError)) throw error;
+      lastError = error;
+      if (Date.now() >= deadline - 1500) break;
+      console.warn(`[AI] Provider ${provider.provider} failed (${error.code}); trying the next one`);
+    }
   }
+
+  throw lastError instanceof AiError ? lastError : new AiError('ai_upstream', 502, 'AI provider request failed');
 }
