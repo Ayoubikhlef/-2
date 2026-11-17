@@ -272,8 +272,9 @@ interface AiStudioProps {
 
 export function AiStudio({ onRequestService, cvServiceValue, contentServiceValue }: AiStudioProps) {
   const { t, language } = useLanguage();
+  // SSR fallback: initialize with default language if server-side detection fails
   const [tool, setTool] = useState<AiStudioTool>('cv');
-  const [outputLang, setOutputLang] = useState<AiStudioLanguage>(language);
+  const [outputLang, setOutputLang] = useState<AiStudioLanguage>(language || 'ar');
   const [values, setValues] = useState<Record<AiStudioTool, Record<string, string>>>(EMPTY_VALUES);
   const [result, setResult] = useState<AiStudioResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -284,20 +285,31 @@ export function AiStudio({ onRequestService, cvServiceValue, contentServiceValue
 
   const activeTool = TOOLS.find((item) => item.id === tool) || TOOLS[0];
 
+  // Only sync outputLang with language on client-side hydration
   useEffect(() => {
-    setOutputLang(language);
+    setOutputLang(language || 'ar');
   }, [language]);
 
+  // SSR-safe status check: initialize as unavailable on server, then try to fetch
   useEffect(() => {
     let active = true;
+
+    // Skip API call on initial server render (no window)
+    if (typeof window === 'undefined') {
+      // On server, assume mock mode until client hydrates
+      setTimeout(() => {
+        if (active) setStatus({ available: false, mock: true });
+      }, 500);
+      return;
+    }
+
     api.ai
       .status()
       .then((data) => {
         if (active) setStatus(data);
       })
       .catch(() => {
-        // An older server without /api/ai simply shows the "being activated"
-        // badge; the form still explains the state if the user tries.
+        // An older server without /api/ai or network issues - show fallback UI
         if (active) setStatus({ available: false, mock: false });
       });
     return () => {
