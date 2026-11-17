@@ -84,3 +84,13 @@ services:
         value: "backups"
       - key: BACKUP_KEEP
         value: "7"
+      # AI Studio. Create a free key at https://aistudio.google.com/app/apikey
+      # and paste it in the Render dashboard (Environment → AI_API_KEY).
+      # The key stays server-side; without it the generator stays disabled.
+      - key: AI_PROVIDER
+        value: "gemini"
+      - key: AI_API_KEY
+        sync: false
+      # Soft daily cap that protects the free provider quota.
+      - key: AI_DAILY_LIMIT
+        value: "200"

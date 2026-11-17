@@ -305,6 +305,13 @@ async function callProvider(
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 25000);
 
+  // Gemini 2.5 "thinks" by default through the OpenAI-compatible endpoint and
+  // those tokens count against max_tokens, which can leave the answer empty or
+  // cut off. Copywriting does not need reasoning, so it is disabled there.
+  // Other providers reject the field, so it is only sent to Gemini 2.5.
+  const supportsNoThinking =
+    provider.provider === 'gemini' && /2\.5/i.test(provider.model);
+
   try {
     const response = await fetch(`${provider.baseUrl}/chat/completions`, {
       method: 'POST',
@@ -320,6 +327,7 @@ async function callProvider(
         ],
         temperature: options.temperature,
         max_tokens: options.maxTokens,
+        ...(supportsNoThinking ? { reasoning_effort: 'none' } : {}),
       }),
       signal: controller.signal,
     });
