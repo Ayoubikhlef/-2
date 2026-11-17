@@ -276,6 +276,7 @@ const createOrderSchema = z
     items: z.array(orderItemSchema).min(1).max(50),
     total: z.number().nonnegative().max(10000000),
     source: z.enum(['form', 'quick-order', 'service-booking']),
+    paymentMethod: z.enum(['cod', 'cib', 'dzapi', 'paypal']).optional(),
     discountCode: z.string().max(50).optional(),
   })
   .superRefine((data, ctx) => {
@@ -600,7 +601,7 @@ orderRouter.post('/', createOrderLimiter, async (req: Request, res: Response) =>
           wilayaId: isService ? null : localityId,
           status: 'new',
           source: data.source,
-          paymentMethod: isService ? null : 'cod',
+          paymentMethod: data.paymentMethod ?? (isService ? null : 'cod'),
           discountAmount,
           discountCode: appliedCode ?? null,
           statusEvents: { create: { status: 'new' } },

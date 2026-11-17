@@ -173,7 +173,7 @@ function orderFingerprint(order: Omit<OrderRecord, 'id' | 'createdAt' | 'status'
   const items = order.items
     .map((item) => `${item.productId ?? item.name}:${item.quantity}:${item.price}`)
     .join('|');
-  return `${order.phone}|${order.source}|${order.total}|${items}`;
+  return `${order.phone}|${order.source}|${order.total}|${order.paymentMethod ?? ''}|${items}`;
 }
 
 export async function saveOrder(order: Omit<OrderRecord, 'id' | 'createdAt' | 'status'>): Promise<OrderRecord> {
@@ -231,6 +231,7 @@ async function saveOrderInternal(order: Omit<OrderRecord, 'id' | 'createdAt' | '
       deliveryMethod: order.deliveryMethod,
       total: order.total,
       source: order.source,
+      paymentMethod: order.paymentMethod,
       discountCode: order.discountCode,
       // The same id is used locally and on the server, so retries are
       // idempotent and the admin list cannot show the order twice.
@@ -365,6 +366,7 @@ export async function pushUnsyncedOrders(): Promise<void> {
         deliveryMethod: order.deliveryMethod,
         total: order.total,
         source: order.source,
+        paymentMethod: order.paymentMethod,
         discountCode: order.discountCode,
         id: order.id,
         createdAt: order.createdAt,

@@ -7,16 +7,69 @@ import { defaultServices, getAllServiceOptions, getServiceByValue } from '../dat
 import { submitOrderToSheet } from '../utils/googleForm';
 import { toast } from 'sonner';
 import { motion } from 'motion/react';
+import { calculateOrderTotal, getPaymentLabel, type PaymentMethod } from '../utils/paymentProvider';
+import { PaymentMethodSelector } from './PaymentMethodSelector';
 
 export function ServiceBooking() {
   const { t, language } = useLanguage();
   const [services, setServices] = useState(() => { initializeServices(defaultServices); return getStoredServices(defaultServices); });
-  const [form, setForm] = useState({ name: '', phone: '', service: '', note: '' });
+
+  // نموذج الحجز الموسع مع خيارات الدفع والعنوان
+  const [form, setForm] = useState<{
+    name: string;
+    phone: string;
+    wilaya: string;
+    municipality: string;
+    address: string;
+    service: string;
+    note: string;
+    paymentMethod: PaymentMethod | null;
+  }>({
+    name: '',
+    phone: '',
+    wilaya: '',
+    municipality: '',
+    address: '',
+    service: '',
+    note: '',
+    paymentMethod: null,
+  });
+
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const submitLock = useRef(false);
-  const [bookingSummary, setBookingSummary] = useState<{ serviceName: string; name: string; phone: string; note: string } | null>(null);
+  const [bookingSummary, setBookingSummary] = useState<{
+    serviceName: string;
+    name: string;
+    phone: string;
+    note: string;
+    wilaya: string;
+    municipality: string;
+    address: string;
+    paymentMethod: PaymentMethod | null;
+    total: number;
+    fee: number;
+  } | null>(null);
+
   const serviceOptions = useMemo(() => getAllServiceOptions(services), [services]);
+
+  // الحصول على أسعار الخدمات من الداتا (إذا كانت متوفرة) أو استخدام سعر افتراضي
+  // سنقوم بتخزين المبالغ في localStorage أو جلبها عند الحاجة
+  const getServicePrice = (serviceValue: string): number => {
+    // هذه القيمة تُحسب بناءً على الخدمة المختارة - يمكن إضافتها لاحقاً
+    // حالياً سنستخدم سعر افتراضي 0 لأن معظم خدمات الحجز يتم الاتفاق عليها هاتفيًا
+    return 0;
+  };
+
+  const calculateBookingTotal = (serviceValue: string, paymentMethodId: PaymentMethod | null): number => {
+    const basePrice = getServicePrice(serviceValue);
+    const { total } = calculateOrderTotal(basePrice, paymentMethodId);
+    return total;
+  };
+
+  const bookingTotal = form.paymentMethod
+    ? calculateBookingTotal(form.service, form.paymentMethod)
+    : 0;
 
   useEffect(() => {
     const refresh = () => setServices(getStoredServices(defaultServices));
@@ -41,28 +94,56 @@ export function ServiceBooking() {
     submitLock.current = true;
     setSubmitting(true);
     try {
+      // Only include the address parts the customer actually filled in, so an
+      // empty block never appears in the order or in the confirmation.
+      const fullAddress = [
+        form.wilaya.trim() && `${t({ ar: 'الولاية', fr: 'Wilaya', en: 'Wilaya' })}: ${form.wilaya.trim()}`,
+        form.municipality.trim() && `${t({ ar: 'البلدية', fr: 'Commune', en: 'Municipality' })}: ${form.municipality.trim()}`,
+        form.address.trim() && `${t({ ar: 'العنوان', fr: 'Adresse', en: 'Address' })}: ${form.address.trim()}`,
+      ]
+        .filter(Boolean)
+        .join(' | ');
+
+      const totals = calculateOrderTotal(getServicePrice(form.service), form.paymentMethod);
+
       await saveOrder({
         customer: form.name,
         phone: form.phone,
         email: '',
-        wilaya: '',
-        municipality: '',
-        address: '',
+        wilaya: form.wilaya,
+        municipality: form.municipality,
+        address: fullAddress,
         note: `${t({ ar: 'الخدمة', fr: 'Service', en: 'Service' })}: ${option[language]}${form.note ? ` | ${t({ ar: 'ملاحظات', fr: 'Notes', en: 'Notes' })}: ${form.note}` : ''}`,
         items: [{ name: option[language], quantity: 1, price: 0, total: 0 }],
-        total: 0,
+        total: totals.total,
         source: 'service-booking',
+        paymentMethod: form.paymentMethod ?? undefined,
       });
 
       setSubmitted(true);
-      setBookingSummary({ serviceName: option[language], name: form.name, phone: form.phone, note: form.note });
+      setBookingSummary({
+        serviceName: option[language],
+        name: form.name,
+        phone: form.phone,
+        note: form.note,
+        wilaya: form.wilaya,
+        municipality: form.municipality,
+        address: fullAddress,
+        paymentMethod: form.paymentMethod,
+        total: totals.total,
+        fee: totals.fee,
+      });
       toast.success(t({ ar: 'تم حجز الخدمة بنجاح!', fr: 'Service réservé avec succès!', en: 'Service booked successfully!' }));
       void submitOrderToSheet({
         name: form.name,
         phone: form.phone,
         product: option[language],
         quantity: 1,
-        notes: form.note ? `ملاحظات: ${form.note} | المصدر: حجز خدمة` : 'المصدر: حجز خدمة',
+        notes: [
+          form.note ? `ملاحظات: ${form.note}` : '',
+          form.paymentMethod ? `الدفع: ${getPaymentLabel(form.paymentMethod, 'ar')}` : '',
+          'المصدر: حجز خدمة',
+        ].filter(Boolean).join(' | '),
       });
     } catch (err: any) {
       console.error('[ServiceBooking] submit failed:', err);
@@ -80,7 +161,16 @@ export function ServiceBooking() {
   const resetForm = () => {
     setSubmitted(false);
     setBookingSummary(null);
-    setForm({ name: '', phone: '', service: '', note: '' });
+    setForm({
+      name: '',
+      phone: '',
+      wilaya: '',
+      municipality: '',
+      address: '',
+      service: '',
+      note: '',
+      paymentMethod: null
+    });
   };
 
   return (
@@ -141,9 +231,23 @@ export function ServiceBooking() {
                 )}
                 <div className="pt-2.5 border-t border-border flex justify-between items-center">
                   <span className="text-muted-foreground">{t({ ar: 'الدفع', fr: 'Paiement', en: 'Payment' })}</span>
-                  <span className="font-medium text-emerald-600">{t({ ar: 'عند الاستلام / حسب الخدمة', fr: 'À la livraison', en: 'On delivery' })}</span>
+                  <span className="font-medium text-emerald-600">{getPaymentLabel(bookingSummary.paymentMethod, language)}</span>
                 </div>
+                {bookingSummary.total > 0 && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">{t({ ar: 'الإجمالي', fr: 'Total', en: 'Total' })}</span>
+                    <span className="font-bold">{bookingSummary.total.toLocaleString('en-US')} د.ج</span>
+                  </div>
+                )}
               </div>
+
+              {/* Show the address only when at least one part was provided. */}
+              {bookingSummary.address && (
+                <div className="pt-2 border-t border-border text-sm">
+                  <div className="text-muted-foreground mb-1">{t({ ar: 'العنوان:', fr: 'Adresse:', en: 'Address:' })}</div>
+                  <div className="text-right" dir="auto">{bookingSummary.address}</div>
+                </div>
+              )}
             </div>
 
             <button onClick={resetForm} className="bg-primary text-primary-foreground px-8 py-4 rounded-2xl font-bold text-lg hover:bg-primary/90 transition-all">
@@ -194,6 +298,56 @@ export function ServiceBooking() {
                 </div>
               </div>
 
+              {/* معلومات العنوان - اختياري */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="booking-wilaya" className="block text-base font-bold mb-2">
+                    {t({ ar: 'الولاية', fr: 'Wilaya / State', en: 'State' })}
+                  </label>
+                  <input
+                    id="booking-wilaya"
+                    name="wilaya"
+                    type="text"
+                    value={form.wilaya}
+                    onChange={(e) => setForm({ ...form, wilaya: e.target.value })}
+                    placeholder={t({ ar: 'مثال: وهران', fr: 'Ex: Oran', en: 'Ex: Oran' })}
+                    className="w-full rounded-2xl border-2 border-border bg-background pl-5 py-4 text-base outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="booking-municipality" className="block text-base font-bold mb-2">
+                    {t({ ar: 'البلدية', fr: 'Commune / Municipality', en: 'Municipality' })}
+                  </label>
+                  <input
+                    id="booking-municipality"
+                    name="municipality"
+                    type="text"
+                    value={form.municipality}
+                    onChange={(e) => setForm({ ...form, municipality: e.target.value })}
+                    placeholder={t({ ar: 'مثال: بني عمار', fr: 'Ex: Ben Amar', en: 'Ex: Ben Amar' })}
+                    className="w-full rounded-2xl border-2 border-border bg-background pl-5 py-4 text-base outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="booking-address" className="block text-base font-bold mb-2">
+                  {t({ ar: 'العنوان الكامل', fr: 'Adresse complète', en: 'Full Address' })}
+                </label>
+                <div className="relative">
+                  <MessageSquare className="absolute left-4 top-4 w-5 h-5 text-muted-foreground" aria-hidden="true" />
+                  <textarea
+                    id="booking-address"
+                    name="address"
+                    value={form.address}
+                    onChange={(e) => setForm({ ...form, address: e.target.value })}
+                    rows={2}
+                    placeholder={t({ ar: 'شارع رقم...', fr: 'Rue numéro...', en: 'Street number...' })}
+                    className="w-full resize-none rounded-2xl border-2 border-border bg-background pl-12 pr-5 py-4 text-base outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+              </div>
+
               <div>
                 <label htmlFor="booking-service" className="block text-base font-bold mb-2">
                   {t({ ar: 'اختر نوع الخدمة', fr: 'Choisissez le type de service', en: 'Select Service Type' })} <span className="text-destructive">*</span>
@@ -231,15 +385,41 @@ export function ServiceBooking() {
                 </div>
               </div>
 
+              {/* اختيار طريقة الدفع */}
+              <PaymentMethodSelector
+                selectedMethod={form.paymentMethod}
+                onSelect={(method) => setForm({ ...form, paymentMethod: method })}
+              />
+
               <button
                 type="submit"
-                disabled={submitting}
+                disabled={submitting || !form.paymentMethod}
                 className="w-full rounded-2xl bg-gradient-to-r from-primary to-blue-700 px-6 py-5 text-primary-foreground font-bold text-xl shadow-xl shadow-primary/20 hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
                 {submitting
                   ? t({ ar: 'جارٍ إرسال الحجز...', fr: 'Envoi en cours...', en: 'Sending booking...' })
                   : t({ ar: 'تأكيد الحجز', fr: 'Confirmer la réservation', en: 'Confirm Booking' })}
               </button>
+
+              {/* حساب الإجمالي قبل التأكيد */}
+              {form.paymentMethod && (
+                <div className="flex justify-between items-center gap-3 p-3 bg-primary/10 rounded-xl text-sm font-medium">
+                  {bookingTotal > 0 ? (
+                    <>
+                      <span className="text-muted-foreground">{t({ ar: 'الإجمالي', fr: 'Total', en: 'Total' })}</span>
+                      <span className="text-primary text-lg">{bookingTotal.toLocaleString('en-US')} د.ج</span>
+                    </>
+                  ) : (
+                    <span className="text-muted-foreground">
+                      {t({
+                        ar: 'سعر الخدمة يُتفق عليه بعد التواصل',
+                        fr: 'Le prix du service est convenu après contact',
+                        en: 'The service price is agreed after contact',
+                      })}
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
           </form>
         )}

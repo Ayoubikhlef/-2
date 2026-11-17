@@ -12,6 +12,7 @@ import { syncAllFromServer, getSyncStatus, getLastSyncTime } from '../utils/glob
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../contexts/AuthContext';
 import { brand } from '../config/brand';
+import { getPaymentLabel } from '../utils/paymentProvider';
 
 const ManageProductsTab = lazy(() => import('./ManageProductsTab').then(m => ({ default: m.ManageProductsTab })));
 const ManageServicesTab = lazy(() => import('./ManageServicesTab').then(m => ({ default: m.ManageServicesTab })));
@@ -315,7 +316,7 @@ export function Admin() {
       [t({ ar: 'الإجمالي (د.ج)', fr: 'Total (DZD)', en: 'Total (DZD)' })]: Number(order.total) || 0,
       [t({ ar: 'الحالة', fr: 'Statut', en: 'Status' })]: statusConfig[order.status].label[language],
       [t({ ar: 'المصدر', fr: 'Source', en: 'Source' })]: order.source,
-      [t({ ar: 'الدفع', fr: 'Paiement', en: 'Payment' })]: order.paymentMethod || 'cod',
+      [t({ ar: 'الدفع', fr: 'Paiement', en: 'Payment' })]: getPaymentLabel(order.paymentMethod, language),
       [t({ ar: 'ملاحظات', fr: 'Notes', en: 'Notes' })]: order.note || '',
     }));
 
