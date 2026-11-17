@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { motion } from 'motion/react';
-import { ArrowRight, Phone, Globe } from 'lucide-react';
+import { ArrowRight, Phone, Globe, Sparkles } from 'lucide-react';
 import { getSiteContent } from '../utils/siteContentStorage';
 import { getSiteSettings } from '../utils/siteSettingsStorage';
 import { TechHeroBackground } from './TechHeroBackground';
@@ -114,6 +114,35 @@ export function Hero() {
                 {t({ ar: 'اتصل بنا', fr: 'Appelez-nous', en: 'Call us' })}
               </a>
             </motion.div>
+
+            <motion.a
+              href="#digital-services"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.65, duration: 0.5 }}
+              className="group mt-8 flex w-full max-w-xl items-center gap-3 rounded-2xl border border-primary/20 bg-white/80 p-3 shadow-lg shadow-primary/10 backdrop-blur transition hover:-translate-y-0.5 hover:shadow-xl dark:border-white/20 dark:bg-white/10"
+            >
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-600 text-white shadow">
+                <Sparkles className="h-5 w-5" />
+              </span>
+              <span className="min-w-0 flex-1 text-start">
+                <span className="block text-sm font-black text-slate-900 dark:text-white">
+                  {t({
+                    ar: 'جديد: خدمات الذكاء الاصطناعي — سيرة، شعار، صور، فيديو وشات بوت',
+                    fr: 'Nouveau : services IA — CV, logo, photos, vidéo et chatbot',
+                    en: 'New: AI services — CV, logo, photos, video and chatbot',
+                  })}
+                </span>
+                <span className="mt-0.5 block text-xs text-slate-600 dark:text-white/70">
+                  {t({
+                    ar: 'نسلّمك النتيجة جاهزة، بدون اشتراكات ولا إعداد معقّد.',
+                    fr: 'Résultat livré prêt à l’emploi, sans abonnement ni configuration complexe.',
+                    en: 'You get the finished result, with no subscriptions or complex setup.',
+                  })}
+                </span>
+              </span>
+              <ArrowRight className="h-5 w-5 shrink-0 text-primary transition group-hover:translate-x-1 rtl:rotate-180" />
+            </motion.a>
           </motion.div>
         </div>
       </div>

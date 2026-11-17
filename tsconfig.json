@@ -18,5 +18,17 @@
     "types": ["vite/client"]
   },
   "include": ["src"],
+  "exclude": [
+    "src/app/api",
+    "src/app/login",
+    "src/app/local-sentry",
+    "src/app/sentry-status",
+    "src/lib/sentry.ts",
+    "src/lib/sentry.server.ts",
+    "src/lib/sentry.local.ts",
+    "src/middleware.ts",
+    "src/app/components/LiquidEther.tsx",
+    "src/app/components/SocialLoginButtons.tsx"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

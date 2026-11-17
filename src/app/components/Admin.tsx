@@ -5,7 +5,7 @@ import { getStoredProducts, initializeProducts, pullProductsFromServer } from '.
 import { products as defaultProducts, type Product } from '../data/products';
 import { getStoredServices, initializeServices } from '../utils/serviceStorage';
 import { defaultServices, type ServiceCategory } from '../data/services';
-import { RefreshCw, Trash2, ChevronDown, Phone, MapPin, Mail, DollarSign, Package, Eye, EyeOff, Lock, Lightbulb, Wrench, FileText, Globe, Settings, Star, MailOpen, Download, Shield, ArrowRight } from 'lucide-react';
+import { RefreshCw, Trash2, ChevronDown, Phone, MapPin, Mail, DollarSign, Package, Eye, EyeOff, Lock, Lightbulb, Wrench, FileText, Globe, Settings, Star, MailOpen, Download, Shield, ArrowRight, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { isMaintenanceMode, setMaintenanceMode, getMaintenanceMessage, setMaintenanceMessage } from '../utils/maintenanceStorage';
 import { syncAllFromServer, getSyncStatus, getLastSyncTime } from '../utils/globalSync';
@@ -15,6 +15,7 @@ import { brand } from '../config/brand';
 
 const ManageProductsTab = lazy(() => import('./ManageProductsTab').then(m => ({ default: m.ManageProductsTab })));
 const ManageServicesTab = lazy(() => import('./ManageServicesTab').then(m => ({ default: m.ManageServicesTab })));
+const DigitalCatalogTab = lazy(() => import('./DigitalCatalogTab').then(m => ({ default: m.DigitalCatalogTab })));
 const AdminDashboard = lazy(() => import('./AdminDashboard').then(m => ({ default: m.AdminDashboard })));
 const LiveFeed = lazy(() => import('./LiveFeed').then(m => ({ default: m.LiveFeed })));
 const CustomersTab = lazy(() => import('./CustomersTab').then(m => ({ default: m.CustomersTab })));
@@ -88,7 +89,7 @@ export function Admin() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [tab, setTab] = useState<'dashboard' | 'orders' | 'products' | 'services' | 'manage-products' | 'manage-services' | 'customers' | 'coupons' | 'content' | 'settings' | 'reviews' | 'newsletter' | 'messages' | 'security' | 'factory'>('orders');
+  const [tab, setTab] = useState<'dashboard' | 'orders' | 'products' | 'services' | 'manage-products' | 'manage-services' | 'digital-catalog' | 'customers' | 'coupons' | 'content' | 'settings' | 'reviews' | 'newsletter' | 'messages' | 'security' | 'factory'>('orders');
   const [manageProducts, setManageProducts] = useState<Product[]>([]);
   const [manageServices, setManageServices] = useState<ServiceCategory[]>([]);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>(getSyncStatus());
@@ -121,6 +122,7 @@ export function Admin() {
       import('./AdminDashboard');
       import('./ManageProductsTab');
       import('./ManageServicesTab');
+      import('./DigitalCatalogTab');
       import('./CouponsTab');
       import('./CustomersTab');
       import('./SecurityTab');
@@ -922,6 +924,17 @@ export function Admin() {
             {t({ ar: 'إدارة الخدمات', fr: 'Gérer services', en: 'Manage Services' })}
           </button>
           <button
+            onClick={() => setTab('digital-catalog')}
+            className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all border flex items-center gap-2 ${
+              tab === 'digital-catalog'
+                ? 'bg-primary text-slate-950 border-primary'
+                : 'bg-slate-900 text-white/70 border-white/10 hover:bg-slate-800'
+            }`}
+          >
+            <Sparkles className="w-4 h-4" />
+            {t({ ar: 'الكتالوج الرقمي', fr: 'Catalogue digital', en: 'Digital Catalogue' })}
+          </button>
+          <button
             onClick={() => setTab('customers')}
             className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all border ${
               tab === 'customers'
@@ -1042,6 +1055,8 @@ export function Admin() {
               setManageServices(getStoredServices(defaultServices));
             }}
           />
+        ) : tab === 'digital-catalog' ? (
+          <DigitalCatalogTab />
         ) : tab === 'dashboard' ? (
           <>
             <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4 mb-6">

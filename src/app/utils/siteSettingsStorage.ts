@@ -122,6 +122,7 @@ const defaultSettings: SiteSettings = {
   footerGradientTo: brand.colors.gradientTo,
   headerNavLinks: [
     { href: '#products', label: { ar: 'منتجات', fr: 'Produits', en: 'Products' } },
+    { href: '#digital-services', label: { ar: 'الخدمات الرقمية', fr: 'Services digitaux', en: 'Digital Services' } },
     { href: '#booking', label: { ar: 'احجز خدمة', fr: 'Réserver', en: 'Book a Service' } },
     { href: '#wishlist', label: { ar: 'المفضلة', fr: 'Souhaits', en: 'Wishlist' } },
     { href: '#faq', label: { ar: 'الأسئلة الشائعة', fr: 'FAQ', en: 'FAQ' } },

@@ -1,4 +1,4 @@
-import { Phone, Menu, X, ShoppingCart, Sun, Moon, User } from 'lucide-react';
+import { Phone, Menu, X, ShoppingCart, Sun, Moon, User, Sparkles } from 'lucide-react';
 import { useState, useEffect, type MouseEvent } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useCart } from '../contexts/CartContext';
@@ -33,6 +33,7 @@ export function Header() {
   }, []);
 
   const navLinks = settings.settings.headerNavLinks;
+  const hasDigitalLink = navLinks.some((link) => (link.href ?? '').includes('digital-services'));
   const pathname = typeof window !== 'undefined' ? window.location.pathname.replace(/\/+$/, '') : '';
   const onHomePage = pathname === '' || pathname === '/index.html';
   // Hash links only work on the home page; from /create-website they must point
@@ -70,6 +71,15 @@ export function Header() {
                 {t(link.label)}
               </a>
             ))}
+            {!hasDigitalLink && (
+              <a
+                href={pageHref('#digital-services')}
+                className="hidden xl:inline-flex items-center gap-1.5 px-3 py-2 text-sm font-bold text-violet-600 hover:bg-violet-500/10 rounded-lg transition-all duration-200 dark:text-violet-300"
+              >
+                <Sparkles className="w-4 h-4" />
+                {t({ ar: 'الخدمات الرقمية', fr: 'Services digitaux', en: 'Digital Services' })}
+              </a>
+            )}
             <a
               href="/create-website"
               className="hidden xl:inline-flex items-center px-3 py-2 text-sm font-bold text-primary hover:bg-primary/5 rounded-lg transition-all duration-200"
@@ -194,6 +204,16 @@ export function Header() {
                     {t(link.label)}
                   </a>
                 ))}
+                {!hasDigitalLink && (
+                  <a
+                    href={pageHref('#digital-services')}
+                    className="flex items-center gap-2 px-4 py-3 text-base font-bold text-violet-600 hover:bg-violet-500/10 rounded-lg transition-colors mx-2 dark:text-violet-300"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    {t({ ar: 'الخدمات الرقمية', fr: 'Services digitaux', en: 'Digital Services' })}
+                  </a>
+                )}
                 <a
                   href="/create-website"
                   className="block px-4 py-3 text-base font-bold text-primary hover:bg-primary/5 rounded-lg transition-colors mx-2"

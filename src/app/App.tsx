@@ -335,13 +335,15 @@ export default function App() {
         '#admin':    { ar: 'الصفحة غير موجودة', fr: 'Page introuvable', en: 'Page Not Found' },
         '#products': { ar: 'المنتجات', fr: 'Produits', en: 'Products' },
         '#services': { ar: 'الخدمات', fr: 'Services', en: 'Services' },
+        '#digital-services': { ar: 'الخدمات الرقمية والذكاء الاصطناعي', fr: 'Services digitaux et IA', en: 'Digital & AI Services' },
         '#web':      { ar: 'إنشاء المواقع', fr: 'Création de sites web', en: 'Web Design' },
         '#demo':     { ar: 'متجر تجريبي', fr: 'Boutique démo', en: 'Demo store' },
         '#contact':  { ar: 'اتصل بنا', fr: 'Contact', en: 'Contact Us' },
         '#order-tracking': { ar: 'تتبع الطلب', fr: 'Suivi de commande', en: 'Order Tracking' },
       };
       const name = titles[hash]?.[lang];
-      document.title = name ? `${name} | ${brand.name}` : `${brand.name} — Ayoub Office Services`;
+      const homeTagline = { ar: 'خدمات رقمية وذكاء اصطناعي', fr: 'Services digitaux et IA', en: 'Digital & AI Services' }[lang];
+      document.title = name ? `${name} | ${brand.name}` : `${brand.name} — ${homeTagline}`;
     };
     updateTitle();
     window.addEventListener('hashchange', updateTitle);

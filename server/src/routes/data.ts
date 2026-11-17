@@ -14,6 +14,7 @@ const ALLOWED_KEYS = new Set([
   'aos_coupons',
   'aos_site_settings',
   'aos_site_content',
+  'aos_digital_catalog',
 ]);
 
 const PRODUCTS_KEY = 'aos_products';

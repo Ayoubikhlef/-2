@@ -10,13 +10,41 @@ export type DigitalServiceIcon =
   | 'hosting'
   | 'pos'
   | 'network'
-  | 'training';
+  | 'training'
+  | 'ai'
+  | 'design'
+  | 'content'
+  | 'photo'
+  | 'video'
+  | 'voice'
+  | 'translation'
+  | 'chatbot'
+  | 'automation'
+  | 'presentation'
+  | 'analytics';
+
+export type DigitalServiceCategory = 'ai' | 'web' | 'marketing' | 'systems' | 'training';
+
+export interface DigitalCategory {
+  id: DigitalServiceCategory | 'all';
+  label: LangText;
+}
+
+export const DIGITAL_CATEGORIES: DigitalCategory[] = [
+  { id: 'all', label: { ar: 'كل الخدمات', fr: 'Tous les services', en: 'All services' } },
+  { id: 'ai', label: { ar: 'الذكاء الاصطناعي', fr: 'Intelligence artificielle', en: 'Artificial intelligence' } },
+  { id: 'web', label: { ar: 'مواقع ومتاجر', fr: 'Sites et boutiques', en: 'Websites & stores' } },
+  { id: 'marketing', label: { ar: 'تسويق ومحتوى', fr: 'Marketing et contenu', en: 'Marketing & content' } },
+  { id: 'systems', label: { ar: 'أنظمة وشبكات', fr: 'Systèmes et réseaux', en: 'Systems & networks' } },
+  { id: 'training', label: { ar: 'تكوين', fr: 'Formation', en: 'Training' } },
+];
 
 export interface DigitalService {
   id: string;
   /** Value stored in the service-booking order when the customer asks for a quote. */
   bookingValue: string;
   icon: DigitalServiceIcon;
+  category: DigitalServiceCategory;
   title: LangText;
   tagline: LangText;
   description: LangText;
@@ -26,6 +54,8 @@ export interface DigitalService {
   delivery: LangText;
   gradient: string;
   badge?: LangText;
+  /** Hide the service from the public catalogue without deleting it. */
+  visible?: boolean;
 }
 
 export interface DigitalPackage {
@@ -39,6 +69,8 @@ export interface DigitalPackage {
   bookingValue: string;
   featured?: boolean;
   gradient: string;
+  /** Hide the pack from the public catalogue without deleting it. */
+  visible?: boolean;
 }
 
 export interface DigitalGuarantee {
@@ -70,6 +102,7 @@ export const DIGITAL_SERVICES: DigitalService[] = [
     id: 'ecommerce',
     bookingValue: 'digital-store',
     icon: 'store',
+    category: 'web',
     title: { ar: 'المتاجر الإلكترونية', fr: 'Boutiques en ligne', en: 'Online stores' },
     tagline: {
       ar: 'متجرك يبيع لك 24 ساعة طوال الأسبوع',
@@ -97,6 +130,7 @@ export const DIGITAL_SERVICES: DigitalService[] = [
     id: 'social',
     bookingValue: 'digital-social',
     icon: 'social',
+    category: 'marketing',
     title: { ar: 'إدارة السوشيال ميديا والإعلانات', fr: 'Réseaux sociaux et publicité', en: 'Social media and ads' },
     tagline: {
       ar: 'حضور يومي يبني الثقة ويجلب الطلبات',
@@ -124,6 +158,7 @@ export const DIGITAL_SERVICES: DigitalService[] = [
     id: 'hosting',
     bookingValue: 'digital-hosting',
     icon: 'hosting',
+    category: 'web',
     title: { ar: 'الاستضافة والنطاق والبريد والنسخ الاحتياطي', fr: 'Hébergement, domaine, e-mail et sauvegardes', en: 'Hosting, domain, email and backups' },
     tagline: {
       ar: 'بنية تقنية مستقرة وسريعة وآمنة',
@@ -150,6 +185,7 @@ export const DIGITAL_SERVICES: DigitalService[] = [
     id: 'pos',
     bookingValue: 'digital-pos',
     icon: 'pos',
+    category: 'systems',
     title: { ar: 'أنظمة نقاط البيع والمحاسبة', fr: 'Caisses et logiciels de comptabilité', en: 'POS and accounting systems' },
     tagline: {
       ar: 'سيطر على مخزونك ومبيعاتك من شاشة واحدة',
@@ -176,6 +212,7 @@ export const DIGITAL_SERVICES: DigitalService[] = [
     id: 'network',
     bookingValue: 'digital-network',
     icon: 'network',
+    category: 'systems',
     title: { ar: 'الشبكات وكاميرات المراقبة', fr: 'Réseaux et caméras de surveillance', en: 'Networks and CCTV' },
     tagline: {
       ar: 'اتصال مستقر وحماية على مدار الساعة',
@@ -202,6 +239,7 @@ export const DIGITAL_SERVICES: DigitalService[] = [
     id: 'training',
     bookingValue: 'digital-training',
     icon: 'training',
+    category: 'training',
     title: { ar: 'التكوين: Excel وCanva والذكاء الاصطناعي', fr: 'Formation : Excel, Canva et IA', en: 'Training: Excel, Canva and AI' },
     tagline: {
       ar: 'تعلّم المهارات التي توفّر وقتك وتزيد دخلك',
@@ -223,6 +261,388 @@ export const DIGITAL_SERVICES: DigitalService[] = [
     ],
     delivery: { ar: 'مواعيد مرنة — حضور أو عن بعد', fr: 'Horaires flexibles — sur place ou à distance', en: 'Flexible times — on-site or remote' },
     gradient: 'from-violet-500 to-purple-600',
+  },
+  {
+    id: 'ai-cv',
+    bookingValue: 'ai-cv',
+    icon: 'ai',
+    category: 'ai',
+    title: { ar: 'سيرة ذاتية احترافية بالذكاء الاصطناعي', fr: 'CV professionnel avec IA', en: 'AI-powered professional CV' },
+    tagline: {
+      ar: 'سيرة ذاتية تجتاز أنظمة الفرز وتبرز خبرتك',
+      fr: 'Un CV qui passe les filtres ATS et met en valeur votre expérience',
+      en: 'A CV that passes ATS filters and highlights your experience',
+    },
+    description: {
+      ar: 'نكتب ونصمم سيرة ذاتية حديثة بصيغة ATS، مع رسالة تحفيزية وملخص LinkedIn، ونراجعها معك حتى تكون جاهزة للإرسال.',
+      fr: 'Nous rédigeons et designons un CV moderne compatible ATS, avec lettre de motivation et résumé LinkedIn, révisé avec vous jusqu’à validation.',
+      en: 'We write and design a modern ATS-friendly CV, with a cover letter and LinkedIn summary, revised with you until it is ready to send.',
+    },
+    startingPrice: 2500,
+    priceUnit: { ar: 'للسيرة', fr: 'par CV', en: 'per CV' },
+    features: [
+      { ar: 'سيرة ذاتية عربية أو فرنسية أو إنجليزية PDF + Word', fr: 'CV en arabe, français ou anglais PDF + Word', en: 'CV in Arabic, French or English, PDF + Word' },
+      { ar: 'تحسين الكلمات المفتاحية لأنظمة ATS', fr: 'Optimisation des mots-clés pour les ATS', en: 'Keyword optimisation for ATS systems' },
+      { ar: 'رسالة تحفيزية مخصصة لكل عرض عمل', fr: 'Lettre de motivation adaptée à chaque offre', en: 'A tailored cover letter for each job offer' },
+      { ar: 'مراجعة وتعديلان مجاناً', fr: 'Relecture et deux révisions offertes', en: 'Proofreading and two free revisions' },
+    ],
+    delivery: { ar: '24 – 48 ساعة', fr: '24 – 48 heures', en: '24 – 48 hours' },
+    gradient: 'from-violet-500 to-purple-600',
+    badge: { ar: 'الأكثر طلباً', fr: 'Le plus demandé', en: 'Most requested' },
+  },
+  {
+    id: 'ai-brand',
+    bookingValue: 'ai-brand',
+    icon: 'design',
+    category: 'ai',
+    title: { ar: 'شعار وهوية بصرية بالذكاء الاصطناعي', fr: 'Logo et identité visuelle avec IA', en: 'AI logo and visual identity' },
+    tagline: {
+      ar: 'هوية متكاملة لمشروعك في أيام',
+      fr: 'Une identité complète pour votre projet en quelques jours',
+      en: 'A complete identity for your project in days',
+    },
+    description: {
+      ar: 'شعار احترافي مع ألوان وخطوط وقوالب سوشيال ميديا متسقة، وملفات مفتوحة وجميع الصيغ التي تحتاجها.',
+      fr: 'Un logo professionnel avec couleurs, typographies et modèles réseaux sociaux cohérents, en fichiers ouverts et tous formats.',
+      en: 'A professional logo with matching colours, fonts and social templates, delivered in open files and every format you need.',
+    },
+    startingPrice: 4500,
+    priceUnit: { ar: 'للمشروع', fr: 'par projet', en: 'per project' },
+    features: [
+      { ar: '3 مقترحات شعار مع تعديلين', fr: '3 propositions de logo avec 2 révisions', en: '3 logo concepts with 2 revisions' },
+      { ar: 'ألوان وخطوط وهوية موحدة', fr: 'Couleurs, typographies et charte cohérente', en: 'Cohesive colours, fonts and brand guide' },
+      { ar: 'قوالب منشورات و Story جاهزة', fr: 'Modèles de posts et stories prêts', en: 'Ready-made post and story templates' },
+      { ar: 'ملفات PNG وSVG وPDF', fr: 'Fichiers PNG, SVG et PDF', en: 'PNG, SVG and PDF files' },
+    ],
+    delivery: { ar: '2 – 3 أيام', fr: '2 – 3 jours', en: '2 – 3 days' },
+    gradient: 'from-fuchsia-500 to-pink-600',
+  },
+  {
+    id: 'ai-content',
+    bookingValue: 'ai-content',
+    icon: 'content',
+    category: 'ai',
+    title: { ar: 'محتوى سوشيال ميديا بالذكاء الاصطناعي', fr: 'Contenu réseaux sociaux avec IA', en: 'AI social media content' },
+    tagline: {
+      ar: '30 منشوراً شهرياً بجودة وكالة',
+      fr: '30 publications par mois, qualité agence',
+      en: '30 posts a month with agency quality',
+    },
+    description: {
+      ar: 'نبني تقويم محتوى شهرياً، نكتب النصوص ونصمم المنشورات بهوية موحدة، جاهزة للنشر على فيسبوك وإنستغرام.',
+      fr: 'Un calendrier mensuel, des textes et des visuels cohérents avec votre identité, prêts à publier sur Facebook et Instagram.',
+      en: 'A monthly calendar, copy and on-brand visuals, ready to publish on Facebook and Instagram.',
+    },
+    startingPrice: 6500,
+    priceUnit: { ar: 'شهرياً', fr: 'par mois', en: 'per month' },
+    features: [
+      { ar: '30 منشوراً مع نصوص جاهزة', fr: '30 publications avec textes prêts', en: '30 posts with ready-to-use copy' },
+      { ar: '8 ريلز قصيرة شهرياً', fr: '8 reels courts par mois', en: '8 short reels per month' },
+      { ar: 'هاشتاغات ونصوص إعلانية', fr: 'Hashtags et textes publicitaires', en: 'Hashtags and ad copy' },
+      { ar: 'تقويم نشر شهري واضح', fr: 'Calendrier de publication mensuel', en: 'Clear monthly publishing calendar' },
+    ],
+    delivery: { ar: 'انطلاقة خلال 72 ساعة', fr: 'Démarrage sous 72 heures', en: 'Kick-off within 72 hours' },
+    gradient: 'from-orange-500 to-rose-500',
+    badge: { ar: 'وفّر 80% من وقتك', fr: 'Gagnez 80 % de votre temps', en: 'Save 80% of your time' },
+  },
+  {
+    id: 'ai-photos',
+    bookingValue: 'ai-photos',
+    icon: 'photo',
+    category: 'ai',
+    title: { ar: 'صور منتجات احترافية بالذكاء الاصطناعي', fr: 'Photos de produits avec IA', en: 'AI product photography' },
+    tagline: {
+      ar: 'صور تبيع بدل الصور العادية',
+      fr: 'Des photos qui vendent, pas de simples images',
+      en: 'Photos that sell, not just pictures',
+    },
+    description: {
+      ar: 'نزيل الخلفية، نحسّن الإضاءة والجودة، ونضع منتجك في مشاهد احترافية تناسب متجرك وإعلاناتك.',
+      fr: 'Nous supprimons le fond, améliorons la lumière et la qualité, et plaçons votre produit dans des scènes professionnelles.',
+      en: 'We remove the background, improve lighting and quality, and place your product in professional scenes for your store and ads.',
+    },
+    startingPrice: 3500,
+    priceUnit: { ar: 'لكل 10 صور', fr: 'pour 10 photos', en: 'per 10 photos' },
+    features: [
+      { ar: '10 صور بخلفيات ومشاهد متنوعة', fr: '10 photos avec fonds et scènes variés', en: '10 photos with varied backgrounds and scenes' },
+      { ar: 'تحسين إضاءة وجودة وحدّة', fr: 'Amélioration de la lumière et de la netteté', en: 'Improved lighting, quality and sharpness' },
+      { ar: 'مقاسات جاهزة للمتجر والسوشيال', fr: 'Formats prêts pour boutique et réseaux', en: 'Sizes ready for store and social' },
+      { ar: 'تسليم خلال 48 ساعة', fr: 'Livraison sous 48 heures', en: 'Delivery within 48 hours' },
+    ],
+    delivery: { ar: '48 ساعة', fr: '48 heures', en: '48 hours' },
+    gradient: 'from-sky-500 to-cyan-500',
+  },
+  {
+    id: 'ai-video',
+    bookingValue: 'ai-video',
+    icon: 'video',
+    category: 'ai',
+    title: { ar: 'ريلز وفيديوهات قصيرة بالذكاء الاصطناعي', fr: 'Reels et vidéos courtes avec IA', en: 'AI reels and short videos' },
+    tagline: {
+      ar: 'فيديوهات توقف التمرير وتبيع',
+      fr: 'Des vidéos qui arrêtent le scroll et vendent',
+      en: 'Videos that stop the scroll and sell',
+    },
+    description: {
+      ar: '4 ريلز شهرياً مع كتابة السيناريو، تعليق صوتي، ترجمة مدمجة، ومونتاج عمودي جاهز للنشر.',
+      fr: '4 reels par mois avec script, voix off, sous-titres intégrés et montage vertical prêt à publier.',
+      en: '4 reels a month with script, voice-over, embedded subtitles and vertical editing ready to publish.',
+    },
+    startingPrice: 8900,
+    priceUnit: { ar: 'شهرياً', fr: 'par mois', en: 'per month' },
+    features: [
+      { ar: '4 ريلز من 30 إلى 60 ثانية', fr: '4 reels de 30 à 60 secondes', en: '4 reels of 30 to 60 seconds' },
+      { ar: 'سيناريو وتعليق صوتي طبيعي', fr: 'Script et voix off naturelle', en: 'Script and natural voice-over' },
+      { ar: 'ترجمة عربية أو فرنسية مدمجة', fr: 'Sous-titres arabes ou français intégrés', en: 'Embedded Arabic or French subtitles' },
+      { ar: 'مونتاج وتصحيح ألوان', fr: 'Montage et étalonnage des couleurs', en: 'Editing and colour grading' },
+    ],
+    delivery: { ar: '5 – 7 أيام', fr: '5 – 7 jours', en: '5 – 7 days' },
+    gradient: 'from-red-500 to-orange-500',
+  },
+  {
+    id: 'ai-voice',
+    bookingValue: 'ai-voice',
+    icon: 'voice',
+    category: 'ai',
+    title: { ar: 'تعليق صوتي طبيعي بالذكاء الاصطناعي', fr: 'Voix off naturelle avec IA', en: 'Natural AI voice-over' },
+    tagline: {
+      ar: 'صوت احترافي بدون استوديو',
+      fr: 'Une voix professionnelle sans studio',
+      en: 'Professional voice without a studio',
+    },
+    description: {
+      ar: 'تعليق صوتي عربي أو فرنسي بجودة عالية للإعلانات والفيديوهات، مع اختيار نبرة الصوت المناسبة لعلامتك.',
+      fr: 'Voix off arabe ou française de haute qualité pour publicités et vidéos, avec choix du ton adapté à votre marque.',
+      en: 'High-quality Arabic or French voice-over for ads and videos, with a tone chosen to fit your brand.',
+    },
+    startingPrice: 2000,
+    priceUnit: { ar: 'لكل 500 كلمة', fr: 'par 500 mots', en: 'per 500 words' },
+    features: [
+      { ar: 'حتى 500 كلمة لكل ملف', fr: 'Jusqu’à 500 mots par fichier', en: 'Up to 500 words per file' },
+      { ar: 'أصوات عربية وفرنسية طبيعية', fr: 'Voix arabes et françaises naturelles', en: 'Natural Arabic and French voices' },
+      { ar: 'تسليم MP3 وWAV', fr: 'Livraison MP3 et WAV', en: 'MP3 and WAV delivery' },
+      { ar: 'تعديل مجاني واحد', fr: 'Une révision gratuite', en: 'One free revision' },
+    ],
+    delivery: { ar: '24 ساعة', fr: '24 heures', en: '24 hours' },
+    gradient: 'from-indigo-500 to-blue-600',
+  },
+  {
+    id: 'ai-translate',
+    bookingValue: 'ai-translate',
+    icon: 'translation',
+    category: 'ai',
+    title: { ar: 'ترجمة احترافية بالذكاء الاصطناعي', fr: 'Traduction professionnelle avec IA', en: 'Professional AI translation' },
+    tagline: {
+      ar: 'ترجمة دقيقة تحافظ على المعنى والأسلوب',
+      fr: 'Une traduction fidèle au sens et au style',
+      en: 'Translation that preserves meaning and style',
+    },
+    description: {
+      ar: 'نترجم وثائقك ومقالاتك بين العربية والفرنسية والإنجليزية، مع مراجعة بشرية للمصطلحات الحساسة.',
+      fr: 'Traduction de vos documents entre arabe, français et anglais, avec relecture humaine des termes sensibles.',
+      en: 'We translate your documents between Arabic, French and English, with human review of sensitive terms.',
+    },
+    startingPrice: 1200,
+    priceUnit: { ar: 'للصفحة', fr: 'par page', en: 'per page' },
+    features: [
+      { ar: 'ترجمة بين 3 لغات', fr: 'Traduction entre 3 langues', en: 'Translation between 3 languages' },
+      { ar: 'مراجعة بشرية للمصطلحات', fr: 'Relecture humaine des termes', en: 'Human review of terminology' },
+      { ar: 'الحفاظ على تنسيق الملف الأصلي', fr: 'Mise en page d’origine conservée', en: 'Original file formatting preserved' },
+      { ar: 'تسليم Word وPDF', fr: 'Livraison Word et PDF', en: 'Word and PDF delivery' },
+    ],
+    delivery: { ar: '24 – 48 ساعة', fr: '24 – 48 heures', en: '24 – 48 hours' },
+    gradient: 'from-teal-500 to-emerald-600',
+  },
+  {
+    id: 'ai-chatbot',
+    bookingValue: 'ai-chatbot',
+    icon: 'chatbot',
+    category: 'ai',
+    title: { ar: 'شات بوت واتساب والموقع', fr: 'Chatbot WhatsApp et site web', en: 'WhatsApp and website chatbot' },
+    tagline: {
+      ar: 'ردود فورية 24/7 على أسئلة عملائك',
+      fr: 'Des réponses instantanées 24h/24 aux questions de vos clients',
+      en: 'Instant 24/7 answers to your customers’ questions',
+    },
+    description: {
+      ar: 'بوت ذكي مدرّب على خدماتك وأسعارك، يرد على واتساب والموقع ويحوّل المحادثات الجدية إليك مباشرة.',
+      fr: 'Un bot entraîné sur vos services et tarifs, qui répond sur WhatsApp et le site et vous transmet les conversations sérieuses.',
+      en: 'A smart bot trained on your services and prices, answering on WhatsApp and your site and forwarding serious leads to you.',
+    },
+    startingPrice: 15000,
+    priceUnit: { ar: 'إعداد + 3000/شهر', fr: 'installation + 3000/mois', en: 'setup + 3000/month' },
+    features: [
+      { ar: 'تدريب على بيانات نشاطك وأسعارك', fr: 'Entraînement sur vos données et tarifs', en: 'Trained on your business data and prices' },
+      { ar: 'ربط واتساب والموقع', fr: 'Connexion WhatsApp et site web', en: 'WhatsApp and website integration' },
+      { ar: 'تحويل الطلبات الجدية إليك', fr: 'Transfert des demandes sérieuses vers vous', en: 'Serious requests forwarded to you' },
+      { ar: 'لوحة محادثات وتقارير', fr: 'Tableau des conversations et rapports', en: 'Conversations dashboard and reports' },
+    ],
+    delivery: { ar: '3 – 5 أيام', fr: '3 – 5 jours', en: '3 – 5 days' },
+    gradient: 'from-emerald-500 to-lime-600',
+    badge: { ar: 'يعمل 24/7', fr: 'Fonctionne 24h/24', en: 'Works 24/7' },
+  },
+  {
+    id: 'ai-automation',
+    bookingValue: 'ai-automation',
+    icon: 'automation',
+    category: 'ai',
+    title: { ar: 'أتمتة المهام والتقارير بالذكاء الاصطناعي', fr: 'Automatisation des tâches avec IA', en: 'AI task and report automation' },
+    tagline: {
+      ar: 'خلّي الروتين يتنفذ وحده',
+      fr: 'Laissez la routine s’exécuter toute seule',
+      en: 'Let the routine run itself',
+    },
+    description: {
+      ar: 'نؤتمت الفواتير، متابعة العملاء، تقارير Excel، والردود البريدية، ونربط أدواتك ببعضها لتوفير ساعات كل أسبوع.',
+      fr: 'Nous automatisons factures, suivi clients, rapports Excel et réponses e-mail, et connectons vos outils pour gagner des heures chaque semaine.',
+      en: 'We automate invoices, customer follow-up, Excel reports and email replies, and connect your tools to save hours every week.',
+    },
+    startingPrice: 9900,
+    priceUnit: { ar: 'لكل سير عمل', fr: 'par flux de travail', en: 'per workflow' },
+    features: [
+      { ar: 'تحليل سير العمل الحالي', fr: 'Analyse de votre flux actuel', en: 'Analysis of your current workflow' },
+      { ar: 'أتمتة حتى 3 مهام متكررة', fr: 'Automatisation de 3 tâches répétitives', en: 'Automation of up to 3 repetitive tasks' },
+      { ar: 'ربط Excel وGoogle Sheets', fr: 'Connexion Excel et Google Sheets', en: 'Excel and Google Sheets integration' },
+      { ar: 'تدريب فريقك على التشغيل', fr: 'Formation de votre équipe', en: 'Training for your team' },
+    ],
+    delivery: { ar: '5 – 10 أيام', fr: '5 – 10 jours', en: '5 – 10 days' },
+    gradient: 'from-slate-600 to-blue-700',
+  },
+  {
+    id: 'ai-ads',
+    bookingValue: 'ai-ads',
+    icon: 'content',
+    category: 'ai',
+    title: { ar: 'نصوص إعلانات وصفحات هبوط بالذكاء الاصطناعي', fr: 'Textes publicitaires et landing pages avec IA', en: 'AI ad copy and landing pages' },
+    tagline: {
+      ar: 'كلمات تجلب النقرات والطلبات',
+      fr: 'Des mots qui génèrent des clics et des commandes',
+      en: 'Words that bring clicks and orders',
+    },
+    description: {
+      ar: 'نكتب إعلانات فيسبوك وإنستغرام وصفحات هبوط مبنية على بحث الجمهور والعروض الأكثر إقناعاً.',
+      fr: 'Nous rédigeons des publicités Facebook et Instagram et des landing pages basées sur la recherche d’audience et les offres les plus convaincantes.',
+      en: 'We write Facebook and Instagram ads and landing pages based on audience research and the most persuasive offers.',
+    },
+    startingPrice: 2900,
+    priceUnit: { ar: 'لكل حملة', fr: 'par campagne', en: 'per campaign' },
+    features: [
+      { ar: '5 نسخ إعلانية جاهزة للاختبار', fr: '5 variantes publicitaires prêtes à tester', en: '5 ad variations ready to test' },
+      { ar: 'عنوان ووصف لكل نسخة', fr: 'Titre et description pour chaque variante', en: 'Headline and description for each variation' },
+      { ar: 'صفحة هبوط نصية مقنعة', fr: 'Landing page textuelle persuasive', en: 'Persuasive text landing page' },
+      { ar: 'توصيات استهداف أولية', fr: 'Recommandations de ciblage initiales', en: 'Initial targeting recommendations' },
+    ],
+    delivery: { ar: '48 ساعة', fr: '48 heures', en: '48 hours' },
+    gradient: 'from-pink-500 to-rose-600',
+  },
+  {
+    id: 'ai-slides',
+    bookingValue: 'ai-slides',
+    icon: 'presentation',
+    category: 'ai',
+    title: { ar: 'عروض تقديمية وبروشورات بالذكاء الاصطناعي', fr: 'Présentations et brochures avec IA', en: 'AI presentations and brochures' },
+    tagline: {
+      ar: 'عرض يقنع المستثمر والعميل',
+      fr: 'Une présentation qui convainc investisseurs et clients',
+      en: 'A deck that convinces investors and clients',
+    },
+    description: {
+      ar: 'عرض تقديمي احترافي من 10 إلى 15 شريحة مع تصميم متناسق، رسوم بيانية، ونسخة PDF جاهزة للاجتماع.',
+      fr: 'Une présentation professionnelle de 10 à 15 slides avec design cohérent, graphiques et version PDF prête pour la réunion.',
+      en: 'A professional 10–15 slide deck with cohesive design, charts and a PDF version ready for the meeting.',
+    },
+    startingPrice: 3900,
+    priceUnit: { ar: 'للعرض', fr: 'par présentation', en: 'per deck' },
+    features: [
+      { ar: 'حتى 15 شريحة مصممة', fr: 'Jusqu’à 15 slides designées', en: 'Up to 15 designed slides' },
+      { ar: 'تصميم بهوية مشروعك', fr: 'Design aux couleurs de votre projet', en: 'Design in your brand identity' },
+      { ar: 'رسوم وإنفوغرافيك', fr: 'Graphiques et infographies', en: 'Charts and infographics' },
+      { ar: 'نسخة PDF وPowerPoint', fr: 'Version PDF et PowerPoint', en: 'PDF and PowerPoint versions' },
+    ],
+    delivery: { ar: '2 – 3 أيام', fr: '2 – 3 jours', en: '2 – 3 days' },
+    gradient: 'from-amber-500 to-yellow-600',
+  },
+  {
+    id: 'ai-data',
+    bookingValue: 'ai-data',
+    icon: 'analytics',
+    category: 'ai',
+    title: { ar: 'تحليل بيانات وتقارير بالذكاء الاصطناعي', fr: 'Analyse de données et rapports avec IA', en: 'AI data analysis and reports' },
+    tagline: {
+      ar: 'حوّل أرقامك إلى قرارات',
+      fr: 'Transformez vos chiffres en décisions',
+      en: 'Turn your numbers into decisions',
+    },
+    description: {
+      ar: 'نحلل مبيعاتك ومصروفاتك وبيانات عملائك، ونقدم تقريراً واضحاً بتوصيات قابلة للتنفيذ.',
+      fr: 'Nous analysons vos ventes, dépenses et données clients, et fournissons un rapport clair avec des recommandations actionnables.',
+      en: 'We analyse your sales, expenses and customer data and deliver a clear report with actionable recommendations.',
+    },
+    startingPrice: 6900,
+    priceUnit: { ar: 'للتقرير', fr: 'par rapport', en: 'per report' },
+    features: [
+      { ar: 'تنظيف ودمج البيانات', fr: 'Nettoyage et fusion des données', en: 'Data cleaning and merging' },
+      { ar: 'لوحة مؤشرات واضحة', fr: 'Tableau de bord clair', en: 'Clear KPI dashboard' },
+      { ar: 'تقرير PDF بالتوصيات', fr: 'Rapport PDF avec recommandations', en: 'PDF report with recommendations' },
+      { ar: 'جلسة شرح 30 دقيقة', fr: 'Session d’explication de 30 minutes', en: '30-minute walkthrough session' },
+    ],
+    delivery: { ar: '3 – 5 أيام', fr: '3 – 5 jours', en: '3 – 5 days' },
+    gradient: 'from-cyan-500 to-blue-600',
+  },
+  {
+    id: 'ai-custom',
+    bookingValue: 'ai-custom',
+    icon: 'ai',
+    category: 'ai',
+    title: { ar: 'أداة ذكاء اصطناعي مخصصة لنشاطك', fr: 'Outil IA sur mesure pour votre activité', en: 'Custom AI tool for your business' },
+    tagline: {
+      ar: 'أتمتة مصممة على قياس عملك',
+      fr: 'Une automatisation taillée pour votre métier',
+      en: 'Automation tailored to your business',
+    },
+    description: {
+      ar: 'نبني لك أداة ويب صغيرة (مولّد محتوى، مصنّف طلبات، مساعد داخلي) تعمل ببياناتك وتوفر ساعات عمل كل أسبوع.',
+      fr: 'Nous construisons un petit outil web (générateur de contenu, classificateur de commandes, assistant interne) qui fonctionne avec vos données.',
+      en: 'We build a small web tool (content generator, order classifier, internal assistant) that works with your data and saves hours every week.',
+    },
+    startingPrice: 29900,
+    priceUnit: { ar: 'للمشروع', fr: 'par projet', en: 'per project' },
+    features: [
+      { ar: 'دراسة الاحتياج وتحديد النطاق', fr: 'Étude du besoin et cadrage', en: 'Needs study and scoping' },
+      { ar: 'واجهة بسيطة لفريقك', fr: 'Interface simple pour votre équipe', en: 'Simple interface for your team' },
+      { ar: 'ربط بالـAPI المناسب', fr: 'Connexion à l’API adaptée', en: 'Integration with the right API' },
+      { ar: 'تدريب ودعم 30 يوماً', fr: 'Formation et support 30 jours', en: 'Training and 30 days support' },
+    ],
+    delivery: { ar: '7 – 14 يوم عمل', fr: '7 – 14 jours ouvrés', en: '7 – 14 working days' },
+    gradient: 'from-violet-600 to-indigo-700',
+    badge: { ar: 'حل مخصص', fr: 'Sur mesure', en: 'Custom solution' },
+  },
+  {
+    id: 'ai-website',
+    bookingValue: 'ai-website',
+    icon: 'store',
+    category: 'ai',
+    title: { ar: 'موقع كامل بالذكاء الاصطناعي', fr: 'Site web complet avec IA', en: 'Complete AI-built website' },
+    tagline: {
+      ar: 'موقع احترافي في أيام وليس شهور',
+      fr: 'Un site professionnel en jours, pas en mois',
+      en: 'A professional site in days, not months',
+    },
+    description: {
+      ar: 'ننشئ موقعك التعريفي أو صفحة الهبوط بالكامل باستخدام AI، مع نصوص وصور وتحسين SEO، جاهز للنشر.',
+      fr: 'Nous créons votre site vitrine ou landing page avec l’IA : textes, images et SEO de base, prêt à publier.',
+      en: 'We build your presentation site or landing page with AI: copy, images and basic SEO, ready to publish.',
+    },
+    startingPrice: 24900,
+    priceUnit: { ar: 'للمشروع', fr: 'par projet', en: 'per project' },
+    features: [
+      { ar: 'حتى 5 صفحات متجاوبة', fr: 'Jusqu’à 5 pages responsives', en: 'Up to 5 responsive pages' },
+      { ar: 'نصوص وصور مولّدة بالذكاء الاصطناعي', fr: 'Textes et images générés par IA', en: 'AI-generated copy and images' },
+      { ar: 'تحسين SEO أساسي', fr: 'Optimisation SEO de base', en: 'Basic SEO optimisation' },
+      { ar: 'نطاق واستضافة سنة', fr: 'Domaine et hébergement 1 an', en: 'Domain and hosting for one year' },
+    ],
+    delivery: { ar: '5 – 7 أيام', fr: '5 – 7 jours', en: '5 – 7 days' },
+    gradient: 'from-blue-600 to-indigo-700',
   },
 ];
 
@@ -315,6 +735,70 @@ export const DIGITAL_PACKAGES: DigitalPackage[] = [
     cta: { ar: 'احمِ موقعي', fr: 'Protéger mon site', en: 'Protect my site' },
     bookingValue: 'digital-maintenance',
     gradient: 'from-emerald-500 to-cyan-600',
+  },
+  {
+    id: 'ai-start',
+    name: { ar: 'باقة AI للبداية', fr: 'Pack AI Démarrage', en: 'AI Starter pack' },
+    price: 7900,
+    period: { ar: 'مرة واحدة', fr: 'une fois', en: 'one-time' },
+    tagline: {
+      ar: 'كل ما تحتاجه للانطلاق: سيرة ذاتية، شعار، محتوى، وترجمة.',
+      fr: 'Tout pour démarrer : CV, logo, contenu et traduction.',
+      en: 'Everything to get started: CV, logo, content and translation.',
+    },
+    features: [
+      { ar: 'سيرة ذاتية احترافية بصيغة ATS', fr: 'CV professionnel compatible ATS', en: 'Professional ATS-friendly CV' },
+      { ar: 'شعار وهوية مبسطة', fr: 'Logo et identité simplifiée', en: 'Logo and simplified identity' },
+      { ar: '5 منشورات سوشيال ميديا', fr: '5 publications réseaux sociaux', en: '5 social media posts' },
+      { ar: 'ترجمة صفحة واحدة', fr: 'Traduction d’une page', en: 'One-page translation' },
+      { ar: 'تسليم خلال 3 – 5 أيام', fr: 'Livraison en 3 – 5 jours', en: 'Delivery in 3 – 5 days' },
+    ],
+    cta: { ar: 'ابدأ بذكاء', fr: 'Démarrer avec l’IA', en: 'Start smart' },
+    bookingValue: 'ai-pack-start',
+    gradient: 'from-violet-500 to-fuchsia-600',
+  },
+  {
+    id: 'ai-business',
+    name: { ar: 'باقة AI للأعمال', fr: 'Pack AI Business', en: 'AI Business pack' },
+    price: 19900,
+    period: { ar: 'مرة واحدة', fr: 'une fois', en: 'one-time' },
+    tagline: {
+      ar: 'هوية + محتوى + شات بوت: حضور كامل يدير نفسه.',
+      fr: 'Identité + contenu + chatbot : une présence qui se gère toute seule.',
+      en: 'Identity + content + chatbot: a presence that runs itself.',
+    },
+    features: [
+      { ar: 'شعار وهوية بصرية كاملة', fr: 'Logo et identité visuelle complète', en: 'Logo and full visual identity' },
+      { ar: '20 منشوراً مع نصوص وتصاميم', fr: '20 publications avec textes et designs', en: '20 posts with copy and designs' },
+      { ar: '4 ريلز قصيرة', fr: '4 reels courts', en: '4 short reels' },
+      { ar: 'إعداد شات بوت واتساب', fr: 'Installation chatbot WhatsApp', en: 'WhatsApp chatbot setup' },
+      { ar: 'تقرير أداء شهري', fr: 'Rapport de performance mensuel', en: 'Monthly performance report' },
+    ],
+    cta: { ar: 'جهّز أعمالي بالـAI', fr: 'Équiper mon business', en: 'Equip my business' },
+    bookingValue: 'ai-pack-business',
+    featured: true,
+    gradient: 'from-blue-600 via-indigo-600 to-violet-600',
+  },
+  {
+    id: 'ai-growth',
+    name: { ar: 'باقة AI للنمو', fr: 'Pack AI Croissance', en: 'AI Growth pack' },
+    price: 29900,
+    period: { ar: 'شهرياً', fr: 'par mois', en: 'per month' },
+    tagline: {
+      ar: 'محتوى وإعلانات وأتمتة كل شهر — بدون فريق داخلي.',
+      fr: 'Contenu, publicité et automatisation chaque mois — sans équipe interne.',
+      en: 'Content, ads and automation every month — without an in-house team.',
+    },
+    features: [
+      { ar: '30 منشوراً و8 ريلز شهرياً', fr: '30 publications et 8 reels par mois', en: '30 posts and 8 reels per month' },
+      { ar: 'نصوص إعلانات وصفحات هبوط', fr: 'Textes publicitaires et landing pages', en: 'Ad copy and landing pages' },
+      { ar: 'أتمتة مهمة متكررة شهرياً', fr: 'Automatisation d’une tâche répétitive par mois', en: 'One repetitive task automated monthly' },
+      { ar: 'تقرير وتحسين شهري', fr: 'Rapport et optimisation mensuels', en: 'Monthly report and optimisation' },
+      { ar: 'دعم أولوية عبر واتساب', fr: 'Support prioritaire via WhatsApp', en: 'Priority WhatsApp support' },
+    ],
+    cta: { ar: 'انطلق مع AI', fr: 'Démarrer avec l’IA', en: 'Grow with AI' },
+    bookingValue: 'ai-pack-growth',
+    gradient: 'from-rose-500 to-orange-500',
   },
 ];
 

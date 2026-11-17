@@ -65,6 +65,12 @@ export function Footer() {
                 </li>
               ))}
               <li>
+                <a href={pageHref('#digital-services')} className="text-violet-600 dark:text-violet-300 font-semibold hover:text-violet-500 text-sm transition-colors flex items-center gap-2">
+                  <span className="w-1 h-1 rounded-full bg-violet-500 shrink-0" />
+                  {t({ ar: 'الخدمات الرقمية وAI', fr: 'Services digitaux & IA', en: 'Digital & AI services' })}
+                </a>
+              </li>
+              <li>
                 <a href="/create-website" className="text-primary font-semibold hover:text-primary/80 text-sm transition-colors flex items-center gap-2">
                   <span className="w-1 h-1 rounded-full bg-primary shrink-0" />
                   {t({ ar: 'إنشاء المواقع', fr: 'Création de sites', en: 'Web design' })}
@@ -80,15 +86,16 @@ export function Footer() {
             </h2>
             <ul className="space-y-2.5">
               {[
-                { ar: 'طباعة ونسخ', fr: 'Impression', en: 'Printing' },
-                { ar: 'خدمات معلوميات', fr: 'Services informatiques', en: 'IT Services' },
-                { ar: 'صيانة', fr: 'Maintenance', en: 'Maintenance' },
-                { ar: 'مستلزمات مكتبية', fr: 'Fournitures', en: 'Supplies' },
+                { href: '#services', label: { ar: 'طباعة ونسخ', fr: 'Impression', en: 'Printing' } },
+                { href: '#services', label: { ar: 'خدمات معلوميات', fr: 'Services informatiques', en: 'IT Services' } },
+                { href: '#services', label: { ar: 'صيانة', fr: 'Maintenance', en: 'Maintenance' } },
+                { href: '#services', label: { ar: 'مستلزمات مكتبية', fr: 'Fournitures', en: 'Supplies' } },
+                { href: '#digital-services', label: { ar: 'خدمات الذكاء الاصطناعي', fr: 'Services IA', en: 'AI services' } },
               ].map((item, idx) => (
                 <li key={idx}>
-                  <a href={pageHref('#services')} className="text-muted-foreground hover:text-foreground text-sm transition-colors flex items-center gap-2">
+                  <a href={pageHref(item.href)} className="text-muted-foreground hover:text-foreground text-sm transition-colors flex items-center gap-2">
                     <span className="w-1 h-1 rounded-full bg-primary shrink-0" />
-                    {t(item)}
+                    {t(item.label)}
                   </a>
                 </li>
               ))}
