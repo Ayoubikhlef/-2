@@ -12,7 +12,9 @@
  *   GROQ_API_KEY
  *   OPENAI_API_KEY
  *   keyless fallback (free OpenAI-compatible endpoint) unless AI_ALLOW_KEYLESS=false
- * Optional overrides: AI_BASE_URL, AI_MODEL, AI_KEYLESS_BASE_URL, AI_KEYLESS_MODEL.
+ * A keyed provider that times out, is rate-limited or returns a 5xx answer is
+ * retried once on the keyless endpoint when it is enabled.
+ * Optional overrides: AI_BASE_URL, AI_MODEL, AI_KEYLESS_BASE_URL, AI_KEYLESS_MODEL, AI_TIMEOUT_MS.
  * AI_MOCK=1 answers with a local sample so the UI can be tested without a key.
  */
 
@@ -128,6 +130,18 @@ function keylessEnabled(): boolean {
   return !/^(0|false|no|off)$/i.test(env('AI_ALLOW_KEYLESS'));
 }
 
+/** Free OpenAI-compatible endpoint that needs no key. */
+function keylessConfig(): ProviderConfig | null {
+  if (!keylessEnabled()) return null;
+  const defaults = PROVIDER_DEFAULTS.keyless;
+  return {
+    apiKey: '',
+    provider: 'keyless',
+    baseUrl: (env('AI_KEYLESS_BASE_URL') || defaults.baseUrl).replace(/\/+$/, ''),
+    model: env('AI_KEYLESS_MODEL') || defaults.model,
+  };
+}
+
 function resolveProvider(): ProviderConfig | null {
   let apiKey = env('AI_API_KEY');
   let provider = (env('AI_PROVIDER') || 'gemini').toLowerCase();
@@ -149,14 +163,7 @@ function resolveProvider(): ProviderConfig | null {
     // Keep the public generator usable without forcing the owner to create a
     // key. A configured key always wins, so adding Gemini later needs no
     // code change.
-    if (!keylessEnabled()) return null;
-    const defaults = PROVIDER_DEFAULTS.keyless;
-    return {
-      apiKey: '',
-      provider: 'keyless',
-      baseUrl: (env('AI_KEYLESS_BASE_URL') || defaults.baseUrl).replace(/\/+$/, ''),
-      model: env('AI_KEYLESS_MODEL') || defaults.model,
-    };
+    return keylessConfig();
   }
 
   const defaults = PROVIDER_DEFAULTS[provider] || PROVIDER_DEFAULTS.gemini;
@@ -341,8 +348,18 @@ async function callProvider(
   provider: ProviderConfig,
   options: { system: string; prompt: string; maxTokens: number; temperature: number },
 ): Promise<string> {
+  // Fail over to the keyless provider quickly when a keyed provider is slow.
+  // The browser waits up to 60s, and the fallback has its own 25s budget.
+  // AI_TIMEOUT_MS only tunes the keyed provider.
+  const configuredTimeout = Number(env('AI_TIMEOUT_MS'));
+  const timeoutMs =
+    provider.provider === 'keyless'
+      ? 25000
+      : Number.isFinite(configuredTimeout) && configuredTimeout > 0
+        ? configuredTimeout
+        : 20000;
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 25000);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
   // Gemini 2.5 "thinks" by default through the OpenAI-compatible endpoint and
   // those tokens count against max_tokens, which can leave the answer empty or
@@ -523,7 +540,19 @@ export async function generateContent(input: GenerateInput): Promise<GenerateRes
 
   consumeBudget();
 
-  const prompt = buildPrompt(input.tool, input.language, fields);
-  const text = await callProvider(provider!, prompt);
-  return { text, model: provider!.model, mock: false };
+  const options = buildPrompt(input.tool, input.language, fields);
+  try {
+    const text = await callProvider(provider!, options);
+    return { text, model: provider!.model, mock: false };
+  } catch (error) {
+    // A configured key can hit a rate limit or a 503 demand spike. Keep the
+    // public generator usable by answering from the free endpoint instead of
+    // showing a timeout to the visitor.
+    if (provider!.provider === 'keyless' || !(error instanceof AiError)) throw error;
+    const fallback = keylessConfig();
+    if (!fallback) throw error;
+    console.warn(`[AI] Primary provider failed (${error.code}); using keyless fallback`);
+    const text = await callProvider(fallback, options);
+    return { text, model: fallback.model, mock: false };
+  }
 }
