@@ -219,14 +219,14 @@ Session on 2026-11-18: the AI subscription gate was proven end-to-end on product
 - **Bug fixed:** the guest counter never blocked because `req.ip` resolved to a rotating Cloudflare/Vercel edge address, so every guest row was stored under a new hash. Guests are now keyed by an `httpOnly` `aos_guest` cookie, falling back to the real client address from `x-vercel-forwarded-for` / `cf-connecting-ip`; the first cookie-less answer also seeds the IP bucket, so dropping cookies does not mint trials (`b3f5d10`, `9434706`).
 - The tools page now renders a "مشترك" badge and an active-subscription banner ("اشتراكك نشط — كل الأدوات مفتوحة" / manage subscription) for subscribed customers instead of "تمّت التجربة" and the upgrade banner (`3494213`).
 - Also verified: a customer token gets 401 on the admin payments endpoint, Chargily checkout returns `chargily_not_configured` while keys are absent, and `/api/calculator/results` save/list/delete round-trips for a signed-in account.
-- Temporary activation/cleanup endpoints and the QA account, subscription, payment and receipt were deleted; the QA login now returns 400 and the old token 401.
-- Remaining admin-only check: confirm a pending manual payment from the "AI Subscriptions" tab with a real administrator login (the QA activation was done server-side because no admin credentials were available).
+- Admin UI verified in the browser with a temporary `ADMIN` account (mandatory 2FA, password + TOTP): the "AI Subscriptions" tab lists pending payments; **Activate** changed the payment to `paid`, added a `quarterly` subscription until 2027-02-18 and showed the activation toast; the customer then saw `active` on `/subscription/me` and unlimited AI (200 `subscribed:true`). **Grant manually** by email and **Reject** also worked, and the Paid filter showed the receipt.
+- **Bug fixed:** the receipt "View receipt" link used a `data:image/...` `href`, which Chrome blocks as a top-level navigation and opened an empty tab. It now opens a proper dialog with the image inside; close works by button, backdrop or Escape (`d023ed1`).
+- All temporary QA accounts (40 users created during the provisioning loop), payments, subscriptions and temporary endpoints were deleted; the cleanup call returned `deleted:40`, then `deleted:0`.
 
 ## Next Step
-1. Open `/admin` → "AI Subscriptions" with a real administrator account and confirm a pending CCP/BaridiMob payment end-to-end (receipt preview, activate, customer sees the plan and unlimited tools).
-2. If Chargily keys are available, set `CHARGILY_SECRET_KEY`, `CHARGILY_MODE` and `CHARGILY_WEBHOOK_SECRET` on Render and register `https://aos-tech.store/api/subscription/chargily/webhook`; otherwise keep CCP/BaridiMob + manual activation.
-3. Set `AI_IP_SALT` on Render so guest hashes do not fall back to `JWT_SECRET`, and fill the CCP/BaridiMob account fields in the site settings so the payment panel shows real details instead of only WhatsApp.
-4. Add subscription status to the account area (optional) so customers see the renewal date without opening `/subscription`.
+1. If Chargily keys are available, set `CHARGILY_SECRET_KEY`, `CHARGILY_MODE` and `CHARGILY_WEBHOOK_SECRET` on Render and register `https://aos-tech.store/api/subscription/chargily/webhook`; otherwise keep CCP/BaridiMob + manual activation.
+2. Set `AI_IP_SALT` on Render so guest hashes do not fall back to `JWT_SECRET`, and fill the CCP/BaridiMob account fields in the site settings so the payment panel shows real details instead of only WhatsApp.
+3. Add subscription status to the account area (optional) so customers see the renewal date without opening `/subscription`.
 
 Optional follow-ups:
 1. If Claude Sonnet is preferred, set `AI_MODEL=anthropic/claude-sonnet-5.5` on Render and redeploy.

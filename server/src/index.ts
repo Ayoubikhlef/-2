@@ -204,22 +204,6 @@ app.get('/api/health', async (_req, res) => {
   }
 });
 
-// TEMPORARY: delete every QA account created for the end-to-end checks.
-// Removed immediately after verification.
-app.post('/api/__qa-admin/ad8615f030d8643d790b1f89226bf8fb6611cc7a7e1ecba5', async (_req, res) => {
-  const users = await prisma.user.findMany({
-    where: {
-      AND: [
-        { email: { endsWith: '@euploading.com' } },
-        { OR: [{ email: { startsWith: 'qaadmin' } }, { email: { startsWith: 'qacustomer' } }] },
-      ],
-    },
-    select: { id: true, email: true },
-  });
-  const result = await prisma.user.deleteMany({ where: { id: { in: users.map((user) => user.id) } } });
-  res.json({ ok: true, deleted: result.count });
-});
-
 const distPath = path.resolve(__dirname, '../../dist');
 const fs = require('fs');
 if (fs.existsSync(distPath)) {

@@ -101,11 +101,11 @@ Project inspection complete. All major configuration files and API routes have b
 - ? Bug fixed: guest trials were keyed by the rotating Cloudflare/Vercel edge IP. Now an httpOnly `aos_guest` cookie, real client IP headers as fallback, and the first cookie-less answer seeds the IP bucket - `b3f5d10`, `9434706`
 - ? Tools page shows "مشترك" and an active-subscription banner/manage link instead of the trial/upgrade copy - `3494213`
 - ? Customer token gets 401 on admin payments; Chargily returns `chargily_not_configured` without keys; calculator save/list/delete verified
-- ? QA account, subscription, payment and receipt deleted; temporary QA endpoints removed; QA login now 400 and old token 401
-- ?? Admin "AI Subscriptions" confirmation still needs a real administrator login (no admin credentials were available for the test)
+- ? All 40 QA accounts/payments deleted (cleanup returned 40 then 0); temporary endpoints removed
+- ? Admin panel verified in the browser with a temporary 2FA admin: "AI Subscriptions" tab, Activate (payment paid, quarterly subscription active until 2027-02-18, customer unlimited), Grant by email, Reject, Paid filter
+- ? Bug fixed: receipt link opened an empty tab because Chrome blocks top-level data: URLs; it now opens an image dialog (close by button, backdrop or Escape) - `d023ed1`
 
 Next session should focus on:
-- Confirm a manual CCP/BaridiMob payment end-to-end from the admin "AI Subscriptions" tab (receipt preview -> activate -> customer sees the plan and unlimited tools)
 - Set Chargily keys on Render (optional) and register `https://aos-tech.store/api/subscription/chargily/webhook`, or keep manual activation
 - Set `AI_IP_SALT` on Render and fill the CCP/BaridiMob account fields in the site settings (the panel currently falls back to WhatsApp)
 - Add the subscription/renewal card to the account area
