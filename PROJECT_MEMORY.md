@@ -131,8 +131,20 @@ Provider order is deliberate: the paid/limited OpenRouter key is tried first whi
 - Each card expands to basic/standard/premium pricing and a `/#booking` CTA; page is in the sitemap (`scripts/generate-sitemap.mjs`) and has per-language titles.
 - The old `src/app/premium-services/page.tsx` (Next.js, framer-motion, leaked margins, broken links) was deleted — do not recreate it.
 
+## AI Tools Page (`/ai-tools`)
+
+- Real Vite route: Vercel rewrites `/ai-tools` and `/AI-tools` to `/index.html` with `no-store`; `App.tsx` detects it through `readAiToolsRoute()` and lazy-loads `src/app/components/AiToolsPage.tsx` with Header + Footer.
+- 12 seller tools in 3 stages (before selling / what you write / what you analyse), defined in `src/app/data/aiTools.ts` (bilingual copy + form fields): `product-check`, `offer-maker`, `competitor`, `plan`, `ad-copy`, `product-page`, `video-script`, `customer-reply`, `order-confirmation`, `ad-image-review`, `page-review`, `campaign-doctor`.
+- Server registry is `AI_TOOLS` (15 = the 3 old AI Studio tools + these 12) in `server/src/services/aiProvider.ts`, with `TOOL_FIELDS`, `REQUIRED_FIELDS`, `FIELD_LABELS`, `buildGrowthPrompt()` and a mock response per tool for `AI_MOCK`.
+- One free trial per tool is stored in `localStorage` under `aos_ai_tools_trials_v1` (result + language + timestamp, capped at 12 000 chars) so a visitor can reopen the saved result. Mock answers never consume the trial. Real cost protection is server-side: `AI_DAILY_LIMIT=200` plus `aiLimiter` (12 requests / 10 min / IP).
+- `ad-image-review` sends one picture. The browser compresses it to ≤850 000 chars with a `FileReader` (**not** `URL.createObjectURL`, the CSP blocks `blob:` images) and downscales to 1280 px / JPEG. The route accepts ≤1 000 000 chars, the service caps at 950 000, and only vision providers (`VISION_PROVIDERS`) are tried.
+- `express.json({ limit: '1mb' })` is enough for the compressed image; do not raise it just for this tool.
+- Results are copyable and downloadable (download uses a `data:` URL, not a blob, for CSP safety).
+- Entry points: desktop header (from `xl`), mobile menu, footer and the AI services banner on the home page. `/ai-tools` is in `scripts/generate-sitemap.mjs` (12 URLs).
+- Header breakpoints matter: the desktop nav/actions start at `xl`, the violet "digital services" link and the phone number text start at `2xl`. Before that, FR/EN labels made the header overflow horizontally at 1024–1440 px.
+
 ## Current Session
-Session on 2026-11-17/18: AI provider activation (Gemini + OpenRouter) and shipping the Premium Services page through the Vite app.
+Session on 2026-11-18: the 12 seller AI tools (`/ai-tools`) shipped end to end, plus two production bugs fixed (CSP-blocked image upload, FR/EN header overflow).
 
 ## Technical Decisions Recorded
 1. **Hybrid Platform**: Combine e-commerce with website factory - different teams use the same API but separate endpoints for isolation
@@ -162,8 +174,19 @@ Session on 2026-11-17/18: AI provider activation (Gemini + OpenRouter) and shipp
 - Removed the hero badge "خدمات مكتبية وإعلام آلي" at the user's request (`3ad3520`). The hero now starts with "مرحباً بكم في / AOS Tech Store"; verified on production with no console errors.
 - Announcement bar now says free delivery over **8000 DZD** and cash on delivery in **69 wilayas** (was 5000/58). The same numbers were aligned in the product trust badges, product page (FR), testimonials, product SEO text, the Vercel `api/product-page` description, and the server/client delivery defaults (`af655b9`). The live `aos_site_settings` already had `freeThreshold: 8000`; verified on production.
 
+## Last Working Session
+2026-11-18 - 12 seller AI tools.
+- `/ai-tools` added as a real Vite route with 12 tools in 3 stages, one free trial per tool, copy/download of results and ad-image analysis (`d6e44f2`).
+- Server: `AI_TOOLS` grew from 3 to 15, per-tool field whitelists and required lists, new growth prompts, `image` input with `image_url` support in `callProvider`, prompt cap raised to 5000 chars.
+- Production API verified on Render after its auto-deploy: `product-check`, `plan`, `campaign-doctor` and `ad-image-review` all returned real Claude answers; `ai_missing_fields` / `ai_image_required` / unknown-tool 400s behave.
+- **Bug 1 (production):** the site CSP (`img-src 'self' data: https:`) blocked `blob:` URLs, so the ad-image upload silently failed. `compressImage` now reads the file with `FileReader` and the download link uses a `data:` URL (`68362be`).
+- **Bug 2 (production):** with FR/EN labels the header overflowed horizontally at 1024–1440 px (nav 851 + actions 524 + logo 48 > 1232). The desktop nav/actions now start at `xl`, the mobile menu/actions hide below `xl`, the violet digital link and the phone number text start at `2xl`, and the actions gap shrank at `xl` (`c09dbb0`).
+- Contrast: small `text-primary` labels on dark cards were 2.5:1, now `text-sky-700 dark:text-sky-300` (`f8abdc0`); Lighthouse on `/ai-tools` scores accessibility 0.96, best-practices 1.0, SEO 1.0, and the main content has no remaining low-contrast text.
+- Verified on production: `/ai-tools` 200, 12 cards, 3 sections, RTL, ar/fr/en, no console errors, no horizontal overflow at 1295 px (AR/FR/EN), header + footer + AI banner links visible, free trial survives a reload, sitemap includes `/ai-tools`.
+
 ## Next Step
 No blocking work. Optional follow-ups:
 1. If Claude Sonnet is preferred, set `AI_MODEL=anthropic/claude-sonnet-5.5` on Render and redeploy.
-2. Consider a per-route meta description for `/premium-services` (title and canonical are already correct).
-3. Keep an eye on OpenRouter `limit` ($5 lifetime) via `GET https://openrouter.ai/api/v1/key`.
+2. `/ai-tools` and `/premium-services` still get their titles/meta from client-side JS only; a prerender step would give crawlers the exact per-page title.
+3. `aiLimiter` allows 12 requests / 10 min / IP, exactly the number of tools — raising it to ~20 would let a visitor retry a failed generation.
+4. Keep an eye on the OpenRouter `limit` ($5 lifetime) via `GET https://openrouter.ai/api/v1/key`.

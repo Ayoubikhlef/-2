@@ -63,9 +63,21 @@ Project inspection complete. All major configuration files and API routes have b
 - ✅ Announcement bar: free delivery over 8000 DZD and delivery in 69 wilayas; aligned badges, testimonials, SEO and delivery defaults — `af655b9`; production verified
 - ⚠️ OpenRouter is on a $5 lifetime limit; monitor usage before moving heavy traffic to it
 
+## Session 2026-11-18 - 12 seller AI tools (`/ai-tools`)
+- ? `AI_TOOLS` expanded 3 -> 15 with per-tool field whitelists and prompts; image input for `ad-image-review` (`image_url`), prompt cap 5000 chars
+- ? Route `POST /api/ai/generate`: `z.enum(AI_TOOLS)`, field max 1200, max 12 fields, optional `image` <= 1 000 000 chars
+- ? `/ai-tools` page: 12 tools in 3 stages, one free trial per tool (`aos_ai_tools_trials_v1`), saved result, copy + download, ad-image compression
+- ? Entry points: desktop header (xl), mobile menu, footer, AI services banner; Vercel rewrites + sitemap (12 URLs) - `d6e44f2`
+- ? Bug fixed: CSP blocked `blob:` image URLs, the upload silently failed. Now `FileReader` + `data:` download link - `68362be`
+- ? Bug fixed: FR/EN header overflowed at 1024-1440 px. Desktop nav/actions moved to `xl`, digital link + phone number text to `2xl` - `c09dbb0`
+- ? Contrast: dark-mode `text-primary` labels 2.5:1 -> `text-sky-700 dark:text-sky-300`; Lighthouse a11y 0.96, best-practices 1.0, SEO 1.0 - `f8abdc0`
+- ? Production verified: 12 cards, 3 sections, RTL, ar/fr/en, real Claude answers for 4 tools, vision review works, validation errors correct, no console errors, no horizontal overflow, trial persists after reload, sitemap + header/footer/banner links live
+- ?? `aiLimiter` = 12 requests / 10 min / IP (exactly the number of tools); consider raising to ~20 for retries
+- ?? OpenRouter is on a $5 lifetime limit; monitor usage before heavy traffic
+
 Next session should focus on:
-- Implementing specific feature enhancements (as per user requirements)
-- Adding a per-route meta description for `/premium-services` if SEO is a priority
+- A prerender step so `/ai-tools` and `/premium-services` expose their per-page title/meta to crawlers
+- Raising `aiLimiter` to ~20 requests / 10 min if users report a blocked retry
 - Watching OpenRouter usage against the $5 lifetime limit
-- Fixing identified bugs if any exist
+- The payment decision is still open (Chargily needs a commercial RIB; manual CCP/BaridiMob is the fallback)
 
