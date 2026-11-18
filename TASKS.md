@@ -105,6 +105,11 @@ Project inspection complete. All major configuration files and API routes have b
 - ? Admin panel verified in the browser with a temporary 2FA admin: "AI Subscriptions" tab, Activate (payment paid, quarterly subscription active until 2027-02-18, customer unlimited), Grant by email, Reject, Paid filter
 - ? Bug fixed: receipt link opened an empty tab because Chrome blocks top-level data: URLs; it now opens an image dialog (close by button, backdrop or Escape) - `d023ed1`
 
+## Session 2026-11-18 - defensive review of a recon attempt
+- ? Only Vercel edge exposed; `.env`, `.git/config`, `vercel.json` all 404; no secrets in the JS bundle; strict CORS allowlist on the Render API; `boot-guard.js` is only an asset-reload helper
+- ? Google Forms formResponse is a secondary order sheet; real orders still go through the rate-limited server API
+- ? Dead Railway API (`Application not found`) removed from both CSPs and the admin live-feed fallback; live feed now uses the verified Render Socket.IO endpoint - `aeee887`
+
 Next session should focus on:
 - Set Chargily keys on Render (optional) and register `https://aos-tech.store/api/subscription/chargily/webhook`, or keep manual activation
 - Set `AI_IP_SALT` on Render and fill the CCP/BaridiMob account fields in the site settings (the panel currently falls back to WhatsApp)

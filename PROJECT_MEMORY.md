@@ -223,6 +223,13 @@ Session on 2026-11-18: the AI subscription gate was proven end-to-end on product
 - **Bug fixed:** the receipt "View receipt" link used a `data:image/...` `href`, which Chrome blocks as a top-level navigation and opened an empty tab. It now opens a proper dialog with the image inside; close works by button, backdrop or Escape (`d023ed1`).
 - All temporary QA accounts (40 users created during the provisioning loop), payments, subscriptions and temporary endpoints were deleted; the cleanup call returned `deleted:40`, then `deleted:0`.
 
+## Security review (recon attempt against the live site)
+- A third-party recon transcript was reviewed defensively. Findings: only Vercel edge ports 80/443, no exposed `.env`/`.git`/`vercel.json`, strong CSP on the storefront, strict origin allowlist with credentials on the Render API, and no secrets in the JS bundle.
+- The `boot-guard.js` script is only a post-deploy asset-reload helper, not a bot challenge.
+- Google Forms `formResponse` is a secondary order-notification sheet; spam there does not create server orders (real orders go through the rate-limited `/api/orders` proxy). It is inherent to Google Forms and cannot be server-rate-limited from our side.
+- The `aos-api-production.up.railway.app` origin was dead (`Application not found`) but still listed in both CSPs and used as the admin live-feed fallback (`aeee887`). Removed from CSP and switched the live feed to the live Render Socket.IO endpoint, which was verified responding.
+- The `access-control-allow-origin: *` seen on the static Vercel response applies to public assets, not authenticated API routes; the API only reflects allowlisted origins (or none for disallowed ones).
+
 ## Next Step
 1. If Chargily keys are available, set `CHARGILY_SECRET_KEY`, `CHARGILY_MODE` and `CHARGILY_WEBHOOK_SECRET` on Render and register `https://aos-tech.store/api/subscription/chargily/webhook`; otherwise keep CCP/BaridiMob + manual activation.
 2. Set `AI_IP_SALT` on Render so guest hashes do not fall back to `JWT_SECRET`, and fill the CCP/BaridiMob account fields in the site settings so the payment panel shows real details instead of only WhatsApp.
