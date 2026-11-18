@@ -61,7 +61,7 @@ export function Header() {
           </a>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-0.5">
+          <nav className="hidden xl:flex items-center gap-0.5">
             {navLinks.map((link, idx) => (
               <a
                 key={idx}
@@ -88,7 +88,7 @@ export function Header() {
             {!hasDigitalLink && (
               <a
                 href={pageHref('#digital-services')}
-                className="hidden xl:inline-flex items-center gap-1.5 px-3 py-2 text-sm font-bold text-violet-600 hover:bg-violet-500/10 rounded-lg transition-all duration-200 dark:text-violet-300"
+                className="hidden 2xl:inline-flex items-center gap-1.5 px-3 py-2 text-sm font-bold text-violet-600 hover:bg-violet-500/10 rounded-lg transition-all duration-200 dark:text-violet-300"
               >
                 <Sparkles className="w-4 h-4" />
                 {t({ ar: 'الخدمات الرقمية', fr: 'Services digitaux', en: 'Digital Services' })}
@@ -103,14 +103,14 @@ export function Header() {
           </nav>
 
           {/* Desktop Actions */}
-          <div className="hidden lg:flex items-center gap-3">
+          <div className="hidden xl:flex items-center gap-2 2xl:gap-3">
             <a
               href={`tel:${settings.contact.phone}`}
               className="flex items-center gap-2 text-sm font-medium bg-primary/5 text-primary px-3 py-2 rounded-lg"
               aria-label={`${t({ ar: 'اتصل بنا', fr: 'Appelez-nous', en: 'Call us' })}: ${settings.contact.phoneDisplay}`}
             >
               <Phone className="w-4 h-4" />
-              <span className="hidden xl:inline font-bold whitespace-nowrap" dir="ltr">{settings.contact.phoneDisplay}</span>
+              <span className="hidden 2xl:inline font-bold whitespace-nowrap" dir="ltr">{settings.contact.phoneDisplay}</span>
             </a>
 
             <a
@@ -156,7 +156,7 @@ export function Header() {
           </div>
 
           {/* Mobile Actions */}
-          <div className="flex lg:hidden items-center gap-1 min-[480px]:gap-2">
+          <div className="flex xl:hidden items-center gap-1 min-[480px]:gap-2">
             <a
               href={pageHref('#account')}
               className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-muted transition-colors"
@@ -208,7 +208,7 @@ export function Header() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="lg:hidden border-t border-border overflow-hidden"
+              className="xl:hidden border-t border-border overflow-hidden"
               aria-label={t({ ar: 'القائمة الرئيسية', fr: 'Menu principal', en: 'Main menu' })}
             >
               <div className="py-4 space-y-1">
