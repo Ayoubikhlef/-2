@@ -572,6 +572,13 @@ export function DigitalServices() {
                     en: 'We use the best AI tools on your behalf and deliver the finished result: CV, logo, photos, video, translation, chatbot or automation — at a clear service price.',
                   })}
                 </p>
+                <a
+                  href="/premium-services"
+                  className="mt-3 inline-flex items-center gap-1 text-xs font-bold text-white/85 underline underline-offset-4 transition hover:text-white"
+                >
+                  {t({ ar: 'الخدمات المميزة للشركات', fr: 'Services premium pour entreprises', en: 'Premium services for businesses' })}
+                  <ArrowRight className="h-3 w-3 rtl:rotate-180" />
+                </a>
               </div>
             </div>
             <div className="flex shrink-0 flex-col gap-2 sm:flex-row md:items-center">

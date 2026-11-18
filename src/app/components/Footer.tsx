@@ -76,6 +76,12 @@ export function Footer() {
                   {t({ ar: 'إنشاء المواقع', fr: 'Création de sites', en: 'Web design' })}
                 </a>
               </li>
+              <li>
+                <a href="/premium-services" className="text-primary font-semibold hover:text-primary/80 text-sm transition-colors flex items-center gap-2">
+                  <span className="w-1 h-1 rounded-full bg-primary shrink-0" />
+                  {t({ ar: 'الخدمات المميزة', fr: 'Services premium', en: 'Premium services' })}
+                </a>
+              </li>
             </ul>
           </div>
 

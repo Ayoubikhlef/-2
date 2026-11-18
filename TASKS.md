@@ -17,13 +17,15 @@
 - [x] Environment variables documented (.env.example)
 
 ## In Progress 🔄
-- (None at this time - inspection complete)
+- Production verification of `/premium-services` (Vercel deploy of `3b4b588`) and of OpenRouter as the active AI provider on Render.
 
 ## Pending ⏳
 - Review render.yaml / vercel.json deployment configurations (if exist)
 - Read SECURITY_AUDIT_REPORT.md if present in project
 - Verify sentry.config.ts configuration
 - Inspect any additional documentation files in root directory
+- Invalidate temporary Render API key `aos-openrouter-setup` and delete its local copy
+- Production QA of `/premium-services`: console errors, mobile viewport, ar/fr/en
 
 ## Completed This Session
 - ✅ Project structure fully mapped and documented
@@ -40,8 +42,23 @@
 ## Session Summary
 Project inspection complete. All major configuration files and API routes have been inspected and documented in PROJECT_MEMORY.md. The AyoubWorkTechStore is an IT equipment e-commerce platform with AI-powered website factory builder, deployed on Render/Vercel with Sentry error monitoring.
 
+## Session 2026-11-17/18 — AI providers + Premium Services
+- ✅ Checkout payment method selection (COD/CIB/DZAPI/PayPal) + percentage fix — `683f260`
+- ✅ AI Studio works with no key via free provider — `2fd82cc`
+- ✅ Gemini key created and added to Render; `/api/ai/status` → `available:true, keyless:false`
+- ✅ Slow/failed Gemini falls back automatically — `9a6718c`; 8 s "still working" hint — `a7a1c2f`
+- ✅ OpenRouter/Claude provider + fallback chain — `232868f`; `OPENROUTER_API_KEY` added to Render env and deploy triggered
+- ✅ Real OpenRouter call tested directly: 200 in 3.2 s, `anthropic/claude-haiku-5.5`, cost $0.0001843
+- ✅ `/premium-services` rebuilt as a real Vite route, margins hidden, 15 services, pricing tiers, `/#booking` CTA — `3b4b588`
+- ✅ Old Next.js page deleted (it never rendered on Vite) — `48035e1`
+- ✅ Vercel rewrites + `no-store` headers for `/premium-services` and `/Premium-services`; sitemap now has 11 URLs
+- ✅ `npm run typecheck` and `npm run build` pass; local QA confirmed h1, 15 cards, 4 sections, RTL, prices, expandable tiers, no margin leak
+- ⚠️ OpenRouter usage did not increase on a production request made before the Render env var deploy went live — needs re-check
+- ⚠️ Production `/premium-services` returned 404 while the `3b4b588` Vercel deploy was still building
+
 Next session should focus on:
+- Verifying the production deploy and the OpenRouter usage delta
+- Cleaning up the temporary Render API key
 - Implementing specific feature enhancements (as per user requirements)
 - Fixing identified bugs if any exist
-- Or starting new development tasks based on project needs
 

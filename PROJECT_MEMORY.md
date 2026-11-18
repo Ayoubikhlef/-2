@@ -111,8 +111,28 @@ The backend provides:
 - Database backup/restore automation
 - Security audit logging and monitoring
 
+## AI Provider Chain (`server/src/services/aiProvider.ts`)
+
+The AI Studio (`/api/ai/generate`) never depends on a single provider. Order:
+
+1. **OpenRouter** (`OPENROUTER_API_KEY`) — default model `anthropic/claude-haiku-5.5`, reasoning disabled (`reasoning: { effort: 'none' }`) for speed/cost. Upgrade with `AI_MODEL=anthropic/claude-sonnet-5.5`.
+2. **Gemini** (`GEMINI_API_KEY` / `AI_API_KEY`) — used first instead when `AI_PROVIDER` is explicitly set to `gemini`.
+3. **Groq / OpenAI** (`GROQ_API_KEY`, `OPENAI_API_KEY`).
+4. **Keyless free provider** (`kilo-auto/free`) via `keylessConfig()` — keeps AI Studio usable with zero keys.
+
+Timeouts: `AI_TIMEOUT_MS` (default 20 s) per keyed provider, 25 s for the free provider, 55 s total deadline (browser aborts at 60 s). A failed/slow provider is skipped silently, so a visitor never sees a provider timeout error; the UI only shows a "still working" hint after 8 s.
+
+Provider order is deliberate: the paid/limited OpenRouter key is tried first while the free keyless provider acts as the safety net, so extra cost only happens when Claude is actually reachable.
+
+## Premium Services Page (`/premium-services`)
+
+- Served by the Vite SPA (`src/app/components/PremiumServicesPage.tsx`), not Next.js. Vercel rewrites `/premium-services` and `/Premium-services` to `/index.html` with `no-store` headers; the route is detected in `App.tsx` via `readPremiumRoute()` and rendered lazily with Header + Footer.
+- Data comes from `src/app/data/highValueServices.ts` (15 services, 4 categories). Customer-facing UI shows tier prices only — the internal `margin` field is never rendered.
+- Each card expands to basic/standard/premium pricing and a `/#booking` CTA; page is in the sitemap (`scripts/generate-sitemap.mjs`) and has per-language titles.
+- The old `src/app/premium-services/page.tsx` (Next.js, framer-motion, leaked margins, broken links) was deleted — do not recreate it.
+
 ## Current Session
-Continued from previous work session (b1a3ad39). Main task: Complete project documentation by inspecting remaining files and updating memory system.
+Session on 2026-11-17/18: AI provider activation (Gemini + OpenRouter) and shipping the Premium Services page through the Vite app.
 
 ## Technical Decisions Recorded
 1. **Hybrid Platform**: Combine e-commerce with website factory - different teams use the same API but separate endpoints for isolation
@@ -127,7 +147,13 @@ Continued from previous work session (b1a3ad39). Main task: Complete project doc
 3. **Mojibake in settings**: Auto-repaired on startup, logged for tracking
 
 ## Last Working Session
-Session b1a3ad39 - Initial project inspection and core file mapping.
+2026-11-18 — AI providers + Premium Services.
+- Added OpenRouter provider with fallback chain, `OPENROUTER_API_KEY` in Render env, `AI_TIMEOUT_MS`.
+- Rebuilt `/premium-services` as a Vite route (`3b4b588`), removed the dead Next.js page (`48035e1`), added Vercel rewrites + sitemap entry.
+- Verified locally: typecheck + build pass; QA on `localhost:5173/premium-services` shows h1, 15 cards, 4 category sections, RTL, prices, expandable tiers, no margin leak.
 
 ## Next Step
-Document completed API route inspections in PROJECT_MEMORY.md, read remaining security files (SECURITY_AUDIT_REPORT.md if exists), review render.yaml/vercel.json deployment configs, then update TASKS.md to mark inspection complete.
+1. Confirm the Vercel production deploy (commit `3b4b588`) is Ready and `https://aos-tech.store/premium-services` returns 200 with the new bundle.
+2. Confirm OpenRouter usage increases on a production generation (script `verify-openrouter-prod.mjs`). If it does not, the Render env var or deploy is stale.
+3. Invalidate the temporary Render API key `aos-openrouter-setup` and delete `C:\Users\PC\AppData\Local\Temp\opencode\render-api-key.txt`.
+4. Production QA of `/premium-services` (console errors, mobile width, ar/fr/en) and fix anything found.
