@@ -57,6 +57,8 @@ Project inspection complete. All major configuration files and API routes have b
 - ✅ Language switch refreshes `document.title` without a reload; `#premium-list` anchor scrolls and no longer looks like a 404 — `6e5df6d`, `bcee2f5`
 - ✅ OpenRouter usage on production generation rose `0.0001843 → 0.0004173` USD (3.6 s), proving Render uses Claude
 - ✅ Temporary Render API key `aos-openrouter-setup` revoked (401 confirmed) and local copy deleted
+- ✅ Phone shown left-to-right in Arabic (header/footer/contact/FAQ/about/announcement) — `0bd08f1`
+- ✅ Premium Services link added to the desktop header next to Contact/order tracking and to the mobile menu; header widened at 2xl
 - ⚠️ OpenRouter is on a $5 lifetime limit; monitor usage before moving heavy traffic to it
 
 Next session should focus on:
