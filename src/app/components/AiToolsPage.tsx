@@ -247,6 +247,7 @@ export function AiToolsPage() {
           ? 'loading'
           : 'preview';
   const blockedByServer = Boolean(user && (serverLocked || accessMode === 'locked'));
+  const subscribed = Boolean(account?.subscribed);
   const showGuestPaywall = Boolean(used && !user);
   const showMemberPaywall = Boolean(user && blockedByServer);
   const showForm = !showGuestPaywall && !showMemberPaywall;
@@ -668,22 +669,36 @@ export function AiToolsPage() {
           </span>
           <div className="min-w-0 flex-1">
             <h2 className="text-base font-bold sm:text-lg">
-              {t({
-                ar: 'بعد التجربة: اشتراك واحد يفتح كل الأدوات',
-                fr: 'Après l’essai : un abonnement ouvre tous les outils',
-                en: 'After the trial: one subscription unlocks every tool',
-              })}
+              {subscribed
+                ? t({
+                    ar: 'اشتراكك نشط — كل الأدوات مفتوحة',
+                    fr: 'Abonnement actif — tous les outils sont ouverts',
+                    en: 'Subscription active — every tool is unlocked',
+                  })
+                : t({
+                    ar: 'بعد التجربة: اشتراك واحد يفتح كل الأدوات',
+                    fr: 'Après l’essai : un abonnement ouvre tous les outils',
+                    en: 'After the trial: one subscription unlocks every tool',
+                  })}
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              {t({
-                ar: 'معاينة إضافية مجانية بعد تسجيل الدخول، ثم 1 900 دج/شهر أو 4 900 دج/3 أشهر أو 17 900 دج/سنة.',
-                fr: 'Une preview offerte après connexion, puis 1 900 DZD/mois, 4 900 DZD/3 mois ou 17 900 DZD/an.',
-                en: 'One extra preview after signing in, then 1 900 DZD/month, 4 900 DZD/3 months or 17 900 DZD/year.',
-              })}
+              {subscribed
+                ? t({
+                    ar: 'استخدم الأدوات الـ12 بدون حدود ضمن الاستخدام العادل. تابع الاشتراك أو اطبعه من صفحة الاشتراك.',
+                    fr: 'Utilisez les 12 outils sans limite dans le cadre d’un usage raisonnable. Gérez votre abonnement depuis sa page.',
+                    en: 'Use all 12 tools without limits under fair use. Manage your subscription from its page.',
+                  })
+                : t({
+                    ar: 'معاينة إضافية مجانية بعد تسجيل الدخول، ثم 1 900 دج/شهر أو 4 900 دج/3 أشهر أو 17 900 دج/سنة.',
+                    fr: 'Une preview offerte après connexion, puis 1 900 DZD/mois, 4 900 DZD/3 mois ou 17 900 DZD/an.',
+                    en: 'One extra preview after signing in, then 1 900 DZD/month, 4 900 DZD/3 months or 17 900 DZD/year.',
+                  })}
             </p>
           </div>
           <span className="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-xs font-bold text-white transition group-hover:bg-indigo-700">
-            {t({ ar: 'خطط الاشتراك', fr: 'Voir les formules', en: 'View plans' })}
+            {subscribed
+              ? t({ ar: 'إدارة الاشتراك', fr: 'Gérer l’abonnement', en: 'Manage subscription' })
+              : t({ ar: 'خطط الاشتراك', fr: 'Voir les formules', en: 'View plans' })}
             <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
           </span>
         </a>
@@ -737,14 +752,18 @@ export function AiToolsPage() {
                           )}
                           <span
                             className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${
-                              isUsed
-                                ? 'bg-muted text-muted-foreground'
-                                : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+                              subscribed
+                                ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
+                                : isUsed
+                                  ? 'bg-muted text-muted-foreground'
+                                  : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
                             }`}
                           >
-                            {isUsed
-                              ? t({ ar: 'تمّت التجربة', fr: 'Essai utilisé', en: 'Trial used' })
-                              : t({ ar: 'تجربة مجانية', fr: 'Essai gratuit', en: 'Free trial' })}
+                            {subscribed
+                              ? t({ ar: 'مشترك', fr: 'Abonné', en: 'Subscribed' })
+                              : isUsed
+                                ? t({ ar: 'تمّت التجربة', fr: 'Essai utilisé', en: 'Trial used' })
+                                : t({ ar: 'تجربة مجانية', fr: 'Essai gratuit', en: 'Free trial' })}
                           </span>
                         </span>
                       </div>
