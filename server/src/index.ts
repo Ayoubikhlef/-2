@@ -27,7 +27,6 @@ import { backupRouter } from './routes/backup';
 import { siteFactoryRouter } from './routes/siteFactory';
 import { subscriptionRouter } from './routes/subscription';
 import { calculatorRouter } from './routes/calculator';
-import { activateSubscription } from './services/subscription';
 import { errorHandler } from './middleware/errorHandler';
 import { securityMonitor, securityRateLimitHandler } from './services/security';
 import { ensureSeedAdmin } from './services/adminBootstrap';
@@ -205,21 +204,16 @@ app.get('/api/health', async (_req, res) => {
   }
 });
 
-// TEMPORARY: activate the single QA payment for an end-to-end check. Removed
-// immediately after verification; it cannot touch any other payment.
+// TEMPORARY: delete the single QA account created for the end-to-end check.
+// Removed immediately after verification.
 app.post('/api/__qa/86265001b930c61fe90bd483f2d34e77a81d75091a2e8fe3', async (_req, res) => {
-  const payment = await prisma.subscriptionPayment.findUnique({
-    where: { id: 'cmwm4as9z002x3n5afr0bagsu' },
-  });
-  if (!payment) return res.status(404).json({ error: 'QA payment not found' });
-  if (payment.status === 'paid') return res.json({ ok: true, already: true });
-  const subscription = await activateSubscription({
-    userId: payment.userId,
-    plan: payment.plan as 'monthly' | 'quarterly' | 'yearly',
-    paymentId: payment.id,
-    price: payment.amount,
-  });
-  res.json({ ok: true, status: subscription.status, endsAt: subscription.endsAt });
+  const userId = 'cmwm396jj002n8i5bfc1701wu';
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { email: true } });
+  if (!user || user.email !== 'aosqa131837446@euploading.com') {
+    return res.status(404).json({ error: 'QA user not found' });
+  }
+  await prisma.user.delete({ where: { id: userId } });
+  res.json({ ok: true });
 });
 
 const distPath = path.resolve(__dirname, '../../dist');
