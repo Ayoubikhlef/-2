@@ -95,10 +95,19 @@ Project inspection complete. All major configuration files and API routes have b
 - ✅ Deployed (`5305de3`) and verified on production: `/subscription` 200 (3 plans, RTL, no console errors), `/api/subscription/plans` 200 (`chargily:false`), `/api/subscription/me` 401 for guests, `/api/calculator/results` 401, unsigned Chargily webhook 401, sitemap has `/subscription`; checkout opens with CCP/BaridiMob and sends guests to login
 - ✅ Receipt `proof` is limited to `data:image/(jpeg|jpg|png|webp);base64` so the admin receipts table cannot open a `data:text/html` page
 
+## Session 2026-11-18 - subscription gate proven end-to-end (production)
+- ? Temporary verified customer + disposable inbox used to walk the whole gate: guest 200 -> 403, signed-in preview 200 -> 402, manual CCP request + receipt, activation, unlimited 200 with `subscribed:true`
+- ? Receipt validation confirmed on production: image data URL accepted, `data:text/html` rejected 400
+- ? Bug fixed: guest trials were keyed by the rotating Cloudflare/Vercel edge IP. Now an httpOnly `aos_guest` cookie, real client IP headers as fallback, and the first cookie-less answer seeds the IP bucket - `b3f5d10`, `9434706`
+- ? Tools page shows "مشترك" and an active-subscription banner/manage link instead of the trial/upgrade copy - `3494213`
+- ? Customer token gets 401 on admin payments; Chargily returns `chargily_not_configured` without keys; calculator save/list/delete verified
+- ? QA account, subscription, payment and receipt deleted; temporary QA endpoints removed; QA login now 400 and old token 401
+- ?? Admin "AI Subscriptions" confirmation still needs a real administrator login (no admin credentials were available for the test)
+
 Next session should focus on:
-- Prove the real gate with a test customer: guest answer -> 403 -> sign in -> 1 preview -> 402 -> admin activation -> unlimited. The owner's current IP already used the product-check trial.
-- Confirm a manual payment end-to-end from the admin "AI Subscriptions" tab (request, receipt, activate, customer sees the plan)
-- Set Chargily keys on Render (optional) and register `https://aos-tech.store/api/subscription/chargily/webhook`, or keep CCP/BaridiMob + manual activation
+- Confirm a manual CCP/BaridiMob payment end-to-end from the admin "AI Subscriptions" tab (receipt preview -> activate -> customer sees the plan and unlimited tools)
+- Set Chargily keys on Render (optional) and register `https://aos-tech.store/api/subscription/chargily/webhook`, or keep manual activation
+- Set `AI_IP_SALT` on Render and fill the CCP/BaridiMob account fields in the site settings (the panel currently falls back to WhatsApp)
 - Add the subscription/renewal card to the account area
 - A prerender step so `/ai-tools`, `/ai-tools/calculator`, `/premium-services` and `/subscription` expose per-page titles/meta to crawlers
 - Watch OpenRouter usage against the $5 lifetime limit and Render logs for 429s

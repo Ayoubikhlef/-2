@@ -204,18 +204,6 @@ app.get('/api/health', async (_req, res) => {
   }
 });
 
-// TEMPORARY: delete the single QA account created for the end-to-end check.
-// Removed immediately after verification.
-app.post('/api/__qa/86265001b930c61fe90bd483f2d34e77a81d75091a2e8fe3', async (_req, res) => {
-  const userId = 'cmwm396jj002n8i5bfc1701wu';
-  const user = await prisma.user.findUnique({ where: { id: userId }, select: { email: true } });
-  if (!user || user.email !== 'aosqa131837446@euploading.com') {
-    return res.status(404).json({ error: 'QA user not found' });
-  }
-  await prisma.user.delete({ where: { id: userId } });
-  res.json({ ok: true });
-});
-
 const distPath = path.resolve(__dirname, '../../dist');
 const fs = require('fs');
 if (fs.existsSync(distPath)) {
