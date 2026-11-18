@@ -58,3 +58,47 @@ export function isTrustedProxy(ip: string): boolean {
   if (address.includes(':')) return isPrivateIpv6(address);
   return isPrivateIpv4(address);
 }
+
+function firstHeaderIp(value: string | string[] | undefined): string {
+  const raw = Array.isArray(value) ? value[0] : value;
+  return normalizeIp(String(raw || '').split(',')[0]);
+}
+
+/**
+ * The real visitor address behind Cloudflare -> Vercel -> Render.
+ *
+ * Express's `req.ip` stops at the first public hop, which is the Cloudflare or
+ * Vercel edge (for example 104.22.72.10) and can change between two requests
+ * from the same visitor. Vercel overwrites `x-vercel-forwarded-for` with the
+ * address it saw, and Cloudflare does the same for `cf-connecting-ip`, so those
+ * are stable per visitor when the socket is a trusted proxy hop.
+ *
+ * This helper is for product limits (the guest AI trial), not for security
+ * blocking: a direct caller to the Render URL could forge these headers, and
+ * the worst it can do here is earn another free trial.
+ */
+export function resolveClientIp(req: {
+  headers?: Record<string, string | string[] | undefined>;
+  socket?: { remoteAddress?: string };
+}): string {
+  const socket = normalizeIp(req.socket?.remoteAddress);
+  if (!isTrustedProxy(socket)) return socket || 'unknown';
+
+  const vercel = firstHeaderIp(req.headers?.['x-vercel-forwarded-for']);
+  if (vercel && !isTrustedProxy(vercel)) return vercel;
+
+  const cloudflare = firstHeaderIp(req.headers?.['cf-connecting-ip']);
+  if (cloudflare && !isTrustedProxy(cloudflare)) return cloudflare;
+
+  // Fall back to the right-most public hop: the left-most value in
+  // X-Forwarded-For is attacker-controlled.
+  const chain = String(req.headers?.['x-forwarded-for'] || '')
+    .split(',')
+    .map((part) => normalizeIp(part))
+    .filter(Boolean);
+  for (let index = chain.length - 1; index >= 0; index -= 1) {
+    if (!isTrustedProxy(chain[index])) return chain[index];
+  }
+
+  return socket || 'unknown';
+}

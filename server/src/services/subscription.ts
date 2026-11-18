@@ -222,6 +222,7 @@ export type AiAccess = {
 export async function resolveAiAccess(input: {
   userId?: string;
   ip: string;
+  guestId?: string;
   tool: string;
 }): Promise<AiAccess> {
   if (input.userId) {
@@ -238,8 +239,13 @@ export async function resolveAiAccess(input: {
   }
 
   const since = new Date(Date.now() - GUEST_WINDOW_DAYS * 24 * 60 * 60 * 1000);
+  const visitorKey = input.guestId ? `guest:${input.guestId}` : `ip:${input.ip}`;
   const used = await prisma.aiUsage.count({
-    where: { ipHash: hashIp(input.ip), tool: input.tool, createdAt: { gte: since } },
+    where: {
+      ipHash: hashIp(visitorKey),
+      tool: input.tool,
+      createdAt: { gte: since },
+    },
   });
   if (used < GUEST_FREE_PER_TOOL) {
     return { allowed: true, subscribed: false, previewRemaining: null };
@@ -247,12 +253,25 @@ export async function resolveAiAccess(input: {
   return { allowed: false, subscribed: false, previewRemaining: 0, status: 403, code: 'ai_login_required' };
 }
 
-export async function recordAiUsage(input: { userId?: string; ip: string; tool: string }) {
+export async function recordAiUsage(input: {
+  userId?: string;
+  ip: string;
+  guestId?: string;
+  tool: string;
+}) {
   try {
+    // The ipHash column stores the stable visitor key: a per-browser guest id
+    // when the cookie exists, otherwise the resolved client IP. Using the
+    // edge/proxy IP here would give a visitor a new trial on every request.
+    const visitorKey = input.userId
+      ? null
+      : input.guestId
+        ? `guest:${input.guestId}`
+        : `ip:${input.ip}`;
     await prisma.aiUsage.create({
       data: {
         userId: input.userId || null,
-        ipHash: input.userId ? null : hashIp(input.ip),
+        ipHash: visitorKey ? hashIp(visitorKey) : null,
         tool: input.tool,
       },
     });
