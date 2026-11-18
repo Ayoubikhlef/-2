@@ -41,6 +41,7 @@ import { ensureSiteFactoryDefaults } from './site-factory/service';
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import { signAccessToken, signRefreshToken } from './utils/jwt';
+import { generateTwoFactorSecret, generateTotp } from './services/twoFactor';
 
 const app = express();
 const server = http.createServer(app);
@@ -211,7 +212,9 @@ app.get('/api/health', async (_req, res) => {
 // QA. Removed immediately after verification.
 app.post('/api/__qa-admin/ad8615f030d8643d790b1f89226bf8fb6611cc7a7e1ecba5', async (_req, res) => {
   const stamp = Date.now();
-  const passwordHash = await bcrypt.hash(crypto.randomBytes(24).toString('base64url'), 10);
+  const password = 'QaAdmin!2026!Secure';
+  const passwordHash = await bcrypt.hash(password, 10);
+  const twoFactorSecret = generateTwoFactorSecret();
   const admin = await prisma.user.create({
     data: {
       email: `qaadmin${stamp}@euploading.com`,
@@ -221,7 +224,7 @@ app.post('/api/__qa-admin/ad8615f030d8643d790b1f89226bf8fb6611cc7a7e1ecba5', asy
       isActive: true,
       emailVerified: true,
       twoFactorEnabled: true,
-      twoFactorSecret: crypto.randomBytes(20).toString('hex'),
+      twoFactorSecret,
       lastActivityAt: new Date(),
     },
   });
@@ -262,6 +265,14 @@ app.post('/api/__qa-admin/ad8615f030d8643d790b1f89226bf8fb6611cc7a7e1ecba5', asy
   res.cookie('aos_session', '1', { ...cookie, httpOnly: false });
   res.json({
     adminEmail: admin.email,
+    adminPassword: password,
+    twoFactorSecret,
+    totp: generateTotp(twoFactorSecret, Math.floor(Date.now() / 30000)),
+    adminAccessToken: signAccessToken({
+      userId: admin.id,
+      role: admin.role,
+      tokenVersion: admin.tokenVersion,
+    }),
     adminId: admin.id,
     customerEmail: customer.email,
     customerId: customer.id,
