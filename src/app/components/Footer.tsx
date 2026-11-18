@@ -120,7 +120,7 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-3 text-muted-foreground">
                 <Phone className="w-4 h-4 shrink-0" />
-                <a href={`tel:${contact.phone}`} className="hover:text-foreground transition-colors">
+                <a href={`tel:${contact.phone}`} dir="ltr" className="hover:text-foreground transition-colors">
                   {contact.phoneDisplay}
                 </a>
               </li>

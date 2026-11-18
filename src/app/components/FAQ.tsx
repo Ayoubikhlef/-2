@@ -66,7 +66,7 @@ export function FAQ() {
             <div className="space-y-3 text-sm text-muted-foreground">
               <div>
                 <span className="font-semibold text-foreground">{t({ ar: 'هاتف', fr: 'Téléphone', en: 'Phone' })}:</span>
-                <span className="block">{settings.contact.phoneDisplay}</span>
+                <span className="block"><bdi dir="ltr">{settings.contact.phoneDisplay}</bdi></span>
               </div>
               <div>
                 <span className="font-semibold text-foreground">{t({ ar: 'بريد إلكتروني', fr: 'Email', en: 'Email' })}:</span>

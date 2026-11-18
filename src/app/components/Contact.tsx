@@ -61,7 +61,7 @@ export function Contact() {
             <h3 className="text-lg font-bold mb-2">
               {t({ ar: 'الهاتف', fr: 'Téléphone', en: 'Phone' })}
             </h3>
-            <a href={`tel:${settings.contact.phone}`} className="text-lg font-bold hover:text-primary transition-colors block">
+            <a href={`tel:${settings.contact.phone}`} dir="ltr" className="text-lg font-bold hover:text-primary transition-colors block">
               {settings.contact.phoneDisplay}
             </a>
           </div>

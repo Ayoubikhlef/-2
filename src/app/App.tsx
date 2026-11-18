@@ -435,7 +435,7 @@ export default function App() {
             </div>
             <div className="text-left">
               <p className="text-xs text-blue-300/60">{t('للتواصل', 'Contact', 'Contact')}</p>
-              <a href={`tel:${getSiteSettings().contact.phone}`} className="text-sm font-semibold text-white hover:text-amber-400 transition-colors">{getSiteSettings().contact.phoneDisplay}</a>
+              <a href={`tel:${getSiteSettings().contact.phone}`} dir="ltr" className="text-sm font-semibold text-white hover:text-amber-400 transition-colors">{getSiteSettings().contact.phoneDisplay}</a>
             </div>
           </div>
         </div>

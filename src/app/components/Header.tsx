@@ -1,4 +1,4 @@
-import { Phone, Menu, X, ShoppingCart, Sun, Moon, User, Sparkles } from 'lucide-react';
+import { Phone, Menu, X, ShoppingCart, Sun, Moon, User, Sparkles, Gem } from 'lucide-react';
 import { useState, useEffect, type MouseEvent } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useCart } from '../contexts/CartContext';
@@ -53,7 +53,7 @@ export function Header() {
 
   return (
     <header className={`sticky top-0 z-[var(--z-header)] transition-all duration-300 ${scrolled ? 'bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl shadow-lg shadow-black/5 border-b border-border/50' : 'bg-white dark:bg-slate-900 border-b border-border/30'}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 2xl:max-w-[1700px] 2xl:px-6">
         <div className="flex justify-between items-center h-16 md:h-20">
           {/* Logo */}
           <a href="/" className="flex items-center gap-2 shrink-0" aria-label={brand.name}>
@@ -61,16 +61,23 @@ export function Header() {
           </a>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav className="hidden lg:flex items-center gap-0.5">
             {navLinks.map((link, idx) => (
               <a
                 key={idx}
                 href={pageHref(link.href)}
-                className="px-4 py-2 text-sm font-semibold text-foreground/70 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200"
+                className="px-2.5 2xl:px-3.5 py-2 text-sm font-semibold text-foreground/70 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200"
               >
                 {t(link.label)}
               </a>
             ))}
+            <a
+              href="/premium-services"
+              className="inline-flex items-center gap-1.5 px-2.5 2xl:px-3 py-2 text-sm font-bold text-amber-600 hover:bg-amber-500/10 rounded-lg transition-all duration-200 dark:text-amber-300"
+            >
+              <Gem className="w-4 h-4" />
+              {t({ ar: 'الخدمات المميزة', fr: 'Services premium', en: 'Premium Services' })}
+            </a>
             {!hasDigitalLink && (
               <a
                 href={pageHref('#digital-services')}
@@ -90,10 +97,14 @@ export function Header() {
 
           {/* Desktop Actions */}
           <div className="hidden lg:flex items-center gap-3">
-            <div className="flex items-center gap-2 text-sm font-medium bg-primary/5 text-primary px-3 py-2 rounded-lg">
+            <a
+              href={`tel:${settings.contact.phone}`}
+              className="flex items-center gap-2 text-sm font-medium bg-primary/5 text-primary px-3 py-2 rounded-lg"
+              aria-label={`${t({ ar: 'اتصل بنا', fr: 'Appelez-nous', en: 'Call us' })}: ${settings.contact.phoneDisplay}`}
+            >
               <Phone className="w-4 h-4" />
-              <span className="font-bold whitespace-nowrap">{settings.contact.phoneDisplay}</span>
-            </div>
+              <span className="hidden xl:inline font-bold whitespace-nowrap" dir="ltr">{settings.contact.phoneDisplay}</span>
+            </a>
 
             <a
               href={pageHref('#account')}
@@ -204,6 +215,14 @@ export function Header() {
                     {t(link.label)}
                   </a>
                 ))}
+                <a
+                  href="/premium-services"
+                  className="flex items-center gap-2 px-4 py-3 text-base font-bold text-amber-600 hover:bg-amber-500/10 rounded-lg transition-colors mx-2 dark:text-amber-300"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Gem className="w-4 h-4" />
+                  {t({ ar: 'الخدمات المميزة', fr: 'Services premium', en: 'Premium Services' })}
+                </a>
                 {!hasDigitalLink && (
                   <a
                     href={pageHref('#digital-services')}
