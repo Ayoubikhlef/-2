@@ -53,8 +53,10 @@ aiRouter.post('/generate', optionalAuth, async (req: AuthRequest, res: Response)
     // reset it.
     const ip = resolveClientIp(req);
     let guestId = '';
+    let incomingGuestId = '';
     if (!req.userId) {
-      guestId = readGuestId(req);
+      incomingGuestId = readGuestId(req);
+      guestId = incomingGuestId;
       if (!guestId) {
         guestId = crypto.randomUUID();
         res.cookie(GUEST_COOKIE, guestId, {
@@ -69,7 +71,9 @@ aiRouter.post('/generate', optionalAuth, async (req: AuthRequest, res: Response)
     const access = await resolveAiAccess({
       userId: req.userId,
       ip,
-      guestId: req.userId ? undefined : guestId,
+      // A request without the cookie is counted by IP, so clearing cookies or
+      // calling the API directly cannot mint an unlimited trial.
+      guestId: req.userId || !incomingGuestId ? undefined : guestId,
       tool,
     });
     if (!access.allowed) {
@@ -93,6 +97,12 @@ aiRouter.post('/generate', optionalAuth, async (req: AuthRequest, res: Response)
         guestId: req.userId ? undefined : guestId,
         tool,
       });
+      // Seed the IP bucket too on the first, cookie-less request. The browser
+      // then continues on its guest cookie, while a client that drops cookies
+      // is stopped by the IP bucket.
+      if (!req.userId && !incomingGuestId) {
+        await recordAiUsage({ ip, tool });
+      }
     }
 
     res.json({
