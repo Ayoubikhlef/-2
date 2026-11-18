@@ -151,9 +151,14 @@ Session on 2026-11-17/18: AI provider activation (Gemini + OpenRouter) and shipp
 - Added OpenRouter provider with fallback chain, `OPENROUTER_API_KEY` in Render env, `AI_TIMEOUT_MS`.
 - Rebuilt `/premium-services` as a Vite route (`3b4b588`), removed the dead Next.js page (`48035e1`), added Vercel rewrites + sitemap entry.
 - Verified locally: typecheck + build pass; QA on `localhost:5173/premium-services` shows h1, 15 cards, 4 category sections, RTL, prices, expandable tiers, no margin leak.
+- Production deploy confirmed: `https://aos-tech.store/premium-services` → 200, 15 cards, 4 sections, RTL, no console errors, no horizontal overflow at 390 px, ar/fr/en all render (`ac643c9`, `6e5df6d`, `bcee2f5`).
+- Discoverability fixed: footer quick link + link in the AI services banner (`ac643c9`); sitemap.xml has 11 URLs and robots.txt references it.
+- Language switch now refreshes `document.title` immediately (`6e5df6d`), and `#premium-list` is a known anchor so the "browse services" CTA scrolls instead of being treated as a 404 (`bcee2f5`).
+- OpenRouter proven in production: a real `/api/ai/generate` call took 3.6 s and OpenRouter usage rose from `0.0001843` to `0.0004173` USD — the Render server is using `anthropic/claude-haiku-5.5`.
+- Temporary Render API key `aos-openrouter-setup` was revoked (API returned 401 afterwards) and its local copy deleted.
 
 ## Next Step
-1. Confirm the Vercel production deploy (commit `3b4b588`) is Ready and `https://aos-tech.store/premium-services` returns 200 with the new bundle.
-2. Confirm OpenRouter usage increases on a production generation (script `verify-openrouter-prod.mjs`). If it does not, the Render env var or deploy is stale.
-3. Invalidate the temporary Render API key `aos-openrouter-setup` and delete `C:\Users\PC\AppData\Local\Temp\opencode\render-api-key.txt`.
-4. Production QA of `/premium-services` (console errors, mobile width, ar/fr/en) and fix anything found.
+No blocking work. Optional follow-ups:
+1. If Claude Sonnet is preferred, set `AI_MODEL=anthropic/claude-sonnet-5.5` on Render and redeploy.
+2. Consider a per-route meta description for `/premium-services` (title and canonical are already correct).
+3. Keep an eye on OpenRouter `limit` ($5 lifetime) via `GET https://openrouter.ai/api/v1/key`.

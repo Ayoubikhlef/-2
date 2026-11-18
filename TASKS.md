@@ -17,15 +17,14 @@
 - [x] Environment variables documented (.env.example)
 
 ## In Progress 🔄
-- Production verification of `/premium-services` (Vercel deploy of `3b4b588`) and of OpenRouter as the active AI provider on Render.
+- (None — production verification is complete.)
 
 ## Pending ⏳
 - Review render.yaml / vercel.json deployment configurations (if exist)
 - Read SECURITY_AUDIT_REPORT.md if present in project
 - Verify sentry.config.ts configuration
 - Inspect any additional documentation files in root directory
-- Invalidate temporary Render API key `aos-openrouter-setup` and delete its local copy
-- Production QA of `/premium-services`: console errors, mobile viewport, ar/fr/en
+- Optional: per-route meta description for `/premium-services`; switch `AI_MODEL` to Sonnet if desired
 
 ## Completed This Session
 - ✅ Project structure fully mapped and documented
@@ -53,12 +52,16 @@ Project inspection complete. All major configuration files and API routes have b
 - ✅ Old Next.js page deleted (it never rendered on Vite) — `48035e1`
 - ✅ Vercel rewrites + `no-store` headers for `/premium-services` and `/Premium-services`; sitemap now has 11 URLs
 - ✅ `npm run typecheck` and `npm run build` pass; local QA confirmed h1, 15 cards, 4 sections, RTL, prices, expandable tiers, no margin leak
-- ⚠️ OpenRouter usage did not increase on a production request made before the Render env var deploy went live — needs re-check
-- ⚠️ Production `/premium-services` returned 404 while the `3b4b588` Vercel deploy was still building
+- ✅ Production `/premium-services` verified: 200, 15 cards, 4 sections, RTL, ar/fr/en, no console errors, no mobile overflow
+- ✅ Footer quick link + AI banner link to the page (it was previously unreachable from the site) — `ac643c9`
+- ✅ Language switch refreshes `document.title` without a reload; `#premium-list` anchor scrolls and no longer looks like a 404 — `6e5df6d`, `bcee2f5`
+- ✅ OpenRouter usage on production generation rose `0.0001843 → 0.0004173` USD (3.6 s), proving Render uses Claude
+- ✅ Temporary Render API key `aos-openrouter-setup` revoked (401 confirmed) and local copy deleted
+- ⚠️ OpenRouter is on a $5 lifetime limit; monitor usage before moving heavy traffic to it
 
 Next session should focus on:
-- Verifying the production deploy and the OpenRouter usage delta
-- Cleaning up the temporary Render API key
 - Implementing specific feature enhancements (as per user requirements)
+- Adding a per-route meta description for `/premium-services` if SEO is a priority
+- Watching OpenRouter usage against the $5 lifetime limit
 - Fixing identified bugs if any exist
 
