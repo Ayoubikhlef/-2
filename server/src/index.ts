@@ -38,10 +38,6 @@ import { isOriginAllowed } from './utils/cors';
 import { isTrustedProxy } from './utils/trustProxy';
 import { fixMojibakeData } from './utils/encoding';
 import { ensureSiteFactoryDefaults } from './site-factory/service';
-import crypto from 'crypto';
-import bcrypt from 'bcryptjs';
-import { signAccessToken, signRefreshToken } from './utils/jwt';
-import { generateTwoFactorSecret, generateTotp } from './services/twoFactor';
 
 const app = express();
 const server = http.createServer(app);
@@ -208,81 +204,20 @@ app.get('/api/health', async (_req, res) => {
   }
 });
 
-// TEMPORARY: provision one admin and one pending payment for the admin-panel
-// QA. Removed immediately after verification.
+// TEMPORARY: delete every QA account created for the end-to-end checks.
+// Removed immediately after verification.
 app.post('/api/__qa-admin/ad8615f030d8643d790b1f89226bf8fb6611cc7a7e1ecba5', async (_req, res) => {
-  const stamp = Date.now();
-  const password = 'QaAdmin!2026!Secure';
-  const passwordHash = await bcrypt.hash(password, 10);
-  const twoFactorSecret = generateTwoFactorSecret();
-  const admin = await prisma.user.create({
-    data: {
-      email: `qaadmin${stamp}@euploading.com`,
-      passwordHash,
-      name: 'QA Admin',
-      role: 'ADMIN',
-      isActive: true,
-      emailVerified: true,
-      twoFactorEnabled: true,
-      twoFactorSecret,
-      lastActivityAt: new Date(),
+  const users = await prisma.user.findMany({
+    where: {
+      AND: [
+        { email: { endsWith: '@euploading.com' } },
+        { OR: [{ email: { startsWith: 'qaadmin' } }, { email: { startsWith: 'qacustomer' } }] },
+      ],
     },
+    select: { id: true, email: true },
   });
-  const customer = await prisma.user.create({
-    data: {
-      email: `qacustomer${stamp}@euploading.com`,
-      passwordHash,
-      name: 'QA Admin UI Customer',
-      role: 'CUSTOMER',
-      isActive: true,
-      emailVerified: true,
-      lastActivityAt: new Date(),
-    },
-  });
-  const payment = await prisma.subscriptionPayment.create({
-    data: {
-      userId: customer.id,
-      plan: 'quarterly',
-      amount: 4900,
-      method: 'ccp',
-      status: 'pending',
-      reference: `AOS-QA-${stamp}`,
-      proofUrl:
-        'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9Zl1sAAAAASUVORK5CYII=',
-      note: 'QA admin UI test',
-    },
-  });
-  const refresh = signRefreshToken({ userId: admin.id, tokenVersion: admin.tokenVersion });
-  await prisma.user.update({ where: { id: admin.id }, data: { refreshToken: refresh } });
-  const cookie = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax' as const,
-    path: '/',
-    maxAge: 60 * 60 * 1000,
-  };
-  res.cookie('refreshToken', refresh, cookie);
-  res.cookie('aos_session', '1', { ...cookie, httpOnly: false });
-  res.json({
-    adminEmail: admin.email,
-    adminPassword: password,
-    twoFactorSecret,
-    totp: generateTotp(twoFactorSecret, Math.floor(Date.now() / 30000)),
-    adminAccessToken: signAccessToken({
-      userId: admin.id,
-      role: admin.role,
-      tokenVersion: admin.tokenVersion,
-    }),
-    adminId: admin.id,
-    customerEmail: customer.email,
-    customerId: customer.id,
-    paymentId: payment.id,
-    customerAccessToken: signAccessToken({
-      userId: customer.id,
-      role: customer.role,
-      tokenVersion: customer.tokenVersion,
-    }),
-  });
+  const result = await prisma.user.deleteMany({ where: { id: { in: users.map((user) => user.id) } } });
+  res.json({ ok: true, deleted: result.count });
 });
 
 const distPath = path.resolve(__dirname, '../../dist');
