@@ -332,6 +332,83 @@ export type AiStudioResult = {
   language: AiStudioLanguage;
   /** True when the server answered from AI_MOCK instead of a provider. */
   mock?: boolean;
+  /** Server-side free previews left while the account has no subscription. */
+  previewRemaining?: number | null;
+  subscribed?: boolean;
+};
+
+/* ------------------------------------------------------------------ */
+/* AI subscriptions                                                    */
+/* ------------------------------------------------------------------ */
+
+export type SubscriptionPlanId = 'monthly' | 'quarterly' | 'yearly';
+export type SubscriptionPaymentMethod = 'chargily' | 'ccp' | 'baridimob';
+export type LocalizedText = { ar: string; fr: string; en: string };
+
+export type SubscriptionPlan = {
+  id: SubscriptionPlanId;
+  price: number;
+  months: number;
+  perMonth: number;
+  popular: boolean;
+  name: LocalizedText;
+  tagline: LocalizedText;
+  features: LocalizedText[];
+};
+
+export type SubscriptionPayment = {
+  id: string;
+  plan: SubscriptionPlanId;
+  amount: number;
+  method: SubscriptionPaymentMethod | 'admin';
+  status: 'pending' | 'paid' | 'failed' | 'rejected' | 'expired';
+  reference: string;
+  checkoutUrl: string | null;
+  note: string | null;
+  hasProof: boolean;
+  paidAt: string | null;
+  createdAt: string;
+};
+
+export type SubscriptionMe = {
+  subscription: {
+    plan: SubscriptionPlanId;
+    planName: LocalizedText;
+    status: string;
+    price: number;
+    startsAt: string | null;
+    endsAt: string | null;
+    active: boolean;
+  } | null;
+  previews: { limit: number; used: number; remaining: number | null };
+  payments: SubscriptionPayment[];
+  chargily: boolean;
+  plans: SubscriptionPlan[];
+};
+
+export type ManualPaymentDetails = {
+  ownerName: string;
+  ccp: string;
+  ccpKey: string;
+  baridimob: string;
+  bankName: string;
+  whatsapp: string;
+  note: LocalizedText | string | null;
+};
+
+export type SubscriptionCheckoutResult = {
+  mode: 'redirect' | 'manual';
+  checkoutUrl?: string;
+  payment: SubscriptionPayment;
+  instructions?: ManualPaymentDetails;
+};
+
+export type SavedCalculationResult = {
+  id: string;
+  calc: string;
+  label: string | null;
+  values: Record<string, string>;
+  createdAt: string;
 };
 
 export const api = {
@@ -403,6 +480,67 @@ export const api = {
         // Provider calls can take a few seconds; the server gives up at 25s.
         60000,
       ),
+  },
+
+  subscription: {
+    plans: () =>
+      request<{
+        plans: SubscriptionPlan[];
+        currency: string;
+        chargily: boolean;
+        previews: { limit: number };
+      }>('/subscription/plans'),
+    me: () => request<SubscriptionMe>('/subscription/me', {}, true, 25000),
+    checkout: (data: { plan: SubscriptionPlanId; method: SubscriptionPaymentMethod }) =>
+      request<SubscriptionCheckoutResult>('/subscription/checkout', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    proof: (paymentId: string, data: { proof?: string; note?: string }) =>
+      request<{ ok: boolean; payment: SubscriptionPayment }>(
+        `/subscription/payments/${encodeURIComponent(paymentId)}/proof`,
+        { method: 'POST', body: JSON.stringify(data) },
+        true,
+        30000,
+      ),
+    admin: {
+      payments: (status?: string) =>
+        request<any>(
+          `/subscription/admin/payments${status ? `?status=${encodeURIComponent(status)}` : ''}`,
+        ),
+      confirm: (id: string) =>
+        request<any>(`/subscription/admin/payments/${encodeURIComponent(id)}/confirm`, {
+          method: 'POST',
+        }),
+      reject: (id: string) =>
+        request<any>(`/subscription/admin/payments/${encodeURIComponent(id)}/reject`, {
+          method: 'POST',
+        }),
+      grant: (data: { email: string; plan: SubscriptionPlanId }) =>
+        request<any>('/subscription/admin/grant', {
+          method: 'POST',
+          body: JSON.stringify(data),
+        }),
+      subscriptions: () => request<any>('/subscription/admin/subscriptions'),
+      cancel: (userId: string) =>
+        request<any>(`/subscription/admin/subscriptions/${encodeURIComponent(userId)}/cancel`, {
+          method: 'POST',
+        }),
+    },
+  },
+
+  calculator: {
+    list: () =>
+      request<{ results: SavedCalculationResult[]; limit: number }>('/calculator/results'),
+    save: (data: { calc: string; values: Record<string, string>; label?: string }) =>
+      request<{ result: SavedCalculationResult }>('/calculator/results', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    remove: (id: string) =>
+      request<{ ok: boolean }>(`/calculator/results/${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+      }),
   },
 
   data: {

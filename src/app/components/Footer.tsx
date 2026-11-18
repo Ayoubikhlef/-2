@@ -94,6 +94,12 @@ export function Footer() {
                   {t({ ar: 'حاسبة أرباح المتجر', fr: 'Calculateur de bénéfices', en: 'Store profit calculator' })}
                 </a>
               </li>
+              <li>
+                <a href="/subscription" className="text-indigo-600 dark:text-indigo-300 font-semibold hover:text-indigo-500 text-sm transition-colors flex items-center gap-2">
+                  <span className="w-1 h-1 rounded-full bg-indigo-500 shrink-0" />
+                  {t({ ar: 'اشتراك أدوات الذكاء الاصطناعي', fr: 'Abonnement outils IA', en: 'AI tools subscription' })}
+                </a>
+              </li>
             </ul>
           </div>
 

@@ -43,6 +43,11 @@ model User {
   addresses Address[]
   orders    Order[]
   reviews   Review[]
+
+  subscription         Subscription?
+  subscriptionPayments SubscriptionPayment[]
+  aiUsage              AiUsage[]
+  savedCalculations    SavedCalculation[]
 }
 
 model Address {
@@ -472,4 +477,75 @@ model SiteBuild {
   site Site @relation(fields: [siteId], references: [id], onDelete: Cascade)
 
   @@index([siteId, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// AI tool subscriptions
+// ---------------------------------------------------------------------------
+
+model Subscription {
+  id        String    @id @default(cuid())
+  userId    String    @unique
+  plan      String
+  status    String    @default("active")
+  price     Float     @default(0)
+  startsAt  DateTime?
+  endsAt    DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user     User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payments SubscriptionPayment[]
+}
+
+model SubscriptionPayment {
+  id             String    @id @default(cuid())
+  userId         String
+  subscriptionId String?
+  plan           String
+  amount         Float
+  method         String
+  status         String    @default("pending")
+  reference      String    @unique
+  providerRef    String?   @unique
+  checkoutUrl    String?   @db.Text
+  proofUrl       String?   @db.Text
+  note           String?
+  paidAt         DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscription Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt])
+  @@index([userId, createdAt])
+}
+
+// One row per successful AI answer. Guests are counted per hashed IP + tool,
+// signed-in customers per account; both feed the free-trial paywall.
+model AiUsage {
+  id        String   @id @default(cuid())
+  userId    String?
+  ipHash    String?
+  tool      String
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([ipHash, tool, createdAt])
+}
+
+model SavedCalculation {
+  id        String   @id @default(cuid())
+  userId    String
+  calc      String
+  label     String?
+  values    Json
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
 }

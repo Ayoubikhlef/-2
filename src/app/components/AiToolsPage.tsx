@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   AlertCircle,
   ArrowRight,
@@ -6,11 +6,13 @@ import {
   Check,
   CheckCircle2,
   Copy,
+  Crown,
   Download,
   Globe2,
   ImageUp,
   Loader2,
   Lock,
+  LogIn,
   ShieldCheck,
   Sparkles,
   Trash2,
@@ -19,6 +21,8 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
+import { LoginPage } from './LoginPage';
 import {
   AI_TOOL_STAGES,
   aiSellerTools,
@@ -182,7 +186,18 @@ export function AiToolsPage() {
   const [slow, setSlow] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const { user } = useAuth();
   const [trials, setTrials] = useState<TrialMap>(() => readTrials());
+  const [account, setAccount] = useState<{
+    subscribed: boolean;
+    remaining: number | null;
+    used: number;
+    limit: number;
+  } | null>(null);
+  const [accountLoading, setAccountLoading] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
+  const [serverLocked, setServerLocked] = useState(false);
+  const [lastPreview, setLastPreview] = useState(false);
   const workspaceRef = useRef<HTMLDivElement | null>(null);
 
   const activeTool = useMemo(
@@ -191,6 +206,50 @@ export function AiToolsPage() {
   );
   const ActiveIcon = activeTool?.icon;
   const used = activeId ? trials[activeId] : undefined;
+
+  const refreshEntitlement = useCallback(async () => {
+    if (!user) {
+      setAccount(null);
+      setServerLocked(false);
+      setAccountLoading(false);
+      return;
+    }
+    setAccountLoading(true);
+    try {
+      const data = await api.subscription.me();
+      setAccount({
+        subscribed: Boolean(data.subscription?.active),
+        remaining: data.previews.remaining,
+        used: data.previews.used,
+        limit: data.previews.limit,
+      });
+      if (data.subscription?.active) setServerLocked(false);
+    } catch {
+      // Keep the last known entitlement; the server still enforces the limit.
+    } finally {
+      setAccountLoading(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    void refreshEntitlement();
+  }, [refreshEntitlement]);
+
+  const accessMode = !user
+    ? 'guest'
+    : account?.subscribed
+      ? 'subscribed'
+      : account
+        ? account.remaining !== null && account.remaining > 0
+          ? 'preview'
+          : 'locked'
+        : accountLoading
+          ? 'loading'
+          : 'preview';
+  const blockedByServer = Boolean(user && (serverLocked || accessMode === 'locked'));
+  const showGuestPaywall = Boolean(used && !user);
+  const showMemberPaywall = Boolean(user && blockedByServer);
+  const showForm = !showGuestPaywall && !showMemberPaywall;
 
   const grouped = useMemo(
     () =>
@@ -317,6 +376,20 @@ export function AiToolsPage() {
         en: 'This tool is being activated. Request the same service from our team and we will do it for you.',
       });
     }
+    if (code === 'ai_login_required' || err?.status === 403) {
+      return t({
+        ar: 'انتهت التجربة المجانية لهذه الأداة. سجّل الدخول لتحصل على معاينة إضافية مجانية واحدة.',
+        fr: 'L’essai gratuit de cet outil est terminé. Connectez-vous pour une preview gratuite supplémentaire.',
+        en: 'The free trial for this tool is over. Sign in for one extra free preview.',
+      });
+    }
+    if (code === 'subscription_required' || err?.status === 402) {
+      return t({
+        ar: 'انتهت معاينتك المجانية. اختر خطة اشتراك لمتابعة استخدام الأدوات.',
+        fr: 'Votre preview gratuite est utilisée. Choisissez une formule pour continuer.',
+        en: 'Your free preview is used. Choose a subscription plan to continue.',
+      });
+    }
     if (code === 'ai_rate_limited' || code === 'ai_daily_limit' || err?.status === 429) {
       return t({
         ar: 'الأداة مشغولة الآن. انتظر دقيقة ثم أعد المحاولة.',
@@ -347,12 +420,16 @@ export function AiToolsPage() {
 
   const handleGenerate = async () => {
     if (!activeTool || loading) return;
-    if (used) {
+    if (showGuestPaywall) {
+      setAuthOpen(true);
+      return;
+    }
+    if (showMemberPaywall) {
       setError(
         t({
-          ar: 'استعملت التجربة المجانية لهذه الأداة. اطلب النسخة الكاملة من فريقنا.',
-          fr: 'Vous avez utilisé l’essai gratuit de cet outil. Demandez la version complète à notre équipe.',
-          en: 'You have used this tool’s free trial. Request the full version from our team.',
+          ar: 'انتهت معاينتك المجانية. اشترك لمتابعة استخدام الأدوات.',
+          fr: 'Votre preview gratuite est utilisée. Abonnez-vous pour continuer.',
+          en: 'Your free preview is used. Subscribe to keep using the tools.',
         }),
       );
       return;
@@ -387,6 +464,7 @@ export function AiToolsPage() {
     setError(null);
     setResult(null);
     setCopied(false);
+    setLastPreview(false);
     const slowTimer = window.setTimeout(() => setSlow(true), 8000);
 
     try {
@@ -415,9 +493,34 @@ export function AiToolsPage() {
           persistTrials(next);
           return next;
         });
+        if (user) {
+          // The account has one server-counted preview. When it reaches zero,
+          // keep the result visible but show the subscription CTA below it.
+          const exhausted = data.previewRemaining === 0 && !data.subscribed;
+          setAccount((previous) => ({
+            subscribed: Boolean(data.subscribed),
+            remaining: typeof data.previewRemaining === 'number' ? data.previewRemaining : previous?.remaining ?? null,
+            used: previous?.used ?? 0,
+            limit: previous?.limit ?? 1,
+          }));
+          setLastPreview(exhausted);
+          void refreshEntitlement();
+        }
       }
       toast.success(t({ ar: 'النتيجة جاهزة', fr: 'Résultat prêt', en: 'Result ready' }));
     } catch (err: any) {
+      if (err?.code === 'ai_login_required') {
+        setAuthOpen(true);
+      }
+      if (err?.code === 'subscription_required') {
+        setServerLocked(true);
+        setAccount((previous) => ({
+          subscribed: false,
+          remaining: 0,
+          used: previous?.used ?? 1,
+          limit: previous?.limit ?? 1,
+        }));
+      }
       setError(describeError(err));
     } finally {
       window.clearTimeout(slowTimer);
@@ -479,9 +582,9 @@ export function AiToolsPage() {
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
             {t({
-              ar: 'من فحص المنتج إلى تحليل الحملة: جرّب كل أداة مرة مجاناً، واحصل على نتيجة جاهزة للنسخ. بدون تسجيل وبدون بطاقة بنكية.',
-              fr: 'De l’analyse produit à l’audit de campagne : essayez chaque outil gratuitement une fois et obtenez un résultat prêt à copier. Sans inscription ni carte bancaire.',
-              en: 'From product checks to campaign audits: try each tool once for free and get a result ready to copy. No sign-up, no card.',
+              ar: 'من فحص المنتج إلى تحليل الحملة: جرّب كل أداة مرة مجاناً، ثم سجّل الدخول لتحصل على معاينة إضافية واحدة قبل الاشتراك. بدون بطاقة بنكية.',
+              fr: 'De l’analyse produit à l’audit de campagne : essayez chaque outil gratuitement une fois, puis connectez-vous pour une preview supplémentaire avant l’abonnement. Sans carte bancaire.',
+              en: 'From product checks to campaign audits: try each tool once for free, then sign in for one extra preview before subscribing. No card required.',
             })}
           </p>
 
@@ -516,7 +619,7 @@ export function AiToolsPage() {
             </span>
             <span className="inline-flex items-center gap-2">
               <ShieldCheck className="h-4 w-4 text-primary" />
-              {t({ ar: 'بدون تسجيل', fr: 'Sans inscription', en: 'No sign-up' })}
+              {t({ ar: 'معاينة إضافية مجانية بعد التسجيل', fr: 'Une preview offerte après inscription', en: 'One extra preview after signing in' })}
             </span>
           </div>
         </div>
@@ -549,6 +652,38 @@ export function AiToolsPage() {
           </div>
           <span className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-xs font-bold text-white transition group-hover:bg-emerald-700">
             {t({ ar: 'افتح الحاسبة', fr: 'Ouvrir le calculateur', en: 'Open the calculator' })}
+            <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
+          </span>
+        </a>
+      </section>
+
+      {/* Subscription banner */}
+      <section className="mx-auto mt-4 max-w-6xl px-4">
+        <a
+          href="/subscription"
+          className="group flex flex-wrap items-center gap-4 rounded-2xl border border-indigo-500/25 bg-gradient-to-br from-indigo-500/10 via-card to-card p-5 transition hover:border-indigo-500/45 hover:shadow-sm"
+        >
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-500/15 text-indigo-700 dark:text-indigo-300">
+            <Crown className="h-5 w-5" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-base font-bold sm:text-lg">
+              {t({
+                ar: 'بعد التجربة: اشتراك واحد يفتح كل الأدوات',
+                fr: 'Après l’essai : un abonnement ouvre tous les outils',
+                en: 'After the trial: one subscription unlocks every tool',
+              })}
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {t({
+                ar: 'معاينة إضافية مجانية بعد تسجيل الدخول، ثم 1 900 دج/شهر أو 4 900 دج/3 أشهر أو 17 900 دج/سنة.',
+                fr: 'Une preview offerte après connexion, puis 1 900 DZD/mois, 4 900 DZD/3 mois ou 17 900 DZD/an.',
+                en: 'One extra preview after signing in, then 1 900 DZD/month, 4 900 DZD/3 months or 17 900 DZD/year.',
+              })}
+            </p>
+          </div>
+          <span className="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-xs font-bold text-white transition group-hover:bg-indigo-700">
+            {t({ ar: 'خطط الاشتراك', fr: 'Voir les formules', en: 'View plans' })}
             <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
           </span>
         </a>
@@ -674,14 +809,18 @@ export function AiToolsPage() {
                       )}
                       <span
                         className={`rounded-full px-2.5 py-1 text-[10px] font-bold ring-1 ${
-                          used
-                            ? 'bg-amber-400/15 text-amber-200 ring-amber-300/30'
-                            : 'bg-emerald-400/15 text-emerald-200 ring-emerald-300/30'
+                          accessMode === 'subscribed'
+                            ? 'bg-emerald-400/15 text-emerald-200 ring-emerald-300/30'
+                            : used
+                              ? 'bg-amber-400/15 text-amber-200 ring-amber-300/30'
+                              : 'bg-emerald-400/15 text-emerald-200 ring-emerald-300/30'
                         }`}
                       >
-                        {used
-                          ? t({ ar: 'التجربة مستهلكة', fr: 'Essai utilisé', en: 'Trial used' })
-                          : t({ ar: 'تجربة مجانية', fr: 'Essai gratuit', en: 'Free trial' })}
+                        {accessMode === 'subscribed'
+                          ? t({ ar: 'اشتراك نشط', fr: 'Abonnement actif', en: 'Subscribed' })
+                          : used
+                            ? t({ ar: 'التجربة مستهلكة', fr: 'Essai utilisé', en: 'Trial used' })
+                            : t({ ar: 'تجربة مجانية', fr: 'Essai gratuit', en: 'Free trial' })}
                       </span>
                     </div>
                     <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/75">
@@ -706,7 +845,7 @@ export function AiToolsPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2">
               <div className="p-6 sm:p-8 lg:border-e lg:border-border">
-                {used ? (
+                {showGuestPaywall ? (
                   <div className="space-y-4">
                     <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm">
                       <div className="flex items-center gap-2 font-bold text-amber-700 dark:text-amber-300">
@@ -719,27 +858,80 @@ export function AiToolsPage() {
                       </div>
                       <p className="mt-1.5 leading-relaxed text-muted-foreground">
                         {t({
-                          ar: 'النتيجة محفوظة في متصفحك. للنسخة الكاملة والمنسقة، اطلبها من فريقنا وسننجزها لك.',
-                          fr: 'Votre résultat est conservé dans ce navigateur. Pour la version complète et mise en forme, demandez-la à notre équipe.',
-                          en: 'Your result is kept in this browser. For the complete, formatted version, request it from our team.',
+                          ar: 'سجّل الدخول بالبريد لتحصل على معاينة إضافية مجانية واحدة. بعدها يلزم الاشتراك لمتابعة استخدام الأدوات.',
+                          fr: 'Connectez-vous par e-mail pour recevoir une preview gratuite supplémentaire. Ensuite, un abonnement est nécessaire.',
+                          en: 'Sign in with your email to get one extra free preview. After that, a subscription is required.',
+                        })}
+                      </p>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setAuthOpen(true)}
+                          className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground transition hover:bg-primary/90"
+                        >
+                          <LogIn className="h-3.5 w-3.5" />
+                          {t({ ar: 'تسجيل الدخول / إنشاء حساب', fr: 'Connexion / créer un compte', en: 'Sign in / create account' })}
+                        </button>
+                        <a
+                          href="/subscription"
+                          className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-xs font-bold transition hover:bg-muted"
+                        >
+                          <Crown className="h-3.5 w-3.5" />
+                          {t({ ar: 'خطط الاشتراك', fr: 'Voir les abonnements', en: 'View plans' })}
+                        </a>
+                      </div>
+                    </div>
+                    <p className="rounded-xl border border-border bg-muted/20 p-3 text-xs leading-relaxed text-muted-foreground">
+                      {t({
+                        ar: 'النتيجة السابقة محفوظة في متصفحك. سجّل الدخول لتُربط نتائجك بحسابك وتُفتح لك معاينة إضافية.',
+                        fr: 'Votre résultat précédent reste dans ce navigateur. Connectez-vous pour le rattacher à votre compte et débloquer une preview.',
+                        en: 'Your previous result stays in this browser. Sign in to attach results to your account and unlock one extra preview.',
+                      })}
+                    </p>
+                  </div>
+                ) : showMemberPaywall ? (
+                  <div className="space-y-4">
+                    <div className="rounded-2xl border border-indigo-500/30 bg-indigo-500/10 p-4 text-sm">
+                      <div className="flex items-center gap-2 font-bold text-indigo-700 dark:text-indigo-300">
+                        <Crown className="h-4 w-4" />
+                        {t({
+                          ar: 'انتهت معاينتك المجانية',
+                          fr: 'Votre preview gratuite est utilisée',
+                          en: 'Your free preview is used',
+                        })}
+                      </div>
+                      <p className="mt-1.5 leading-relaxed text-muted-foreground">
+                        {t({
+                          ar: 'اشترك لمتابعة استخدام 12 أداة بدون حدود: 1 900 دج شهرياً، 4 900 دج لـ3 أشهر، أو 17 900 دج سنوياً. اشتراكك يفتح كل الأدوات ويحفظ نتائج الحاسبة في حسابك.',
+                          fr: 'Abonnez-vous pour continuer avec les 12 outils sans limite : 1 900 DZD/mois, 4 900 DZD/3 mois ou 17 900 DZD/an. L’abonnement ouvre tous les outils et garde vos calculs.',
+                          en: 'Subscribe to keep using all 12 tools without limit: 1 900 DZD/month, 4 900 DZD/3 months or 17 900 DZD/year. The subscription unlocks every tool and keeps your calculations.',
                         })}
                       </p>
                       <div className="mt-3 flex flex-wrap gap-2">
                         <a
-                          href="/#booking"
-                          className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground transition hover:bg-primary/90"
+                          href="/subscription"
+                          className="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-indigo-700"
                         >
-                          {t({ ar: 'اطلب النسخة الكاملة', fr: 'Demander la version complète', en: 'Request the full version' })}
+                          <Crown className="h-3.5 w-3.5" />
+                          {t({ ar: 'اختر خطة واشترك', fr: 'Choisir une formule', en: 'Choose a plan' })}
                           <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
                         </a>
                         <a
-                          href="/premium-services"
+                          href="/ai-tools/calculator"
                           className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-xs font-bold transition hover:bg-muted"
                         >
-                          {t({ ar: 'الخدمات المميزة', fr: 'Services premium', en: 'Premium services' })}
+                          <Calculator className="h-3.5 w-3.5" />
+                          {t({ ar: 'الحاسبة مجانية دائماً', fr: 'Calculateur toujours gratuit', en: 'Calculator stays free' })}
                         </a>
                       </div>
                     </div>
+                    <p className="rounded-xl border border-border bg-muted/20 p-3 text-xs leading-relaxed text-muted-foreground">
+                      {t({
+                        ar: 'نتيجتك المحفوظة تظهر على اليمين. عند الاشتراك تستعيد كل الأدوات فوراً بعد تأكيد الدفع.',
+                        fr: 'Votre résultat enregistré reste à droite. Après paiement, tous les outils se débloquent immédiatement.',
+                        en: 'Your saved result stays on the right. Once the payment is confirmed, every tool unlocks immediately.',
+                      })}
+                    </p>
                   </div>
                 ) : (
                   <form
@@ -752,10 +944,35 @@ export function AiToolsPage() {
                       <p className="text-sm font-bold">
                         {t({ ar: 'تفاصيل الطلب', fr: 'Détails de la demande', en: 'Request details' })}
                       </p>
-                      <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold text-sky-700 dark:text-sky-300">
-                        {t({ ar: 'تجربة واحدة', fr: '1 essai', en: '1 trial' })}
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${
+                          accessMode === 'subscribed'
+                            ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300'
+                            : used
+                              ? 'bg-indigo-500/15 text-indigo-700 dark:text-indigo-300'
+                              : 'bg-primary/10 text-sky-700 dark:text-sky-300'
+                        }`}
+                      >
+                        {accessMode === 'subscribed'
+                          ? t({ ar: 'اشتراكك نشط — بلا حدود', fr: 'Abonnement actif — illimité', en: 'Subscription active — unlimited' })
+                          : used
+                            ? t({ ar: 'معاينة إضافية واحدة', fr: '1 preview supplémentaire', en: '1 extra preview' })
+                            : t({ ar: 'تجربة واحدة', fr: '1 essai', en: '1 trial' })}
                       </span>
                     </div>
+
+                    {used && accessMode === 'preview' && (
+                      <div className="mb-4 flex items-start gap-2 rounded-xl border border-indigo-500/30 bg-indigo-500/10 p-3 text-[11px] leading-relaxed text-indigo-800 dark:text-indigo-200">
+                        <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                        <span>
+                          {t({
+                            ar: 'هذه معاينتك الإضافية الوحيدة بعد التجربة. بعدها تحتاج اشتراكاً لمتابعة التوليد.',
+                            fr: 'Ceci est votre unique preview supplémentaire après l’essai. Ensuite, un abonnement sera nécessaire.',
+                            en: 'This is your only extra preview after the trial. After it, a subscription is required.',
+                          })}
+                        </span>
+                      </div>
+                    )}
 
                     {activeTool.needsImage && (
                       <div className="mb-5 rounded-2xl border-2 border-dashed border-border bg-muted/30 p-4">
@@ -889,11 +1106,25 @@ export function AiToolsPage() {
                             fr: 'La génération peut prendre jusqu’à 30 secondes. Ne fermez pas la page.',
                             en: 'Generation can take up to 30 seconds. Do not close the page.',
                           })
-                        : t({
-                            ar: 'تجربة مجانية واحدة لكل أداة على هذا المتصفح. النتيجة إرشادية — راجعها قبل النشر.',
-                            fr: 'Un essai gratuit par outil dans ce navigateur. Le résultat est indicatif — relisez-le avant publication.',
-                            en: 'One free trial per tool in this browser. The result is indicative — review it before publishing.',
-                          })}
+                        : t(
+                            accessMode === 'subscribed'
+                              ? {
+                                  ar: 'اشتراكك نشط: ولّد ما تحتاجه ضمن الاستخدام العادل. النتيجة إرشادية — راجعها قبل النشر.',
+                                  fr: 'Abonnement actif : générez selon l’usage raisonnable. Le résultat est indicatif — relisez-le avant publication.',
+                                  en: 'Subscription active: generate within fair use. The result is indicative — review it before publishing.',
+                                }
+                              : user
+                                ? {
+                                    ar: 'معاينتك الإضافية محسوبة على الخادم. النتيجة إرشادية — راجعها قبل النشر.',
+                                    fr: 'Votre preview supplémentaire est comptée sur le serveur. Le résultat est indicatif — relisez-le avant publication.',
+                                    en: 'Your extra preview is counted on the server. The result is indicative — review it before publishing.',
+                                  }
+                                : {
+                                    ar: 'تجربة مجانية واحدة لكل أداة. بعدها سجّل الدخول لمعاينة إضافية واحدة. النتيجة إرشادية — راجعها قبل النشر.',
+                                    fr: 'Un essai gratuit par outil. Ensuite, connectez-vous pour une preview supplémentaire. Le résultat est indicatif — relisez-le avant publication.',
+                                    en: 'One free trial per tool. Then sign in for one extra preview. The result is indicative — review it before publishing.',
+                                  },
+                          )}
                     </p>
                   </form>
                 )}
@@ -947,6 +1178,33 @@ export function AiToolsPage() {
                           en: 'This is a server demo sample; your free trial was not consumed.',
                         })}
                       </p>
+                    )}
+                    {lastPreview && accessMode !== 'subscribed' && (
+                      <div className="mt-3 rounded-2xl border border-indigo-500/30 bg-indigo-500/10 p-4">
+                        <p className="flex items-center gap-2 text-sm font-bold text-indigo-800 dark:text-indigo-200">
+                          <Crown className="h-4 w-4" />
+                          {t({
+                            ar: 'هذه كانت معاينتك المجانية الأخيرة',
+                            fr: 'C’était votre dernière preview gratuite',
+                            en: 'That was your last free preview',
+                          })}
+                        </p>
+                        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                          {t({
+                            ar: 'نتيجتك محفوظة أعلاه. اشترك لمتابعة توليد نتائج جديدة في كل الأدوات، وحفظ حساباتك على الخادم.',
+                            fr: 'Votre résultat est conservé ci-dessus. Abonnez-vous pour continuer à générer dans tous les outils et garder vos calculs.',
+                            en: 'Your result is kept above. Subscribe to keep generating in every tool and keep your calculations.',
+                          })}
+                        </p>
+                        <a
+                          href="/subscription"
+                          className="mt-3 inline-flex items-center gap-2 rounded-full bg-indigo-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-indigo-700"
+                        >
+                          <Crown className="h-3.5 w-3.5" />
+                          {t({ ar: 'عرض خطط الاشتراك', fr: 'Voir les formules', en: 'View subscription plans' })}
+                          <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
+                        </a>
+                      </div>
                     )}
                     <div className="mt-4 flex flex-wrap gap-2">
                       <a
@@ -1033,6 +1291,16 @@ export function AiToolsPage() {
           </p>
         </div>
       </section>
+
+      {authOpen && (
+        <LoginPage
+          onClose={() => setAuthOpen(false)}
+          onAuthenticated={() => {
+            setAuthOpen(false);
+            void refreshEntitlement();
+          }}
+        />
+      )}
     </div>
   );
 }

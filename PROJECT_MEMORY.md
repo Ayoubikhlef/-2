@@ -199,11 +199,27 @@ Session on 2026-11-18: the profit calculators (`/ai-tools/calculator`) added wit
 - Wiring: new lazy route + `readCalculatorRoute()` in `App.tsx` (title, 404, announcement bar, footer), rewrites and `no-store` headers in `vercel.json`, sitemap entry, footer link and a green banner on `/ai-tools`. The 12 AI tool cards and their trials are unchanged.
 - Verified locally: typecheck + build pass; the five tabs compute, editing an input updates the result live, the login overlay opens from the save card, and FR/EN render with no horizontal overflow; `/ai-tools` still shows 12 cards plus the calculator banner.
 
+## Last Working Session
+2026-11-18 - AI subscriptions and paywall (implemented; deploy verification pending).
+- Server data: `Subscription`, `SubscriptionPayment`, `AiUsage` and `SavedCalculation` models in `server/prisma/schema.prisma`; Render applies them with `prisma db push` at boot.
+- Server logic: `server/src/services/subscription.ts` has the three plans (1 900 / 4 900 / 17 900 DZD), activate/extend, `resolveAiAccess`, `recordAiUsage`, Chargily Pay v2 checkout, HMAC-SHA256 webhook verification and manual CCP/BaridiMob details from the site-factory settings.
+- Server routes: `routes/subscription.ts` (plans, me, checkout, receipt proof, Chargily webhook, admin payments/confirm/reject/grant/cancel) and `routes/calculator.ts` (server-saved results, max 20 per account). `optionalAuth` was added; the webhook gets `rawBody` from the JSON verifier; `aiLimiter` is 30 / 10 min / IP and `checkoutLimiter` 20 / 15 min.
+- Gate: guest = 1 free answer per tool per IP / 30 days; signed-in = 1 extra preview in total (`403 ai_login_required` / `402 subscription_required`); active subscription = unlimited within `aiLimiter`. Mock answers do not consume usage.
+- Storefront: `/subscription` (Vite route + rewrites/no-store, sitemap, footer link) shows the three plans, Chargily / CCP / BaridiMob, receipt upload (canvas-compressed data URL), account status and payment history. It has a retry state if the plans API is unreachable.
+- `/ai-tools` now uses `useAuth` + `/subscription/me`: the guest paywall opens `LoginPage`, the account paywall links to `/subscription`, and the last-preview result shows the subscribe CTA. `/ai-tools/calculator` saves results to the server and migrates the old localStorage rows once per account.
+- Admin: new "AI Subscriptions" tab (`SubscriptionAdmin.tsx`) lists pending/paid payments, opens receipts, activates/rejects them, grants a plan by email and cancels an active subscription.
+- Env: `CHARGILY_SECRET_KEY`, `CHARGILY_MODE`, `CHARGILY_WEBHOOK_SECRET` and `AI_IP_SALT` documented in `server/.env.example`. Register `https://aos-tech.store/api/subscription/chargily/webhook` in Chargily after the keys are set.
+- Verified: `npm run typecheck`, `npx tsc --noEmit` in `server`, `npm run build`, visual QA of `/subscription` (plans, checkout, guest login overlay) and the `/ai-tools` guest paywall using a mock plans API. The production API needs the new deploy before `/api/subscription/plans` exists.
+- Production registration was probed with an empty body (400 validation, not 503), so the email sign-in step is available with the configured mail provider.
+
 ## Next Step
-Pending user-approved work (not started): after a tool's free trial, require email sign-in, give **one** extra preview per account, then send the customer to a subscription page (1 900 / 4 900 / 17 900 DZD; Chargily if configured, otherwise CCP/BaridiMob manual transfer). This needs a server-side usage + subscription model (`prisma db push` runs on Render at boot), `requireAuth` on the preview generation, and an admin step to activate a manual payment.
+1. Push/deploy, then confirm `/subscription` returns 200 and `/api/subscription/plans` lists the three prices on production.
+2. Test the real gate on production: guest first answer, guest second answer (403), signed-in extra preview, signed-in third answer (402), then admin confirm/grant unlocks.
+3. If Chargily keys are available, set them on Render and send a test payment through the webhook; otherwise keep CCP/BaridiMob + admin activation.
+4. Add subscription status to the account area (optional) so customers see the renewal date without opening `/subscription`.
 
 Optional follow-ups:
 1. If Claude Sonnet is preferred, set `AI_MODEL=anthropic/claude-sonnet-5.5` on Render and redeploy.
-2. `/ai-tools`, `/ai-tools/calculator` and `/premium-services` still get their titles/meta from client-side JS only; a prerender step would give crawlers the exact per-page title.
-3. `aiLimiter` allows 12 requests / 10 min / IP, exactly the number of tools — raising it to ~20 would let a visitor retry a failed generation.
+2. `/ai-tools`, `/ai-tools/calculator`, `/premium-services` and `/subscription` still get their titles/meta from client-side JS only; a prerender step would give crawlers the exact per-page title.
+3. `aiLimiter` is now 30 requests / 10 min / IP; watch Render logs for 429s.
 4. Keep an eye on the OpenRouter `limit` ($5 lifetime) via `GET https://openrouter.ai/api/v1/key`.

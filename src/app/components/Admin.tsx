@@ -28,6 +28,7 @@ const NewsletterTab = lazy(() => import('./NewsletterTab').then(m => ({ default:
 const MessagesTab = lazy(() => import('./MessagesTab').then(m => ({ default: m.MessagesTab })));
 const SecurityTab = lazy(() => import('./SecurityTab').then(m => ({ default: m.SecurityTab })));
 const SiteFactoryTab = lazy(() => import('./SiteFactoryTab').then(m => ({ default: m.SiteFactoryTab })));
+const SubscriptionAdmin = lazy(() => import('./SubscriptionAdmin').then(m => ({ default: m.SubscriptionAdmin })));
 
 const statusConfig: Record<OrderStatus, { label: Record<string, string>; color: string; icon: string }> = {
   new: {
@@ -90,7 +91,7 @@ export function Admin() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [tab, setTab] = useState<'dashboard' | 'orders' | 'products' | 'services' | 'manage-products' | 'manage-services' | 'digital-catalog' | 'customers' | 'coupons' | 'content' | 'settings' | 'reviews' | 'newsletter' | 'messages' | 'security' | 'factory'>('orders');
+  const [tab, setTab] = useState<'dashboard' | 'orders' | 'products' | 'services' | 'manage-products' | 'manage-services' | 'digital-catalog' | 'customers' | 'coupons' | 'content' | 'settings' | 'reviews' | 'newsletter' | 'messages' | 'security' | 'factory' | 'subscriptions'>('orders');
   const [manageProducts, setManageProducts] = useState<Product[]>([]);
   const [manageServices, setManageServices] = useState<ServiceCategory[]>([]);
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'success' | 'error'>(getSyncStatus());
@@ -1038,6 +1039,17 @@ export function Admin() {
             <Globe className="w-4 h-4" />
             {t({ ar: 'مصنع المواقع', fr: 'Usine à sites', en: 'Website Factory' })}
           </button>
+          <button
+            onClick={() => setTab('subscriptions')}
+            className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all border flex items-center gap-2 ${
+              tab === 'subscriptions'
+                ? 'bg-primary text-slate-950 border-primary'
+                : 'bg-slate-900 text-white/70 border-white/10 hover:bg-slate-800'
+            }`}
+          >
+            <Sparkles className="w-4 h-4" />
+            {t({ ar: 'اشتراكات AI', fr: 'Abonnements IA', en: 'AI Subscriptions' })}
+          </button>
         </div>
 
         {/* Manage Products */}
@@ -1173,6 +1185,8 @@ export function Admin() {
           <SecurityTab />
         ) : tab === 'factory' ? (
           <SiteFactoryTab />
+        ) : tab === 'subscriptions' ? (
+          <SubscriptionAdmin />
         ) : (
         /* Orders */
         filteredOrders.length === 0 ? (

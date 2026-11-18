@@ -25,6 +25,8 @@ import { paymentRouter } from './routes/payment';
 import { securityRouter } from './routes/security';
 import { backupRouter } from './routes/backup';
 import { siteFactoryRouter } from './routes/siteFactory';
+import { subscriptionRouter } from './routes/subscription';
+import { calculatorRouter } from './routes/calculator';
 import { errorHandler } from './middleware/errorHandler';
 import { securityMonitor, securityRateLimitHandler } from './services/security';
 import { ensureSeedAdmin } from './services/adminBootstrap';
@@ -99,7 +101,14 @@ app.use(compression({ level: 6 }));
 
 // Website requests include compressed logos, covers, product images and
 // receipts as data URLs, so only the factory endpoints get the larger limit.
-const standardJson = express.json({ limit: '1mb' });
+// The raw body is kept for the Chargily webhook signature (HMAC of the exact
+// bytes), while every other route keeps using the parsed JSON.
+const standardJson = express.json({
+  limit: '1mb',
+  verify: (req, _res, buffer) => {
+    (req as any).rawBody = Buffer.from(buffer);
+  },
+});
 const factoryJson = express.json({ limit: '12mb' });
 app.use((req, res, next) => {
   if ((req.path || '').startsWith('/api/site-factory')) return factoryJson(req, res, next);
@@ -129,8 +138,9 @@ const orderLimiter = rateLimit({ windowMs: 60 * 1000, max: 600, handler: securit
 const generalLimiter = rateLimit({ windowMs: 60 * 1000, max: 600, handler: securityRateLimitHandler('general'), validate: { xForwardedForHeader: false } });
 const contactLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 12, handler: securityRateLimitHandler('contact'), validate: { xForwardedForHeader: false } });
 // Generation costs a provider quota, so the public generator is stricter than
-// the general API limit: 12 answers per IP per 10 minutes.
-const aiLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 12, handler: securityRateLimitHandler('ai'), validate: { xForwardedForHeader: false } });
+// the general API limit. Subscribers share the same per-IP cap (fair use).
+const aiLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 30, handler: securityRateLimitHandler('ai'), validate: { xForwardedForHeader: false } });
+const checkoutLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, handler: securityRateLimitHandler('checkout'), validate: { xForwardedForHeader: false } });
 // A snapshot contains the whole database, so it is limited to a handful of
 // owner-triggered downloads per hour.
 const snapshotLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 6, handler: securityRateLimitHandler('snapshot'), validate: { xForwardedForHeader: false } });
@@ -144,6 +154,9 @@ app.use('/api/newsletter', generalLimiter);
 app.use('/api/contact', contactLimiter);
 app.use('/api/chat', generalLimiter);
 app.use('/api/ai/generate', aiLimiter);
+app.use('/api/subscription/checkout', checkoutLimiter);
+app.use('/api/subscription', generalLimiter);
+app.use('/api/calculator', generalLimiter);
 app.use('/api/orders', orderLimiter);
 app.use('/api/customers', generalLimiter);
 app.use('/api/loyalty', orderLimiter);
@@ -177,6 +190,8 @@ app.use('/api/snapshots/download', snapshotLimiter);
 app.use('/api/snapshots/run', snapshotLimiter);
 app.use('/api/snapshots', generalLimiter, backupRouter);
 app.use('/api/site-factory', siteFactoryRouter);
+app.use('/api/subscription', subscriptionRouter);
+app.use('/api/calculator', calculatorRouter);
 
 app.get('/api/health', async (_req, res) => {
   try {

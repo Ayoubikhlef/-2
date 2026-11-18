@@ -8,6 +8,8 @@ import {
   isAiKeyless,
   isAiMock,
 } from '../services/aiProvider';
+import { optionalAuth, type AuthRequest } from '../middleware/auth';
+import { recordAiUsage, resolveAiAccess } from '../services/subscription';
 
 export const aiRouter = Router();
 
@@ -29,15 +31,48 @@ aiRouter.get('/status', (_req: Request, res: Response) => {
   res.json({ available: isAiAvailable(), mock: isAiMock(), keyless: isAiKeyless() });
 });
 
-aiRouter.post('/generate', async (req: Request, res: Response) => {
+aiRouter.post('/generate', optionalAuth, async (req: AuthRequest, res: Response) => {
   try {
     const { tool, language, fields, image } = generateSchema.parse(req.body);
+
+    // Free trial gate: a visitor gets one answer per tool, a signed-in
+    // customer gets one extra preview, and an active subscription is
+    // unlimited. Counted on the server so clearing localStorage does not
+    // reset it.
+    const access = await resolveAiAccess({
+      userId: req.userId,
+      ip: req.ip || req.socket.remoteAddress || 'unknown',
+      tool,
+    });
+    if (!access.allowed) {
+      return res.status(access.status).json({
+        error:
+          access.code === 'subscription_required'
+            ? 'Your free preview is used. Subscribe to keep using the tools.'
+            : 'Sign in to get one extra free preview.',
+        code: access.code,
+      });
+    }
+
     const result = await generateContent({ tool, language, fields, image });
+
+    // A demo answer must not consume the free trial; the client applies the
+    // same rule locally.
+    if (!result.mock) {
+      await recordAiUsage({
+        userId: req.userId,
+        ip: req.ip || req.socket.remoteAddress || 'unknown',
+        tool,
+      });
+    }
+
     res.json({
       text: result.text,
       tool,
       language,
       mock: result.mock,
+      previewRemaining: access.previewRemaining,
+      subscribed: access.subscribed,
     });
   } catch (err: any) {
     if (err instanceof z.ZodError) {

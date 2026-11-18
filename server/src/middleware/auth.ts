@@ -39,3 +39,30 @@ export function requireRole(...roles: string[]) {
     next();
   };
 }
+
+/**
+ * Like requireAuth, but a request without an Authorization header continues
+ * as a guest. A header that is present must still be valid, otherwise an
+ * expired access token would silently downgrade a signed-in customer to the
+ * guest limit instead of letting the client refresh it.
+ */
+export async function optionalAuth(req: AuthRequest, _res: Response, next: NextFunction) {
+  const header = req.headers.authorization;
+  if (!header?.startsWith('Bearer ')) return next();
+  try {
+    const payload = verifyAccessToken(header.slice(7));
+    const user = await prisma.user.findUnique({
+      where: { id: payload.userId },
+      select: { isActive: true, role: true, tokenVersion: true },
+    });
+    if (!user || !user.isActive) return next(new Unauthorized('Account is deactivated'));
+    if (user.tokenVersion !== payload.tokenVersion) {
+      return next(new Unauthorized('Session expired. Sign in again.'));
+    }
+    req.userId = payload.userId;
+    req.userRole = user.role;
+    next();
+  } catch {
+    next(new Unauthorized('Invalid or expired token'));
+  }
+}

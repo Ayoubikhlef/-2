@@ -82,11 +82,22 @@ Project inspection complete. All major configuration files and API routes have b
 - ? Verified locally: typecheck + build pass, five tabs compute, live update on edit, login overlay opens, FR/EN no overflow, `/ai-tools` keeps its 12 cards
 - ?? Saved results are per-browser only until the account area gets a server API
 
+## Session 2026-11-18 - AI subscriptions and paywall
+- ✅ Prisma models `Subscription`, `SubscriptionPayment`, `AiUsage`, `SavedCalculation` (+ `User` relations); Render `prisma db push` handles them at boot
+- ✅ `services/subscription.ts`: plans 1 900 / 4 900 / 17 900 DZD, activation + extension, guest 1/tool/IP/30 days, account 1 preview total, Chargily v2 checkout, HMAC-SHA256 webhook, manual CCP/BaridiMob instructions
+- ✅ `routes/subscription.ts` + `routes/calculator.ts` + `optionalAuth` + `rawBody`; `aiLimiter` 30 / 10 min, `checkoutLimiter` 20 / 15 min
+- ✅ `/subscription` page (plans, Chargily / CCP / BaridiMob, receipt upload, account + history, retry state), Vercel rewrites + no-store, sitemap, footer link
+- ✅ `/ai-tools` paywall: guest -> `LoginPage`, account -> `/subscription`, last-preview CTA, `/subscription/me` entitlement badge
+- ✅ Calculator results moved to the server (max 20) with one-time localStorage migration and offline fallback
+- ✅ Admin "AI Subscriptions" tab: pending/paid payments, receipts, activate/reject, grant by email, cancel
+- ✅ `CHARGILY_SECRET_KEY`, `CHARGILY_MODE`, `CHARGILY_WEBHOOK_SECRET`, `AI_IP_SALT` documented in `server/.env.example`
+- ✅ Verified locally: frontend + server typecheck, `npm run build`, plans/checkout/guest paywall screenshots via mock API; production registration is enabled (400 on empty body, not 503)
+
 Next session should focus on:
-- The approved paywall flow: free trial -> email sign-in -> one extra account preview -> subscription page (1 900 / 4 900 / 17 900 DZD; Chargily if configured, else CCP/BaridiMob)
-- Server models for AI usage + subscription (Render runs `prisma db push` at boot) and an admin activation step for manual payments
-- Moving saved calculator results to the server once the account API exists
-- A prerender step so `/ai-tools`, `/ai-tools/calculator` and `/premium-services` expose their per-page title/meta to crawlers
-- Raising `aiLimiter` to ~20 requests / 10 min if users report a blocked retry
-- Watching OpenRouter usage against the $5 lifetime limit
+- Deploy and verify production `/subscription` 200, `/api/subscription/plans` returns the 3 plans, and `/ai-tools` + `/ai-tools/calculator` still work
+- Prove the real gate end-to-end with a test customer: guest answer -> 403 -> sign in -> 1 preview -> 402 -> admin activation -> unlimited
+- Set Chargily keys on Render (optional) and register `https://aos-tech.store/api/subscription/chargily/webhook`, or keep CCP/BaridiMob + manual activation
+- Add the subscription/renewal card to the account area
+- A prerender step so `/ai-tools`, `/ai-tools/calculator`, `/premium-services` and `/subscription` expose per-page titles/meta to crawlers
+- Watch OpenRouter usage against the $5 lifetime limit and Render logs for 429s
 

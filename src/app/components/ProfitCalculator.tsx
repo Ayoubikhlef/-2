@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { LoginPage } from './LoginPage';
+import { api } from '../utils/api';
 
 type Lang = { ar: string; fr: string; en: string };
 type Unit = 'money' | 'percent' | 'count';
@@ -488,10 +489,62 @@ export function ProfitCalculatorPage() {
   });
   const [authOpen, setAuthOpen] = useState(false);
   const [saved, setSaved] = useState<SavedCalc[]>(() => (user ? readSaved(user.id) : []));
+  const [saving, setSaving] = useState(false);
+  const [savedLoading, setSavedLoading] = useState(false);
 
-  // Signing in (or out) switches the local space that holds the saved results.
+  // Saved results live on the server for signed-in customers. The local copy
+  // stays as an instant/offline fallback and is migrated once per account.
   useEffect(() => {
-    setSaved(user ? readSaved(user.id) : []);
+    let cancelled = false;
+    if (!user) {
+      setSaved([]);
+      return;
+    }
+    const local = readSaved(user.id);
+    setSaved(local);
+    setSavedLoading(true);
+    (async () => {
+      try {
+        const data = await api.calculator.list();
+        let rows: SavedCalc[] = data.results.map((row) => ({
+          id: row.id,
+          at: Date.parse(row.createdAt),
+          calc: row.calc,
+          values: row.values,
+        }));
+        const migrationKey = `aos_calc_migrated_v1_${user.id}`;
+        const alreadyMigrated = window.localStorage.getItem(migrationKey) === '1';
+        if (!alreadyMigrated && local.length > 0) {
+          for (const item of local.slice(0, Math.max(0, MAX_SAVED - rows.length))) {
+            try {
+              const created = await api.calculator.save({ calc: item.calc, values: item.values });
+              rows = [
+                {
+                  id: created.result.id,
+                  at: Date.parse(created.result.createdAt),
+                  calc: created.result.calc,
+                  values: created.result.values,
+                },
+                ...rows,
+              ];
+            } catch {
+              // Keep going: one failed row must not block the rest.
+            }
+          }
+          window.localStorage.setItem(migrationKey, '1');
+          if (rows.length > 0) window.localStorage.removeItem(savedKey(user.id));
+        }
+        persistSaved(user.id, rows);
+        if (!cancelled) setSaved(rows.slice(0, MAX_SAVED));
+      } catch {
+        // Offline or API unavailable: keep the local copy.
+      } finally {
+        if (!cancelled) setSavedLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
   const active = CALCULATORS.find((calc) => calc.id === activeId) ?? CALCULATORS[0];
@@ -518,27 +571,57 @@ export function ProfitCalculatorPage() {
     }));
   };
 
-  const saveResult = () => {
+  const saveResult = async () => {
     if (!user) {
       setAuthOpen(true);
       return;
     }
-    const snapshot: SavedCalc = {
-      id: `calc_${Date.now()}`,
-      at: Date.now(),
-      calc: active.id,
-      values: { ...values[active.id] },
-    };
-    const next = [snapshot, ...saved].slice(0, MAX_SAVED);
-    setSaved(next);
-    persistSaved(user.id, next);
-    toast.success(
-      t({
-        ar: 'تم حفظ النتيجة في مساحتك',
-        fr: 'Résultat enregistré dans votre espace',
-        en: 'Result saved to your space',
-      }),
-    );
+    if (saving) return;
+    setSaving(true);
+    const snapshotValues = { ...values[active.id] };
+    try {
+      const created = await api.calculator.save({
+        calc: active.id,
+        values: snapshotValues,
+        label: t(active.label),
+      });
+      const snapshot: SavedCalc = {
+        id: created.result.id,
+        at: Date.parse(created.result.createdAt),
+        calc: created.result.calc,
+        values: created.result.values,
+      };
+      const next = [snapshot, ...saved].slice(0, MAX_SAVED);
+      setSaved(next);
+      persistSaved(user.id, next);
+      toast.success(
+        t({
+          ar: 'تم حفظ النتيجة في حسابك',
+          fr: 'Résultat enregistré dans votre compte',
+          en: 'Result saved to your account',
+        }),
+      );
+    } catch {
+      // Offline fallback: keep the calculation on this device and say so.
+      const snapshot: SavedCalc = {
+        id: `local_${Date.now()}`,
+        at: Date.now(),
+        calc: active.id,
+        values: snapshotValues,
+      };
+      const next = [snapshot, ...saved].slice(0, MAX_SAVED);
+      setSaved(next);
+      persistSaved(user.id, next);
+      toast.warning(
+        t({
+          ar: 'تم الحفظ في هذا المتصفح فقط. سيُزامن مع حسابك عند عودة الاتصال.',
+          fr: 'Enregistré sur ce navigateur uniquement. La synchronisation se fera au retour de la connexion.',
+          en: 'Saved in this browser only. It will sync with your account when the connection returns.',
+        }),
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   const restoreSaved = (item: SavedCalc) => {
@@ -557,6 +640,17 @@ export function ProfitCalculatorPage() {
     const next = saved.filter((item) => item.id !== id);
     setSaved(next);
     persistSaved(user.id, next);
+    if (!id.startsWith('local_')) {
+      void api.calculator.remove(id).catch(() => {
+        toast.error(
+          t({
+            ar: 'تعذر حذف النتيجة من الخادم. أعد المحاولة.',
+            fr: 'Suppression serveur impossible. Réessayez.',
+            en: 'Could not delete the result on the server. Try again.',
+          }),
+        );
+      });
+    }
   };
 
   return (
@@ -697,13 +791,23 @@ export function ProfitCalculatorPage() {
                   <p className="mt-1 break-words text-xs text-muted-foreground">
                     {t({ ar: `مسجّل الدخول: ${user.name || user.email}`, fr: `Connecté : ${user.name || user.email}`, en: `Signed in: ${user.name || user.email}` })}
                   </p>
+                  <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
+                    {t({
+                      ar: 'النتائج تُحفظ في حسابك على الخادم وتظهر على أي جهاز بعد تسجيل الدخول.',
+                      fr: 'Les résultats sont enregistrés sur votre compte et apparaissent sur tout appareil après connexion.',
+                      en: 'Results are saved to your account and appear on any device after signing in.',
+                    })}
+                  </p>
                   <button
                     type="button"
-                    onClick={saveResult}
-                    className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground transition hover:bg-primary/90"
+                    onClick={() => void saveResult()}
+                    disabled={saving}
+                    className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <Save className="h-4 w-4" />
-                    {t({ ar: 'احفظ هذه النتيجة في مساحتي', fr: 'Enregistrer ce résultat', en: 'Save this result' })}
+                    {saving
+                      ? t({ ar: 'جارٍ الحفظ…', fr: 'Enregistrement…', en: 'Saving…' })
+                      : t({ ar: 'احفظ هذه النتيجة في مساحتي', fr: 'Enregistrer ce résultat', en: 'Save this result' })}
                   </button>
                 </>
               ) : (
@@ -714,9 +818,9 @@ export function ProfitCalculatorPage() {
                   </div>
                   <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                     {t({
-                      ar: 'الحساب يربط الحسابات المحفوظة باسمك في هذا المتصفح، فتعود إليها في أي وقت. الحساب مجاني.',
-                      fr: 'Le compte rattache vos calculs enregistrés à votre nom dans ce navigateur. Le compte est gratuit.',
-                      en: 'An account ties your saved calculations to your name in this browser. The account is free.',
+                      ar: 'الحساب يحفظ حساباتك في مساحتك على الخادم، فتستعيدها من أي جهاز. الحساب مجاني.',
+                      fr: 'Le compte garde vos calculs dans votre espace sur le serveur et les retrouve sur tout appareil. Gratuit.',
+                      en: 'An account keeps your calculations in your space on the server and restores them on any device. Free.',
                     })}
                   </p>
                   <div className="mt-3 flex flex-wrap gap-2">
@@ -747,6 +851,11 @@ export function ProfitCalculatorPage() {
             <h2 className="text-lg font-bold sm:text-xl">
               {t({ ar: 'نتائجي المحفوظة', fr: 'Mes résultats enregistrés', en: 'My saved results' })}
             </h2>
+            {savedLoading && (
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                {t({ ar: 'جارٍ مزامنة نتائجك مع حسابك…', fr: 'Synchronisation avec votre compte…', en: 'Syncing with your account…' })}
+              </p>
+            )}
             <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {saved.map((item) => {
                 const def = CALCULATORS.find((calc) => calc.id === item.calc);

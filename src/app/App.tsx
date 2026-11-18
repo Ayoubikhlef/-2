@@ -55,6 +55,9 @@ const AiToolsPage = lazy(() =>
 const ProfitCalculatorPage = lazy(() =>
   import('./components/ProfitCalculator').then(m => ({ default: m.ProfitCalculatorPage })),
 );
+const SubscriptionPage = lazy(() =>
+  import('./components/SubscriptionPage').then(m => ({ default: m.SubscriptionPage })),
+);
 function LiquidBackground() {
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
@@ -232,6 +235,13 @@ function readCalculatorRoute(): boolean {
   return pathname === '/ai-tools/calculator' || pathname === '/calculators';
 }
 
+/** Subscription page for the AI tools paywall. */
+function readSubscriptionRoute(): boolean {
+  if (typeof window === 'undefined') return false;
+  const pathname = window.location.pathname.replace(/\/+$/, '').toLowerCase();
+  return pathname === '/subscription' || pathname === '/subscribe' || pathname === '/abonnement';
+}
+
 /** Standalone login route; signed-in customers go straight to their account
  *  unless they are opening a password-reset link. */
 function LoginRoute({ onClose, onAuthenticated }: { onClose: () => void; onAuthenticated: () => void }) {
@@ -254,11 +264,12 @@ export default function App() {
   const [isPremiumRoute, setIsPremiumRoute] = useState(readPremiumRoute);
   const [isAiToolsRoute, setIsAiToolsRoute] = useState(readAiToolsRoute);
   const [isCalculatorRoute, setIsCalculatorRoute] = useState(readCalculatorRoute);
+  const [isSubscriptionRoute, setIsSubscriptionRoute] = useState(readSubscriptionRoute);
   const isFactoryPage =
     typeof window !== 'undefined' && window.location.pathname.replace(/\/+$/, '') === '/create-website';
   const productSlug = typeof window !== 'undefined' ? productPathFromUrl(window.location.pathname) : null;
   const isProductPage = Boolean(productSlug);
-  const is404 = !isFactoryPage && !isProductPage && !isLoginRoute && !isPremiumRoute && !isAiToolsRoute && !isCalculatorRoute && typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#digital-services', '#digital-quote', '#ai-studio', '#hqpanel', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq', '#web', '#demo', '#order-tracking', '#premium-list'].includes(hash);
+  const is404 = !isFactoryPage && !isProductPage && !isLoginRoute && !isPremiumRoute && !isAiToolsRoute && !isCalculatorRoute && !isSubscriptionRoute && typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#digital-services', '#digital-quote', '#ai-studio', '#hqpanel', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq', '#web', '#demo', '#order-tracking', '#premium-list'].includes(hash);
   const [maintenance, setMaintenance] = useState(false);
   // Render immediately for returning visitors (the flag is cached locally)
   // and refresh it in the background. Only the very first visit waits, with
@@ -272,6 +283,7 @@ export default function App() {
       setIsPremiumRoute(readPremiumRoute());
       setIsAiToolsRoute(readAiToolsRoute());
       setIsCalculatorRoute(readCalculatorRoute());
+      setIsSubscriptionRoute(readSubscriptionRoute());
     };
     window.addEventListener('hashchange', onHashChange);
     // Client-side navigation (see utils/navigation.ts) uses pushState, so the
@@ -369,6 +381,11 @@ export default function App() {
       if (pathname.toLowerCase() === '/ai-tools/calculator' || pathname.toLowerCase() === '/calculators') {
         const calculatorTitle = { ar: 'حاسبة أرباح المتجر', fr: 'Calculateur de bénéfices', en: 'Store Profit Calculator' }[lang];
         document.title = `${calculatorTitle} | ${brand.name}`;
+        return;
+      }
+      if (pathname.toLowerCase() === '/subscription' || pathname.toLowerCase() === '/subscribe' || pathname.toLowerCase() === '/abonnement') {
+        const subscriptionTitle = { ar: 'اشتراك أدوات الذكاء الاصطناعي', fr: 'Abonnement outils IA', en: 'AI Tools Subscription' }[lang];
+        document.title = `${subscriptionTitle} | ${brand.name}`;
         return;
       }
       if (pathname.toLowerCase() === '/ai-tools') {
@@ -536,7 +553,7 @@ export default function App() {
               <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-lg focus:outline-none">
                 {typeof window !== 'undefined' && (navigator.language.startsWith('ar') ? 'تخطى إلى المحتوى' : navigator.language.startsWith('fr') ? 'Aller au contenu' : 'Skip to content')}
               </a>
-              {!isPage && !isFactoryPage && !isPremiumRoute && !isAiToolsRoute && !isCalculatorRoute && <AnnouncementBar />}
+              {!isPage && !isFactoryPage && !isPremiumRoute && !isAiToolsRoute && !isCalculatorRoute && !isSubscriptionRoute && <AnnouncementBar />}
               <ScrollProgress />
               {currentHash !== '#demo' && <Header />}
               <main id="main-content">
@@ -555,6 +572,10 @@ export default function App() {
                 ) : isAiToolsRoute ? (
                   <Suspense fallback={<AdminFallback />}>
                     <AiToolsPage />
+                  </Suspense>
+                ) : isSubscriptionRoute ? (
+                  <Suspense fallback={<AdminFallback />}>
+                    <SubscriptionPage />
                   </Suspense>
                 ) : isPage ? (
                   <>
@@ -622,7 +643,7 @@ export default function App() {
                   </>
                 )}
               </main>
-              {(isProductPage || isPremiumRoute || isAiToolsRoute || isCalculatorRoute) && <Footer />}
+              {(isProductPage || isPremiumRoute || isAiToolsRoute || isCalculatorRoute || isSubscriptionRoute) && <Footer />}
               <ScrollToTop />
               {currentHash !== '#demo' && !isFactoryPage && !isProductPage && (
                 <>
