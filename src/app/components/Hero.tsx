@@ -49,15 +49,6 @@ export function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <motion.span
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-              className="inline-block bg-primary/10 backdrop-blur-sm text-primary text-sm font-semibold px-4 py-2 rounded-full border border-primary/20 mb-6 dark:bg-white/10 dark:text-white/90 dark:border-white/20"
-            >
-              {t({ ar: 'خدمات مكتبية وإعلام آلي', fr: 'Services informatiques et bureautiques', en: 'IT & Office Services' })}
-            </motion.span>
-
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
