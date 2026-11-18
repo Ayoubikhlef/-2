@@ -2,11 +2,11 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   CheckCircle2,
   CreditCard,
-  ExternalLink,
   Loader2,
   RefreshCw,
   ShieldOff,
   UserPlus,
+  X,
   XCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -72,6 +72,16 @@ export function SubscriptionAdmin() {
   const [grantEmail, setGrantEmail] = useState('');
   const [grantPlan, setGrantPlan] = useState<SubscriptionPlanId>('monthly');
   const [granting, setGranting] = useState(false);
+  const [receipt, setReceipt] = useState<AdminPayment | null>(null);
+
+  useEffect(() => {
+    if (!receipt) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setReceipt(null);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [receipt]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -305,15 +315,14 @@ export function SubscriptionAdmin() {
                     <p className="mt-0.5 text-[10px] text-white/40">{formatDate(payment.createdAt, language)}</p>
                     {payment.note && <p className="mt-1 text-[11px] text-white/60">{payment.note}</p>}
                     {payment.proofUrl && (
-                      <a
-                        href={payment.proofUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <button
+                        type="button"
+                        onClick={() => setReceipt(payment)}
                         className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1.5 text-[11px] font-bold text-sky-300 transition hover:bg-slate-800"
                       >
-                        <ExternalLink className="h-3 w-3" />
+                        <CreditCard className="h-3 w-3" />
                         {t({ ar: 'عرض الوصل', fr: 'Voir le reçu', en: 'View receipt' })}
-                      </a>
+                      </button>
                     )}
                   </div>
                   {payment.status === 'pending' && (
@@ -395,6 +404,40 @@ export function SubscriptionAdmin() {
           en: 'Chargily activates automatically via webhook. CCP/BaridiMob transfers wait for your receipt review.',
         })}
       </p>
+
+      {receipt?.proofUrl && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={t({ ar: 'وصل الدفع', fr: 'Reçu de paiement', en: 'Payment receipt' })}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+          onClick={() => setReceipt(null)}
+        >
+          <div
+            className="relative max-h-[90vh] max-w-4xl overflow-auto rounded-2xl border border-white/10 bg-slate-900 p-4"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="mb-3 flex items-center justify-between gap-4">
+              <p className="min-w-0 truncate text-sm font-bold text-white" dir="ltr">
+                {receipt.reference}
+              </p>
+              <button
+                type="button"
+                onClick={() => setReceipt(null)}
+                aria-label={t({ ar: 'إغلاق', fr: 'Fermer', en: 'Close' })}
+                className="rounded-lg p-1.5 text-white/70 transition hover:bg-white/10 hover:text-white"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <img
+              src={receipt.proofUrl}
+              alt={t({ ar: 'وصل الدفع', fr: 'Reçu de paiement', en: 'Payment receipt' })}
+              className="mx-auto max-h-[75vh] max-w-full object-contain"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
