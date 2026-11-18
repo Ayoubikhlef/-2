@@ -88,6 +88,7 @@ async function main() {
       );
     }),
     urlEntry(`${SITE}/create-website`, '0.5', 'monthly'),
+    urlEntry(`${SITE}/premium-services`, '0.7', 'monthly'),
   ];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

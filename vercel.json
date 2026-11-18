@@ -19,6 +19,14 @@
       "destination": "/index.html"
     },
     {
+      "source": "/premium-services",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/Premium-services",
+      "destination": "/index.html"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "https://iueefgma6y.onrender.com/api/$1"
     },
@@ -48,6 +56,24 @@
     },
     {
       "source": "/login",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/premium-services",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/Premium-services",
       "headers": [
         {
           "key": "Cache-Control",

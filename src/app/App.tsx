@@ -46,6 +46,9 @@ const LoginPage = lazy(() => import('./components/LoginPage').then(m => ({ defau
 const WABubble = lazy(() => import('./components/WABubble').then(m => ({ default: m.WABubble })));
 const AIAssistant = lazy(() => import('./components/AIAssistant').then(m => ({ default: m.AIAssistant })));
 const ProductPage = lazy(() => import('./components/ProductPage').then(m => ({ default: m.ProductPage })));
+const PremiumServicesPage = lazy(() =>
+  import('./components/PremiumServicesPage').then(m => ({ default: m.PremiumServicesPage })),
+);
 function LiquidBackground() {
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
@@ -201,6 +204,14 @@ function readLoginRoute(): boolean {
   return pathname === '/' && new URLSearchParams(window.location.search).has('token');
 }
 
+/** Path-based /premium-services route. Case-insensitive because visitors and
+ *  shared links may use /Premium-services; vercel.json rewrites both. */
+function readPremiumRoute(): boolean {
+  if (typeof window === 'undefined') return false;
+  const pathname = window.location.pathname.replace(/\/+$/, '').toLowerCase();
+  return pathname === '/premium-services';
+}
+
 /** Standalone login route; signed-in customers go straight to their account
  *  unless they are opening a password-reset link. */
 function LoginRoute({ onClose, onAuthenticated }: { onClose: () => void; onAuthenticated: () => void }) {
@@ -220,6 +231,7 @@ function LoginRoute({ onClose, onAuthenticated }: { onClose: () => void; onAuthe
 export default function App() {
   const [hash, setHash] = useState(readNormalizedHash);
   const [isLoginRoute, setIsLoginRoute] = useState(readLoginRoute);
+  const [isPremiumRoute, setIsPremiumRoute] = useState(readPremiumRoute);
   const isFactoryPage =
     typeof window !== 'undefined' && window.location.pathname.replace(/\/+$/, '') === '/create-website';
   const productSlug = typeof window !== 'undefined' ? productPathFromUrl(window.location.pathname) : null;
@@ -235,6 +247,7 @@ export default function App() {
     const onHashChange = () => {
       setHash(readNormalizedHash());
       setIsLoginRoute(readLoginRoute());
+      setIsPremiumRoute(readPremiumRoute());
     };
     window.addEventListener('hashchange', onHashChange);
     // Client-side navigation (see utils/navigation.ts) uses pushState, so the
@@ -322,6 +335,11 @@ export default function App() {
       if (pathname === '/create-website') {
         const factoryTitle = { ar: 'أنشئ موقعك', fr: 'Créez votre site', en: 'Create Your Website' }[lang];
         document.title = `${factoryTitle} | ${brand.name}`;
+        return;
+      }
+      if (pathname.toLowerCase() === '/premium-services') {
+        const premiumTitle = { ar: 'الخدمات المميزة', fr: 'Services premium', en: 'Premium Services' }[lang];
+        document.title = `${premiumTitle} | ${brand.name}`;
         return;
       }
       const titles: Record<string, Record<string, string>> = {
@@ -480,13 +498,17 @@ export default function App() {
               <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-lg focus:outline-none">
                 {typeof window !== 'undefined' && (navigator.language.startsWith('ar') ? 'تخطى إلى المحتوى' : navigator.language.startsWith('fr') ? 'Aller au contenu' : 'Skip to content')}
               </a>
-              {!isPage && !isFactoryPage && <AnnouncementBar />}
+              {!isPage && !isFactoryPage && !isPremiumRoute && <AnnouncementBar />}
               <ScrollProgress />
               {currentHash !== '#demo' && <Header />}
               <main id="main-content">
                 {isProductPage ? (
                   <Suspense fallback={<AdminFallback />}>
                     <ProductPage slug={productSlug!} />
+                  </Suspense>
+                ) : isPremiumRoute ? (
+                  <Suspense fallback={<AdminFallback />}>
+                    <PremiumServicesPage />
                   </Suspense>
                 ) : isPage ? (
                   <>
@@ -554,7 +576,7 @@ export default function App() {
                   </>
                 )}
               </main>
-              {isProductPage && <Footer />}
+              {(isProductPage || isPremiumRoute) && <Footer />}
               <ScrollToTop />
               {currentHash !== '#demo' && !isFactoryPage && !isProductPage && (
                 <>
