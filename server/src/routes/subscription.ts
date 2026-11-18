@@ -185,10 +185,21 @@ subscriptionRouter.post('/checkout', requireAuth, async (req: AuthRequest, res: 
   });
 });
 
+// Receipts are compressed to a JPEG data URL in the browser. Keeping the
+// column limited to image data URLs stops an uploaded string from becoming a
+// `data:text/html` page that an admin would open from the payments table.
+const receiptSchema = z
+  .string()
+  .max(900_000)
+  .refine(
+    (value) => /^data:image\/(jpeg|jpg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(value),
+    'Receipt must be an image',
+  );
+
 subscriptionRouter.post('/payments/:id/proof', requireAuth, async (req: AuthRequest, res: Response) => {
   const parsed = z
     .object({
-      proof: z.string().max(900_000).optional(),
+      proof: receiptSchema.optional(),
       note: z.string().max(600).optional(),
     })
     .safeParse(req.body);

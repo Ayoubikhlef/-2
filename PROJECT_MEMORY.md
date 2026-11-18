@@ -200,21 +200,22 @@ Session on 2026-11-18: the profit calculators (`/ai-tools/calculator`) added wit
 - Verified locally: typecheck + build pass; the five tabs compute, editing an input updates the result live, the login overlay opens from the save card, and FR/EN render with no horizontal overflow; `/ai-tools` still shows 12 cards plus the calculator banner.
 
 ## Last Working Session
-2026-11-18 - AI subscriptions and paywall (implemented; deploy verification pending).
+2026-11-18 - AI subscriptions and paywall (deployed; live gate test pending).
 - Server data: `Subscription`, `SubscriptionPayment`, `AiUsage` and `SavedCalculation` models in `server/prisma/schema.prisma`; Render applies them with `prisma db push` at boot.
 - Server logic: `server/src/services/subscription.ts` has the three plans (1 900 / 4 900 / 17 900 DZD), activate/extend, `resolveAiAccess`, `recordAiUsage`, Chargily Pay v2 checkout, HMAC-SHA256 webhook verification and manual CCP/BaridiMob details from the site-factory settings.
 - Server routes: `routes/subscription.ts` (plans, me, checkout, receipt proof, Chargily webhook, admin payments/confirm/reject/grant/cancel) and `routes/calculator.ts` (server-saved results, max 20 per account). `optionalAuth` was added; the webhook gets `rawBody` from the JSON verifier; `aiLimiter` is 30 / 10 min / IP and `checkoutLimiter` 20 / 15 min.
-- Gate: guest = 1 free answer per tool per IP / 30 days; signed-in = 1 extra preview in total (`403 ai_login_required` / `402 subscription_required`); active subscription = unlimited within `aiLimiter`. Mock answers do not consume usage.
+- Receipt uploads are validated server-side as `data:image/(jpeg|jpg|png|webp);base64` only, so an admin cannot be sent to a `data:text/html` page from the payments table.
+- Gate: guest = 1 free answer per tool per IP / 30 days; signed-in = 1 extra preview in total (`403 ai_login_required` / `402 subscription_required`); active subscription = unlimited within `aiLimiter`. Mock answers do not consume usage. `app.set('trust proxy', isTrustedProxy)` resolves the real client IP behind Render/Vercel.
 - Storefront: `/subscription` (Vite route + rewrites/no-store, sitemap, footer link) shows the three plans, Chargily / CCP / BaridiMob, receipt upload (canvas-compressed data URL), account status and payment history. It has a retry state if the plans API is unreachable.
 - `/ai-tools` now uses `useAuth` + `/subscription/me`: the guest paywall opens `LoginPage`, the account paywall links to `/subscription`, and the last-preview result shows the subscribe CTA. `/ai-tools/calculator` saves results to the server and migrates the old localStorage rows once per account.
 - Admin: new "AI Subscriptions" tab (`SubscriptionAdmin.tsx`) lists pending/paid payments, opens receipts, activates/rejects them, grants a plan by email and cancels an active subscription.
 - Env: `CHARGILY_SECRET_KEY`, `CHARGILY_MODE`, `CHARGILY_WEBHOOK_SECRET` and `AI_IP_SALT` documented in `server/.env.example`. Register `https://aos-tech.store/api/subscription/chargily/webhook` in Chargily after the keys are set.
-- Verified: `npm run typecheck`, `npx tsc --noEmit` in `server`, `npm run build`, visual QA of `/subscription` (plans, checkout, guest login overlay) and the `/ai-tools` guest paywall using a mock plans API. The production API needs the new deploy before `/api/subscription/plans` exists.
-- Production registration was probed with an empty body (400 validation, not 503), so the email sign-in step is available with the configured mail provider.
+- Deployed as `5305de3`. Production verified: `/subscription` 200 with RTL hero and the three prices (1,900 / 4,900 / 17,900), `/api/subscription/plans` 200 with `chargily:false`, `/api/subscription/me` 401 for guests, `/api/calculator/results` 401, unsigned Chargily webhook 401 ("Invalid signature"), sitemap contains `/subscription`, no console errors. The checkout panel opens on a plan click, offers CCP/BaridiMob, and its "sign in to continue" button opens the login overlay. `/ai-tools` shows the post-trial gate card with the login and plans buttons.
+- Local checks: `npm run typecheck`, `npx tsc --noEmit` in `server`, `npm run build`, visual QA with a mock plans API.
 
 ## Next Step
-1. Push/deploy, then confirm `/subscription` returns 200 and `/api/subscription/plans` lists the three prices on production.
-2. Test the real gate on production: guest first answer, guest second answer (403), signed-in extra preview, signed-in third answer (402), then admin confirm/grant unlocks.
+1. Test the real gate with a customer account: guest first answer, guest second answer (403), sign in, one extra preview, next answer (402), then admin confirm/grant unlocks. The owner's current IP already has the product-check trial counted.
+2. Open the admin "AI Subscriptions" tab with a real admin login and confirm a pending manual payment end-to-end (create request, upload receipt, activate, customer sees the plan on `/subscription`).
 3. If Chargily keys are available, set them on Render and send a test payment through the webhook; otherwise keep CCP/BaridiMob + admin activation.
 4. Add subscription status to the account area (optional) so customers see the renewal date without opening `/subscription`.
 

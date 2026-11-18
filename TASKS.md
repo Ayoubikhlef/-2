@@ -92,10 +92,12 @@ Project inspection complete. All major configuration files and API routes have b
 - ✅ Admin "AI Subscriptions" tab: pending/paid payments, receipts, activate/reject, grant by email, cancel
 - ✅ `CHARGILY_SECRET_KEY`, `CHARGILY_MODE`, `CHARGILY_WEBHOOK_SECRET`, `AI_IP_SALT` documented in `server/.env.example`
 - ✅ Verified locally: frontend + server typecheck, `npm run build`, plans/checkout/guest paywall screenshots via mock API; production registration is enabled (400 on empty body, not 503)
+- ✅ Deployed (`5305de3`) and verified on production: `/subscription` 200 (3 plans, RTL, no console errors), `/api/subscription/plans` 200 (`chargily:false`), `/api/subscription/me` 401 for guests, `/api/calculator/results` 401, unsigned Chargily webhook 401, sitemap has `/subscription`; checkout opens with CCP/BaridiMob and sends guests to login
+- ✅ Receipt `proof` is limited to `data:image/(jpeg|jpg|png|webp);base64` so the admin receipts table cannot open a `data:text/html` page
 
 Next session should focus on:
-- Deploy and verify production `/subscription` 200, `/api/subscription/plans` returns the 3 plans, and `/ai-tools` + `/ai-tools/calculator` still work
-- Prove the real gate end-to-end with a test customer: guest answer -> 403 -> sign in -> 1 preview -> 402 -> admin activation -> unlimited
+- Prove the real gate with a test customer: guest answer -> 403 -> sign in -> 1 preview -> 402 -> admin activation -> unlimited. The owner's current IP already used the product-check trial.
+- Confirm a manual payment end-to-end from the admin "AI Subscriptions" tab (request, receipt, activate, customer sees the plan)
 - Set Chargily keys on Render (optional) and register `https://aos-tech.store/api/subscription/chargily/webhook`, or keep CCP/BaridiMob + manual activation
 - Add the subscription/renewal card to the account area
 - A prerender step so `/ai-tools`, `/ai-tools/calculator`, `/premium-services` and `/subscription` expose per-page titles/meta to crawlers
