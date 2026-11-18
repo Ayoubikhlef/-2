@@ -143,8 +143,16 @@ Provider order is deliberate: the paid/limited OpenRouter key is tried first whi
 - Entry points: desktop header (from `xl`), mobile menu, footer and the AI services banner on the home page. `/ai-tools` is in `scripts/generate-sitemap.mjs` (12 URLs).
 - Header breakpoints matter: the desktop nav/actions start at `xl`, the violet "digital services" link and the phone number text start at `2xl`. Before that, FR/EN labels made the header overflow horizontally at 1024–1440 px.
 
+## Profit Calculators (`/ai-tools/calculator`)
+
+- Vercel rewrites `/ai-tools/calculator`, `/AI-tools/Calculator` and `/calculators` to `/index.html` with `no-store`; `App.tsx` detects them through `readCalculatorRoute()` and lazy-loads `src/app/components/ProfitCalculator.tsx`.
+- Five client-side calculators, all in `CALCULATORS` inside that file: full product profit (`full`), product pricing (`pricing`), order cost (`orderCost`), ad ceiling (`adCeiling`) and monthly goal (`monthlyGoal`). No API call and no AI cost — the math runs in the browser.
+- The full calculator reproduces the reference numbers: with 1600 / 4900 / 30 000 / 100 orders / 70 % / 65 % / 150 / 80 / 200 it shows **2,303 DZD net per delivered order**, 47 % margin and 659 DZD ad per delivered order. Formula: `confirmed = orders × confirm`, `delivered = confirmed × delivery`, `returns = confirmed − delivered`; costs use `delivered` for product/confirmation/packaging and `returns × returnCost` for returns.
+- Saving requires a signed-in customer: the results are stored per user in `localStorage` under `aos_calc_saved_v1_<userId>` (max 20), with restore/delete and a "sign up free / I have an account" prompt that opens the existing `LoginPage` overlay. It is per-browser only — move it to the server when the account area gets its own API.
+- Entry points: green banner at the top of `/ai-tools`, footer quick links, and the sitemap. The page is RTL/LTR aware (ar/fr/en) and has no horizontal overflow at 1295 px.
+
 ## Current Session
-Session on 2026-11-18: the 12 seller AI tools (`/ai-tools`) shipped end to end, plus two production bugs fixed (CSP-blocked image upload, FR/EN header overflow).
+Session on 2026-11-18: the profit calculators (`/ai-tools/calculator`) added with per-account saved results, on top of the 12 seller AI tools shipped earlier the same day.
 
 ## Technical Decisions Recorded
 1. **Hybrid Platform**: Combine e-commerce with website factory - different teams use the same API but separate endpoints for isolation
@@ -184,9 +192,18 @@ Session on 2026-11-18: the 12 seller AI tools (`/ai-tools`) shipped end to end, 
 - Contrast: small `text-primary` labels on dark cards were 2.5:1, now `text-sky-700 dark:text-sky-300` (`f8abdc0`); Lighthouse on `/ai-tools` scores accessibility 0.96, best-practices 1.0, SEO 1.0, and the main content has no remaining low-contrast text.
 - Verified on production: `/ai-tools` 200, 12 cards, 3 sections, RTL, ar/fr/en, no console errors, no horizontal overflow at 1295 px (AR/FR/EN), header + footer + AI banner links visible, free trial survives a reload, sitemap includes `/ai-tools`.
 
+## Last Working Session
+2026-11-18 — profit calculators (`3f28f85`).
+- Added `/ai-tools/calculator` with five calculators matching the reference screenshot: product profit, pricing, order cost, ad ceiling, monthly goal. The full calculator returns 2,303 DZD net / 47 % margin / 659 DZD ad per delivered order for the reference inputs.
+- Results can be saved to the signed-in customer's local space (`aos_calc_saved_v1_<userId>`, max 20) with restore/delete; signed-out visitors get the "sign up free / I have an account" prompt that opens `LoginPage`.
+- Wiring: new lazy route + `readCalculatorRoute()` in `App.tsx` (title, 404, announcement bar, footer), rewrites and `no-store` headers in `vercel.json`, sitemap entry, footer link and a green banner on `/ai-tools`. The 12 AI tool cards and their trials are unchanged.
+- Verified locally: typecheck + build pass; the five tabs compute, editing an input updates the result live, the login overlay opens from the save card, and FR/EN render with no horizontal overflow; `/ai-tools` still shows 12 cards plus the calculator banner.
+
 ## Next Step
-No blocking work. Optional follow-ups:
+Pending user-approved work (not started): after a tool's free trial, require email sign-in, give **one** extra preview per account, then send the customer to a subscription page (1 900 / 4 900 / 17 900 DZD; Chargily if configured, otherwise CCP/BaridiMob manual transfer). This needs a server-side usage + subscription model (`prisma db push` runs on Render at boot), `requireAuth` on the preview generation, and an admin step to activate a manual payment.
+
+Optional follow-ups:
 1. If Claude Sonnet is preferred, set `AI_MODEL=anthropic/claude-sonnet-5.5` on Render and redeploy.
-2. `/ai-tools` and `/premium-services` still get their titles/meta from client-side JS only; a prerender step would give crawlers the exact per-page title.
+2. `/ai-tools`, `/ai-tools/calculator` and `/premium-services` still get their titles/meta from client-side JS only; a prerender step would give crawlers the exact per-page title.
 3. `aiLimiter` allows 12 requests / 10 min / IP, exactly the number of tools — raising it to ~20 would let a visitor retry a failed generation.
 4. Keep an eye on the OpenRouter `limit` ($5 lifetime) via `GET https://openrouter.ai/api/v1/key`.

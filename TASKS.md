@@ -75,9 +75,18 @@ Project inspection complete. All major configuration files and API routes have b
 - ?? `aiLimiter` = 12 requests / 10 min / IP (exactly the number of tools); consider raising to ~20 for retries
 - ?? OpenRouter is on a $5 lifetime limit; monitor usage before heavy traffic
 
+## Session 2026-11-18 - profit calculators (`/ai-tools/calculator`)
+- ? `/ai-tools/calculator` added as a Vite route (rewrites for the CamelCase path and `/calculators`, `no-store`, sitemap, footer link, banner on `/ai-tools`) - `3f28f85`
+- ? Five client-side calculators: product profit, pricing, order cost, ad ceiling, monthly goal. Reference inputs return 2,303 DZD net per delivered order, 47 % margin, 659 DZD ad per delivered order
+- ? Save results requires sign-in (`aos_calc_saved_v1_<userId>`, max 20, restore + delete); signed-out visitors get "sign up free / I have an account" which opens `LoginPage`
+- ? Verified locally: typecheck + build pass, five tabs compute, live update on edit, login overlay opens, FR/EN no overflow, `/ai-tools` keeps its 12 cards
+- ?? Saved results are per-browser only until the account area gets a server API
+
 Next session should focus on:
-- A prerender step so `/ai-tools` and `/premium-services` expose their per-page title/meta to crawlers
+- The approved paywall flow: free trial -> email sign-in -> one extra account preview -> subscription page (1 900 / 4 900 / 17 900 DZD; Chargily if configured, else CCP/BaridiMob)
+- Server models for AI usage + subscription (Render runs `prisma db push` at boot) and an admin activation step for manual payments
+- Moving saved calculator results to the server once the account API exists
+- A prerender step so `/ai-tools`, `/ai-tools/calculator` and `/premium-services` expose their per-page title/meta to crawlers
 - Raising `aiLimiter` to ~20 requests / 10 min if users report a blocked retry
 - Watching OpenRouter usage against the $5 lifetime limit
-- The payment decision is still open (Chargily needs a commercial RIB; manual CCP/BaridiMob is the fallback)
 
