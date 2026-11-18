@@ -160,6 +160,7 @@ Session on 2026-11-17/18: AI provider activation (Gemini + OpenRouter) and shipp
 - Premium Services is now a gold link in the desktop header (right after Contact/order tracking) and in the mobile menu, plus the footer and AI banner. The header container widens at `2xl` so the longer menu stays on one line.
 - The header phone chip is a `tel:` link, and the number text is hidden below `xl` to keep the menu from overflowing (icon stays).
 - Removed the hero badge "خدمات مكتبية وإعلام آلي" at the user's request (`3ad3520`). The hero now starts with "مرحباً بكم في / AOS Tech Store"; verified on production with no console errors.
+- Announcement bar now says free delivery over **8000 DZD** and cash on delivery in **69 wilayas** (was 5000/58). The same numbers were aligned in the product trust badges, product page (FR), testimonials, product SEO text, the Vercel `api/product-page` description, and the server/client delivery defaults (`af655b9`). The live `aos_site_settings` already had `freeThreshold: 8000`; verified on production.
 
 ## Next Step
 No blocking work. Optional follow-ups:
