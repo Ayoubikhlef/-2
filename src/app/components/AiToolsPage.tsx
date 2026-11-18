@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   AlertCircle,
   ArrowRight,
+  Calculator,
   Check,
   CheckCircle2,
   Copy,
@@ -519,6 +520,38 @@ export function AiToolsPage() {
             </span>
           </div>
         </div>
+      </section>
+
+      {/* Profit calculator banner */}
+      <section className="mx-auto mt-8 max-w-6xl px-4">
+        <a
+          href="/ai-tools/calculator"
+          className="group flex flex-wrap items-center gap-4 rounded-2xl border border-emerald-500/25 bg-gradient-to-br from-emerald-500/10 via-card to-card p-5 transition hover:border-emerald-500/45 hover:shadow-sm"
+        >
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">
+            <Calculator className="h-5 w-5" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-base font-bold sm:text-lg">
+              {t({
+                ar: 'حاسبة الأرباح: اعرف ربحك وسقف إعلانك قبل أن تبيع',
+                fr: 'Calculateur : connaissez votre bénéfice et votre plafond pub avant de vendre',
+                en: 'Calculator: know your profit and ad ceiling before you sell',
+              })}
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {t({
+                ar: '5 حاسبات مجانية: الربح الصافي، تسعير المنتج، تكلفة الطلبية، سقف الإعلان، وهدف الشهر.',
+                fr: '5 calculateurs gratuits : bénéfice net, prix, coût par commande, plafond pub et objectif du mois.',
+                en: '5 free calculators: net profit, pricing, order cost, ad ceiling and monthly goal.',
+              })}
+            </p>
+          </div>
+          <span className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-2 text-xs font-bold text-white transition group-hover:bg-emerald-700">
+            {t({ ar: 'افتح الحاسبة', fr: 'Ouvrir le calculateur', en: 'Open the calculator' })}
+            <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
+          </span>
+        </a>
       </section>
 
       {/* Tool grid */}

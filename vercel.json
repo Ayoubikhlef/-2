@@ -35,6 +35,18 @@
       "destination": "/index.html"
     },
     {
+      "source": "/ai-tools/calculator",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/AI-tools/Calculator",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/calculators",
+      "destination": "/index.html"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "https://iueefgma6y.onrender.com/api/$1"
     },
@@ -100,6 +112,33 @@
     },
     {
       "source": "/AI-tools",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/ai-tools/calculator",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/AI-tools/Calculator",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/calculators",
       "headers": [
         {
           "key": "Cache-Control",

@@ -88,6 +88,12 @@ export function Footer() {
                   {t({ ar: '12 أداة ذكاء اصطناعي', fr: '12 outils IA', en: '12 AI tools' })}
                 </a>
               </li>
+              <li>
+                <a href="/ai-tools/calculator" className="text-emerald-600 dark:text-emerald-300 font-semibold hover:text-emerald-500 text-sm transition-colors flex items-center gap-2">
+                  <span className="w-1 h-1 rounded-full bg-emerald-500 shrink-0" />
+                  {t({ ar: 'حاسبة أرباح المتجر', fr: 'Calculateur de bénéfices', en: 'Store profit calculator' })}
+                </a>
+              </li>
             </ul>
           </div>
 
