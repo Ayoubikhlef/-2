@@ -49,6 +49,9 @@ const ProductPage = lazy(() => import('./components/ProductPage').then(m => ({ d
 const PremiumServicesPage = lazy(() =>
   import('./components/PremiumServicesPage').then(m => ({ default: m.PremiumServicesPage })),
 );
+const AiToolsPage = lazy(() =>
+  import('./components/AiToolsPage').then(m => ({ default: m.AiToolsPage })),
+);
 function LiquidBackground() {
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
@@ -212,6 +215,13 @@ function readPremiumRoute(): boolean {
   return pathname === '/premium-services';
 }
 
+/** Path-based /ai-tools route, case-insensitive like the premium route. */
+function readAiToolsRoute(): boolean {
+  if (typeof window === 'undefined') return false;
+  const pathname = window.location.pathname.replace(/\/+$/, '').toLowerCase();
+  return pathname === '/ai-tools';
+}
+
 /** Standalone login route; signed-in customers go straight to their account
  *  unless they are opening a password-reset link. */
 function LoginRoute({ onClose, onAuthenticated }: { onClose: () => void; onAuthenticated: () => void }) {
@@ -232,11 +242,12 @@ export default function App() {
   const [hash, setHash] = useState(readNormalizedHash);
   const [isLoginRoute, setIsLoginRoute] = useState(readLoginRoute);
   const [isPremiumRoute, setIsPremiumRoute] = useState(readPremiumRoute);
+  const [isAiToolsRoute, setIsAiToolsRoute] = useState(readAiToolsRoute);
   const isFactoryPage =
     typeof window !== 'undefined' && window.location.pathname.replace(/\/+$/, '') === '/create-website';
   const productSlug = typeof window !== 'undefined' ? productPathFromUrl(window.location.pathname) : null;
   const isProductPage = Boolean(productSlug);
-  const is404 = !isFactoryPage && !isProductPage && !isLoginRoute && typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#digital-services', '#digital-quote', '#ai-studio', '#hqpanel', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq', '#web', '#demo', '#order-tracking', '#premium-list'].includes(hash);
+  const is404 = !isFactoryPage && !isProductPage && !isLoginRoute && !isPremiumRoute && !isAiToolsRoute && typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#digital-services', '#digital-quote', '#ai-studio', '#hqpanel', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq', '#web', '#demo', '#order-tracking', '#premium-list'].includes(hash);
   const [maintenance, setMaintenance] = useState(false);
   // Render immediately for returning visitors (the flag is cached locally)
   // and refresh it in the background. Only the very first visit waits, with
@@ -248,6 +259,7 @@ export default function App() {
       setHash(readNormalizedHash());
       setIsLoginRoute(readLoginRoute());
       setIsPremiumRoute(readPremiumRoute());
+      setIsAiToolsRoute(readAiToolsRoute());
     };
     window.addEventListener('hashchange', onHashChange);
     // Client-side navigation (see utils/navigation.ts) uses pushState, so the
@@ -340,6 +352,11 @@ export default function App() {
       if (pathname.toLowerCase() === '/premium-services') {
         const premiumTitle = { ar: 'الخدمات المميزة', fr: 'Services premium', en: 'Premium Services' }[lang];
         document.title = `${premiumTitle} | ${brand.name}`;
+        return;
+      }
+      if (pathname.toLowerCase() === '/ai-tools') {
+        const aiToolsTitle = { ar: '12 أداة ذكاء اصطناعي', fr: '12 outils IA', en: '12 AI Tools' }[lang];
+        document.title = `${aiToolsTitle} | ${brand.name}`;
         return;
       }
       const titles: Record<string, Record<string, string>> = {
@@ -502,7 +519,7 @@ export default function App() {
               <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-lg focus:outline-none">
                 {typeof window !== 'undefined' && (navigator.language.startsWith('ar') ? 'تخطى إلى المحتوى' : navigator.language.startsWith('fr') ? 'Aller au contenu' : 'Skip to content')}
               </a>
-              {!isPage && !isFactoryPage && !isPremiumRoute && <AnnouncementBar />}
+              {!isPage && !isFactoryPage && !isPremiumRoute && !isAiToolsRoute && <AnnouncementBar />}
               <ScrollProgress />
               {currentHash !== '#demo' && <Header />}
               <main id="main-content">
@@ -513,6 +530,10 @@ export default function App() {
                 ) : isPremiumRoute ? (
                   <Suspense fallback={<AdminFallback />}>
                     <PremiumServicesPage />
+                  </Suspense>
+                ) : isAiToolsRoute ? (
+                  <Suspense fallback={<AdminFallback />}>
+                    <AiToolsPage />
                   </Suspense>
                 ) : isPage ? (
                   <>
@@ -580,7 +601,7 @@ export default function App() {
                   </>
                 )}
               </main>
-              {(isProductPage || isPremiumRoute) && <Footer />}
+              {(isProductPage || isPremiumRoute || isAiToolsRoute) && <Footer />}
               <ScrollToTop />
               {currentHash !== '#demo' && !isFactoryPage && !isProductPage && (
                 <>

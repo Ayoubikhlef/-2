@@ -304,12 +304,31 @@ export type CustomerListResponse = {
   totals: { accounts: number; matchedOrders: number; blocked: number };
 };
 
-export type AiStudioTool = 'cv' | 'post' | 'product';
+/** All ids accepted by /api/ai/generate. */
+export type AiTool =
+  | 'cv'
+  | 'post'
+  | 'product'
+  | 'product-check'
+  | 'offer-maker'
+  | 'competitor'
+  | 'plan'
+  | 'ad-copy'
+  | 'product-page'
+  | 'video-script'
+  | 'customer-reply'
+  | 'order-confirmation'
+  | 'ad-image-review'
+  | 'page-review'
+  | 'campaign-doctor';
+
+/** The three tools embedded in the AI Studio section. */
+export type AiStudioTool = Extract<AiTool, 'cv' | 'post' | 'product'>;
 export type AiStudioLanguage = 'ar' | 'fr' | 'en';
 
 export type AiStudioResult = {
   text: string;
-  tool: AiStudioTool;
+  tool: AiTool;
   language: AiStudioLanguage;
   /** True when the server answered from AI_MOCK instead of a provider. */
   mock?: boolean;
@@ -371,9 +390,11 @@ export const api = {
   ai: {
     status: () => request<{ available: boolean; mock: boolean }>('/ai/status', {}, true, 15000),
     generate: (data: {
-      tool: AiStudioTool;
+      tool: AiTool;
       language: AiStudioLanguage;
       fields: Record<string, string>;
+      /** Optional compressed image data URL (ad-image-review only). */
+      image?: string;
     }) =>
       request<AiStudioResult>(
         '/ai/generate',

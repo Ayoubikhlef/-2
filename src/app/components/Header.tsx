@@ -1,4 +1,4 @@
-import { Phone, Menu, X, ShoppingCart, Sun, Moon, User, Sparkles, Gem } from 'lucide-react';
+import { Phone, Menu, X, ShoppingCart, Sun, Moon, User, Sparkles, Gem, Wand2 } from 'lucide-react';
 import { useState, useEffect, type MouseEvent } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useCart } from '../contexts/CartContext';
@@ -77,6 +77,13 @@ export function Header() {
             >
               <Gem className="w-4 h-4" />
               {t({ ar: 'الخدمات المميزة', fr: 'Services premium', en: 'Premium Services' })}
+            </a>
+            <a
+              href="/ai-tools"
+              className="hidden xl:inline-flex items-center gap-1.5 px-2.5 2xl:px-3 py-2 text-sm font-bold text-sky-600 hover:bg-sky-500/10 rounded-lg transition-all duration-200 dark:text-sky-300"
+            >
+              <Wand2 className="w-4 h-4" />
+              {t({ ar: 'أدوات AI', fr: 'Outils IA', en: 'AI Tools' })}
             </a>
             {!hasDigitalLink && (
               <a
@@ -222,6 +229,14 @@ export function Header() {
                 >
                   <Gem className="w-4 h-4" />
                   {t({ ar: 'الخدمات المميزة', fr: 'Services premium', en: 'Premium Services' })}
+                </a>
+                <a
+                  href="/ai-tools"
+                  className="flex items-center gap-2 px-4 py-3 text-base font-bold text-sky-600 hover:bg-sky-500/10 rounded-lg transition-colors mx-2 dark:text-sky-300"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Wand2 className="w-4 h-4" />
+                  {t({ ar: 'أدوات الذكاء الاصطناعي', fr: 'Outils IA', en: 'AI Tools' })}
                 </a>
                 {!hasDigitalLink && (
                   <a

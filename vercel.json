@@ -27,6 +27,14 @@
       "destination": "/index.html"
     },
     {
+      "source": "/ai-tools",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/AI-tools",
+      "destination": "/index.html"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "https://iueefgma6y.onrender.com/api/$1"
     },
@@ -74,6 +82,24 @@
     },
     {
       "source": "/Premium-services",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/ai-tools",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/AI-tools",
       "headers": [
         {
           "key": "Cache-Control",
