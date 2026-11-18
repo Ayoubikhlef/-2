@@ -59,6 +59,7 @@ Project inspection complete. All major configuration files and API routes have b
 - ✅ Temporary Render API key `aos-openrouter-setup` revoked (401 confirmed) and local copy deleted
 - ✅ Phone shown left-to-right in Arabic (header/footer/contact/FAQ/about/announcement) — `0bd08f1`
 - ✅ Premium Services link added to the desktop header next to Contact/order tracking and to the mobile menu; header widened at 2xl
+- ✅ Removed the hero badge «خدمات مكتبية وإعلام آلي» per user request — `3ad3520`; production verified
 - ⚠️ OpenRouter is on a $5 lifetime limit; monitor usage before moving heavy traffic to it
 
 Next session should focus on:
