@@ -58,7 +58,7 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       imgSrc: ["'self'", "data:", "https:"],
       fontSrc: ["'self'", "data:", "https://fonts.gstatic.com"],
-      connectSrc: ["'self'", "https://iueefgma6y.onrender.com", "https://aos-api-production.up.railway.app", "https://docs.google.com"],
+      connectSrc: ["'self'", "https://iueefgma6y.onrender.com", "https://docs.google.com"],
       workerSrc: ["'self'", "blob:"],
       frameSrc: ["https://www.google.com", "https://www.google.dz", "https://www.google.co.dz"],
       frameAncestors: ["'none'"],

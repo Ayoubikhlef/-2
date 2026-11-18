@@ -16,8 +16,9 @@ const WS_URL = (() => {
       return `${protocol}//${hostname}:3001`;
     }
   }
-  // Production frontend (Vercel) does not host Socket.IO — connect to API host.
-  return 'https://aos-api-production.up.railway.app';
+  // Production frontend (Vercel) proxies /api and /socket.io to the Render API,
+  // but a direct connection is more reliable for the live admin feed.
+  return 'https://iueefgma6y.onrender.com';
 })();
 
 interface LiveOrder {
