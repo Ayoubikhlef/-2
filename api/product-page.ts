@@ -286,7 +286,7 @@ function renderProductPage(shell: string, product: Product, reviews: Review[] = 
   const slug = slugify(product.nameEn || product.nameFr || product.nameAr);
   const url = `${SITE}/product/${product.id}${slug ? `-${slug}` : ''}`;
   const title = `${product.nameFr || product.nameEn || product.nameAr} | AOS Tech Store`;
-  const description = `${product.nameAr} (${product.nameFr}) — ${product.descFr || product.descEn || ''}. Prix ${p.price.toLocaleString('fr-FR')} DZD. Livraison 58 wilayas. AOS Tech Store, El Milia, Jijel.`;
+  const description = `${product.nameAr} (${product.nameFr}) — ${product.descFr || product.descEn || ''}. Prix ${p.price.toLocaleString('fr-FR')} DZD. Livraison 69 wilayas. AOS Tech Store, El Milia, Jijel.`;
   const image = absoluteUrl(product.image);
 
   let html = shell;

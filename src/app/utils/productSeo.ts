@@ -55,7 +55,7 @@ export function productTitle(product: Product): string {
 export function productDescription(product: Product, pricing: ProductPricing): string {
   const text = product.descFr || product.descEn || product.descAr || product.shortDescFr || product.shortDescEn;
   const price = `${pricing.price.toLocaleString('fr-FR')} DZD`;
-  return `${product.nameAr} (${product.nameFr}) — ${text}. Prix ${price}. Livraison dans les 58 wilayas d'Algérie. AOS Tech Store, El Milia, Jijel.`;
+  return `${product.nameAr} (${product.nameFr}) — ${text}. Prix ${price}. Livraison dans les 69 wilayas d'Algérie. AOS Tech Store, El Milia, Jijel.`;
 }
 
 export function buildProductJsonLd(

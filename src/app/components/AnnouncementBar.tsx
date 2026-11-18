@@ -2,8 +2,8 @@ import { Truck, BadgeCheck, ShieldCheck, Zap } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const ITEMS: { ar: string; fr: string; en: string }[] = [
-  { ar: 'توصيل مجاني للطلبات فوق 5000 د.ج', fr: 'Livraison gratuite dès 5000 DA', en: 'Free delivery on orders over 5000 DA' },
-  { ar: 'الدفع عند الاستلام في 58 ولاية', fr: 'Paiement à la livraison dans 58 wilayas', en: 'Cash on delivery in all 58 wilayas' },
+  { ar: 'توصيل مجاني للطلبات فوق 8000 د.ج', fr: 'Livraison gratuite dès 8000 DA', en: 'Free delivery on orders over 8000 DA' },
+  { ar: 'الدفع عند الاستلام في 69 ولاية', fr: 'Paiement à la livraison dans 69 wilayas', en: 'Cash on delivery in all 69 wilayas' },
   { ar: 'خدمات إصلاح وصيانة للمعلوميات', fr: 'Réparation et maintenance informatique', en: 'Computer repair & maintenance services' },
   { ar: 'عروض خاصة أسبوعية على الطابعات والشاشات', fr: 'Offres spéciales chaque semaine', en: 'Weekly deals on printers & monitors' },
 ];
@@ -34,7 +34,7 @@ export function AnnouncementBar() {
 export function TrustBadges() {
   const { t } = useLanguage();
   const badges = [
-    { icon: Truck, label: t({ ar: 'توصيل 58 ولاية', fr: 'Livraison 58 wilayas', en: 'Delivery to 58 wilayas' }) },
+    { icon: Truck, label: t({ ar: 'توصيل 69 ولاية', fr: 'Livraison 69 wilayas', en: 'Delivery to 69 wilayas' }) },
     { icon: BadgeCheck, label: t({ ar: 'الدفع عند الاستلام', fr: 'Paiement à la livraison', en: 'Cash on delivery' }) },
     { icon: ShieldCheck, label: t({ ar: 'منتجات مضمونة', fr: 'Produits garantis', en: 'Guaranteed products' }) },
     { icon: Zap, label: t({ ar: 'تجهيز سريع للطلب', fr: 'Préparation rapide', en: 'Fast order processing' }) },

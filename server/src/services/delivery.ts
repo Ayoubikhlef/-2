@@ -61,7 +61,7 @@ function mergeRules(stored: unknown): DeliveryRules {
 
 export function defaultDeliverySettings(): DeliverySettings {
   return {
-    freeThreshold: 5000,
+    freeThreshold: 8000,
     homeFees: buildDefaultFeeMap('home'),
     deskFees: buildDefaultFeeMap('desk'),
     rules: {

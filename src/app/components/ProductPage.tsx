@@ -283,7 +283,7 @@ export function ProductPage({ slug }: { slug: string }) {
               <div className="flex items-start gap-3">
                 <Truck className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
                 <div>
-                  <p className="text-sm font-semibold">{t({ ar: 'توصيل لكل الولايات', fr: 'Livraison 58 wilayas', en: 'Delivery to all wilayas' })}</p>
+                  <p className="text-sm font-semibold">{t({ ar: 'توصيل لكل الولايات', fr: 'Livraison 69 wilayas', en: 'Delivery to all wilayas' })}</p>
                   <p className="text-xs text-muted-foreground">{t({ ar: 'الدفع عند الاستلام', fr: 'Paiement à la livraison', en: 'Cash on delivery' })}</p>
                 </div>
               </div>

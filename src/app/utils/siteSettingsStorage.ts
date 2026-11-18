@@ -97,7 +97,7 @@ const defaultContact: ContactInfo = {
 
 export function getDefaultDeliveryConfig(): DeliveryConfig {
   return {
-    freeThreshold: 5000,
+    freeThreshold: 8000,
     homeFees: buildDefaultFeeMap('home'),
     deskFees: buildDefaultFeeMap('desk'),
     rules: {
@@ -369,4 +369,4 @@ export function isFreeDelivery(subtotal: number): boolean {
   const threshold = getDelivery().freeThreshold;
   return threshold > 0 && subtotal >= threshold;
 }
-export const FREE_DELIVERY_THRESHOLD = 5000;
+export const FREE_DELIVERY_THRESHOLD = 8000;

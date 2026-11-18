@@ -75,7 +75,7 @@ export function Testimonials() {
             {t({ ar: 'ثقة العملاء هي رأس مالنا', fr: 'La confiance, notre capital', en: 'Trust is our capital' })}
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            {t({ ar: `مئات العملاء عبر 58 ولاية يثقون في ${brand.name}`, fr: `Des centaines de clients dans 58 wilayas nous font confiance`, en: `Hundreds of customers across 58 wilayas trust ${brand.name}` })}
+            {t({ ar: `مئات العملاء عبر 69 ولاية يثقون في ${brand.name}`, fr: `Des centaines de clients dans 69 wilayas nous font confiance`, en: `Hundreds of customers across 69 wilayas trust ${brand.name}` })}
           </p>
         </div>
 
