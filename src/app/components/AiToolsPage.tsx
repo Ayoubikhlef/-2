@@ -465,7 +465,7 @@ export function AiToolsPage() {
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-border bg-gradient-to-br from-primary/10 via-background to-background px-4 pb-14 pt-16">
         <div className="mx-auto max-w-6xl text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-primary">
+          <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-sky-700 dark:text-sky-300">
             <Sparkles className="h-3.5 w-3.5" />
             {t({ ar: 'أدوات الذكاء الاصطناعي', fr: 'Outils d’IA', en: 'AI tools' })}
           </span>
@@ -584,7 +584,7 @@ export function AiToolsPage() {
                       <h3 className="mt-4 text-base font-bold leading-snug">{t(tool.name)}</h3>
                       <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{t(tool.tagline)}</p>
 
-                      <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-primary">
+                      <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-sky-700 dark:text-sky-300">
                         {isUsed
                           ? t({ ar: 'اعرض النتيجة', fr: 'Voir le résultat', en: 'View result' })
                           : isActive
@@ -719,7 +719,7 @@ export function AiToolsPage() {
                       <p className="text-sm font-bold">
                         {t({ ar: 'تفاصيل الطلب', fr: 'Détails de la demande', en: 'Request details' })}
                       </p>
-                      <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold text-primary">
+                      <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold text-sky-700 dark:text-sky-300">
                         {t({ ar: 'تجربة واحدة', fr: '1 essai', en: '1 trial' })}
                       </span>
                     </div>
