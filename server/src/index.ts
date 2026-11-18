@@ -204,6 +204,32 @@ app.get('/api/health', async (_req, res) => {
   }
 });
 
+// TEMPORARY diagnostic for the guest AI counter. Removed immediately after use.
+app.get('/api/__diag/7f3c9b2e5a1d4c6f', async (req, res) => {
+  try {
+    const rows = await prisma.aiUsage.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+    });
+    res.json({
+      now: new Date().toISOString(),
+      ip: req.ip,
+      remote: req.socket.remoteAddress,
+      xff: req.headers['x-forwarded-for'] || null,
+      xreal: req.headers['x-real-ip'] || null,
+      xvercel: req.headers['x-vercel-forwarded-for'] || null,
+      rows: rows.map((row) => ({
+        userId: row.userId,
+        ipHash: row.ipHash,
+        tool: row.tool,
+        createdAt: row.createdAt,
+      })),
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err?.message || String(err) });
+  }
+});
+
 const distPath = path.resolve(__dirname, '../../dist');
 const fs = require('fs');
 if (fs.existsSync(distPath)) {
