@@ -81,50 +81,60 @@ function isolateLtrRuns(text: string): string {
     .replace(/(\+?\d[\d\s().-]{6,}\d)/g, (match) => `${LRI}${match}${PDI}`);
 }
 
+/** Read a local file as a data URL. The page CSP blocks `blob:` images, so a
+ *  FileReader is used instead of URL.createObjectURL. */
+function readAsDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') resolve(reader.result);
+      else reject(new Error('read'));
+    };
+    reader.onerror = () => reject(new Error('read'));
+    reader.readAsDataURL(file);
+  });
+}
+
 /** Downscale and compress a photo in the browser so the request stays under 1 MB. */
 async function compressImage(file: File): Promise<string> {
   if (!/^image\/(png|jpe?g|webp)$/i.test(file.type)) throw new Error('type');
   if (file.size > 15 * 1024 * 1024) throw new Error('size');
 
-  const url = URL.createObjectURL(file);
-  try {
-    const image = await new Promise<HTMLImageElement>((resolve, reject) => {
-      const element = new Image();
-      element.onload = () => resolve(element);
-      element.onerror = () => reject(new Error('read'));
-      element.src = url;
-    });
+  const source = await readAsDataUrl(file);
+  const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const element = new Image();
+    element.onload = () => resolve(element);
+    element.onerror = () => reject(new Error('read'));
+    element.src = source;
+  });
 
-    const render = (maxSide: number) => {
-      const scale = Math.min(1, maxSide / Math.max(image.width, image.height));
-      const canvas = document.createElement('canvas');
-      canvas.width = Math.max(1, Math.round(image.width * scale));
-      canvas.height = Math.max(1, Math.round(image.height * scale));
-      const context = canvas.getContext('2d');
-      if (!context) throw new Error('canvas');
-      // JPEG has no transparency; white avoids a black background on PNGs.
-      context.fillStyle = '#ffffff';
-      context.fillRect(0, 0, canvas.width, canvas.height);
-      context.drawImage(image, 0, 0, canvas.width, canvas.height);
-      return canvas;
-    };
+  const render = (maxSide: number) => {
+    const scale = Math.min(1, maxSide / Math.max(image.width, image.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(image.width * scale));
+    canvas.height = Math.max(1, Math.round(image.height * scale));
+    const context = canvas.getContext('2d');
+    if (!context) throw new Error('canvas');
+    // JPEG has no transparency; white avoids a black background on PNGs.
+    context.fillStyle = '#ffffff';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+    return canvas;
+  };
 
-    let canvas = render(1280);
-    let quality = 0.78;
-    let data = canvas.toDataURL('image/jpeg', quality);
-    while (data.length > 850_000 && quality > 0.4) {
-      quality -= 0.08;
-      data = canvas.toDataURL('image/jpeg', quality);
-    }
-    if (data.length > 850_000) {
-      canvas = render(900);
-      data = canvas.toDataURL('image/jpeg', 0.7);
-    }
-    if (data.length > 850_000) throw new Error('large');
-    return data;
-  } finally {
-    URL.revokeObjectURL(url);
+  let canvas = render(1280);
+  let quality = 0.78;
+  let data = canvas.toDataURL('image/jpeg', quality);
+  while (data.length > 850_000 && quality > 0.4) {
+    quality -= 0.08;
+    data = canvas.toDataURL('image/jpeg', quality);
   }
+  if (data.length > 850_000) {
+    canvas = render(900);
+    data = canvas.toDataURL('image/jpeg', 0.7);
+  }
+  if (data.length > 850_000) throw new Error('large');
+  return data;
 }
 
 function LanguagePicker({
@@ -435,15 +445,15 @@ export function AiToolsPage() {
 
   const downloadResult = () => {
     if (!result || typeof window === 'undefined') return;
-    const blob = new Blob([result.text], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
+    // A data: URL is used instead of a blob: one because the site CSP allows
+    // data: and the download then works even with a strict default-src.
+    const href = `data:text/plain;charset=utf-8,${encodeURIComponent(result.text)}`;
     const link = document.createElement('a');
-    link.href = url;
+    link.href = href;
     link.download = `${result.tool}.txt`;
     document.body.appendChild(link);
     link.click();
     link.remove();
-    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
 
   const inputClass =
