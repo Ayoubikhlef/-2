@@ -366,7 +366,11 @@ export default function App() {
     };
     updateTitle();
     window.addEventListener('hashchange', updateTitle);
-    return () => window.removeEventListener('hashchange', updateTitle);
+    window.addEventListener('aos:language-changed', updateTitle);
+    return () => {
+      window.removeEventListener('hashchange', updateTitle);
+      window.removeEventListener('aos:language-changed', updateTitle);
+    };
   }, []);
 
   if (!maintenanceChecked && hash !== '#hqpanel') {

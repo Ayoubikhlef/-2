@@ -15,6 +15,9 @@ function applyLanguage(lang: Language) {
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
     window.localStorage.setItem('language', lang);
+    // Some parts of the shell (document title, meta description) are not React
+    // children of this provider, so they listen for this event instead.
+    window.dispatchEvent(new CustomEvent('aos:language-changed', { detail: lang }));
   }
 }
 
