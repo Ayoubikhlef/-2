@@ -142,7 +142,8 @@ Project inspection complete. All major configuration files and API routes have b
 
 Next session should focus on:
 - If you want to try the landing-page tool again, use a fresh guest profile or sign in (the test browser already used its free trial)
-- Download the first encrypted backup from the admin panel and store it outside Render with the key
+- ✅ Backup key saved outside Render: `C:\Users\PC\AppData\Local\AOS-Secrets\BACKUP_ENCRYPTION_KEY.enc` (DPAPI, verified 64 hex chars, owner-only ACL), with `Get-AosBackupKey.ps1` + `README.md`; the plain Render `.env` export was deleted from Downloads
+- Still download the encrypted backup file itself from the admin panel (or Render Shell) and keep it next to the key before the next Render redeploy
 - Do future recon on staging or allowlist the scan IP in Vercel Project -> Firewall; never loop `curl` against production
 - Set Chargily keys on Render (optional) and register `https://aos-tech.store/api/subscription/chargily/webhook`, or keep manual activation
 - Fill the CCP/BaridiMob account fields in the site settings (the panel currently falls back to WhatsApp)
