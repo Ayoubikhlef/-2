@@ -522,7 +522,7 @@ export function AiToolsPage() {
         document
           .getElementById('ai-image-error')
           ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 60);
+      }, 300);
     } finally {
       setUploading(false);
     }
