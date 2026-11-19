@@ -149,6 +149,11 @@ Project inspection complete. All major configuration files and API routes have b
 - ✅ Local QA: five themes render differently, WebGL canvas confirmed, reduced-motion fallback confirmed. Production QA: CSP headers correct, THREE/GSAP load in preview, theme switch updates + persists, HTML download correct, no console errors.
 - ⚠️ The owner's browser free trial is consumed; use a different profile or sign in for the extra preview to generate again.
 
+## Session 2026-11-19 — mobile image upload fix
+- ✅ Persistent inline `role="alert"` error under the upload box (replaces the transient toast as the only signal) and auto-scrolls into view on mobile — `0631e4f`, `4256726`.
+- ✅ HEIC/HEIF from iPhones is decoded when the browser supports it; otherwise a clear message asks to save as JPG. Distinct messages for wrong type, empty file, >15 MB and over-large compressed output — `0631e4f`.
+- ✅ Production mobile QA (390×844): invalid HEIC message stayed visible and centred in the viewport, valid JPG upload succeeded and cleared the error, no horizontal overflow.
+
 Next session should focus on:
 - If you want to try the landing-page tool again, use a fresh guest profile or sign in (the test browser already used its free trial)
 - ✅ Backup key saved outside Render: `C:\Users\PC\AppData\Local\AOS-Secrets\BACKUP_ENCRYPTION_KEY.enc` (DPAPI, verified 64 hex chars, owner-only ACL), with `Get-AosBackupKey.ps1` + `README.md`; the plain Render `.env` export was deleted from Downloads

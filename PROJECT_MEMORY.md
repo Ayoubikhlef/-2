@@ -161,6 +161,10 @@ Provider order is deliberate: the paid/limited OpenRouter key is tried first whi
 - `vercel.json` gives that one route its own CSP (`script-src 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com`, Google Fonts, `frame-ancestors 'self'`, no `X-Frame-Options`) and excludes it from the global header via `/:path((?!landing-preview).*)`; the global CSP gained `frame-src 'self'`. Verified in production: `/ai-tools` gets exactly one strict CSP with `frame-src 'self'`, `/landing-preview.html` gets exactly one permissive CSP, and inside the preview frame `typeof THREE === "object"` and `typeof gsap === "object"`.
 - Production verification of this update: 6 style chips, switching to `neon` updated the iframe to `data-theme="neon"` and persisted `meta.theme`, downloaded file was 39,285 bytes with 4 scripts / 10 sections / WhatsApp CTA, no console errors. Local QA rendered all five themes with the same copy and confirmed visibly different art directions and a working WebGL canvas under `prefers-reduced-motion: no-preference`.
 
+### Mobile image upload fix (2026-11-19)
+- Upload errors are no longer only a disappearing toast: `imageError` state renders a persistent `role="alert"` block directly under the upload box and scrolls it into view after a 300 ms delay (later than the tool-focus scroll), so the message is readable on a phone.
+- `compressImage` now recognises HEIC/HEIF by MIME type or extension, **tries to decode it first** (Safari can), and only then shows a specific Arabic/FR/EN message telling the seller to save the photo as JPG. Other errors now have distinct messages for unsupported type, empty file, >15 MB, and a photo that cannot be compressed enough.
+
 ## Profit Calculators (`/ai-tools/calculator`)
 
 - Vercel rewrites `/ai-tools/calculator`, `/AI-tools/Calculator` and `/calculators` to `/index.html` with `no-store`; `App.tsx` detects them through `readCalculatorRoute()` and lazy-loads `src/app/components/ProfitCalculator.tsx`.
