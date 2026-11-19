@@ -164,6 +164,7 @@ Provider order is deliberate: the paid/limited OpenRouter key is tried first whi
 ### Mobile image upload fix (2026-11-19)
 - Upload errors are no longer only a disappearing toast: `imageError` state renders a persistent `role="alert"` block directly under the upload box and scrolls it into view after a 300 ms delay (later than the tool-focus scroll), so the message is readable on a phone.
 - `compressImage` now recognises HEIC/HEIF by MIME type or extension, **tries to decode it first** (Safari can), and only then shows a specific Arabic/FR/EN message telling the seller to save the photo as JPG. Other errors now have distinct messages for unsupported type, empty file, >15 MB, and a photo that cannot be compressed enough.
+- A second iOS fix (`e7dfa54`): the decoder now prefers **`createImageBitmap(file)`** and only falls back to `FileReader` data URLs when it is unavailable. A large PNG (e.g. an iPhone screenshot, 666×635 / 2.2 MB) could fail silently as an `<img src="data:...">` on iOS because of the data-URL length limit; decoding the `File` directly avoids that. The final compressed JPEG data URL is ~350 k chars. Verified on production mobile with a 1.4 MB PNG.
 
 ## Profit Calculators (`/ai-tools/calculator`)
 

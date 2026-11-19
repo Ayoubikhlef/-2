@@ -153,6 +153,7 @@ Project inspection complete. All major configuration files and API routes have b
 - ✅ Persistent inline `role="alert"` error under the upload box (replaces the transient toast as the only signal) and auto-scrolls into view on mobile — `0631e4f`, `4256726`.
 - ✅ HEIC/HEIF from iPhones is decoded when the browser supports it; otherwise a clear message asks to save as JPG. Distinct messages for wrong type, empty file, >15 MB and over-large compressed output — `0631e4f`.
 - ✅ Production mobile QA (390×844): invalid HEIC message stayed visible and centred in the viewport, valid JPG upload succeeded and cleared the error, no horizontal overflow.
+- ✅ Second iOS fix: `compressImage` prefers `createImageBitmap(file)` over a multi-megabyte data URL, so large iPhone PNG screenshots no longer fail with "تعذر قراءة الصورة" — `e7dfa54`. Verified on production with a 1.4 MB PNG (compressed to ~350 k chars).
 
 Next session should focus on:
 - If you want to try the landing-page tool again, use a fresh guest profile or sign in (the test browser already used its free trial)
