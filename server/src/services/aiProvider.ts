@@ -587,7 +587,8 @@ Rules:
 - Write in flawless ${LANGUAGE_NAMES[language]}. Read the whole page once before answering and fix every spelling, grammar, agreement and punctuation mistake.
 - Plain text only: no Markdown headings (#), no bold (**), no tables, no emojis, no lorem ipsum and no unfinished sentences. Hyphens for bullets are allowed.
 - Never invent reviews, ratings, customer counts, discounts, stock, certifications, delivery times, guarantees, phone numbers or links. Use a short [placeholder] only when a required fact is missing.
-- Repeat the product name and price exactly as supplied. Keep sentences short, concrete and free of filler. Finish every section; never stop mid-sentence.
+- Mention the product naturally, once per sentence, and repeat its name and price exactly as supplied. Never repeat a word twice in a row (write "مكنسة السيارة", never "مكنسة مكنسة السيارة") and avoid redundant pairs such as "قوة شفط قوية".
+- Keep sentences short, concrete and free of filler. Finish every section; never stop mid-sentence.
 - The seller attaches a product photo that the page template places automatically. Do not describe the photo and do not add image markdown.`,
         maxTokens: 2800,
         temperature: 0.5,
