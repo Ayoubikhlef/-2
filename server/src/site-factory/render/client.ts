@@ -151,6 +151,43 @@ export const SITE_JS = String.raw`
     $$('[data-reveal]').forEach(function (el) { el.classList.add('in'); });
   }
 
+  // Cinematic pointer parallax for the hero. Sets CSS variables consumed by
+  // the motion layer in site.css; no library, no network, no layout thrash.
+  var hero = $('.hero');
+  if (hero && !$('.hero-stage')) {
+    var stage = document.createElement('div');
+    stage.className = 'hero-stage';
+    stage.setAttribute('aria-hidden', 'true');
+    stage.innerHTML = '<span class="hero-orb3d a"></span><span class="hero-orb3d b"></span><span class="hero-orb3d c"></span>';
+    hero.insertBefore(stage, hero.firstChild);
+  }
+  var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (hero && !reduceMotion && window.innerWidth > 720) {
+    var tx = 0, ty = 0, cx = 0, cy = 0, raf = 0;
+    function applyTilt() {
+      cx += (tx - cx) * 0.12;
+      cy += (ty - cy) * 0.12;
+      hero.style.setProperty('--hx', cx.toFixed(2) + 'deg');
+      hero.style.setProperty('--hy', cy.toFixed(2) + 'deg');
+      hero.style.setProperty('--depth', (cx / 8).toFixed(2));
+      if (Math.abs(tx - cx) > 0.02 || Math.abs(ty - cy) > 0.02) {
+        raf = requestAnimationFrame(applyTilt);
+      } else {
+        raf = 0;
+      }
+    }
+    function queueTilt() { if (!raf) raf = requestAnimationFrame(applyTilt); }
+    hero.addEventListener('pointermove', function (event) {
+      var box = hero.getBoundingClientRect();
+      tx = ((event.clientX - box.left) / box.width - 0.5) * 12;
+      ty = (0.5 - (event.clientY - box.top) / box.height) * 9;
+      queueTilt();
+    });
+    hero.addEventListener('pointerleave', function () {
+      tx = 0; ty = 0; queueTilt();
+    });
+  }
+
   // year
   $$('[data-year]').forEach(function (el) { el.textContent = String(new Date().getFullYear()); });
 

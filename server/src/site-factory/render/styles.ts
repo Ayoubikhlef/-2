@@ -1754,81 +1754,81 @@ html[dir="rtl"] .q-nav [data-q-next] .icon{transform:scaleX(-1)}
   .fp-table{min-width:calc(33.333% - 5px)}
 }
 
-/* Product cards — no hover lift, image zoom or reveal motion (all templates). */
-.product-card,.fleet-card,.car-card,.property-card,.room-card,.course-card,.bistro-dish,.boutique-card,.digital-card{
-  transition:box-shadow .2s ease,border-color .2s ease!important;
-}
-.product-card:hover,.fleet-card:hover,.car-card:hover,.property-card:hover,.room-card:hover,.course-card:hover,.bistro-dish:hover,.boutique-card:hover,.digital-card:hover{
-  transform:none!important;
-}
-.product-card:hover .product-thumb img,
-.fleet-card:hover .fleet-media img,
-.car-card:hover .car-thumb img,
-.property-card:hover .property-thumb img,
-.room-card:hover .room-thumb img,
-.course-card:hover .course-thumb img,
-.bistro-dish:hover .bistro-dish-thumb img,
-.boutique-card:hover .boutique-thumb img,
-.digital-card:hover .digital-thumb img{
-  transform:none!important;
-}
-.product-card[data-reveal],.fleet-card[data-reveal],.car-card[data-reveal],.property-card[data-reveal],.room-card[data-reveal],.course-card[data-reveal],.bistro-dish[data-reveal],.boutique-card[data-reveal],.digital-card[data-reveal]{
-  opacity:1!important;transform:none!important;transition:box-shadow .2s ease,border-color .2s ease!important;
-}
-.product-card .add-btn:hover{transform:none!important}
+/* Motion system — cinematic depth on every template. The old global
+   "no motion" override is gone; reduced-motion visitors still get a still page. */
+@keyframes aos-depthFloat{0%,100%{translate:0 0}50%{translate:0 -10px}}
+@keyframes aos-cardFloat{0%,100%{translate:0 0}50%{translate:0 -6px}}
+@keyframes aos-depthOrbit{to{transform:rotate(360deg)}}
 
-/* No motion - all templates. The hero (first) image and every decorative
-   element stay perfectly still: no shaking, floating, pulsing or zooming. */
-*,
-*::before,
-*::after{
-  animation:none!important;
-  animation-duration:0s!important;
-  animation-delay:0s!important;
-  will-change:auto!important;
+.hero{isolation:isolate;--hx:0deg;--hy:0deg;--depth:0}
+.hero::before{animation:aos-depthFloat 9s ease-in-out infinite}
+.hero::after{
+  content:"";position:absolute;width:420px;height:420px;border-radius:50%;
+  inset-inline-start:-150px;bottom:-230px;z-index:0;pointer-events:none;
+  border:1px solid color-mix(in srgb,var(--p) 48%,transparent);
+  box-shadow:0 0 0 38px color-mix(in srgb,var(--p) 6%,transparent),0 0 0 76px color-mix(in srgb,var(--p2) 4%,transparent);
+  background:radial-gradient(circle,color-mix(in srgb,var(--p2) 22%,transparent),transparent 68%);
+  animation:aos-depthOrbit 22s linear infinite;
 }
-.hero-media,
-.hero-media img,
-.rest-hero .bg img,
-.landing-preview img,
-.showcase-media img,
-.vcard-cover img,
-.product-thumb img,
-.fleet-media img,
-.car-thumb img,
-.property-thumb img,
-.room-thumb img,
-.course-thumb img,
-.bistro-dish-thumb img,
-.boutique-thumb img,
-.digital-thumb img,
-.work-card img{
-  animation:none!important;
-  transform:none!important;
-  transition:none!important;
-  will-change:auto!important;
+.hero-grid{perspective:1100px;perspective-origin:50% 45%}
+.hero-copy{position:relative;z-index:1;transform:translateZ(calc(var(--depth) * 24px));transition:transform .4s ease}
+.hero-media{
+  position:relative;
+  overflow:clip;
+  transform-style:preserve-3d;
+  transform:rotateX(var(--hy)) rotateY(var(--hx)) translateZ(0);
+  transition:transform .45s cubic-bezier(.2,.8,.2,1),box-shadow .45s ease;
+  will-change:transform;
+  animation:aos-depthFloat 8s ease-in-out infinite;
 }
-.float-icon,
-.wa-float,
-.brand-mark,
-.service-card::before,
-.appointment-card::before,
-.stats-band,
-.vcard-cover{
-  animation:none!important;
+.hero-media::before{
+  content:"";position:absolute;inset:0;z-index:3;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(115deg,transparent 32%,rgba(255,255,255,.28) 50%,transparent 68%);
+  transform:translateX(-130%) skewX(-18deg);
+  animation:aos-shine 6s ease-in-out infinite;
 }
-.btn-primary::after{
-  display:none!important;
-}
-[data-reveal]{
-  opacity:1!important;
-  transform:none!important;
-  transition:none!important;
-}
-html{scroll-behavior:auto!important}
+.hero-media img{transform:translateZ(20px)}
+.float-card{transform:translateZ(52px);animation:aos-cardFloat 5s ease-in-out infinite;box-shadow:0 30px 60px -24px rgba(0,0,0,.45)}
+.hero-orb{animation:aos-depthFloat 7s ease-in-out infinite alternate}
 
+/* Floating 3D glass shapes around the hero — pure CSS, no JS, no CDN. */
+.hero-stage{position:absolute;inset:0;z-index:0;pointer-events:none;perspective:900px;transform-style:preserve-3d}
+.hero-orb3d{position:absolute;border-radius:50%;pointer-events:none;transform-style:preserve-3d}
+.hero-orb3d.a{
+  width:130px;height:130px;inset-inline-end:6%;top:14%;
+  background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.55),color-mix(in srgb,var(--p) 55%,transparent) 46%,color-mix(in srgb,var(--p2) 70%,transparent) 78%);
+  box-shadow:inset -12px -14px 30px rgba(0,0,0,.28),0 24px 50px -18px color-mix(in srgb,var(--p) 55%,transparent);
+  animation:aos-depthFloat 6s ease-in-out infinite;
+}
+.hero-orb3d.b{
+  width:74px;height:74px;inset-inline-start:4%;bottom:16%;
+  background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.5),color-mix(in srgb,var(--p2) 62%,transparent) 60%,transparent 78%);
+  box-shadow:0 18px 38px -14px color-mix(in srgb,var(--p2) 60%,transparent);
+  animation:aos-cardFloat 5s ease-in-out infinite reverse;
+}
+.hero-orb3d.c{
+  width:46px;height:46px;inset-inline-end:16%;bottom:10%;
+  border:2px solid color-mix(in srgb,var(--p) 55%,transparent);background:transparent;
+  box-shadow:0 0 22px color-mix(in srgb,var(--p) 35%,transparent);
+  transform:rotateX(58deg) rotateZ(20deg);
+  animation:aos-depthOrbit 14s linear infinite;
+}
+.hero-copy .btn-primary,.hero-copy .btn-ghost{position:relative;z-index:2}
+
+.work-card,.product-card,.fleet-card,.car-card,.property-card,.room-card,.course-card,.bistro-dish,.boutique-card,.digital-card{
+  transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s ease,border-color .25s ease;
+}
+.work-card:hover,.product-card:hover,.fleet-card:hover,.car-card:hover,.property-card:hover,.room-card:hover,.course-card:hover,.bistro-dish:hover,.boutique-card:hover,.digital-card:hover{
+  transform:perspective(900px) rotateX(3deg) rotateY(-4deg) translateY(-5px);
+}
+
+@media(max-width:720px){
+  .hero::after{width:220px;height:220px;inset-inline-start:-90px;bottom:-120px}
+  .hero-media{transform:none!important;animation:none}
+}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
   [data-reveal]{opacity:1;transform:none}
+  .hero-media{transform:none!important}
 }
 `;
