@@ -140,6 +140,15 @@ Project inspection complete. All major configuration files and API routes have b
 - ✅ Production verification: 13 cards, upload + fields, full 10-section preview with embedded photo, 6 FAQs, WhatsApp links, exact price, no scripts/placeholders, downloaded HTML 184,510 chars, trial persisted after reload, no new console/CSP errors.
 - ⚠️ The free landing-page trial was consumed in the test browser (use a different profile or sign in for the extra preview to re-test).
 
+## Session 2026-11-19 — multiple 3D art directions for landing pages
+- ✅ Added 5 distinct art directions + `auto`: `aos` (store identity), `noir` (black/gold), `aurora` (vivid), `editorial` (magazine), `neon` (futuristic) in `src/app/utils/landingThemes.ts` — `456798c`.
+- ✅ Real Three.js hero scene (distorted glowing sphere, wireframe, rings, particles, product photo as a 3D card), pointer parallax, GSAP ScrollTrigger scroll animation, CSS 3D tilt/glass, reveal-on-scroll, reduced-motion/no-WebGL static fallback, DPR cap and pause when hidden — `456798c`.
+- ✅ Exported HTML is self-contained except pinned jsDelivr scripts (three@0.160.0, gsap@3.12.5) and Google Fonts; no client-side API key and no provider errors.
+- ✅ Dedicated sandboxed preview route `/landing-preview.html` with its own permissive CSP so 3D scripts run in preview without weakening the storefront CSP — `456798c`, `e460be8`.
+- ✅ Style switcher in both the form and the result header; choice persists in the saved trial and download — `e460be8`.
+- ✅ Local QA: five themes render differently, WebGL canvas confirmed, reduced-motion fallback confirmed. Production QA: CSP headers correct, THREE/GSAP load in preview, theme switch updates + persists, HTML download correct, no console errors.
+- ⚠️ The owner's browser free trial is consumed; use a different profile or sign in for the extra preview to generate again.
+
 Next session should focus on:
 - If you want to try the landing-page tool again, use a fresh guest profile or sign in (the test browser already used its free trial)
 - ✅ Backup key saved outside Render: `C:\Users\PC\AppData\Local\AOS-Secrets\BACKUP_ENCRYPTION_KEY.enc` (DPAPI, verified 64 hex chars, owner-only ACL), with `Get-AosBackupKey.ps1` + `README.md`; the plain Render `.env` export was deleted from Downloads
