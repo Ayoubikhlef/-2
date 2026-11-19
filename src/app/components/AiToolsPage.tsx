@@ -8,6 +8,8 @@ import {
   Copy,
   Crown,
   Download,
+  Eye,
+  FileText,
   Globe2,
   ImageUp,
   Loader2,
@@ -29,18 +31,41 @@ import {
   type AiSellerTool,
 } from '../data/aiTools';
 import { api, type AiStudioLanguage, type AiTool } from '../utils/api';
+import {
+  buildFallbackLandingHtml,
+  buildLandingPageHtml,
+  parseLandingPage,
+} from '../utils/landingPage';
+
+type LandingMeta = {
+  productName: string;
+  price: string;
+  contact: string;
+};
 
 type TrialRecord = {
   at: number;
   result: string;
   language: AiStudioLanguage;
   mock?: boolean;
+  meta?: LandingMeta;
 };
 
 type TrialMap = Record<string, TrialRecord>;
 
 const TRIAL_KEY = 'aos_ai_tools_trials_v1';
 const MAX_SAVED_RESULT = 12000;
+const TOOL_COUNT = aiSellerTools.length;
+
+function readLandingMeta(value: unknown): LandingMeta | undefined {
+  if (!value || typeof value !== 'object') return undefined;
+  const record = value as Record<string, unknown>;
+  const productName = typeof record.productName === 'string' ? record.productName.slice(0, 140) : '';
+  const price = typeof record.price === 'string' ? record.price.slice(0, 60) : '';
+  const contact = typeof record.contact === 'string' ? record.contact.slice(0, 160) : '';
+  if (!productName && !price && !contact) return undefined;
+  return { productName, price, contact };
+}
 
 function readTrials(): TrialMap {
   if (typeof window === 'undefined') return {};
@@ -57,6 +82,7 @@ function readTrials(): TrialMap {
         result: value.result.slice(0, MAX_SAVED_RESULT),
         language: ['ar', 'fr', 'en'].includes(value.language) ? value.language : 'ar',
         mock: Boolean(value.mock),
+        meta: readLandingMeta(value.meta),
       };
     }
     return out;
@@ -180,7 +206,9 @@ export function AiToolsPage() {
     text: string;
     language: AiStudioLanguage;
     mock?: boolean;
+    meta?: LandingMeta;
   } | null>(null);
+  const [resultView, setResultView] = useState<'preview' | 'text'>('preview');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [slow, setSlow] = useState(false);
@@ -206,6 +234,25 @@ export function AiToolsPage() {
   );
   const ActiveIcon = activeTool?.icon;
   const used = activeId ? trials[activeId] : undefined;
+
+  const landingContent = useMemo(
+    () => (result?.tool === 'landing-page' ? parseLandingPage(result.text) : null),
+    [result],
+  );
+
+  const landingHtml = useMemo(() => {
+    if (!result || result.tool !== 'landing-page') return '';
+    const options = {
+      image: images[result.tool],
+      language: result.language,
+      productName: result.meta?.productName || '',
+      price: result.meta?.price || '',
+      contact: result.meta?.contact || '',
+    };
+    return landingContent
+      ? buildLandingPageHtml(landingContent, options)
+      : buildFallbackLandingHtml(result.text, options);
+  }, [result, landingContent, images]);
 
   const refreshEntitlement = useCallback(async () => {
     if (!user) {
@@ -272,9 +319,9 @@ export function AiToolsPage() {
     meta.setAttribute(
       'content',
       t({
-        ar: '12 أداة ذكاء اصطناعي مجانية لأصحاب المتاجر: فاحص المنتج، صانع العروض، تحليل المنافس، الإعلانات، صفحة المنتج، سيناريو الفيديو، تحليل الحملات والمزيد.',
-        fr: '12 outils IA pour les e-commerçants : analyse produit, offres, concurrents, publicités, page produit, script vidéo et audit de campagne.',
-        en: '12 AI tools for online sellers: product checks, offers, competitor analysis, ads, product pages, video scripts and campaign audits.',
+        ar: `${TOOL_COUNT} أداة ذكاء اصطناعي مجانية لأصحاب المتاجر: فاحص المنتج، صانع العروض، تحليل المنافس، الإعلانات، صفحة المنتج، صفحة الهبوط، سيناريو الفيديو، تحليل الحملات والمزيد.`,
+        fr: `${TOOL_COUNT} outils IA pour les e-commerçants : analyse produit, offres, concurrents, publicités, page produit, page de vente, script vidéo et audit de campagne.`,
+        en: `${TOOL_COUNT} AI tools for online sellers: product checks, offers, competitor analysis, ads, product pages, landing pages, video scripts and campaign audits.`,
       }),
     );
     return () => meta.setAttribute('content', previous);
@@ -287,9 +334,16 @@ export function AiToolsPage() {
     const record = trials[tool.id];
     setResult(
       record
-        ? { tool: tool.id, text: record.result, language: record.language, mock: record.mock }
+        ? {
+            tool: tool.id,
+            text: record.result,
+            language: record.language,
+            mock: record.mock,
+            meta: record.meta,
+          }
         : null,
     );
+    setResultView('preview');
     window.setTimeout(() => {
       workspaceRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 80);
@@ -300,6 +354,7 @@ export function AiToolsPage() {
     setResult(null);
     setError(null);
     setCopied(false);
+    setResultView('preview');
   };
 
   const updateField = (key: string, value: string) => {
@@ -452,9 +507,18 @@ export function AiToolsPage() {
     if (activeTool.needsImage && !images[activeTool.id]) {
       setError(
         t({
-          ar: 'ارفع صورة الإعلان أولاً.',
-          fr: 'Importez d’abord l’image de la publicité.',
-          en: 'Upload the ad image first.',
+          ar:
+            activeTool.id === 'landing-page'
+              ? 'ارفع صورة المنتج أولاً لأنها تظهر داخل صفحة الهبوط.'
+              : 'ارفع صورة الإعلان أولاً.',
+          fr:
+            activeTool.id === 'landing-page'
+              ? 'Importez d’abord la photo du produit : elle apparaîtra sur la page de vente.'
+              : 'Importez d’abord l’image de la publicité.',
+          en:
+            activeTool.id === 'landing-page'
+              ? 'Upload the product photo first; it will appear on the landing page.'
+              : 'Upload the ad image first.',
         }),
       );
       return;
@@ -466,20 +530,36 @@ export function AiToolsPage() {
     setResult(null);
     setCopied(false);
     setLastPreview(false);
+    setResultView('preview');
     const slowTimer = window.setTimeout(() => setSlow(true), 8000);
 
     try {
+      const isLandingPage = activeTool.id === 'landing-page';
+      const selectedValues = values[activeTool.id] || {};
+      const landingMeta: LandingMeta | undefined = isLandingPage
+        ? {
+            productName: (selectedValues.productName || '').trim().slice(0, 140),
+            price: (selectedValues.price || '').trim().slice(0, 60),
+            contact: (selectedValues.contact || '').trim().slice(0, 160),
+          }
+        : undefined;
+      // The landing page keeps the photo in the browser: the AI only writes the
+      // copy, and the photo is embedded directly in the generated HTML. Other
+      // image tools send it because the model must actually see the picture.
+      const sendImage = activeTool.needsImage && !isLandingPage;
+
       const data = await api.ai.generate({
         tool: activeTool.id,
         language: outputLang,
-        fields: values[activeTool.id] || {},
-        ...(activeTool.needsImage ? { image: images[activeTool.id] } : {}),
+        fields: selectedValues,
+        ...(sendImage ? { image: images[activeTool.id] } : {}),
       });
       setResult({
         tool: activeTool.id,
         text: data.text,
         language: outputLang,
         mock: Boolean(data.mock),
+        meta: landingMeta,
       });
 
       // A demo answer must not consume the real free trial.
@@ -488,6 +568,7 @@ export function AiToolsPage() {
           at: Date.now(),
           result: data.text.slice(0, MAX_SAVED_RESULT),
           language: outputLang,
+          meta: landingMeta,
         };
         setTrials((previous) => {
           const next = { ...previous, [activeTool.id]: record };
@@ -548,17 +629,42 @@ export function AiToolsPage() {
     }
   };
 
-  const downloadResult = () => {
-    if (!result || typeof window === 'undefined') return;
-    // A data: URL is used instead of a blob: one because the site CSP allows
-    // data: and the download then works even with a strict default-src.
-    const href = `data:text/plain;charset=utf-8,${encodeURIComponent(result.text)}`;
+  const saveDataUrl = (href: string, filename: string) => {
     const link = document.createElement('a');
     link.href = href;
-    link.download = `${result.tool}.txt`;
+    link.download = filename;
     document.body.appendChild(link);
     link.click();
     link.remove();
+  };
+
+  const downloadResult = () => {
+    if (!result || typeof window === 'undefined') return;
+    if (result.tool === 'landing-page' && landingHtml) {
+      const base =
+        (result.meta?.productName || 'landing-page')
+          .normalize('NFKD')
+          .replace(/[^\p{L}\p{N}]+/gu, '-')
+          .replace(/^-+|-+$/g, '')
+          .slice(0, 60) || 'landing-page';
+      // A data: URL keeps the download working under the strict site CSP. The
+      // product photo is embedded, so the exported file is fully self-contained.
+      saveDataUrl(`data:text/html;charset=utf-8,${encodeURIComponent(landingHtml)}`, `${base}.html`);
+      toast.success(t({ ar: 'تم تنزيل صفحة HTML', fr: 'Page HTML téléchargée', en: 'HTML page downloaded' }));
+      return;
+    }
+    saveDataUrl(
+      `data:text/plain;charset=utf-8,${encodeURIComponent(result.text)}`,
+      `${result.tool}.txt`,
+    );
+  };
+
+  const downloadText = () => {
+    if (!result || typeof window === 'undefined') return;
+    saveDataUrl(
+      `data:text/plain;charset=utf-8,${encodeURIComponent(result.text)}`,
+      `${result.tool}.txt`,
+    );
   };
 
   const inputClass =
@@ -576,9 +682,9 @@ export function AiToolsPage() {
           </span>
           <h1 className="mt-5 text-3xl font-bold sm:text-4xl md:text-5xl">
             {t({
-              ar: '12 أداة ذكاء اصطناعي لمتجرك',
-              fr: '12 outils IA pour votre boutique',
-              en: '12 AI tools for your store',
+              ar: `${TOOL_COUNT} أداة ذكاء اصطناعي لمتجرك`,
+              fr: `${TOOL_COUNT} outils IA pour votre boutique`,
+              en: `${TOOL_COUNT} AI tools for your store`,
             })}
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
@@ -608,7 +714,7 @@ export function AiToolsPage() {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-sm text-muted-foreground">
             <span className="inline-flex items-center gap-2">
               <Wand2 className="h-4 w-4 text-primary" />
-              {t({ ar: '12 أداة جاهزة', fr: '12 outils prêts', en: '12 ready tools' })}
+              {t({ ar: `${TOOL_COUNT} أداة جاهزة`, fr: `${TOOL_COUNT} outils prêts`, en: `${TOOL_COUNT} ready tools` })}
             </span>
             <span className="inline-flex items-center gap-2">
               <Check className="h-4 w-4 text-primary" />
@@ -684,9 +790,9 @@ export function AiToolsPage() {
             <p className="mt-1 text-sm text-muted-foreground">
               {subscribed
                 ? t({
-                    ar: 'استخدم الأدوات الـ12 بدون حدود ضمن الاستخدام العادل. تابع الاشتراك أو اطبعه من صفحة الاشتراك.',
-                    fr: 'Utilisez les 12 outils sans limite dans le cadre d’un usage raisonnable. Gérez votre abonnement depuis sa page.',
-                    en: 'Use all 12 tools without limits under fair use. Manage your subscription from its page.',
+                    ar: `استخدم ${TOOL_COUNT} أداة بدون حدود ضمن الاستخدام العادل. تابع الاشتراك أو اطبعه من صفحة الاشتراك.`,
+                    fr: `Utilisez les ${TOOL_COUNT} outils sans limite dans le cadre d’un usage raisonnable. Gérez votre abonnement depuis sa page.`,
+                    en: `Use all ${TOOL_COUNT} tools without limits under fair use. Manage your subscription from its page.`,
                   })
                 : t({
                     ar: 'معاينة إضافية مجانية بعد تسجيل الدخول، ثم 1 900 دج/شهر أو 4 900 دج/3 أشهر أو 17 900 دج/سنة.',
@@ -921,9 +1027,9 @@ export function AiToolsPage() {
                       </div>
                       <p className="mt-1.5 leading-relaxed text-muted-foreground">
                         {t({
-                          ar: 'اشترك لمتابعة استخدام 12 أداة بدون حدود: 1 900 دج شهرياً، 4 900 دج لـ3 أشهر، أو 17 900 دج سنوياً. اشتراكك يفتح كل الأدوات ويحفظ نتائج الحاسبة في حسابك.',
-                          fr: 'Abonnez-vous pour continuer avec les 12 outils sans limite : 1 900 DZD/mois, 4 900 DZD/3 mois ou 17 900 DZD/an. L’abonnement ouvre tous les outils et garde vos calculs.',
-                          en: 'Subscribe to keep using all 12 tools without limit: 1 900 DZD/month, 4 900 DZD/3 months or 17 900 DZD/year. The subscription unlocks every tool and keeps your calculations.',
+                          ar: `اشترك لمتابعة استخدام ${TOOL_COUNT} أداة بدون حدود: 1 900 دج شهرياً، 4 900 دج لـ3 أشهر، أو 17 900 دج سنوياً. اشتراكك يفتح كل الأدوات ويحفظ نتائج الحاسبة في حسابك.`,
+                          fr: `Abonnez-vous pour continuer avec les ${TOOL_COUNT} outils sans limite : 1 900 DZD/mois, 4 900 DZD/3 mois ou 17 900 DZD/an. L’abonnement ouvre tous les outils et garde vos calculs.`,
+                          en: `Subscribe to keep using all ${TOOL_COUNT} tools without limit: 1 900 DZD/month, 4 900 DZD/3 months or 17 900 DZD/year. The subscription unlocks every tool and keeps your calculations.`,
                         })}
                       </p>
                       <div className="mt-3 flex flex-wrap gap-2">
@@ -997,26 +1103,56 @@ export function AiToolsPage() {
                       <div className="mb-5 rounded-2xl border-2 border-dashed border-border bg-muted/30 p-4">
                         <div className="flex items-center gap-2 text-sm font-bold">
                           <ImageUp className="h-4 w-4 text-primary" />
-                          {t({ ar: 'صورة الإعلان', fr: 'Image de la publicité', en: 'Ad image' })}
+                          {t({
+                            ar: activeTool.id === 'landing-page' ? 'صورة المنتج' : 'صورة الإعلان',
+                            fr: activeTool.id === 'landing-page' ? 'Photo du produit' : 'Image de la publicité',
+                            en: activeTool.id === 'landing-page' ? 'Product photo' : 'Ad image',
+                          })}
                           <span className="text-destructive">*</span>
                         </div>
                         {images[activeTool.id] ? (
                           <div className="mt-3 flex items-start gap-3">
                             <img
                               src={images[activeTool.id]}
-                              alt={t({ ar: 'معاينة الإعلان', fr: 'Aperçu de la publicité', en: 'Ad preview' })}
+                              alt={t({
+                                ar: activeTool.id === 'landing-page' ? 'معاينة صورة المنتج' : 'معاينة الإعلان',
+                                fr: activeTool.id === 'landing-page' ? 'Aperçu de la photo produit' : 'Aperçu de la publicité',
+                                en: activeTool.id === 'landing-page' ? 'Product photo preview' : 'Ad preview',
+                              })}
                               className="h-28 w-28 rounded-xl border border-border object-cover"
                             />
                             <div className="min-w-0">
                               <p className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300">
                                 <CheckCircle2 className="h-3.5 w-3.5" />
-                                {t({ ar: 'الصورة جاهزة للتحليل', fr: 'Image prête pour l’analyse', en: 'Image ready for analysis' })}
+                                {t({
+                                  ar:
+                                    activeTool.id === 'landing-page'
+                                      ? 'الصورة جاهزة وستظهر في الصفحة'
+                                      : 'الصورة جاهزة للتحليل',
+                                  fr:
+                                    activeTool.id === 'landing-page'
+                                      ? 'La photo est prête et apparaîtra sur la page'
+                                      : 'Image prête pour l’analyse',
+                                  en:
+                                    activeTool.id === 'landing-page'
+                                      ? 'The photo is ready and will appear on the page'
+                                      : 'Image ready for analysis',
+                                })}
                               </p>
                               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
                                 {t({
-                                  ar: 'نضغطها تلقائياً قبل الإرسال حتى يبقى الطلب سريعاً.',
-                                  fr: 'Elle est compressée automatiquement avant l’envoi pour garder la requête rapide.',
-                                  en: 'It is compressed automatically before sending to keep the request fast.',
+                                  ar:
+                                    activeTool.id === 'landing-page'
+                                      ? 'نضغطها تلقائياً وتبقى داخل صفحتك؛ لا تُرسل إلى مزوّد الذكاء الاصطناعي.'
+                                      : 'نضغطها تلقائياً قبل الإرسال حتى يبقى الطلب سريعاً.',
+                                  fr:
+                                    activeTool.id === 'landing-page'
+                                      ? 'Elle est compressée et reste dans votre page ; elle n’est pas envoyée au fournisseur IA.'
+                                      : 'Elle est compressée automatiquement avant l’envoi pour garder la requête rapide.',
+                                  en:
+                                    activeTool.id === 'landing-page'
+                                      ? 'It is compressed and stays inside your page; it is not sent to the AI provider.'
+                                      : 'It is compressed automatically before sending to keep the request fast.',
                                 })}
                               </p>
                               <button
@@ -1050,13 +1186,26 @@ export function AiToolsPage() {
                             <span className="text-sm font-bold">
                               {uploading
                                 ? t({ ar: 'جارٍ تجهيز الصورة…', fr: 'Préparation de l’image…', en: 'Preparing the image…' })
-                                : t({ ar: 'ارفع صورة الإعلان', fr: 'Importer l’image de la pub', en: 'Upload the ad image' })}
+                                : t({
+                                    ar: activeTool.id === 'landing-page' ? 'ارفع صورة المنتج' : 'ارفع صورة الإعلان',
+                                    fr: activeTool.id === 'landing-page' ? 'Importer la photo du produit' : 'Importer l’image de la pub',
+                                    en: activeTool.id === 'landing-page' ? 'Upload the product photo' : 'Upload the ad image',
+                                  })}
                             </span>
                             <span className="text-xs text-muted-foreground">
                               {t({
-                                ar: 'PNG أو JPG أو WebP — حتى 15 ميغابايت',
-                                fr: 'PNG, JPG ou WebP — jusqu’à 15 Mo',
-                                en: 'PNG, JPG or WebP — up to 15 MB',
+                                ar:
+                                  activeTool.id === 'landing-page'
+                                    ? 'صورة واضحة للمنتج — PNG أو JPG أو WebP حتى 15 ميغابايت'
+                                    : 'PNG أو JPG أو WebP — حتى 15 ميغابايت',
+                                fr:
+                                  activeTool.id === 'landing-page'
+                                    ? 'Une photo nette du produit — PNG, JPG ou WebP jusqu’à 15 Mo'
+                                    : 'PNG, JPG ou WebP — jusqu’à 15 Mo',
+                                en:
+                                  activeTool.id === 'landing-page'
+                                    ? 'A clear product photo — PNG, JPG or WebP up to 15 MB'
+                                    : 'PNG, JPG or WebP — up to 15 MB',
                               })}
                             </span>
                           </label>
@@ -1154,7 +1303,13 @@ export function AiToolsPage() {
                   <div>
                     <h3 className="text-lg font-black">{t({ ar: 'النتيجة', fr: 'Résultat', en: 'Result' })}</h3>
                     <p className="text-xs text-muted-foreground">
-                      {t({ ar: 'جاهزة للنسخ والتنزيل', fr: 'Prête à copier et télécharger', en: 'Ready to copy and download' })}
+                      {result?.tool === 'landing-page'
+                        ? t({
+                            ar: 'معاينة حية وملف HTML جاهز',
+                            fr: 'Aperçu en direct et fichier HTML prêt',
+                            en: 'Live preview and a ready HTML file',
+                          })
+                        : t({ ar: 'جاهزة للنسخ والتنزيل', fr: 'Prête à copier et télécharger', en: 'Ready to copy and download' })}
                     </p>
                   </div>
                   {result && (
@@ -1167,7 +1322,9 @@ export function AiToolsPage() {
                         {copied ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
                         {copied
                           ? t({ ar: 'تم النسخ', fr: 'Copié', en: 'Copied' })
-                          : t({ ar: 'نسخ', fr: 'Copier', en: 'Copy' })}
+                          : result.tool === 'landing-page'
+                            ? t({ ar: 'نسخ النص', fr: 'Copier le texte', en: 'Copy text' })
+                            : t({ ar: 'نسخ', fr: 'Copier', en: 'Copy' })}
                       </button>
                       <button
                         type="button"
@@ -1175,7 +1332,9 @@ export function AiToolsPage() {
                         className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-bold transition hover:bg-muted"
                       >
                         <Download className="h-3.5 w-3.5" />
-                        {t({ ar: 'تنزيل', fr: 'Télécharger', en: 'Download' })}
+                        {result.tool === 'landing-page'
+                          ? t({ ar: 'تنزيل HTML', fr: 'Télécharger HTML', en: 'Download HTML' })
+                          : t({ ar: 'تنزيل', fr: 'Télécharger', en: 'Download' })}
                       </button>
                     </div>
                   )}
@@ -1183,12 +1342,105 @@ export function AiToolsPage() {
 
                 {result ? (
                   <div className="mt-4">
-                    <div className="rounded-2xl border border-border bg-muted/30 p-4">
-                      <pre
-                        dir={result.language === 'ar' ? 'rtl' : 'ltr'}
-                        className="max-h-[560px] overflow-auto whitespace-pre-wrap break-words font-sans text-sm leading-relaxed"
-                      >{isolateLtrRuns(result.text)}</pre>
-                    </div>
+                    {result.tool === 'landing-page' && landingHtml ? (
+                      <>
+                        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                          <div
+                            className="inline-flex rounded-xl border border-border bg-background p-1"
+                            role="tablist"
+                            aria-label={t({
+                              ar: 'طريقة عرض النتيجة',
+                              fr: 'Mode d’affichage du résultat',
+                              en: 'Result view',
+                            })}
+                          >
+                            <button
+                              type="button"
+                              role="tab"
+                              aria-selected={resultView === 'preview'}
+                              aria-pressed={resultView === 'preview'}
+                              onClick={() => setResultView('preview')}
+                              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold transition ${
+                                resultView === 'preview'
+                                  ? 'bg-primary text-primary-foreground'
+                                  : 'text-muted-foreground hover:bg-muted'
+                              }`}
+                            >
+                              <Eye className="h-3.5 w-3.5" />
+                              {t({ ar: 'معاينة الصفحة', fr: 'Aperçu de la page', en: 'Page preview' })}
+                            </button>
+                            <button
+                              type="button"
+                              role="tab"
+                              aria-selected={resultView === 'text'}
+                              aria-pressed={resultView === 'text'}
+                              onClick={() => setResultView('text')}
+                              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-bold transition ${
+                                resultView === 'text'
+                                  ? 'bg-primary text-primary-foreground'
+                                  : 'text-muted-foreground hover:bg-muted'
+                              }`}
+                            >
+                              <FileText className="h-3.5 w-3.5" />
+                              {t({ ar: 'النص', fr: 'Texte', en: 'Text' })}
+                            </button>
+                          </div>
+                          {resultView === 'text' && (
+                            <button
+                              type="button"
+                              onClick={downloadText}
+                              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-bold transition hover:bg-muted"
+                            >
+                              <Download className="h-3.5 w-3.5" />
+                              {t({ ar: 'تنزيل النص', fr: 'Télécharger le texte', en: 'Download text' })}
+                            </button>
+                          )}
+                        </div>
+                        {resultView === 'preview' ? (
+                          <iframe
+                            title={t({
+                              ar: 'معاينة صفحة الهبوط',
+                              fr: 'Aperçu de la page de vente',
+                              en: 'Landing page preview',
+                            })}
+                            srcDoc={landingHtml}
+                            sandbox="allow-popups allow-popups-to-escape-sandbox"
+                            referrerPolicy="no-referrer"
+                            className="h-[70vh] min-h-[480px] max-h-[820px] w-full rounded-2xl border border-border bg-white shadow-sm"
+                          />
+                        ) : (
+                          <div className="rounded-2xl border border-border bg-muted/30 p-4">
+                            <pre
+                              dir={result.language === 'ar' ? 'rtl' : 'ltr'}
+                              className="max-h-[560px] overflow-auto whitespace-pre-wrap break-words font-sans text-sm leading-relaxed"
+                            >{isolateLtrRuns(result.text)}</pre>
+                          </div>
+                        )}
+                        <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                          {t({
+                            ar: 'هذه معاينة حية للصفحة الكاملة. نزّل ملف HTML وارفعه على متجرك أو افتحه مباشرة — الصورة مضمّنة داخل الملف.',
+                            fr: 'Aperçu en direct de la page complète. Téléchargez le fichier HTML et hébergez-le ou ouvrez-le directement — la photo est intégrée au fichier.',
+                            en: 'This is a live preview of the complete page. Download the HTML file and host it or open it directly — the photo is embedded in the file.',
+                          })}
+                        </p>
+                        {!images[result.tool] && (
+                          <p className="mt-2 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs font-bold text-amber-700 dark:text-amber-300">
+                            {t({
+                              ar: 'صورة المنتج غير محفوظة في هذه المعاينة (تبقى في المتصفح فقط). ارفعها من جديد ليظهر المنتج في الصفحة المولّدة.',
+                              fr: 'La photo du produit n’est pas conservée dans cet aperçu (elle reste dans le navigateur). Importez-la à nouveau pour l’afficher sur la page générée.',
+                              en: 'The product photo is not kept in this preview (it stays in the browser only). Upload it again to show the product on the generated page.',
+                            })}
+                          </p>
+                        )}
+                      </>
+                    ) : (
+                      <div className="rounded-2xl border border-border bg-muted/30 p-4">
+                        <pre
+                          dir={result.language === 'ar' ? 'rtl' : 'ltr'}
+                          className="max-h-[560px] overflow-auto whitespace-pre-wrap break-words font-sans text-sm leading-relaxed"
+                        >{isolateLtrRuns(result.text)}</pre>
+                      </div>
+                    )}
                     {result.mock && (
                       <p className="mt-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs font-bold text-amber-700 dark:text-amber-300">
                         {t({

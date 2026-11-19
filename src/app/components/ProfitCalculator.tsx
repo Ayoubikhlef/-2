@@ -903,9 +903,9 @@ export function ProfitCalculatorPage() {
                 </h2>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {t({
-                    ar: '12 أداة ذكاء اصطناعي جاهزة: فاحص المنتج، صانع العروض، تحليل المنافس، الإعلانات وصفحات المنتج.',
-                    fr: '12 outils IA prêts : analyse produit, offres, concurrents, publicités et pages produit.',
-                    en: '12 ready AI tools: product checks, offers, competitor analysis, ads and product pages.',
+                    ar: '13 أداة ذكاء اصطناعي جاهزة: فاحص المنتج، صانع العروض، تحليل المنافس، الإعلانات، صفحات المنتج وصفحات الهبوط.',
+                    fr: '13 outils IA prêts : analyse produit, offres, concurrents, publicités, pages produit et pages de vente.',
+                    en: '13 ready AI tools: product checks, offers, competitor analysis, ads, product pages and landing pages.',
                   })}
                 </p>
               </div>

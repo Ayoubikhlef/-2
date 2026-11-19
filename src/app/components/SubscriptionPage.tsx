@@ -341,9 +341,9 @@ export function SubscriptionPage() {
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
             {t({
-              ar: 'معاينة واحدة إضافية مجانية بعد تسجيل الدخول، ثم اشتراك واحد يفتح لك 12 أداة بدون حدود، مع حفظ نتائج الحاسبة في حسابك.',
-              fr: 'Une preview gratuite supplémentaire après connexion, puis un abonnement qui ouvre les 12 outils sans limite et garde vos calculs dans votre compte.',
-              en: 'One extra free preview after signing in, then a single subscription unlocks all 12 tools with no limit and keeps your calculator results in your account.',
+              ar: 'معاينة واحدة إضافية مجانية بعد تسجيل الدخول، ثم اشتراك واحد يفتح لك 13 أداة بدون حدود، مع حفظ نتائج الحاسبة في حسابك.',
+              fr: 'Une preview gratuite supplémentaire après connexion, puis un abonnement qui ouvre les 13 outils sans limite et garde vos calculs dans votre compte.',
+              en: 'One extra free preview after signing in, then a single subscription unlocks all 13 tools with no limit and keeps your calculator results in your account.',
             })}
           </p>
           {active && (

@@ -86,7 +86,7 @@ export function Footer() {
               <li>
                 <a href="/ai-tools" className="text-sky-600 dark:text-sky-300 font-semibold hover:text-sky-500 text-sm transition-colors flex items-center gap-2">
                   <span className="w-1 h-1 rounded-full bg-sky-500 shrink-0" />
-                  {t({ ar: '12 أداة ذكاء اصطناعي', fr: '12 outils IA', en: '12 AI tools' })}
+                  {t({ ar: '13 أداة ذكاء اصطناعي', fr: '13 outils IA', en: '13 AI tools' })}
                 </a>
               </li>
               <li>

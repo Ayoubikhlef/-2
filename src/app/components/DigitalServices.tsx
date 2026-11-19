@@ -583,7 +583,7 @@ export function DigitalServices() {
                   href="/ai-tools"
                   className="mt-3 ms-4 inline-flex items-center gap-1 text-xs font-bold text-white/85 underline underline-offset-4 transition hover:text-white"
                 >
-                  {t({ ar: '12 أداة ذكاء اصطناعي للمتاجر', fr: '12 outils IA pour boutiques', en: '12 AI tools for stores' })}
+                  {t({ ar: '13 أداة ذكاء اصطناعي للمتاجر', fr: '13 outils IA pour boutiques', en: '13 AI tools for stores' })}
                   <ArrowRight className="h-3 w-3 rtl:rotate-180" />
                 </a>
               </div>

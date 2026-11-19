@@ -11,6 +11,7 @@ import {
   Megaphone,
   MessagesSquare,
   PackageCheck,
+  Rocket,
   Swords,
 } from 'lucide-react';
 import type { AiTool } from '../utils/api';
@@ -455,6 +456,91 @@ export const aiSellerTools: AiSellerTool[] = [
           en: '6-month warranty, 48h delivery, cash on delivery…',
         },
         maxLength: 240,
+      },
+      {
+        key: 'tone',
+        label: { ar: 'النبرة', fr: 'Ton', en: 'Tone' },
+        placeholder: { ar: 'احترافي، بسيط، حماسي…', fr: 'Professionnel, simple, enthousiaste…', en: 'Professional, simple, enthusiastic…' },
+        maxLength: 80,
+      },
+    ],
+  },
+  {
+    id: 'landing-page',
+    icon: Rocket,
+    stage: 'create',
+    badge: J,
+    needsImage: true,
+    name: { ar: 'صفحة هبوط بالذكاء الاصطناعي', fr: 'Page de vente IA', en: 'AI Landing Page' },
+    tagline: {
+      ar: 'صورة منتجك تدخل، صفحة بيع كاملة تخرج.',
+      fr: 'Votre photo produit entre, une page de vente complète sort.',
+      en: 'Your product photo goes in, a complete sales page comes out.',
+    },
+    description: {
+      ar: 'ارفع صورة المنتج واكتب التفاصيل: يولّد الذكاء الاصطناعي صفحة HTML كاملة — عنوان SEO، هيرو، فوائد، عرض، ضمان وأسئلة شائعة — مع معاينة وتنزيل.',
+      fr: 'Importez la photo du produit et ses détails : l’IA génère une page HTML complète — titre SEO, hero, bénéfices, offre, garantie et FAQ — avec aperçu et téléchargement.',
+      en: 'Upload the product photo and details: the AI generates a complete HTML page — SEO title, hero, benefits, offer, guarantee and FAQ — with preview and download.',
+    },
+    fields: [
+      {
+        key: 'productName',
+        label: { ar: 'اسم المنتج', fr: 'Nom du produit', en: 'Product name' },
+        placeholder: { ar: 'ساعة ذكية رياضية', fr: 'Montre connectée sport', en: 'Sports smartwatch' },
+        required: true,
+        maxLength: 140,
+      },
+      {
+        key: 'productDetails',
+        label: { ar: 'تفاصيل المنتج', fr: 'Détails du produit', en: 'Product details' },
+        placeholder: {
+          ar: 'ما هو المنتج، أهم المميزات، محتوى العلبة، السعر، وما يميزه…',
+          fr: 'Ce que c’est, les points forts, le contenu de la boîte, le prix et ce qui le différencie…',
+          en: 'What it is, key features, box contents, price and what makes it different…',
+        },
+        required: true,
+        multiline: true,
+        maxLength: 1000,
+        rows: 5,
+      },
+      {
+        key: 'audience',
+        label: { ar: 'الجمهور المستهدف', fr: 'Public cible', en: 'Target audience' },
+        placeholder: { ar: 'شباب، رياضيون، طلبة، موظفون…', fr: 'Jeunes, sportifs, étudiants, employés…', en: 'Young people, athletes, students, employees…' },
+        maxLength: 220,
+      },
+      {
+        key: 'price',
+        label: { ar: 'السعر', fr: 'Prix', en: 'Price' },
+        placeholder: { ar: '5 900 دج', fr: '5 900 DA', en: 'DZD 5,900' },
+        maxLength: 60,
+      },
+      {
+        key: 'offer',
+        label: { ar: 'العرض والحزمة', fr: 'Offre et pack', en: 'Offer and bundle' },
+        placeholder: {
+          ar: 'خصم، هدية، حزمة، توصيل مجاني…',
+          fr: 'Remise, cadeau, pack, livraison offerte…',
+          en: 'Discount, gift, bundle, free delivery…',
+        },
+        maxLength: 300,
+      },
+      {
+        key: 'guarantee',
+        label: { ar: 'الضمان والتوصيل', fr: 'Garantie et livraison', en: 'Guarantee and delivery' },
+        placeholder: {
+          ar: 'ضمان 6 أشهر، توصيل 48 ساعة، دفع عند الاستلام…',
+          fr: 'Garantie 6 mois, livraison 48 h, paiement à la livraison…',
+          en: '6-month warranty, 48h delivery, cash on delivery…',
+        },
+        maxLength: 240,
+      },
+      {
+        key: 'contact',
+        label: { ar: 'واتساب أو هاتف للطلب', fr: 'WhatsApp ou téléphone', en: 'WhatsApp or phone' },
+        placeholder: { ar: '+213 5xx xx xx xx', fr: '+213 5xx xx xx xx', en: '+213 5xx xx xx xx' },
+        required: true,
+        maxLength: 160,
       },
       {
         key: 'tone',

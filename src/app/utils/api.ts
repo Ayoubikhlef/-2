@@ -315,6 +315,7 @@ export type AiTool =
   | 'plan'
   | 'ad-copy'
   | 'product-page'
+  | 'landing-page'
   | 'video-script'
   | 'customer-reply'
   | 'order-confirmation'

@@ -389,7 +389,7 @@ export default function App() {
         return;
       }
       if (pathname.toLowerCase() === '/ai-tools') {
-        const aiToolsTitle = { ar: '12 أداة ذكاء اصطناعي', fr: '12 outils IA', en: '12 AI Tools' }[lang];
+        const aiToolsTitle = { ar: '13 أداة ذكاء اصطناعي', fr: '13 outils IA', en: '13 AI Tools' }[lang];
         document.title = `${aiToolsTitle} | ${brand.name}`;
         return;
       }
