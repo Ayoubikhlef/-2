@@ -155,6 +155,12 @@ Project inspection complete. All major configuration files and API routes have b
 - ✅ Production mobile QA (390×844): invalid HEIC message stayed visible and centred in the viewport, valid JPG upload succeeded and cleared the error, no horizontal overflow.
 - ✅ Second iOS fix: `compressImage` prefers `createImageBitmap(file)` over a multi-megabyte data URL, so large iPhone PNG screenshots no longer fail with "تعذر قراءة الصورة" — `e7dfa54`. Verified on production with a 1.4 MB PNG (compressed to ~350 k chars).
 
+## Session 2026-11-19 — cinematic motion for site templates
+- ✅ Removed the global "No motion" CSS override and card hover-kill rules in `server/src/site-factory/render/styles.ts`, re-enabling the existing kenburns/float/shine/gradient/reveal layer across all ~91 templates — `2537d67`.
+- ✅ Added shared 3D hero layer (perspective, tilted hero card, translateZ image + trust card, rotating orbit ring, CSS-only floating orbs) and rAF pointer parallax in `server/src/site-factory/render/client.ts`; cards get subtle hover tilt — `2537d67`.
+- ✅ Reduced-motion and mobile fallbacks kept; no new CDN dependency in generated sites.
+- ✅ Verified locally (visual QA on `/templates/store/`) and in production: Vercel static preview CSS/JS contain the motion layer, Render auto-deploy of `2537d67` finished.
+
 Next session should focus on:
 - If you want to try the landing-page tool again, use a fresh guest profile or sign in (the test browser already used its free trial)
 - ✅ Backup key saved outside Render: `C:\Users\PC\AppData\Local\AOS-Secrets\BACKUP_ENCRYPTION_KEY.enc` (DPAPI, verified 64 hex chars, owner-only ACL), with `Get-AosBackupKey.ps1` + `README.md`; the plain Render `.env` export was deleted from Downloads
