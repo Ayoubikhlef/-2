@@ -157,25 +157,54 @@ async function compressImage(file: File): Promise<string> {
   if (!file.size) throw new Error('empty');
   if (file.size > 15 * 1024 * 1024) throw new Error('size');
 
-  const source = await readAsDataUrl(file);
-  const image = await new Promise<HTMLImageElement>((resolve, reject) => {
-    const element = new Image();
-    element.onload = () => resolve(element);
-    element.onerror = () => reject(new Error(heic ? 'heic' : 'read'));
-    element.src = source;
-  });
+  type DecodedImage = {
+    width: number;
+    height: number;
+    draw: (context: CanvasRenderingContext2D, width: number, height: number) => void;
+  };
+  let decoded: DecodedImage | null = null;
+
+  // createImageBitmap decodes the File directly, so iOS Safari never has to
+  // load a multi-megabyte data: URL into an <img> (which can fail silently).
+  if (typeof createImageBitmap === 'function') {
+    try {
+      const bitmap = await createImageBitmap(file);
+      decoded = {
+        width: bitmap.width,
+        height: bitmap.height,
+        draw: (context, width, height) => context.drawImage(bitmap, 0, 0, width, height),
+      };
+    } catch {
+      // Older browsers / unsupported formats use the FileReader fallback.
+    }
+  }
+
+  if (!decoded) {
+    const source = await readAsDataUrl(file);
+    const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const element = new Image();
+      element.onload = () => resolve(element);
+      element.onerror = () => reject(new Error(heic ? 'heic' : 'read'));
+      element.src = source;
+    });
+    decoded = {
+      width: image.width,
+      height: image.height,
+      draw: (context, width, height) => context.drawImage(image, 0, 0, width, height),
+    };
+  }
 
   const render = (maxSide: number) => {
-    const scale = Math.min(1, maxSide / Math.max(image.width, image.height));
+    const scale = Math.min(1, maxSide / Math.max(decoded.width, decoded.height));
     const canvas = document.createElement('canvas');
-    canvas.width = Math.max(1, Math.round(image.width * scale));
-    canvas.height = Math.max(1, Math.round(image.height * scale));
+    canvas.width = Math.max(1, Math.round(decoded.width * scale));
+    canvas.height = Math.max(1, Math.round(decoded.height * scale));
     const context = canvas.getContext('2d');
     if (!context) throw new Error('canvas');
     // JPEG has no transparency; white avoids a black background on PNGs.
     context.fillStyle = '#ffffff';
     context.fillRect(0, 0, canvas.width, canvas.height);
-    context.drawImage(image, 0, 0, canvas.width, canvas.height);
+    decoded.draw(context, canvas.width, canvas.height);
     return canvas;
   };
 
