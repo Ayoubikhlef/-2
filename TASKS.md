@@ -160,6 +160,7 @@ Project inspection complete. All major configuration files and API routes have b
 - ✅ Added shared 3D hero layer (perspective, tilted hero card, translateZ image + trust card, rotating orbit ring, CSS-only floating orbs) and rAF pointer parallax in `server/src/site-factory/render/client.ts`; cards get subtle hover tilt — `2537d67`.
 - ✅ Reduced-motion and mobile fallbacks kept; no new CDN dependency in generated sites.
 - ✅ Verified locally (visual QA on `/templates/store/`) and in production: Vercel static preview CSS/JS contain the motion layer, Render auto-deploy of `2537d67` finished.
+- ✅ Owner asked to remove motion from products: product/commerce cards are static again (no hover tilt/zoom, no reveal) while the hero 3D motion stays — `b9c8569`, deployed to both Vercel and Render.
 
 Next session should focus on:
 - If you want to try the landing-page tool again, use a fresh guest profile or sign in (the test browser already used its free trial)
