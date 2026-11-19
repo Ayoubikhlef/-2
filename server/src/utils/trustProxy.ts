@@ -73,9 +73,9 @@ function firstHeaderIp(value: string | string[] | undefined): string {
  * address it saw, and Cloudflare does the same for `cf-connecting-ip`, so those
  * are stable per visitor when the socket is a trusted proxy hop.
  *
- * This helper is for product limits (the guest AI trial), not for security
- * blocking: a direct caller to the Render URL could forge these headers, and
- * the worst it can do here is earn another free trial.
+ * A direct caller to the Render URL keeps its own socket address: the headers
+ * are only honoured when the socket itself is a private proxy hop, so a
+ * forged header cannot move the resolved address somewhere else.
  */
 export function resolveClientIp(req: {
   headers?: Record<string, string | string[] | undefined>;
