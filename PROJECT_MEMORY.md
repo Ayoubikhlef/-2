@@ -242,11 +242,20 @@ Session on 2026-11-18: the AI subscription gate was proven end-to-end on product
 - Admin guard review: `requireRole('SUPER_ADMIN','ADMIN')` on contact/customers/reviews/orders admin routes; `requireAuth + requireRole` on the whole security and snapshot routers; `site-factory/admin` guarded; every subscription admin route guarded. `requireAuth` re-reads role, `isActive` and `tokenVersion` from the database on each request.
 - Deliberately not tested on production: CORS preflight from a foreign origin (browsers cannot set `Origin`; the earlier curl evidence and the allowlist code cover it), rate-limit thresholds (tripping them would 429/block the owner's own IP), and a full customer-vs-admin token matrix (no customer account exists after the QA cleanup).
 
+## Visitor counter (2026-11-19)
+- New `SiteVisit` model (`day` + `visitorHash`, unique per day) in `server/prisma/schema.prisma`; the raw IP is never stored.
+- `server/src/routes/visits.ts`: `POST /api/visits/track` records one visit per browser per day (httpOnly `aos_vid` cookie, salted hash using `AI_IP_SALT`) and returns `{ visitors, today }`; `GET /api/visits/stats` returns the same totals. Obvious bots are filtered, a cookie-less guard allows one visit per IP/day, and a 30/min per-visitor limiter stops script inflation.
+- `src/app/components/VisitorCounter.tsx` shows the total and today's count in the footer bottom bar (AR/FR/EN). It respects Do Not Track by reading `/stats` without recording. The admin overview's Customers card shows today's and total visitors via `api.visits.stats()`.
+- `VISIT_BASE_COUNT` (optional, default 0) adds a historical offset to the public total; documented in `server/.env.example`.
+- Deployed as `0d399e3`; production verified: the first `POST /api/visits/track` returned `{ visitors: 1, today: 1 }`, a second call with and without the cookie stayed at 1, `/api/visits/stats` returned 200, and the footer rendered "1 زائر · اليوم 1" after the Vercel bundle `index-DYJb4bYS.js` went live.
+- Follow-up: the older rate limiters still use the default `req.ip` key, which is the shared Cloudflare edge behind Vercel; only `visitLimiter` uses `resolveClientIp`. Consider switching the AI/checkout limiters too if traffic grows.
+
 ## Next Step
 1. If Chargily keys are available, set `CHARGILY_SECRET_KEY`, `CHARGILY_MODE` and `CHARGILY_WEBHOOK_SECRET` on Render and register `https://aos-tech.store/api/subscription/chargily/webhook`; otherwise keep CCP/BaridiMob + manual activation.
 2. Set `AI_IP_SALT` on Render so guest hashes do not fall back to `JWT_SECRET`, and fill the CCP/BaridiMob account fields in the site settings so the payment panel shows real details instead of only WhatsApp.
 3. Add subscription status to the account area (optional) so customers see the renewal date without opening `/subscription`.
 4. Run further recon on a staging copy, or temporarily allowlist the scan IP in Vercel Project -> Firewall. Looping `curl` against production only extends the Security Checkpoint.
+5. Set `VISIT_BASE_COUNT` on Render if the public visitor counter should start from a historical total (default 0).
 
 Optional follow-ups:
 1. If Claude Sonnet is preferred, set `AI_MODEL=anthropic/claude-sonnet-5.5` on Render and redeploy.

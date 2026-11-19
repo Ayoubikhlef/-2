@@ -117,6 +117,13 @@ Project inspection complete. All major configuration files and API routes have b
 - ? Fixed auto-block attribution: `clientIp()` now uses `resolveClientIp`, and `sensitive_path` probes no longer auto-block, so a scanner cannot block a shared Cloudflare edge - `2179f82`
 - ? Temporary IP probe verified the fix, then was removed - `0d4eddb` (now 404)
 
+## Session 2026-11-19 - visitor counter
+- ? `SiteVisit` model + `/api/visits/track` and `/stats`; one row per browser/day, salted cookie hash, no raw IP - `0d399e3`
+- ? Footer badge (total + today, AR/FR/EN, DNT-aware) and admin overview rows
+- ? Verified live: first visit `{visitors:1,today:1}`, repeat with/without cookie stayed 1, footer rendered "1 زائر · اليوم 1"
+- ?? Optional: set `VISIT_BASE_COUNT` on Render for a historical starting total
+- ?? Follow-up: older rate limiters still key on `req.ip` (the shared Cloudflare edge); consider `resolveClientIp`
+
 Next session should focus on:
 - Do future recon on staging or allowlist the scan IP in Vercel Project -> Firewall; never loop `curl` against production
 - Set Chargily keys on Render (optional) and register `https://aos-tech.store/api/subscription/chargily/webhook`, or keep manual activation
