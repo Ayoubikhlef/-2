@@ -33,7 +33,7 @@ export const PLANS: Record<
       en: 'Try the full system for one month, no commitment.',
     },
     features: [
-      { ar: 'استخدام غير محدود لأدوات الذكاء الاصطناعي الـ12', fr: 'Accès illimité aux 12 outils IA', en: 'Unlimited use of all 12 AI tools' },
+      { ar: 'استخدام غير محدود لأدوات الذكاء الاصطناعي الـ13', fr: 'Accès illimité aux 13 outils IA', en: 'Unlimited use of all 13 AI tools' },
       { ar: 'نتائج بالعربية والفرنسية والإنجليزية', fr: 'Résultats en arabe, français et anglais', en: 'Results in Arabic, French and English' },
       { ar: 'حفظ نتائج الحاسبة في حسابك', fr: 'Calculs enregistrés dans votre compte', en: 'Calculator results saved to your account' },
       { ar: 'دعم عبر واتساب', fr: 'Support WhatsApp', en: 'WhatsApp support' },
