@@ -134,14 +134,25 @@ Provider order is deliberate: the paid/limited OpenRouter key is tried first whi
 ## AI Tools Page (`/ai-tools`)
 
 - Real Vite route: Vercel rewrites `/ai-tools` and `/AI-tools` to `/index.html` with `no-store`; `App.tsx` detects it through `readAiToolsRoute()` and lazy-loads `src/app/components/AiToolsPage.tsx` with Header + Footer.
-- 12 seller tools in 3 stages (before selling / what you write / what you analyse), defined in `src/app/data/aiTools.ts` (bilingual copy + form fields): `product-check`, `offer-maker`, `competitor`, `plan`, `ad-copy`, `product-page`, `video-script`, `customer-reply`, `order-confirmation`, `ad-image-review`, `page-review`, `campaign-doctor`.
-- Server registry is `AI_TOOLS` (15 = the 3 old AI Studio tools + these 12) in `server/src/services/aiProvider.ts`, with `TOOL_FIELDS`, `REQUIRED_FIELDS`, `FIELD_LABELS`, `buildGrowthPrompt()` and a mock response per tool for `AI_MOCK`.
-- One free trial per tool is stored in `localStorage` under `aos_ai_tools_trials_v1` (result + language + timestamp, capped at 12 000 chars) so a visitor can reopen the saved result. Mock answers never consume the trial. Real cost protection is server-side: `AI_DAILY_LIMIT=200` plus `aiLimiter` (12 requests / 10 min / IP).
+- 13 seller tools in 3 stages (before selling / what you write / what you analyse), defined in `src/app/data/aiTools.ts` (bilingual copy + form fields): `product-check`, `offer-maker`, `competitor`, `plan`, `ad-copy`, `product-page`, `landing-page`, `video-script`, `customer-reply`, `order-confirmation`, `ad-image-review`, `page-review`, `campaign-doctor`.
+- Server registry is `AI_TOOLS` (16 = the 3 old AI Studio tools + these 13) in `server/src/services/aiProvider.ts`, with `TOOL_FIELDS`, `REQUIRED_FIELDS`, `FIELD_LABELS`, `buildGrowthPrompt()` and a mock response per tool for `AI_MOCK`.
+- One free trial per tool is stored in `localStorage` under `aos_ai_tools_trials_v1` (result + language + timestamp, capped at 12 000 chars) so a visitor can reopen the saved result. Mock answers never consume the trial. Real cost protection is server-side: `AI_DAILY_LIMIT=200` plus `aiLimiter` (30 requests / 10 min / resolved visitor).
 - `ad-image-review` sends one picture. The browser compresses it to ≤850 000 chars with a `FileReader` (**not** `URL.createObjectURL`, the CSP blocks `blob:` images) and downscales to 1280 px / JPEG. The route accepts ≤1 000 000 chars, the service caps at 950 000, and only vision providers (`VISION_PROVIDERS`) are tried.
 - `express.json({ limit: '1mb' })` is enough for the compressed image; do not raise it just for this tool.
 - Results are copyable and downloadable (download uses a `data:` URL, not a blob, for CSP safety).
-- Entry points: desktop header (from `xl`), mobile menu, footer and the AI services banner on the home page. `/ai-tools` is in `scripts/generate-sitemap.mjs` (12 URLs).
+- Entry points: desktop header (from `xl`), mobile menu, footer and the AI services banner on the home page. `/ai-tools` is in `scripts/generate-sitemap.mjs` (14 URLs total in the generated sitemap).
 - Header breakpoints matter: the desktop nav/actions start at `xl`, the violet "digital services" link and the phone number text start at `2xl`. Before that, FR/EN labels made the header overflow horizontally at 1024–1440 px.
+
+## Landing-page generator (13th seller tool, 2026-11-19)
+
+- New card `landing-page` in `src/app/data/aiTools.ts` (Rocket icon, `create` stage, `needsImage: true`); `contact` is required so the generated CTA can link to `wa.me` or `mailto` (phone numbers are normalised to international format).
+- The seller uploads a product photo (PNG/JPG/WebP, compressed client-side to ≤850 000 chars / 1280 px JPEG). **The photo is never sent to the AI provider** for this tool — it stays in the browser and is embedded directly into the exported HTML. Other image tools still send their image.
+- Server: `landing-page` was added to `AI_TOOLS`, `TOOL_FIELDS` and `REQUIRED_FIELDS`; `buildGrowthPrompt()` asks for 15 fixed sections and the global prompt now enforces proofreading, short formal Arabic (max 18 words/sentence), no invented facts/placeholders, no repeated words or doubled labels, and no description of the photo. Output cap raised 8000 → 12000 chars.
+- Browser: `src/app/utils/landingPage.ts` parses the English/Arabic/French headings, then `buildLandingPageHtml()` composes a self-contained responsive RTL/LTR page (SEO/meta, hero with the uploaded photo, price chip, problem/solution, benefits, audience, included, steps, offer, guarantee, social proof, FAQ, final CTA, trust strip, microcopy, footer). All values are HTML-escaped; a raw-text fallback page is used if the answer cannot be parsed.
+- Preview is a sandboxed iframe using `srcDoc` (`sandbox="allow-popups allow-popups-to-escape-sandbox"`), so the strict site CSP needs no `frame-src` change. Download uses a `data:text/html` URL with the product name as filename (no `blob:`, which the CSP blocks). The result tab shows the raw AI text and a text download.
+- The trial is saved without the image; after a reload the preview and download still work, but an explicit warning asks the seller to re-upload the photo. The gate is unchanged: guest 1/tool, signed-in 1 extra preview, subscriber unlimited within `aiLimiter`.
+- Deployed: backend prompt `c6e9fa9` → `6239c97` → `d531ed9`; frontend `4c2a70b`. Vercel bundle `index-Cl2tlTky.js` live, `/ai-tools` title "13 أداة ذكاء اصطناعي".
+- Production verification (2026-11-19): upload + 8 fields + generate returned 200 in **11.6 s**; preview contained 10 sections, 6 FAQs, the embedded JPEG (165 KB data URL), 4 WhatsApp links, the exact price, no scripts and no placeholders; downloaded `.html` was 184,510 chars and rendered the same page; trial survived reload; no new console/CSP errors (only the known Vercel toolbar script CSP notice and the expected 401 from `/api/subscription/me` for guests). QA consumed the landing-page free trial in the owner's test browser.
 
 ## Profit Calculators (`/ai-tools/calculator`)
 
@@ -261,6 +272,14 @@ Session on 2026-11-18: the AI subscription gate was proven end-to-end on product
 - `nmap -A aos-tech.store` from the owner's Kali box resolved the Vercel edge (216.198.79.1): only 80/tcp and 443/tcp open, 998 filtered. Port 80 answers 308 to HTTPS; 443 serves a Let's Encrypt certificate for `aos-tech.store` (RSA 2048, valid 2026-11-09 -> 2027-02-07) and the Vercel Security Checkpoint (403, `X-Vercel-Mitigated: challenge`) for non-browser clients.
 - The OS guesses (VirtualBox/Slirp/QEMU) are meaningless for an anycast edge; nothing on the origin is exposed. `www.aos-tech.store` has its own valid certificate and 308-redirects to the apex.
 - No action needed. Aggressive scans against production only extend the challenge; use a staging copy for deeper recon.
+
+## Last Working Session
+2026-11-19 — 13th AI tool: complete landing-page generator.
+- Built the image→full-page flow: photo stays in the browser, AI writes structured copy, `src/app/utils/landingPage.ts` assembles a self-contained HTML page, sandboxed live preview + `.html` download.
+- Server prompt commits `c6e9fa9`, `6239c97`, `d531ed9`; frontend commit `4c2a70b`. Both auto-deployed (Render + Vercel `index-Cl2tlTky.js`).
+- Real production generation with a car-vacuum photo: 200 in 11.6 s, 10-section preview, 6 FAQs, embedded photo, working WhatsApp CTA, no scripts/placeholders; downloaded HTML verified; reload restored the saved result and showed the expected "re-upload photo" warning.
+- Local checks: frontend and server `npx tsc --noEmit`, `npm run build`; real API responses checked for duplicate words and label repetition before the final prompt tweak.
+- Remaining owner actions are unchanged (backup key, Chargily keys, CCP/BaridiMob details); the landing-page free trial was consumed in the test browser, so use another browser/profile or sign in for the extra preview if you want to try generation again.
 
 ## Next Step
 1. Download the first encrypted backup from the admin panel and store it outside Render together with `BACKUP_ENCRYPTION_KEY` (password manager). Render's free disk is wiped on the next deploy.

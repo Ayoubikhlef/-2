@@ -129,7 +129,19 @@ Project inspection complete. All major configuration files and API routes have b
 - ?? Optional: set `VISIT_BASE_COUNT` on Render for a historical starting total
 - ?? Optional: `BACKUP_GITHUB_REPO` + `BACKUP_GITHUB_TOKEN` for off-server daily backups
 
+## Session 2026-11-19 — 13th AI tool: complete landing-page generator
+- ✅ Requirement delivered: the seller uploads a product photo and gets a **complete landing page** (live preview + ready `.html`), not just copy — `4c2a70b`.
+- ✅ `landing-page` added to the server tool registry/fields/validation with a 15-section prompt; prompt tightened for short formal Arabic, no invented facts, no repeated words/doubled labels, no photo description — `c6e9fa9`, `6239c97`, `d531ed9`.
+- ✅ Product photo stays in the browser (never sent to the AI provider) and is embedded in the exported HTML; no client-side API key, no raw provider errors.
+- ✅ `src/app/utils/landingPage.ts`: tolerant parser for AR/FR/EN headings + escaped, responsive RTL/LTR page builder with SEO meta, hero, offer, FAQ, CTA, trust strip and raw-text fallback.
+- ✅ Sandboxed `srcdoc` preview (no CSP change), `data:`-URL `.html` download, text tab/download, image-lost warning after reload.
+- ✅ All "12 tools" copy updated to 13 (App, AI banner, footer, calculator, subscription, server plan, title).
+- ✅ Frontend + server typecheck and build pass; backend accepts `landing-page` (`ai_missing_fields` confirms) and production generation returned 200 in 11.6 s.
+- ✅ Production verification: 13 cards, upload + fields, full 10-section preview with embedded photo, 6 FAQs, WhatsApp links, exact price, no scripts/placeholders, downloaded HTML 184,510 chars, trial persisted after reload, no new console/CSP errors.
+- ⚠️ The free landing-page trial was consumed in the test browser (use a different profile or sign in for the extra preview to re-test).
+
 Next session should focus on:
+- If you want to try the landing-page tool again, use a fresh guest profile or sign in (the test browser already used its free trial)
 - Download the first encrypted backup from the admin panel and store it outside Render with the key
 - Do future recon on staging or allowlist the scan IP in Vercel Project -> Firewall; never loop `curl` against production
 - Set Chargily keys on Render (optional) and register `https://aos-tech.store/api/subscription/chargily/webhook`, or keep manual activation
