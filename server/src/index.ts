@@ -35,7 +35,7 @@ import { initRAG } from './services/rag';
 import { startBackupScheduler } from './services/backup';
 import { prisma } from './utils/prisma';
 import { isOriginAllowed } from './utils/cors';
-import { isTrustedProxy } from './utils/trustProxy';
+import { isTrustedProxy, resolveClientIp } from './utils/trustProxy';
 import { fixMojibakeData } from './utils/encoding';
 import { ensureSiteFactoryDefaults } from './site-factory/service';
 
@@ -202,6 +202,19 @@ app.get('/api/health', async (_req, res) => {
     console.error('[Health] Database check failed:', err?.message || err);
     res.status(503).json({ status: 'error', timestamp: new Date().toISOString() });
   }
+});
+
+// TEMPORARY: verify client-IP resolution behind Cloudflare -> Vercel -> Render.
+// Removed immediately after the check.
+app.get('/api/__qa-ip/7f3c9b2e1d', (req, res) => {
+  res.json({
+    ip: req.ip,
+    resolved: resolveClientIp(req),
+    xff: req.headers['x-forwarded-for'] || null,
+    xvercel: req.headers['x-vercel-forwarded-for'] || null,
+    cf: req.headers['cf-connecting-ip'] || null,
+    xreal: req.headers['x-real-ip'] || null,
+  });
 });
 
 const distPath = path.resolve(__dirname, '../../dist');

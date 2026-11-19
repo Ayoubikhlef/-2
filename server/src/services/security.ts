@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { prisma } from '../utils/prisma';
+import { resolveClientIp } from '../utils/trustProxy';
 import { sendTelegramMessage, sendDiscordWebhook } from './telegram';
 import {
   getEmailAlertProvider,
@@ -140,9 +141,13 @@ function isAllowlistedIp(ip: string): boolean {
 }
 
 export function clientIp(req: Request): string {
-  // Express resolves req.ip using the configured `trust proxy` setting. Never
-  // read the left-most X-Forwarded-For value directly: it is attacker-controlled
-  // and would let anyone block an arbitrary IP (including the owner's).
+  // Behind Cloudflare -> Vercel -> Render, req.ip stops at the first public
+  // hop (the edge), so blocking that address would punish every visitor routed
+  // through the same edge. resolveClientIp only trusts the forwarding headers
+  // when the direct socket is a private proxy hop; a caller that reaches the
+  // Render URL directly keeps its own socket address.
+  const resolved = resolveClientIp(req);
+  if (resolved && resolved !== 'unknown') return resolved;
   const ip = String(req.ip || req.socket?.remoteAddress || 'unknown').trim();
   return ip.replace(/^::ffff:/, '');
 }
@@ -490,8 +495,13 @@ export function securityMonitor(req: Request, res: Response, next: NextFunction)
     req,
     details: threats.map((threat) => threat.label).join('; '),
     // Never auto-block an auth/health request: a false positive there would
-    // lock the owner out of the panel.
-    autoBlock: !allowedPath && !isAllowlistedIp(ip),
+    // lock the owner out of the panel. A sensitive-path probe (often just a
+    // scanner hitting a 404) only raises an alert: blocking on it can take out
+    // a shared Cloudflare/Vercel edge instead of the actual visitor.
+    autoBlock:
+      !allowedPath &&
+      !isAllowlistedIp(ip) &&
+      worst.type !== 'sensitive_path',
   });
 
   next();
