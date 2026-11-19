@@ -145,14 +145,23 @@ function readAsDataUrl(file: File): Promise<string> {
 
 /** Downscale and compress a photo in the browser so the request stays under 1 MB. */
 async function compressImage(file: File): Promise<string> {
-  if (!/^image\/(png|jpe?g|webp)$/i.test(file.type)) throw new Error('type');
+  const extension = (file.name.split('.').pop() || '').toLowerCase();
+  const standard =
+    /^image\/(png|jpe?g|webp)$/i.test(file.type) ||
+    (!file.type && ['jpg', 'jpeg', 'png', 'webp'].includes(extension));
+  const heic =
+    /^image\/(heic|heif)$/i.test(file.type) || ['heic', 'heif'].includes(extension);
+  // iPhones often hand over HEIC files. Safari can decode them, so try before
+  // failing; other browsers get a clear message telling them to save as JPG.
+  if (!standard && !heic) throw new Error('type');
+  if (!file.size) throw new Error('empty');
   if (file.size > 15 * 1024 * 1024) throw new Error('size');
 
   const source = await readAsDataUrl(file);
   const image = await new Promise<HTMLImageElement>((resolve, reject) => {
     const element = new Image();
     element.onload = () => resolve(element);
-    element.onerror = () => reject(new Error('read'));
+    element.onerror = () => reject(new Error(heic ? 'heic' : 'read'));
     element.src = source;
   });
 
@@ -231,6 +240,7 @@ export function AiToolsPage() {
   const [loading, setLoading] = useState(false);
   const [slow, setSlow] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [imageError, setImageError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const { user } = useAuth();
   const [trials, setTrials] = useState<TrialMap>(() => readTrials());
@@ -366,6 +376,7 @@ export function AiToolsPage() {
   const chooseTool = (tool: AiSellerTool) => {
     setActiveId(tool.id);
     setError(null);
+    setImageError(null);
     setCopied(false);
     const record = trials[tool.id];
     setResult(
@@ -392,6 +403,7 @@ export function AiToolsPage() {
     setActiveId(null);
     setResult(null);
     setError(null);
+    setImageError(null);
     setCopied(false);
     setResultView('preview');
   };
@@ -444,33 +456,73 @@ export function AiToolsPage() {
     setImages((previous) => {
       const next = { ...previous };
       if (data) next[activeTool.id] = data;
-      else delete next[activeTool.id];
+      else {
+        delete next[activeTool.id];
+        setImageError(null);
+      }
       return next;
     });
+  };
+
+  const imageErrorMessage = (reason: string | undefined): string => {
+    switch (reason) {
+      case 'size':
+        return t({
+          ar: 'الصورة كبيرة جداً. اختر صورة أقل من 15 ميغابايت.',
+          fr: 'Image trop lourde. Choisissez une image de moins de 15 Mo.',
+          en: 'Image too large. Choose a file under 15 MB.',
+        });
+      case 'heic':
+        return t({
+          ar: 'الصورة بصيغة iPhone HEIC. افتحها في المعرض واختر «حفظ كـ JPG» ثم أعد رفعها.',
+          fr: 'Image HEIC d’iPhone. Ouvrez-la dans Photos, choisissez «Enregistrer en JPG», puis réessayez.',
+          en: 'This is an iPhone HEIC photo. Open it in Photos, save it as JPG, then upload it again.',
+        });
+      case 'type':
+        return t({
+          ar: 'صيغة الصورة غير مدعومة. استخدم JPG أو PNG أو WebP.',
+          fr: 'Format non pris en charge. Utilisez JPG, PNG ou WebP.',
+          en: 'Unsupported image format. Use JPG, PNG or WebP.',
+        });
+      case 'empty':
+        return t({
+          ar: 'الملف فارغ. اختر صورة أخرى.',
+          fr: 'Le fichier est vide. Choisissez une autre image.',
+          en: 'The file is empty. Choose another image.',
+        });
+      case 'large':
+        return t({
+          ar: 'تعذّر تصغير الصورة بما يكفي. اختر صورة أصغر أو أقل تفاصيل.',
+          fr: 'Impossible de réduire assez l’image. Choisissez une photo plus petite.',
+          en: 'Could not compress the image enough. Choose a smaller photo.',
+        });
+      default:
+        return t({
+          ar: 'تعذّر قراءة الصورة. جرّب JPG أو PNG أو WebP.',
+          fr: 'Impossible de lire l’image. Essayez JPG, PNG ou WebP.',
+          en: 'Could not read the image. Try JPG, PNG or WebP.',
+        });
+    }
   };
 
   const pickImage = async (file: File | undefined) => {
     if (!file || !activeTool) return;
     setUploading(true);
+    setImageError(null);
     try {
       const data = await compressImage(file);
       setImage(data);
       toast.success(t({ ar: 'تم تجهيز الصورة', fr: 'Image prête', en: 'Image ready' }));
     } catch (err: any) {
-      const reason = err?.message;
-      toast.error(
-        reason === 'size'
-          ? t({
-              ar: 'الصورة كبيرة جداً. اختر صورة أقل من 15 ميغابايت.',
-              fr: 'Image trop lourde. Choisissez une image de moins de 15 Mo.',
-              en: 'Image too large. Choose a file under 15 MB.',
-            })
-          : t({
-              ar: 'تعذر قراءة الصورة. جرّب JPG أو PNG أو WebP.',
-              fr: 'Impossible de lire l’image. Essayez JPG, PNG ou WebP.',
-              en: 'Could not read the image. Try JPG, PNG or WebP.',
-            }),
-      );
+      const message = imageErrorMessage(err?.message);
+      setImageError(message);
+      toast.error(message);
+      // On a phone the message can land below the fold; bring it into view.
+      window.setTimeout(() => {
+        document
+          .getElementById('ai-image-error')
+          ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 60);
     } finally {
       setUploading(false);
     }
@@ -1291,6 +1343,16 @@ export function AiToolsPage() {
                               })}
                             </span>
                           </label>
+                        )}
+                        {imageError && (
+                          <p
+                            id="ai-image-error"
+                            role="alert"
+                            className="mt-3 flex items-start gap-2 rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-xs font-bold leading-relaxed text-destructive"
+                          >
+                            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                            <span>{imageError}</span>
+                          </p>
                         )}
                       </div>
                     )}
