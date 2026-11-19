@@ -36,11 +36,18 @@ import {
   buildLandingPageHtml,
   parseLandingPage,
 } from '../utils/landingPage';
+import {
+  LANDING_THEMES,
+  isLandingTheme,
+  resolveLandingTheme,
+  type LandingThemeChoice,
+} from '../utils/landingThemes';
 
 type LandingMeta = {
   productName: string;
   price: string;
   contact: string;
+  theme?: LandingThemeChoice;
 };
 
 type TrialRecord = {
@@ -63,8 +70,18 @@ function readLandingMeta(value: unknown): LandingMeta | undefined {
   const productName = typeof record.productName === 'string' ? record.productName.slice(0, 140) : '';
   const price = typeof record.price === 'string' ? record.price.slice(0, 60) : '';
   const contact = typeof record.contact === 'string' ? record.contact.slice(0, 160) : '';
-  if (!productName && !price && !contact) return undefined;
-  return { productName, price, contact };
+  const theme = isLandingTheme(record.theme) ? record.theme : undefined;
+  if (!productName && !price && !contact && !theme) return undefined;
+  return { productName, price, contact, theme };
+}
+
+function hashText(value: string): string {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(36);
 }
 
 function readTrials(): TrialMap {
@@ -209,6 +226,7 @@ export function AiToolsPage() {
     meta?: LandingMeta;
   } | null>(null);
   const [resultView, setResultView] = useState<'preview' | 'text'>('preview');
+  const [landingTheme, setLandingTheme] = useState<LandingThemeChoice>('aos');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [slow, setSlow] = useState(false);
@@ -227,6 +245,7 @@ export function AiToolsPage() {
   const [serverLocked, setServerLocked] = useState(false);
   const [lastPreview, setLastPreview] = useState(false);
   const workspaceRef = useRef<HTMLDivElement | null>(null);
+  const previewRef = useRef<HTMLIFrameElement | null>(null);
 
   const activeTool = useMemo(
     () => aiSellerTools.find((tool) => tool.id === activeId) || null,
@@ -248,11 +267,28 @@ export function AiToolsPage() {
       productName: result.meta?.productName || '',
       price: result.meta?.price || '',
       contact: result.meta?.contact || '',
+      theme: landingTheme,
     };
     return landingContent
       ? buildLandingPageHtml(landingContent, options)
       : buildFallbackLandingHtml(result.text, options);
-  }, [result, landingContent, images]);
+  }, [result, landingContent, images, landingTheme]);
+
+  const previewKey = useMemo(() => hashText(landingHtml), [landingHtml]);
+
+  useEffect(() => {
+    const frame = previewRef.current;
+    if (!frame || !landingHtml) return;
+    const post = () => {
+      frame.contentWindow?.postMessage(
+        { type: 'aos-landing-preview', html: landingHtml },
+        '*',
+      );
+    };
+    post();
+    frame.addEventListener('load', post);
+    return () => frame.removeEventListener('load', post);
+  }, [landingHtml, previewKey]);
 
   const refreshEntitlement = useCallback(async () => {
     if (!user) {
@@ -344,6 +380,9 @@ export function AiToolsPage() {
         : null,
     );
     setResultView('preview');
+    if (tool.id === 'landing-page') {
+      setLandingTheme(record?.meta?.theme || 'aos');
+    }
     window.setTimeout(() => {
       workspaceRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 80);
@@ -536,13 +575,21 @@ export function AiToolsPage() {
     try {
       const isLandingPage = activeTool.id === 'landing-page';
       const selectedValues = values[activeTool.id] || {};
+      const resolvedTheme = isLandingPage
+        ? resolveLandingTheme(
+            landingTheme,
+            `${selectedValues.productName || ''}|${selectedValues.details || ''}`,
+          )
+        : undefined;
       const landingMeta: LandingMeta | undefined = isLandingPage
         ? {
             productName: (selectedValues.productName || '').trim().slice(0, 140),
             price: (selectedValues.price || '').trim().slice(0, 60),
             contact: (selectedValues.contact || '').trim().slice(0, 160),
+            theme: resolvedTheme,
           }
         : undefined;
+      if (resolvedTheme) setLandingTheme(resolvedTheme);
       // The landing page keeps the photo in the browser: the AI only writes the
       // copy, and the photo is embedded directly in the generated HTML. Other
       // image tools send it because the model must actually see the picture.
@@ -1213,6 +1260,48 @@ export function AiToolsPage() {
                       </div>
                     )}
 
+                    {activeTool.id === 'landing-page' && (
+                      <div className="mb-5">
+                        <p className={labelClass}>
+                          {t({
+                            ar: 'شكل الصفحة',
+                            fr: 'Style de la page',
+                            en: 'Page style',
+                          })}
+                        </p>
+                        <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                          {LANDING_THEMES.map((theme) => {
+                            const selected = landingTheme === theme.id;
+                            return (
+                              <button
+                                key={theme.id}
+                                type="button"
+                                aria-pressed={selected}
+                                onClick={() => setLandingTheme(theme.id)}
+                                className={`rounded-xl border p-3 text-start transition ${
+                                  selected
+                                    ? 'border-primary bg-primary/10 ring-1 ring-primary/30'
+                                    : 'border-border bg-background/50 hover:border-primary/40'
+                                }`}
+                              >
+                                <span className="flex items-center gap-2 text-xs font-bold">
+                                  <span
+                                    className="h-3 w-3 shrink-0 rounded-full"
+                                    style={{ background: theme.tone }}
+                                    aria-hidden="true"
+                                  />
+                                  {t(theme.name)}
+                                </span>
+                                <span className="mt-1 block text-[11px] leading-snug text-muted-foreground">
+                                  {t(theme.hint)}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       {activeTool.fields.map((field) => {
                         const value = values[activeTool.id]?.[field.key] || '';
@@ -1398,13 +1487,15 @@ export function AiToolsPage() {
                         </div>
                         {resultView === 'preview' ? (
                           <iframe
+                            key={previewKey}
+                            ref={previewRef}
                             title={t({
                               ar: 'معاينة صفحة الهبوط',
                               fr: 'Aperçu de la page de vente',
                               en: 'Landing page preview',
                             })}
-                            srcDoc={landingHtml}
-                            sandbox="allow-popups allow-popups-to-escape-sandbox"
+                            src="/landing-preview.html"
+                            sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"
                             referrerPolicy="no-referrer"
                             className="h-[70vh] min-h-[480px] max-h-[820px] w-full rounded-2xl border border-border bg-white shadow-sm"
                           />
@@ -1418,9 +1509,9 @@ export function AiToolsPage() {
                         )}
                         <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
                           {t({
-                            ar: 'هذه معاينة حية للصفحة الكاملة. نزّل ملف HTML وارفعه على متجرك أو افتحه مباشرة — الصورة مضمّنة داخل الملف.',
-                            fr: 'Aperçu en direct de la page complète. Téléchargez le fichier HTML et hébergez-le ou ouvrez-le directement — la photo est intégrée au fichier.',
-                            en: 'This is a live preview of the complete page. Download the HTML file and host it or open it directly — the photo is embedded in the file.',
+                            ar: 'هذه معاينة حية للصفحة الكاملة بمشهد ثلاثي الأبعاد تفاعلي. اختر الشكل من الأعلى لتغيير التصميم، ثم نزّل ملف HTML وارفعه على متجرك — الصورة مضمّنة داخل الملف.',
+                            fr: 'Aperçu en direct de la page complète avec une scène 3D interactive. Choisissez le style ci-dessus, puis téléchargez le fichier HTML — la photo est intégrée au fichier.',
+                            en: 'Live preview of the complete page with an interactive 3D scene. Pick a style above, then download the HTML file — the photo is embedded in the file.',
                           })}
                         </p>
                         {!images[result.tool] && (
