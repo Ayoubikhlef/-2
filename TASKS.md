@@ -121,14 +121,21 @@ Project inspection complete. All major configuration files and API routes have b
 - ? `SiteVisit` model + `/api/visits/track` and `/stats`; one row per browser/day, salted cookie hash, no raw IP - `0d399e3`
 - ? Footer badge (total + today, AR/FR/EN, DNT-aware) and admin overview rows
 - ? Verified live: first visit `{visitors:1,today:1}`, repeat with/without cookie stayed 1, footer rendered "1 زائر · اليوم 1"
+- ? Older limiters now use `resolveClientIp` too, so one visitor cannot exhaust a limit for the whole shared edge (register was 5/hour per edge) - `2136f04`
+- ? `BACKUP_ENCRYPTION_KEY` (64 hex), `AI_IP_SALT` (64 hex) and `BACKUP_AUTO=true` set on Render; deploy `8f27d23`
+- ? Boot logs: `[Backup] Next automatic backup at 2026-11-20T03:00:00.000Z` and a 40,538-byte catch-up backup written under `/opt/render/project/src/server/backups/`
+- ? nmap shows only 80/443 on the Vercel edge, valid Let's Encrypt TLS, HTTPS redirect, 403 Security Checkpoint for non-browser clients; nothing to fix
+- ?? Download the first backup and keep it off-server; Render's free disk is ephemeral
 - ?? Optional: set `VISIT_BASE_COUNT` on Render for a historical starting total
-- ?? Follow-up: older rate limiters still key on `req.ip` (the shared Cloudflare edge); consider `resolveClientIp`
+- ?? Optional: `BACKUP_GITHUB_REPO` + `BACKUP_GITHUB_TOKEN` for off-server daily backups
 
 Next session should focus on:
+- Download the first encrypted backup from the admin panel and store it outside Render with the key
 - Do future recon on staging or allowlist the scan IP in Vercel Project -> Firewall; never loop `curl` against production
 - Set Chargily keys on Render (optional) and register `https://aos-tech.store/api/subscription/chargily/webhook`, or keep manual activation
-- Set `AI_IP_SALT` on Render and fill the CCP/BaridiMob account fields in the site settings (the panel currently falls back to WhatsApp)
+- Fill the CCP/BaridiMob account fields in the site settings (the panel currently falls back to WhatsApp)
 - Add the subscription/renewal card to the account area
 - A prerender step so `/ai-tools`, `/ai-tools/calculator`, `/premium-services` and `/subscription` expose per-page titles/meta to crawlers
 - Watch OpenRouter usage against the $5 lifetime limit and Render logs for 429s
+- Optional: configure the GitHub backup destination so daily files leave the ephemeral disk
 

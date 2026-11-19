@@ -250,12 +250,26 @@ Session on 2026-11-18: the AI subscription gate was proven end-to-end on product
 - Deployed as `0d399e3`; production verified: the first `POST /api/visits/track` returned `{ visitors: 1, today: 1 }`, a second call with and without the cookie stayed at 1, `/api/visits/stats` returned 200, and the footer rendered "1 زائر · اليوم 1" after the Vercel bundle `index-DYJb4bYS.js` went live.
 - Follow-up: the older rate limiters still use the default `req.ip` key, which is the shared Cloudflare edge behind Vercel; only `visitLimiter` uses `resolveClientIp`. Consider switching the AI/checkout limiters too if traffic grows.
 
+## Backup encryption + Render environment (2026-11-19)
+- Set on Render (aos-api) through the dashboard: `BACKUP_ENCRYPTION_KEY` (64 hex chars), `AI_IP_SALT` (64 hex chars, so visitor/guest hashes no longer fall back to `JWT_SECRET`) and `BACKUP_AUTO=true`; saved with "Save, rebuild, and deploy".
+- Boot logs confirmed the scheduler: `[Backup] Next automatic backup at 2026-11-20T03:00:00.000Z` and the stale-state catch-up `[Backup] Post-boot catch-up: stored aos-backup-2026-11-19T09-10-16-711Z.json.gz.enc (40538 bytes)` under `/opt/render/project/src/server/backups/`. The admin panel can now show encryption on and download a fresh encrypted copy.
+- Render Free has an ephemeral disk: the daily file disappears on redeploy/restart. Download it from the admin panel, or set `BACKUP_GITHUB_REPO` + `BACKUP_GITHUB_TOKEN` (fine-grained, Contents: Read and write) for the off-server GitHub destination. The backup is AES-256-GCM (scrypt) encrypted before it leaves the process; keep `BACKUP_ENCRYPTION_KEY` outside the server (password manager) or the file cannot be restored.
+- `.env.example` now documents `BACKUP_ENCRYPTION_KEY`, `BACKUP_AUTO`, `BACKUP_HOUR_UTC`, `BACKUP_DIR`, `BACKUP_KEEP` and the GitHub destination.
+- All API rate limiters now key on `resolveClientIp` instead of `req.ip` (`2136f04`). `req.ip` is the shared Cloudflare/Vercel edge, so the old keys let one visitor exhaust a limit for every visitor on that edge — registration was only 5/hour for the whole edge. Verified after deploy: `/api/health` 200, `/api/visits/stats` 200, two `POST /api/visits/track` calls from the same page both returned the same totals (dedupe intact), and the footer rendered the count.
+
+## nmap assessment (2026-11-19)
+- `nmap -A aos-tech.store` from the owner's Kali box resolved the Vercel edge (216.198.79.1): only 80/tcp and 443/tcp open, 998 filtered. Port 80 answers 308 to HTTPS; 443 serves a Let's Encrypt certificate for `aos-tech.store` (RSA 2048, valid 2026-11-09 -> 2027-02-07) and the Vercel Security Checkpoint (403, `X-Vercel-Mitigated: challenge`) for non-browser clients.
+- The OS guesses (VirtualBox/Slirp/QEMU) are meaningless for an anycast edge; nothing on the origin is exposed. `www.aos-tech.store` has its own valid certificate and 308-redirects to the apex.
+- No action needed. Aggressive scans against production only extend the challenge; use a staging copy for deeper recon.
+
 ## Next Step
-1. If Chargily keys are available, set `CHARGILY_SECRET_KEY`, `CHARGILY_MODE` and `CHARGILY_WEBHOOK_SECRET` on Render and register `https://aos-tech.store/api/subscription/chargily/webhook`; otherwise keep CCP/BaridiMob + manual activation.
-2. Set `AI_IP_SALT` on Render so guest hashes do not fall back to `JWT_SECRET`, and fill the CCP/BaridiMob account fields in the site settings so the payment panel shows real details instead of only WhatsApp.
-3. Add subscription status to the account area (optional) so customers see the renewal date without opening `/subscription`.
-4. Run further recon on a staging copy, or temporarily allowlist the scan IP in Vercel Project -> Firewall. Looping `curl` against production only extends the Security Checkpoint.
-5. Set `VISIT_BASE_COUNT` on Render if the public visitor counter should start from a historical total (default 0).
+1. Download the first encrypted backup from the admin panel and store it outside Render together with `BACKUP_ENCRYPTION_KEY` (password manager). Render's free disk is wiped on the next deploy.
+2. If Chargily keys are available, set `CHARGILY_SECRET_KEY`, `CHARGILY_MODE` and `CHARGILY_WEBHOOK_SECRET` on Render and register `https://aos-tech.store/api/subscription/chargily/webhook`; otherwise keep CCP/BaridiMob + manual activation.
+3. Fill the CCP/BaridiMob account fields in the site settings so the payment panel shows real details instead of only WhatsApp.
+4. Add subscription status to the account area (optional) so customers see the renewal date without opening `/subscription`.
+5. Run further recon on a staging copy, or temporarily allowlist the scan IP in Vercel Project -> Firewall. Looping `curl` against production only extends the Security Checkpoint.
+6. Set `VISIT_BASE_COUNT` on Render if the public visitor counter should start from a historical total (default 0).
+7. Optional: configure `BACKUP_GITHUB_REPO` / `BACKUP_GITHUB_TOKEN` so the daily backup leaves Render instead of landing on the ephemeral disk.
 
 Optional follow-ups:
 1. If Claude Sonnet is preferred, set `AI_MODEL=anthropic/claude-sonnet-5.5` on Render and redeploy.
