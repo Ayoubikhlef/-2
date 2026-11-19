@@ -549,3 +549,15 @@ model SavedCalculation {
 
   @@index([userId, createdAt])
 }
+
+// One row per visitor per day for the public visitor counter. `visitorHash` is
+// a salted hash of a random first-party cookie id; the raw IP is never stored.
+model SiteVisit {
+  id          String   @id @default(cuid())
+  day         String
+  visitorHash String
+  createdAt   DateTime @default(now())
+
+  @@unique([day, visitorHash])
+  @@index([visitorHash])
+}

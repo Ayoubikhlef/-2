@@ -4,6 +4,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { getSiteContent } from '../utils/siteContentStorage';
 import { getSiteSettings } from '../utils/siteSettingsStorage';
 import { brand } from '../config/brand';
+import { VisitorCounter } from './VisitorCounter';
 
 export function Footer() {
   const { t, language } = useLanguage();
@@ -155,7 +156,10 @@ export function Footer() {
         {/* Bottom */}
         <div className="border-t border-border pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
-            <p>© {s.copyrightYear} {s.copyrightName}. {t({ ar: 'جميع الحقوق محفوظة', fr: 'Tous droits réservés', en: 'All rights reserved' })}.</p>
+            <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-3">
+              <p>© {s.copyrightYear} {s.copyrightName}. {t({ ar: 'جميع الحقوق محفوظة', fr: 'Tous droits réservés', en: 'All rights reserved' })}.</p>
+              <VisitorCounter />
+            </div>
             <p>
               {t(s.developerPrefix)} <a href={s.developerUrl} target="_blank" rel="noopener noreferrer" className="text-foreground underline decoration-primary/60 underline-offset-2 hover:text-primary transition-colors">{t(s.developerName)}</a>
             </p>

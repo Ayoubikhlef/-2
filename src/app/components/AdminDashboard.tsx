@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getOrders, type OrderRecord } from '../utils/orderStorage';
 import { getStoredProducts } from '../utils/productStorage';
+import { api } from '../utils/api';
 import { products as defaultProducts } from '../data/products';
 import { wilayas } from '../data/products';
 import { motion } from 'motion/react';
@@ -30,10 +31,29 @@ export function AdminDashboard() {
   const { t, language } = useLanguage();
   const [orders, setOrders] = useState<OrderRecord[]>([]);
   const [products, setProducts] = useState<any[]>([]);
+  const [visits, setVisits] = useState<{ visitors: number; today: number } | null>(null);
 
   const refresh = () => { setOrders(getOrders()); setProducts(getStoredProducts(defaultProducts)); };
 
   useEffect(() => { refresh(); }, []);
+
+  useEffect(() => {
+    let active = true;
+    api.visits
+      .stats()
+      .then((data) => {
+        if (active) {
+          setVisits({
+            visitors: Number(data?.visitors) || 0,
+            today: Number(data?.today) || 0,
+          });
+        }
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(refresh, 30000);
@@ -211,6 +231,24 @@ export function AdminDashboard() {
           <div className="flex items-center justify-between text-sm">
             <span className="text-white/50">{t({ ar: 'أرقام فريدة', fr: 'Téléphones uniques', en: 'Unique phones' })}</span>
             <span className="text-2xl font-bold text-purple-400">{uniquePhones}</span>
+          </div>
+          <div className="grid grid-cols-2 gap-3 pt-3 mt-1 border-t border-white/10">
+            <div>
+              <p className="text-[11px] text-white/40">
+                {t({ ar: 'زوار اليوم', fr: "Visiteurs aujourd'hui", en: 'Visitors today' })}
+              </p>
+              <p className="text-lg font-bold text-purple-300">
+                {visits ? visits.today.toLocaleString() : '—'}
+              </p>
+            </div>
+            <div>
+              <p className="text-[11px] text-white/40">
+                {t({ ar: 'إجمالي الزوار', fr: 'Visiteurs (total)', en: 'Total visitors' })}
+              </p>
+              <p className="text-lg font-bold text-purple-300">
+                {visits ? visits.visitors.toLocaleString() : '—'}
+              </p>
+            </div>
           </div>
         </motion.div>
 

@@ -464,6 +464,17 @@ export const api = {
 
   fetchProducts: () => request<{ products: any[] }>('/products'),
 
+  visits: {
+    // POST records this browser once per day (deduped on the server) and
+    // returns the public totals in the same round trip.
+    track: () =>
+      request<{ visitors: number; today: number }>('/visits/track', {
+        method: 'POST',
+        body: JSON.stringify({}),
+      }),
+    stats: () => request<{ visitors: number; today: number }>('/visits/stats'),
+  },
+
   ai: {
     status: () => request<{ available: boolean; mock: boolean }>('/ai/status', {}, true, 15000),
     generate: (data: {

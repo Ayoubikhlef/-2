@@ -27,6 +27,7 @@ import { backupRouter } from './routes/backup';
 import { siteFactoryRouter } from './routes/siteFactory';
 import { subscriptionRouter } from './routes/subscription';
 import { calculatorRouter } from './routes/calculator';
+import { visitRouter } from './routes/visits';
 import { errorHandler } from './middleware/errorHandler';
 import { securityMonitor, securityRateLimitHandler } from './services/security';
 import { ensureSeedAdmin } from './services/adminBootstrap';
@@ -35,7 +36,7 @@ import { initRAG } from './services/rag';
 import { startBackupScheduler } from './services/backup';
 import { prisma } from './utils/prisma';
 import { isOriginAllowed } from './utils/cors';
-import { isTrustedProxy } from './utils/trustProxy';
+import { isTrustedProxy, resolveClientIp } from './utils/trustProxy';
 import { fixMojibakeData } from './utils/encoding';
 import { ensureSiteFactoryDefaults } from './site-factory/service';
 
@@ -144,6 +145,16 @@ const checkoutLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, handler: 
 // A snapshot contains the whole database, so it is limited to a handful of
 // owner-triggered downloads per hour.
 const snapshotLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 6, handler: securityRateLimitHandler('snapshot'), validate: { xForwardedForHeader: false } });
+// The public counter is called once per page load; this cap stops a script
+// from inflating the number with repeated POSTs. Key it by the visitor, not by
+// req.ip (which stops at the shared Cloudflare edge).
+const visitLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  keyGenerator: (req) => resolveClientIp(req) || 'unknown',
+  handler: securityRateLimitHandler('visits'),
+  validate: { xForwardedForHeader: false },
+});
 app.use('/api/auth', authLimiter);
 app.use('/api/auth/admin-gate', adminGateLimiter);
 app.use('/api/auth/forgot-password', passwordResetLimiter);
@@ -192,6 +203,7 @@ app.use('/api/snapshots', generalLimiter, backupRouter);
 app.use('/api/site-factory', siteFactoryRouter);
 app.use('/api/subscription', subscriptionRouter);
 app.use('/api/calculator', calculatorRouter);
+app.use('/api/visits', visitLimiter, visitRouter);
 
 app.get('/api/health', async (_req, res) => {
   try {
