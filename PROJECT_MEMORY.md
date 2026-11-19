@@ -230,10 +230,23 @@ Session on 2026-11-18: the AI subscription gate was proven end-to-end on product
 - The `aos-api-production.up.railway.app` origin was dead (`Application not found`) but still listed in both CSPs and used as the admin live-feed fallback (`aeee887`). Removed from CSP and switched the live feed to the live Render Socket.IO endpoint, which was verified responding.
 - The `access-control-allow-origin: *` seen on the static Vercel response applies to public assets, not authenticated API routes; the API only reflects allowlisted origins (or none for disallowed ones).
 
+## Security session 2026-11-19 - edge block, IP attribution and API verification
+- A Kali/curl recon pass tripped the Vercel Security Checkpoint (`X-Vercel-Mitigated: challenge`, `Retry-After: 30`): every `/api/*` call from curl/PowerShell returned 403 with an HTML challenge body, including `/api/health`. Browser fetches from the real site returned the expected results, so those 403s were not authorization failures.
+- API status verified from the browser: `/api/health`, `/api/products`, `/api/products/status`, `/api/maintenance`, `/api/ai/status`, `/api/email/config-status`, `/api/site-factory/public/config`, `/api/data/aos_site_settings`, `/api/data/aos_site_content`, `/api/subscription/plans` -> 200; `/api/customers`, `/api/orders`, `/api/auth/me`, `/api/security/events`, `/api/subscription/admin/payments` -> 401; `/api/snapshots/run` -> 403; unknown routes -> 404; `OPTIONS /api/products` -> 200 with `Allow: GET,HEAD`; `PUT`/`DELETE /api/health` -> 404.
+- A garbage bearer token returns `401 {"error":"Invalid or expired token"}` on every protected route, so signature verification is active.
+- Helmet headers on API responses: HSTS `max-age=63072000; includeSubDomains; preload`, `X-Frame-Options: DENY`, `nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`, CSP and `Cross-Origin-Resource-Policy: same-origin`. No `Access-Control-Allow-Origin` on same-origin calls.
+- Site settings scan: 231 + 154 scalar values in `aos_site_settings` / `aos_site_content`, none matching secret/token/password/chargily/smtp/api-key/private/webhook.
+- JS bundle (`assets/index-BssOksFS.js`, 663 KB): no API keys, private keys or service-role strings; only `/api/contact` appears as a literal path because the API base is configurable. Source maps are 403.
+- **Bug fixed:** `clientIp()` used `req.ip`, which stops at the first public hop (the Cloudflare edge, e.g. 104.22.160.12). A `sensitive_path` alert from our own probe therefore auto-blocked a shared edge address instead of the visitor. `clientIp()` now uses `resolveClientIp` (`x-vercel-forwarded-for` -> `cf-connecting-ip` -> right-most public XFF, only when the socket is a private proxy hop), and `sensitive_path` probes alert without auto-blocking (`2179f82`).
+- Verified live with a temporary probe: `req.ip` was `104.22.160.48` while `resolveClientIp` returned the visitor's `x-vercel-forwarded-for` address. The probe was removed in `0d4eddb`; it now returns 404 and `/api/health` is 200 on the new deploy.
+- Admin guard review: `requireRole('SUPER_ADMIN','ADMIN')` on contact/customers/reviews/orders admin routes; `requireAuth + requireRole` on the whole security and snapshot routers; `site-factory/admin` guarded; every subscription admin route guarded. `requireAuth` re-reads role, `isActive` and `tokenVersion` from the database on each request.
+- Deliberately not tested on production: CORS preflight from a foreign origin (browsers cannot set `Origin`; the earlier curl evidence and the allowlist code cover it), rate-limit thresholds (tripping them would 429/block the owner's own IP), and a full customer-vs-admin token matrix (no customer account exists after the QA cleanup).
+
 ## Next Step
 1. If Chargily keys are available, set `CHARGILY_SECRET_KEY`, `CHARGILY_MODE` and `CHARGILY_WEBHOOK_SECRET` on Render and register `https://aos-tech.store/api/subscription/chargily/webhook`; otherwise keep CCP/BaridiMob + manual activation.
 2. Set `AI_IP_SALT` on Render so guest hashes do not fall back to `JWT_SECRET`, and fill the CCP/BaridiMob account fields in the site settings so the payment panel shows real details instead of only WhatsApp.
 3. Add subscription status to the account area (optional) so customers see the renewal date without opening `/subscription`.
+4. Run further recon on a staging copy, or temporarily allowlist the scan IP in Vercel Project -> Firewall. Looping `curl` against production only extends the Security Checkpoint.
 
 Optional follow-ups:
 1. If Claude Sonnet is preferred, set `AI_MODEL=anthropic/claude-sonnet-5.5` on Render and redeploy.

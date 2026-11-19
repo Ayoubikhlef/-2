@@ -110,7 +110,15 @@ Project inspection complete. All major configuration files and API routes have b
 - ? Google Forms formResponse is a secondary order sheet; real orders still go through the rate-limited server API
 - ? Dead Railway API (`Application not found`) removed from both CSPs and the admin live-feed fallback; live feed now uses the verified Render Socket.IO endpoint - `aeee887`
 
+## Session 2026-11-19 - edge block + IP attribution fix
+- ? curl/PowerShell recon triggered the Vercel Security Checkpoint (403 HTML challenge on every `/api/*`, including `/api/health`); browser fetches returned the real 200/401/403 responses
+- ? Public API 200, protected API 401 (missing and garbage token), unknown routes 404, `OPTIONS` 200 `Allow: GET,HEAD`, `PUT`/`DELETE` 404
+- ? No secrets in `aos_site_settings`/`aos_site_content` or the 663 KB JS bundle; source maps 403; helmet headers present on API responses
+- ? Fixed auto-block attribution: `clientIp()` now uses `resolveClientIp`, and `sensitive_path` probes no longer auto-block, so a scanner cannot block a shared Cloudflare edge - `2179f82`
+- ? Temporary IP probe verified the fix, then was removed - `0d4eddb` (now 404)
+
 Next session should focus on:
+- Do future recon on staging or allowlist the scan IP in Vercel Project -> Firewall; never loop `curl` against production
 - Set Chargily keys on Render (optional) and register `https://aos-tech.store/api/subscription/chargily/webhook`, or keep manual activation
 - Set `AI_IP_SALT` on Render and fill the CCP/BaridiMob account fields in the site settings (the panel currently falls back to WhatsApp)
 - Add the subscription/renewal card to the account area
