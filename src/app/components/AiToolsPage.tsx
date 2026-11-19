@@ -396,6 +396,41 @@ export function AiToolsPage() {
     setResultView('preview');
   };
 
+  const selectLandingTheme = (theme: LandingThemeChoice) => {
+    setLandingTheme(theme);
+    setResult((previous) =>
+      previous?.tool === 'landing-page'
+        ? {
+            ...previous,
+            meta: {
+              productName: previous.meta?.productName || '',
+              price: previous.meta?.price || '',
+              contact: previous.meta?.contact || '',
+              theme,
+            },
+          }
+        : previous,
+    );
+    setTrials((previous) => {
+      const record = previous['landing-page'];
+      if (!record) return previous;
+      const next = {
+        ...previous,
+        'landing-page': {
+          ...record,
+          meta: {
+            productName: record.meta?.productName || '',
+            price: record.meta?.price || '',
+            contact: record.meta?.contact || '',
+            theme,
+          },
+        },
+      };
+      persistTrials(next);
+      return next;
+    });
+  };
+
   const updateField = (key: string, value: string) => {
     if (!activeTool) return;
     setValues((previous) => ({
@@ -1277,7 +1312,7 @@ export function AiToolsPage() {
                                 key={theme.id}
                                 type="button"
                                 aria-pressed={selected}
-                                onClick={() => setLandingTheme(theme.id)}
+                                onClick={() => selectLandingTheme(theme.id)}
                                 className={`rounded-xl border p-3 text-start transition ${
                                   selected
                                     ? 'border-primary bg-primary/10 ring-1 ring-primary/30'
@@ -1484,6 +1519,26 @@ export function AiToolsPage() {
                               {t({ ar: 'تنزيل النص', fr: 'Télécharger le texte', en: 'Download text' })}
                             </button>
                           )}
+                        </div>
+                        <div className="mb-3 flex flex-wrap items-center gap-1.5">
+                          <span className="me-1 text-[11px] font-bold text-muted-foreground">
+                            {t({ ar: 'الشكل:', fr: 'Style :', en: 'Style:' })}
+                          </span>
+                          {LANDING_THEMES.map((theme) => (
+                            <button
+                              key={theme.id}
+                              type="button"
+                              aria-pressed={landingTheme === theme.id}
+                              onClick={() => selectLandingTheme(theme.id)}
+                              className={`rounded-full border px-2.5 py-1 text-[11px] font-bold transition ${
+                                landingTheme === theme.id
+                                  ? 'border-primary bg-primary text-primary-foreground'
+                                  : 'border-border text-muted-foreground hover:border-primary/40'
+                              }`}
+                            >
+                              {t(theme.name)}
+                            </button>
+                          ))}
                         </div>
                         {resultView === 'preview' ? (
                           <iframe
