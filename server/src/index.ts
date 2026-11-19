@@ -1,5 +1,6 @@
 import 'express-async-errors';
 import express from 'express';
+import type { Request } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
@@ -130,31 +131,32 @@ app.use((_req, res, next) => {
   next();
 });
 
-const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 100, handler: securityRateLimitHandler('auth'), validate: { xForwardedForHeader: false } });
-const adminGateLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, handler: securityRateLimitHandler('admin-gate'), validate: { xForwardedForHeader: false } });
-const passwordResetLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, handler: securityRateLimitHandler('password-reset'), validate: { xForwardedForHeader: false } });
-// Account creation sends an email, so it is limited per IP as well as per account.
-const registerLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 5, handler: securityRateLimitHandler('register'), validate: { xForwardedForHeader: false } });
-const orderLimiter = rateLimit({ windowMs: 60 * 1000, max: 600, handler: securityRateLimitHandler('orders'), validate: { xForwardedForHeader: false } });
-const generalLimiter = rateLimit({ windowMs: 60 * 1000, max: 600, handler: securityRateLimitHandler('general'), validate: { xForwardedForHeader: false } });
-const contactLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 12, handler: securityRateLimitHandler('contact'), validate: { xForwardedForHeader: false } });
+// Behind Cloudflare -> Vercel -> Render, req.ip stops at the shared edge, so a
+// limiter keyed on it would let one visitor exhaust the limit for everyone
+// routed through that edge (register allows only 5/hour, for example). Key
+// every limiter on the resolved visitor instead.
+const visitorKey = (req: Request): string => resolveClientIp(req) || 'unknown';
+const limiter = (options: Parameters<typeof rateLimit>[0]) =>
+  rateLimit({ ...options, keyGenerator: visitorKey, validate: { xForwardedForHeader: false } });
+
+const authLimiter = limiter({ windowMs: 15 * 60 * 1000, max: 100, handler: securityRateLimitHandler('auth') });
+const adminGateLimiter = limiter({ windowMs: 15 * 60 * 1000, max: 20, handler: securityRateLimitHandler('admin-gate') });
+const passwordResetLimiter = limiter({ windowMs: 15 * 60 * 1000, max: 10, handler: securityRateLimitHandler('password-reset') });
+// Account creation sends an email, so it is limited per visitor as well as per account.
+const registerLimiter = limiter({ windowMs: 60 * 60 * 1000, max: 5, handler: securityRateLimitHandler('register') });
+const orderLimiter = limiter({ windowMs: 60 * 1000, max: 600, handler: securityRateLimitHandler('orders') });
+const generalLimiter = limiter({ windowMs: 60 * 1000, max: 600, handler: securityRateLimitHandler('general') });
+const contactLimiter = limiter({ windowMs: 10 * 60 * 1000, max: 12, handler: securityRateLimitHandler('contact') });
 // Generation costs a provider quota, so the public generator is stricter than
-// the general API limit. Subscribers share the same per-IP cap (fair use).
-const aiLimiter = rateLimit({ windowMs: 10 * 60 * 1000, max: 30, handler: securityRateLimitHandler('ai'), validate: { xForwardedForHeader: false } });
-const checkoutLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 20, handler: securityRateLimitHandler('checkout'), validate: { xForwardedForHeader: false } });
+// the general API limit. Subscribers share the same per-visitor cap (fair use).
+const aiLimiter = limiter({ windowMs: 10 * 60 * 1000, max: 30, handler: securityRateLimitHandler('ai') });
+const checkoutLimiter = limiter({ windowMs: 15 * 60 * 1000, max: 20, handler: securityRateLimitHandler('checkout') });
 // A snapshot contains the whole database, so it is limited to a handful of
 // owner-triggered downloads per hour.
-const snapshotLimiter = rateLimit({ windowMs: 60 * 60 * 1000, max: 6, handler: securityRateLimitHandler('snapshot'), validate: { xForwardedForHeader: false } });
+const snapshotLimiter = limiter({ windowMs: 60 * 60 * 1000, max: 6, handler: securityRateLimitHandler('snapshot') });
 // The public counter is called once per page load; this cap stops a script
-// from inflating the number with repeated POSTs. Key it by the visitor, not by
-// req.ip (which stops at the shared Cloudflare edge).
-const visitLimiter = rateLimit({
-  windowMs: 60 * 1000,
-  max: 30,
-  keyGenerator: (req) => resolveClientIp(req) || 'unknown',
-  handler: securityRateLimitHandler('visits'),
-  validate: { xForwardedForHeader: false },
-});
+// from inflating the number with repeated POSTs.
+const visitLimiter = limiter({ windowMs: 60 * 1000, max: 30, handler: securityRateLimitHandler('visits') });
 app.use('/api/auth', authLimiter);
 app.use('/api/auth/admin-gate', adminGateLimiter);
 app.use('/api/auth/forgot-password', passwordResetLimiter);
