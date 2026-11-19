@@ -1815,12 +1815,31 @@ html[dir="rtl"] .q-nav [data-q-next] .icon{transform:scaleX(-1)}
 }
 .hero-copy .btn-primary,.hero-copy .btn-ghost{position:relative;z-index:2}
 
-.work-card,.product-card,.fleet-card,.car-card,.property-card,.room-card,.course-card,.bistro-dish,.boutique-card,.digital-card{
-  transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s ease,border-color .25s ease;
+.work-card{transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s ease,border-color .25s ease}
+.work-card:hover{transform:perspective(900px) rotateX(3deg) rotateY(-4deg) translateY(-5px)}
+
+/* Product cards stay perfectly still — only the page/hero has motion. */
+.product-card,.fleet-card,.car-card,.property-card,.room-card,.course-card,.bistro-dish,.boutique-card,.digital-card{
+  transition:box-shadow .2s ease,border-color .2s ease!important;
 }
-.work-card:hover,.product-card:hover,.fleet-card:hover,.car-card:hover,.property-card:hover,.room-card:hover,.course-card:hover,.bistro-dish:hover,.boutique-card:hover,.digital-card:hover{
-  transform:perspective(900px) rotateX(3deg) rotateY(-4deg) translateY(-5px);
+.product-card:hover,.fleet-card:hover,.car-card:hover,.property-card:hover,.room-card:hover,.course-card:hover,.bistro-dish:hover,.boutique-card:hover,.digital-card:hover{
+  transform:none!important;
 }
+.product-card:hover .product-thumb img,
+.fleet-card:hover .fleet-media img,
+.car-card:hover .car-thumb img,
+.property-card:hover .property-thumb img,
+.room-card:hover .room-thumb img,
+.course-card:hover .course-thumb img,
+.bistro-dish:hover .bistro-dish-thumb img,
+.boutique-card:hover .boutique-thumb img,
+.digital-card:hover .digital-thumb img{
+  transform:none!important;
+}
+.product-card[data-reveal],.fleet-card[data-reveal],.car-card[data-reveal],.property-card[data-reveal],.room-card[data-reveal],.course-card[data-reveal],.bistro-dish[data-reveal],.boutique-card[data-reveal],.digital-card[data-reveal]{
+  opacity:1!important;transform:none!important;transition:box-shadow .2s ease,border-color .2s ease!important;
+}
+.product-card .add-btn:hover{transform:none!important}
 
 @media(max-width:720px){
   .hero::after{width:220px;height:220px;inset-inline-start:-90px;bottom:-120px}
