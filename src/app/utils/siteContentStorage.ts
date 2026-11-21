@@ -293,7 +293,7 @@ function getAll(): SiteContent {
       whyUs: { ...defaultContent.whyUs, ...parsed.whyUs, features: parsed.whyUs?.features ?? defaultContent.whyUs.features },
       faq: { ...defaultContent.faq, ...parsed.faq, items: faqItems },
       about: { ...defaultContent.about, ...parsed.about },
-      services: { ...defaultContent.services, ...parsed.services, cards: parsed.services?.cards ?? defaultContent.services.cards, digitizationItems },
+      services: { ...defaultContent.services, ...parsed.services, cards: (parsed.services?.cards ?? defaultContent.services.cards).filter((card) => card.id !== 'visa'), digitizationItems },
       footer: { ...defaultContent.footer, ...parsed.footer },
     };
     return scrubLegacyBrand(applyIdentityOverrides(merged));
@@ -353,7 +353,7 @@ export function updateSiteContent(update: Partial<SiteContent>): SiteContent {
     next.services = {
       ...current.services,
       ...update.services,
-      cards: update.services.cards ?? current.services.cards,
+      cards: (update.services.cards ?? current.services.cards).filter((card) => card.id !== 'visa'),
       digitizationItems: items.map((item, index) => ({
         ...(defaultContent.services.digitizationItems[index] ?? {}),
         ...item,
