@@ -215,9 +215,9 @@ export function DemoStorePage() {
       <section className="border-b border-border bg-white dark:bg-slate-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-black">TD</div>
+            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-semibold">TD</div>
             <div>
-              <p className="font-black leading-tight">TECH DZ</p>
+              <p className="font-semibold leading-tight">TECH DZ</p>
               <p className="text-[10px] text-muted-foreground leading-tight">{t({ ar: 'متجر تجريبي', fr: 'Boutique démo', en: 'Demo store' })}</p>
             </div>
           </div>
@@ -232,7 +232,7 @@ export function DemoStorePage() {
             <ShoppingCart className="w-4 h-4" />
             <span className="hidden sm:inline">{t({ ar: 'السلة', fr: 'Panier', en: 'Cart' })}</span>
             {count > 0 && (
-              <span className="absolute -top-1.5 -end-1.5 bg-amber-400 text-slate-900 text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center">
+              <span className="absolute -top-1.5 -end-1.5 bg-amber-400 text-slate-900 text-[10px] font-semibold w-5 h-5 rounded-full flex items-center justify-center">
                 {count}
               </span>
             )}
@@ -246,10 +246,10 @@ export function DemoStorePage() {
         <div className="absolute -bottom-24 -end-24 w-72 h-72 rounded-full bg-sky-500/20 blur-3xl" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 grid md:grid-cols-2 gap-8 items-center">
           <div>
-            <span className="inline-block bg-amber-400 text-slate-900 text-xs font-black px-3 py-1.5 rounded-full mb-4">
+            <span className="inline-block bg-amber-400 text-slate-900 text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
               {t({ ar: 'تخفيضات هذا الأسبوع', fr: 'Promos de la semaine', en: 'This week’s deals' })}
             </span>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black leading-tight mb-4">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold leading-tight mb-4">
               {t({ ar: 'كل ما تحتاجه للإعلام الآلي، في مكان واحد', fr: 'Tout l’informatique, au même endroit', en: 'All your tech, in one place' })}
             </h1>
             <p className="text-blue-100/75 max-w-lg mb-6">
@@ -284,7 +284,7 @@ export function DemoStorePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
             <div>
-              <h2 className="text-2xl md:text-3xl font-black">{t({ ar: 'منتجاتنا', fr: 'Nos produits', en: 'Our products' })}</h2>
+              <h2 className="text-2xl md:text-3xl font-semibold">{t({ ar: 'منتجاتنا', fr: 'Nos produits', en: 'Our products' })}</h2>
               <p className="text-sm text-muted-foreground mt-1">
                 {t({ ar: `${products.length} منتجات — أسعار بالدينار الجزائري`, fr: `${products.length} produits — prix en DZD`, en: `${products.length} products — prices in DZD` })}
               </p>
@@ -328,7 +328,7 @@ export function DemoStorePage() {
                   <p className="text-[11px] text-muted-foreground leading-snug mb-3 line-clamp-2">{t(product.desc)}</p>
                   <div className="mt-auto">
                     <div className="flex items-baseline gap-2 mb-2">
-                      <span className="text-sm sm:text-base font-black">{fmt(product.price)} <span className="text-[10px]">{currency}</span></span>
+                      <span className="text-sm sm:text-base font-semibold">{fmt(product.price)} <span className="text-[10px]">{currency}</span></span>
                       {product.oldPrice && (
                         <span className="text-[11px] text-muted-foreground line-through">{fmt(product.oldPrice)}</span>
                       )}
@@ -371,7 +371,7 @@ export function DemoStorePage() {
 
           <div className="mt-6 rounded-2xl bg-slate-950 text-white p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-start">
             <div>
-              <p className="font-black text-lg md:text-xl mb-1">{t({ ar: 'أعجبك هذا المتجر؟', fr: 'Cette boutique vous plaît ?', en: 'Like this store?' })}</p>
+              <p className="font-semibold text-lg md:text-xl mb-1">{t({ ar: 'أعجبك هذا المتجر؟', fr: 'Cette boutique vous plaît ?', en: 'Like this store?' })}</p>
               <p className="text-sm text-blue-100/70">{t({ ar: 'نصنع لك واحداً مشابهاً بمنتجاتك وألوانك، خلال 10–14 يوماً.', fr: 'Nous créons le vôtre avec vos produits et vos couleurs, en 10–14 jours.', en: 'We build yours with your products and colors, in 10–14 days.' })}</p>
             </div>
             <a
@@ -393,7 +393,7 @@ export function DemoStorePage() {
           <div className="absolute inset-0 bg-black/50" onClick={() => setCartOpen(false)} aria-hidden="true" />
           <div className="absolute inset-y-0 end-0 w-full max-w-md bg-white dark:bg-slate-900 shadow-2xl flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-border">
-              <h3 className="font-black">
+              <h3 className="font-semibold">
                 {step === 'checkout'
                   ? t({ ar: 'إتمام الطلب', fr: 'Finaliser la commande', en: 'Checkout' })
                   : step === 'success'
@@ -447,7 +447,7 @@ export function DemoStorePage() {
                   </div>
                   <div className="flex items-center justify-between text-base border-t border-border pt-3">
                     <span className="font-bold">{t({ ar: 'المجموع', fr: 'Total', en: 'Total' })}</span>
-                    <span className="font-black">{fmt(total)} {currency}</span>
+                    <span className="font-semibold">{fmt(total)} {currency}</span>
                   </div>
                   <button
                     onClick={() => setStep('checkout')}
@@ -520,7 +520,7 @@ export function DemoStorePage() {
                 <div className="border-t border-border p-4 space-y-3">
                   <div className="flex items-center justify-between text-base">
                     <span className="font-bold">{t({ ar: 'المجموع', fr: 'Total', en: 'Total' })}</span>
-                    <span className="font-black">{fmt(total)} {currency}</span>
+                    <span className="font-semibold">{fmt(total)} {currency}</span>
                   </div>
                   <button
                     onClick={submitOrder}
@@ -540,7 +540,7 @@ export function DemoStorePage() {
                 <div className="w-16 h-16 rounded-full bg-emerald-500/15 flex items-center justify-center mb-4">
                   <Check className="w-8 h-8 text-emerald-600" />
                 </div>
-                <h4 className="text-lg font-black mb-2">{t({ ar: 'تم استلام طلبك التجريبي', fr: 'Commande démo reçue', en: 'Demo order received' })}</h4>
+                <h4 className="text-lg font-semibold mb-2">{t({ ar: 'تم استلام طلبك التجريبي', fr: 'Commande démo reçue', en: 'Demo order received' })}</h4>
                 <p className="text-sm text-muted-foreground mb-1">
                   {t({ ar: 'رقم الطلب:', fr: 'N° de commande :', en: 'Order number:' })} <span className="font-bold text-foreground">{orderRef}</span>
                 </p>

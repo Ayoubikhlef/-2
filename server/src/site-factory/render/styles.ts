@@ -404,7 +404,7 @@ ul{margin:0;padding:0;list-style:none}
 body.has-preview{padding-top:36px}
 body.has-preview .site-header{top:36px}
 .preview-watermark{position:fixed;inset:0;z-index:55;pointer-events:none;overflow:hidden;display:flex;flex-direction:column;justify-content:space-around;align-items:center;padding:10vh 0}
-.preview-watermark span{font-family:'Outfit','Cairo',system-ui,sans-serif;font-size:clamp(1.6rem,6vw,4.5rem);font-weight:900;letter-spacing:.18em;color:rgba(15,23,42,.055);transform:rotate(-22deg);white-space:nowrap;user-select:none;text-transform:uppercase}
+.preview-watermark span{font-family:'Bricolage Grotesque','IBM Plex Sans Arabic',system-ui,sans-serif;font-size:clamp(1.6rem,6vw,4.5rem);font-weight:900;letter-spacing:.18em;color:rgba(15,23,42,.055);transform:rotate(-22deg);white-space:nowrap;user-select:none;text-transform:uppercase}
 html[data-theme="dark"] .preview-watermark span{color:rgba(255,255,255,.06)}
 
 /* company hero variant */
@@ -1850,4 +1850,11 @@ html[dir="rtl"] .q-nav [data-q-next] .icon{transform:scaleX(-1)}
   [data-reveal]{opacity:1;transform:none}
   .hero-media{transform:none!important}
 }
+
+
+/* Typography only — the interface keeps its existing layout and palette. */
+:root{--font-display:'Bricolage Grotesque','IBM Plex Sans Arabic',system-ui,sans-serif}
+h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;letter-spacing:0}
+html[lang="ar"] h1,html[lang="ar"] h2,html[lang="ar"] h3,html[lang="ar"] h4{letter-spacing:0}
+.btn{font-weight:500}
 `;

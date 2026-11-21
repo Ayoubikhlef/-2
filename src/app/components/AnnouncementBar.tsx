@@ -10,16 +10,15 @@ const ITEMS: { ar: string; fr: string; en: string }[] = [
 
 export function AnnouncementBar() {
   const { t } = useLanguage();
-  const langs = ['ar', 'fr', 'en'] as const;
-  const all = langs.flatMap(lang => ITEMS.map(i => i[lang]));
+  const all = ITEMS.map((item) => t(item));
 
   return (
-    <div className="relative z-[var(--z-chrome)] overflow-hidden bg-primary text-white py-2 select-none">
+    <div className="relative z-[var(--z-chrome)] overflow-hidden border-b border-border bg-muted text-muted-foreground py-2 select-none">
       <div className="flex w-max animate-[aos-marquee_30s_linear_infinite]">
         {[0, 1].map(dup => (
           <div key={dup} className="flex shrink-0" aria-hidden={dup === 1}>
             {all.map((msg, idx) => (
-              <span key={`${dup}-${idx}`} className="mx-8 flex items-center gap-2 whitespace-nowrap text-xs sm:text-sm font-semibold tracking-wide">
+              <span key={`${dup}-${idx}`} className="mx-8 flex items-center gap-2 whitespace-nowrap text-xs sm:text-sm font-medium">
                 {msg}
               </span>
             ))}
@@ -42,7 +41,7 @@ export function TrustBadges() {
   return (
     <div className="grid grid-cols-2 gap-2 pt-1">
       {badges.map(({ icon: Icon, label }) => (
-        <div key={label} className="flex items-center gap-2 rounded-xl bg-primary/10 border border-primary/20 px-3 py-2 text-[11px] font-bold text-primary">
+        <div key={label} className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-[11px] font-medium text-muted-foreground">
           <Icon className="w-4 h-4 shrink-0" />
           <span className="leading-tight">{label}</span>
         </div>

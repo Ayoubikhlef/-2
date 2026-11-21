@@ -53,7 +53,7 @@ export function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl mb-6 text-slate-900 leading-tight font-black dark:text-white"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl mb-6 text-slate-900 leading-tight font-semibold dark:text-white"
             >
               {t(content.hero.title)}
               <br />
@@ -79,7 +79,7 @@ export function Hero() {
             >
               <a
                 href="#services"
-                className="inline-flex items-center gap-2 bg-primary text-white px-8 py-4 rounded-xl font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/30 hover:shadow-xl hover:shadow-primary/40 active:scale-95 text-base"
+                className="inline-flex items-center gap-2 bg-primary text-white px-8 py-4 rounded-xl font-bold hover:bg-primary/90 transition-all  active:scale-95 text-base"
               >
                 {t({ ar: 'اكتشف خدماتنا', fr: 'Découvrir nos services', en: 'Discover our services' })}
                 <ArrowRight className="w-5 h-5" />
@@ -92,14 +92,14 @@ export function Hero() {
               </a>
               <a
                 href="/create-website"
-                className="inline-flex items-center gap-2 bg-amber-400 text-slate-900 px-8 py-4 rounded-xl font-bold hover:bg-amber-300 transition-all shadow-lg shadow-amber-500/20 hover:shadow-xl active:scale-95 text-base"
+                className="inline-flex items-center gap-2 border border-primary/25 bg-primary/5 text-foreground px-8 py-4 rounded-xl font-semibold hover:bg-primary/10 transition-all active:scale-95 text-base dark:border-white/20 dark:bg-white/10 dark:hover:bg-white/15"
               >
                 <Globe className="w-5 h-5" />
                 {t({ ar: 'أنشئ موقعك الآن', fr: 'Créez votre site', en: 'Create your website' })}
               </a>
               <a
                 href={`tel:${settings.contact.phone}`}
-                className="inline-flex items-center gap-2 bg-green-600 text-white px-6 py-4 rounded-xl font-bold hover:bg-green-700 transition-all shadow-lg shadow-green-600/20 text-base"
+                className="inline-flex items-center gap-2 border border-border bg-background/60 text-foreground px-6 py-4 rounded-xl font-semibold hover:bg-muted transition-all text-base dark:bg-white/10"
               >
                 <Phone className="w-5 h-5" />
                 {t({ ar: 'اتصل بنا', fr: 'Appelez-nous', en: 'Call us' })}
@@ -111,17 +111,17 @@ export function Hero() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.65, duration: 0.5 }}
-              className="group mt-8 flex w-full max-w-xl items-center gap-3 rounded-2xl border border-primary/20 bg-white/80 p-3 shadow-lg shadow-primary/10 backdrop-blur transition hover:-translate-y-0.5 hover:shadow-xl dark:border-white/20 dark:bg-white/10"
+              className="group mt-8 flex w-full max-w-xl items-center gap-3 rounded-2xl border border-primary/20 bg-white/80 p-3 shadow-sm backdrop-blur transition hover:-translate-y-0.5 hover:shadow-xl dark:border-white/20 dark:bg-white/10"
             >
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-600 text-white shadow">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Sparkles className="h-5 w-5" />
               </span>
               <span className="min-w-0 flex-1 text-start">
-                <span className="block text-sm font-black text-slate-900 dark:text-white">
+                <span className="block text-sm font-semibold text-slate-900 dark:text-white">
                   {t({
-                    ar: 'جديد: خدمات الذكاء الاصطناعي — سيرة، شعار، صور، فيديو وشات بوت',
-                    fr: 'Nouveau : services IA — CV, logo, photos, vidéo et chatbot',
-                    en: 'New: AI services — CV, logo, photos, video and chatbot',
+                    ar: 'خدمات الذكاء الاصطناعي — سيرة، شعار، صور، فيديو وشات بوت',
+                    fr: 'Services IA — CV, logo, photos, vidéo et chatbot',
+                    en: 'AI services — CV, logo, photos, video and chatbot',
                   })}
                 </span>
                 <span className="mt-0.5 block text-xs text-slate-600 dark:text-white/70">

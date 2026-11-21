@@ -678,7 +678,7 @@ export function Products() {
                   onClick={() => setActiveCategory(key)}
                   className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${
                     activeCategory === key
-                      ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20'
+                      ? 'bg-primary text-primary-foreground'
                       : 'bg-card border border-border text-muted-foreground hover:border-primary hover:text-primary'
                   }`}
                 >
@@ -926,7 +926,7 @@ export function Products() {
                     closeProductDetails();
                     setTimeout(() => openOrderModal(product!), 100);
                   }}
-                  className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition-all shadow-lg shadow-primary/20 btn-liquid"
+                  className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 px-8 py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition-all shadow-sm btn-liquid"
                 >
                   <ShoppingCart className="w-5 h-5" />
                   {t({ ar: 'اطلب الآن', fr: 'Commander maintenant', en: 'Order Now' })}
@@ -980,8 +980,8 @@ export function Products() {
               /* Thank You Screen */
               <div className="p-8 sm:p-12 text-center relative overflow-hidden">
                 {/* Decorative background */}
-                <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-emerald-500/5 to-transparent pointer-events-none" />
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] max-w-full bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
+                
+                
 
                 <div className="relative">
                   {/* Animated checkmark */}
@@ -989,9 +989,9 @@ export function Products() {
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: 'spring', stiffness: 200, damping: 12, delay: 0.1 }}
-                    className="w-24 h-24 mx-auto mb-8 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-2xl shadow-emerald-500/30"
+                    className="w-24 h-24 mx-auto mb-8 rounded-full border border-emerald-500/30 bg-emerald-500/10 flex items-center justify-center"
                   >
-                    <CheckCircle className="w-12 h-12 text-white" />
+                    <CheckCircle className="w-10 h-10 text-emerald-600 dark:text-emerald-400" />
                   </motion.div>
 
                   {/* Thank you message */}
@@ -1072,7 +1072,7 @@ export function Products() {
                   >
                     <button
                       onClick={closeOrderModal}
-                      className="inline-flex items-center justify-center gap-3 rounded-full bg-gradient-to-r from-primary to-blue-700 px-10 py-5 text-primary-foreground font-bold text-xl shadow-xl shadow-primary/30 hover:shadow-2xl hover:shadow-primary/40 hover:scale-105 transition-all duration-300 btn-liquid"
+                      className="inline-flex items-center justify-center gap-3 rounded-full bg-primary px-10 py-5 text-primary-foreground font-bold text-xl shadow-xl shadow-primary/30 hover:shadow-2xl hover:shadow-primary/40 hover:scale-105 transition-all duration-300 btn-liquid"
                     >
                       <Heart className="w-6 h-6" />
                       {t({ ar: 'شكراً، تم ✓', fr: 'Merci ✓', en: 'Thank you ✓' })}
@@ -1104,7 +1104,7 @@ export function Products() {
                         </div>
                         <div className="min-w-0">
                           <h3 className="text-lg sm:text-2xl font-bold leading-snug line-clamp-2">{selectedName}</h3>
-                          <p className="text-sm font-black text-primary">
+                          <p className="text-sm font-semibold text-primary">
                             {(selectedProduct!.salePrice && selectedProduct!.saleEnd && new Date(selectedProduct!.saleEnd) > new Date()
                               ? selectedProduct!.salePrice
                               : selectedProduct!.price
@@ -1330,7 +1330,7 @@ export function Products() {
                     <div className="sticky top-8 space-y-6">
                       <div>
                         <div className="flex items-center gap-3 mb-5">
-                          <div className="w-10 h-10 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center shadow-lg shadow-primary/20">
+                          <div className="w-10 h-10 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center shadow-sm">
                             <ShoppingCart className="w-5 h-5" />
                           </div>
                           <p className="text-lg font-bold">{t({ ar: 'ملخص الطلب', fr: 'Résumé', en: 'Order Summary' })}</p>
@@ -1441,7 +1441,7 @@ export function Products() {
                       <button
                         type="submit"
                         disabled={submitting}
-                        className="hidden sm:block w-full rounded-2xl bg-gradient-to-r from-primary to-blue-700 px-6 py-5 text-primary-foreground font-bold text-xl shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 hover:scale-[1.02] transition-all duration-300 btn-liquid disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+                        className="hidden sm:block w-full rounded-2xl bg-primary px-6 py-5 text-primary-foreground font-bold text-xl shadow-sm hover:shadow-2xl hover:shadow-primary/30 hover:scale-[1.02] transition-all duration-300 btn-liquid disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
                       >
                         {submitting
                           ? t({ ar: 'جارٍ إرسال الطلب...', fr: 'Envoi en cours...', en: 'Sending order...' })
@@ -1460,7 +1460,7 @@ export function Products() {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="w-full rounded-2xl bg-gradient-to-r from-primary to-blue-700 px-6 py-4 min-h-[52px] text-primary-foreground font-bold text-lg shadow-xl shadow-primary/20 transition-all duration-300 btn-liquid disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="w-full rounded-2xl bg-primary px-6 py-4 min-h-[52px] text-primary-foreground font-bold text-lg shadow-sm transition-all duration-300 btn-liquid disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {submitting
                       ? t({ ar: 'جارٍ إرسال الطلب...', fr: 'Envoi en cours...', en: 'Sending order...' })
@@ -1542,7 +1542,7 @@ export function Products() {
 
               {quickViewProduct.specs.length > 0 && (
                 <div className="space-y-1.5">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  <p className="text-xs font-semibold text-muted-foreground tracking-normal">
                     {t({ ar: 'أبرز المواصفات', fr: 'Spécifications', en: 'Specs' })}
                   </p>
                   {quickViewProduct.specs.slice(0, 4).map((spec, idx) => (

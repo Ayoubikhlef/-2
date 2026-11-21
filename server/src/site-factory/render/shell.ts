@@ -527,9 +527,10 @@ export function renderShell(options: ShellOptions): string {
   const primary = config.primaryColor;
   const secondary = config.secondaryColor;
   const foreground = foregroundFor(primary);
-  const font = lang === 'ar'
-    ? `'Cairo','Outfit',system-ui,-apple-system,'Segoe UI',sans-serif`
-    : `'Outfit','Cairo',system-ui,-apple-system,'Segoe UI',sans-serif`;
+  // IBM Plex Sans Arabic covers both scripts; Bricolage is used for Latin
+  // display text in the shared stylesheet. Both families come from the same
+  // typographic tradition, so mixed AR/FR/EN lines keep one texture.
+  const font = `'IBM Plex Sans Arabic','IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif`;
   const logo = config.logoAssetPath
     ? `<img class="brand-logo" src="${attr(config.logoAssetPath)}" alt="${attr(config.siteName)}" width="44" height="44">`
     : `<span class="brand-mark" aria-hidden="true">${esc(initials(config.siteName))}</span>`;
@@ -688,7 +689,7 @@ ${ogImage ? `<meta name="twitter:image" content="${attr(ogImage)}">` : ''}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/site.css">
 <style>
 :root{--p:${attr(primary)};--p2:${attr(secondary)};--p-ink:${foreground};--p-base:${attr(primary)};--p2-base:${attr(secondary)};--p-text:${attr(primary)};--tint:color-mix(in srgb,${attr(primary)} 10%,#fff);--tint-2:color-mix(in srgb,${attr(primary)} 16%,#fff);--tint-ink:color-mix(in srgb,${attr(primary)} 55%,#fff);--solid:#0f172a;--solid-ink:#fff;--glass:rgba(255,255,255,.94);--glass-ink:#0f172a;--bg:#f8fafc;--soft:#f1f5f9;--surface:#fff;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;--shadow:0 28px 70px -28px rgba(15,23,42,.32);--shadow-sm:0 8px 30px -18px rgba(15,23,42,.22);--radius:20px;--font:${font}}
@@ -704,7 +705,7 @@ ${mainContent}
 ${footerHtml}
 ${waFloat}
 ${installBtn}
-<button class="to-top" type="button" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="${attr(s.backTop)}">${icon('arrow', 'icon')}</button>
+<button class="to-top" type="button" data-to-top aria-label="${attr(s.backTop)}">${icon('arrow', 'icon')}</button>
 <div class="overlay" id="overlay"></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script type="application/json" id="site-data">${JSON.stringify(data).replace(/</g, '\\u003c')}</script>

@@ -67,11 +67,11 @@ export function Testimonials() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-14">
-          <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-4 py-1.5 text-sm font-bold text-primary mb-4">
+          <span className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium text-muted-foreground mb-4">
             <Quote className="w-4 h-4" />
             {t({ ar: 'آراء عملائنا', fr: 'Avis de nos clients', en: 'Client Reviews' })}
           </span>
-          <h2 className="text-3xl sm:text-5xl font-black mb-4 bg-gradient-to-r from-primary via-blue-500 to-cyan-500 bg-clip-text text-transparent">
+          <h2 className="text-3xl sm:text-5xl font-semibold mb-4 text-foreground">
             {t({ ar: 'ثقة العملاء هي رأس مالنا', fr: 'La confiance, notre capital', en: 'Trust is our capital' })}
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
@@ -100,7 +100,7 @@ export function Testimonials() {
                 “{t(item.text)}”
               </p>
               <div className="flex items-center gap-3 border-t border-border/60 pt-4">
-                <div className={`w-11 h-11 rounded-full bg-gradient-to-br ${item.color} flex items-center justify-center text-white font-black text-lg shadow-md shrink-0`}>
+                <div className="w-11 h-11 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold text-lg shrink-0">
                   {item.name.charAt(0)}
                 </div>
                 <div className="min-w-0">

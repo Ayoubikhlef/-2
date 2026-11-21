@@ -255,7 +255,7 @@ export function renderSite(input: RenderConfig): RenderedSite {
 <meta name="theme-color" content="${config.primaryColor}">
 <style>
 *{box-sizing:border-box}
-body{margin:0;min-height:100dvh;display:grid;place-items:center;padding:24px;background:#f8fafc;color:#0f172a;font-family:'Cairo','Outfit',system-ui,sans-serif;text-align:center}
+body{margin:0;min-height:100dvh;display:grid;place-items:center;padding:24px;background:#f8fafc;color:#0f172a;font-family:'IBM Plex Sans Arabic','IBM Plex Sans',system-ui,sans-serif;text-align:center}
 .card{max-width:420px;width:100%;background:#fff;border:1px solid #e2e8f0;border-radius:22px;padding:34px 26px;box-shadow:0 30px 70px -40px rgba(15,23,42,.35)}
 .logo{width:58px;height:58px;border-radius:16px;background:${config.primaryColor};color:#fff;display:grid;place-items:center;font-weight:900;font-size:1.3rem;margin:0 auto 18px}
 .ic{width:54px;height:54px;border-radius:50%;background:color-mix(in srgb,${config.primaryColor} 12%,#fff);color:${config.primaryColor};display:grid;place-items:center;margin:0 auto 16px;font-size:1.4rem}
@@ -274,7 +274,7 @@ a,button{display:inline-flex;align-items:center;justify-content:center;min-heigh
   <p>${offlineCopy.body}</p>
   <div class="actions">
     <a class="primary" href="index.html">${offlineCopy.back}</a>
-    <button type="button" onclick="location.reload()">${offlineCopy.retry}</button>
+    <a href="./">${offlineCopy.retry}</a>
   </div>
 </main>
 </body>
@@ -360,7 +360,7 @@ ${LANGS.map((alt) => `    <xhtml:link rel="alternate" hreflang="${alt}" href="${
   addFile('sitemap.xml', sitemap);
   addFile('robots.txt', config.preview ? 'User-agent: *\nDisallow: /\n' : `User-agent: *\nAllow: /\n\nSitemap: ${siteUrl}/sitemap.xml\n`);
 
-  const notFound = `<!doctype html><html lang="${defaultLang}" dir="${defaultLang === 'ar' ? 'rtl' : 'ltr'}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>404 — ${esc(config.siteName)}</title><link rel="stylesheet" href="assets/site.css"><style>:root{--p:${config.primaryColor};--p2:${config.secondaryColor};--p-ink:#fff;--bg:#f8fafc;--surface:#fff;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;--font:'Cairo','Outfit',sans-serif}</style></head><body class="tpl-${config.templateSlug}"><main style="min-height:80dvh;display:grid;place-items:center;text-align:center;padding:24px"><div><div style="font-size:5rem;font-weight:900;color:var(--p);line-height:1">404</div><h1 class="h2" style="margin-top:12px">${esc(config.siteName)}</h1><p class="lead" style="margin:12px auto 24px">${esc(config.tagline)}</p><a class="btn btn-primary" href="index.html">${langLabel(defaultLang)}</a></div></main></body></html>`;
+  const notFound = `<!doctype html><html lang="${defaultLang}" dir="${defaultLang === 'ar' ? 'rtl' : 'ltr'}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>404 — ${esc(config.siteName)}</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap"><link rel="stylesheet" href="assets/site.css"><style>:root{--p:${config.primaryColor};--p2:${config.secondaryColor};--p-ink:#fff;--bg:#f8fafc;--surface:#fff;--ink:#0f172a;--muted:#64748b;--line:#e2e8f0;--font:'IBM Plex Sans Arabic','IBM Plex Sans',sans-serif}</style></head><body class="tpl-${config.templateSlug}"><main style="min-height:80dvh;display:grid;place-items:center;text-align:center;padding:24px"><div><div style="font-size:5rem;font-weight:900;color:var(--p);line-height:1">404</div><h1 class="h2" style="margin-top:12px">${esc(config.siteName)}</h1><p class="lead" style="margin:12px auto 24px">${esc(config.tagline)}</p><a class="btn btn-primary" href="index.html">${langLabel(defaultLang)}</a></div></main></body></html>`;
   addFile('404.html', notFound);
 
   let size = 0;

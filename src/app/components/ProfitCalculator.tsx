@@ -658,7 +658,7 @@ export function ProfitCalculatorPage() {
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-border bg-gradient-to-br from-emerald-500/10 via-background to-background px-4 pb-12 pt-14">
         <div className="mx-auto max-w-6xl text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-300">
+          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-4 py-1.5 text-xs font-semibold tracking-normal text-emerald-700 dark:text-emerald-300">
             <Calculator className="h-3.5 w-3.5" />
             {t({ ar: 'حاسبات المتجر', fr: 'Calculateurs boutique', en: 'Store calculators' })}
           </span>
@@ -754,8 +754,8 @@ export function ProfitCalculatorPage() {
                 }`}
                 aria-live="polite"
               >
-                <p className="text-xs font-bold uppercase tracking-wide opacity-80">{t(result.primary.label)}</p>
-                <p className="mt-2 text-3xl font-extrabold tabular-nums sm:text-4xl">
+                <p className="text-xs font-bold tracking-normal opacity-80">{t(result.primary.label)}</p>
+                <p className="mt-2 text-3xl font-semibold tabular-nums sm:text-4xl">
                   {formatValue(result.primary.value, result.primary.unit, language)}
                 </p>
                 {result.primary.unit === 'money' && (

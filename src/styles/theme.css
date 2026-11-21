@@ -24,6 +24,10 @@
   --switch-background: #cbd5e1;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
+  /* One interface family for AR/FR/EN, one Latin display partner, one mono for figures. */
+  --font-ui: 'IBM Plex Sans Arabic', 'IBM Plex Sans', 'Segoe UI', 'Arial', sans-serif;
+  --font-display-family: 'Bricolage Grotesque', 'IBM Plex Sans Arabic', 'Segoe UI', sans-serif;
+  --font-mono-family: 'JetBrains Mono', 'Cascadia Mono', 'Courier New', monospace;
   --ring: #0b5ed7;
   --chart-1: #0b5ed7;
   --chart-2: #3b82f6;
@@ -126,6 +130,9 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --font-sans: var(--font-ui);
+  --font-display: var(--font-display-family);
+  --font-mono: var(--font-mono-family);
 }
 
 @layer base {
@@ -155,39 +162,51 @@
     color: var(--primary-foreground);
   }
 
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display-family);
+    font-weight: 600;
+  }
+
   h1 {
     font-size: var(--text-2xl);
-    font-weight: 800;
     line-height: 1.4;
   }
 
   h2 {
     font-size: var(--text-3xl);
-    font-weight: 800;
     line-height: 1.2;
   }
 
   h3 {
     font-size: var(--text-xl);
-    font-weight: 700;
     line-height: 1.3;
   }
 
   h4 {
     font-size: var(--text-base);
-    font-weight: 700;
+    font-weight: 600;
     line-height: 1.5;
+  }
+
+  /* Arabic has no letter spacing; tracking pulls joined letters apart. */
+  html[lang='ar'] h1,
+  html[lang='ar'] h2,
+  html[lang='ar'] h3,
+  html[lang='ar'] h4 {
+    letter-spacing: 0;
   }
 
   label {
     font-size: var(--text-base);
-    font-weight: 700;
+    font-weight: 500;
     line-height: 1.5;
   }
 
   button {
     font-size: var(--text-base);
-    font-weight: 700;
+    font-weight: 500;
     line-height: 1.5;
   }
 
@@ -200,16 +219,17 @@
 
 body {
   position: relative;
-  font-family: 'Plus Jakarta Sans', 'Tajawal', 'Noto Sans Arabic', 'Segoe UI', 'Arial', sans-serif;
-  font-weight: 500;
+  font-family: var(--font-ui);
+  font-weight: 400;
   color: var(--foreground);
   background: var(--background);
+  -webkit-font-smoothing: antialiased;
 }
 
 .dark body,
 :root.dark body {
-  font-family: 'Plus Jakarta Sans', 'Tajawal', 'Noto Sans Arabic', 'Segoe UI', 'Arial', sans-serif;
-  font-weight: 500;
+  font-family: var(--font-ui);
+  font-weight: 400;
   color: var(--foreground);
   background: var(--background);
 }

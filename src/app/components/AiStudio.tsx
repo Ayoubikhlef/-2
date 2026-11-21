@@ -481,7 +481,7 @@ export function AiStudio({ onRequestService, cvServiceValue, contentServiceValue
   return (
     <section
       id="ai-studio"
-      className="mt-10 scroll-mt-24 overflow-hidden rounded-3xl border border-primary/20 bg-card shadow-xl shadow-primary/5"
+      className="mt-10 scroll-mt-24 overflow-hidden rounded-3xl border border-primary/20 bg-card shadow-sm"
     >
       <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-primary to-indigo-800 p-6 text-white sm:p-8">
         <div aria-hidden="true" className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
@@ -492,7 +492,7 @@ export function AiStudio({ onRequestService, cvServiceValue, contentServiceValue
             </span>
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <h3 className="text-xl font-black md:text-2xl">
+                <h3 className="text-xl font-semibold md:text-2xl">
                   {t({ ar: 'AI Studio — جرّب التوليد الآن', fr: 'AI Studio — testez la génération', en: 'AI Studio — try generation now' })}
                 </h3>
                 <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-bold ring-1 ${statusBadge.className}`}>
@@ -518,7 +518,7 @@ export function AiStudio({ onRequestService, cvServiceValue, contentServiceValue
                 type="button"
                 onClick={() => setOutputLang(code)}
                 aria-pressed={outputLang === code}
-                className={`rounded-lg px-2.5 py-1.5 text-[11px] font-black uppercase transition ${
+                className={`rounded-lg px-2.5 py-1.5 text-[11px] font-semibold uppercase transition ${
                   outputLang === code ? 'bg-white text-slate-900' : 'text-white/70 hover:bg-white/10 hover:text-white'
                 }`}
               >
@@ -541,9 +541,9 @@ export function AiStudio({ onRequestService, cvServiceValue, contentServiceValue
                   type="button"
                   onClick={() => chooseTool(item.id)}
                   aria-pressed={isActive}
-                  className={`inline-flex items-center gap-2 rounded-xl border-2 px-3 py-2 text-xs font-black transition sm:text-sm ${
+                  className={`inline-flex items-center gap-2 rounded-xl border-2 px-3 py-2 text-xs font-semibold transition sm:text-sm ${
                     isActive
-                      ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-primary/20'
+                      ? 'border-primary bg-primary text-primary-foreground shadow-sm'
                       : 'border-border bg-background text-muted-foreground hover:border-primary/40 hover:text-primary'
                   }`}
                 >
@@ -607,7 +607,7 @@ export function AiStudio({ onRequestService, cvServiceValue, contentServiceValue
                 <button
                   type="button"
                   onClick={() => requestFullService(activeTool)}
-                  className="mt-2 inline-flex items-center gap-1 text-xs font-black text-primary hover:underline"
+                  className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
                 >
                   {t({ ar: 'اطلبها من فريقنا', fr: 'Demander à notre équipe', en: 'Request it from our team' })}
                   <ArrowRight className="h-3 w-3 rtl:rotate-180" />
@@ -620,7 +620,7 @@ export function AiStudio({ onRequestService, cvServiceValue, contentServiceValue
             type="button"
             onClick={handleGenerate}
             disabled={loading}
-            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-indigo-700 px-5 py-3.5 text-sm font-black text-primary-foreground shadow-lg shadow-primary/20 transition hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3.5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
           >
             {loading ? (
               <>
@@ -656,12 +656,12 @@ export function AiStudio({ onRequestService, cvServiceValue, contentServiceValue
             <div className="flex h-full flex-col">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-black text-emerald-700 dark:text-emerald-300">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-semibold text-emerald-700 dark:text-emerald-300">
                     <Check className="h-3 w-3" />
                     {t({ ar: 'جاهز', fr: 'Prêt', en: 'Ready' })}
                   </span>
                   {result.mock && (
-                    <span className="rounded-full bg-amber-500/10 px-2.5 py-1 text-[10px] font-black text-amber-700 dark:text-amber-300">
+                    <span className="rounded-full bg-amber-500/10 px-2.5 py-1 text-[10px] font-semibold text-amber-700 dark:text-amber-300">
                       {t({ ar: 'وضع تجريبي', fr: 'Mode démo', en: 'Demo mode' })}
                     </span>
                   )}
@@ -669,7 +669,7 @@ export function AiStudio({ onRequestService, cvServiceValue, contentServiceValue
                 <button
                   type="button"
                   onClick={copyResult}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-black transition hover:border-primary/40 hover:text-primary"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-semibold transition hover:border-primary/40 hover:text-primary"
                 >
                   {copied ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Clipboard className="h-3.5 w-3.5" />}
                   {copied
@@ -698,7 +698,7 @@ export function AiStudio({ onRequestService, cvServiceValue, contentServiceValue
                   type="button"
                   onClick={handleGenerate}
                   disabled={loading}
-                  className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl border-2 border-border bg-background px-4 py-2.5 text-xs font-black transition hover:border-primary/40 hover:text-primary disabled:opacity-60"
+                  className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl border-2 border-border bg-background px-4 py-2.5 text-xs font-semibold transition hover:border-primary/40 hover:text-primary disabled:opacity-60"
                 >
                   <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
                   {t({ ar: 'إعادة التوليد', fr: 'Régénérer', en: 'Regenerate' })}
@@ -706,7 +706,7 @@ export function AiStudio({ onRequestService, cvServiceValue, contentServiceValue
                 <button
                   type="button"
                   onClick={() => requestFullService(activeTool)}
-                  className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-xs font-black text-primary-foreground transition hover:bg-primary/90"
+                  className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground transition hover:bg-primary/90"
                 >
                   {t({ ar: 'اطلب النسخة الاحترافية', fr: 'Demander la version pro', en: 'Request the pro version' })}
                   <ArrowRight className="h-3.5 w-3.5 rtl:rotate-180" />
@@ -718,7 +718,7 @@ export function AiStudio({ onRequestService, cvServiceValue, contentServiceValue
               <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                 <Sparkles className="h-7 w-7" />
               </span>
-              <h4 className="mt-4 text-lg font-black">
+              <h4 className="mt-4 text-lg font-semibold">
                 {t({ ar: 'نتيجتك تظهر هنا', fr: 'Votre résultat apparaîtra ici', en: 'Your result appears here' })}
               </h4>
               <p className="mt-1 max-w-xs text-sm leading-relaxed text-muted-foreground">

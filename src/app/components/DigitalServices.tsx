@@ -478,19 +478,19 @@ export function DigitalServices() {
       viewport={{ once: true, margin: '-100px' }}
       transition={{ duration: 0.6 }}
       id="digital-services"
-      className="relative scroll-mt-24 overflow-hidden bg-gradient-to-b from-slate-50 via-white to-slate-50 py-16 dark:from-slate-950 dark:via-slate-900/40 dark:to-slate-950 md:py-24"
+      className="relative scroll-mt-24 overflow-hidden bg-muted/30 py-16 dark:bg-background md:py-24"
     >
-      <div aria-hidden="true" className="pointer-events-none absolute -left-24 top-24 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
-      <div aria-hidden="true" className="pointer-events-none absolute -right-24 top-[45%] h-80 w-80 rounded-full bg-cyan-400/10 blur-3xl" />
+      
+      
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Intro */}
         <div className="mx-auto max-w-3xl text-center">
-          <span className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-sm font-bold text-primary">
+          <span className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium text-muted-foreground">
             <Sparkles className="h-4 w-4" />
             {t({ ar: 'حلول رقمية 360°', fr: 'Solutions digitales 360°', en: '360° digital solutions' })}
           </span>
-          <h2 className="mt-5 text-3xl font-black leading-tight md:text-5xl">
+          <h2 className="mt-5 text-3xl font-semibold leading-tight md:text-5xl">
             {t({
               ar: 'خدمات رقمية ترفع مشروعك إلى المستوى التالي',
               fr: 'Des services digitaux qui font passer votre projet au niveau supérieur',
@@ -509,7 +509,7 @@ export function DigitalServices() {
             <button
               type="button"
               onClick={() => openQuote()}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-primary to-blue-700 px-6 py-3.5 text-sm font-black text-primary-foreground shadow-lg shadow-primary/25 transition hover:-translate-y-0.5 hover:shadow-xl sm:w-auto"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:-translate-y-0.5 hover:shadow-xl sm:w-auto"
             >
               {t({ ar: 'اطلب عرض سعر مجاني', fr: 'Demander un devis gratuit', en: 'Request a free quote' })}
               <ArrowRight className="h-4 w-4 rtl:rotate-180" />
@@ -524,7 +524,7 @@ export function DigitalServices() {
               )}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-border bg-card px-6 py-3.5 text-sm font-black transition hover:border-primary/40 hover:text-primary sm:w-auto"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-border bg-card px-6 py-3.5 text-sm font-semibold transition hover:border-primary/40 hover:text-primary sm:w-auto"
             >
               <MessageCircle className="h-4 w-4" />
               {t({ ar: 'استشارة سريعة عبر واتساب', fr: 'Conseil rapide sur WhatsApp', en: 'Quick advice on WhatsApp' })}
@@ -551,14 +551,14 @@ export function DigitalServices() {
         </div>
 
         {/* AI highlight */}
-        <div id="ai-tools-banner" className="mt-8 overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary via-blue-700 to-indigo-800 p-6 text-white shadow-xl shadow-primary/20 md:p-8">
+        <div id="ai-tools-banner" className="mt-8 overflow-hidden rounded-3xl border border-primary/20 bg-primary p-6 text-white shadow-sm md:p-8">
           <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
             <div className="flex items-start gap-4">
               <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/15 ring-1 ring-white/25">
                 <Bot className="h-6 w-6" />
               </span>
               <div>
-                <h3 className="text-lg font-black md:text-2xl">
+                <h3 className="text-lg font-semibold md:text-2xl">
                   {t({
                     ar: 'أدوات الذكاء الاصطناعي — بدون اشتراكات تدفعها أنت',
                     fr: 'Outils d’IA — sans abonnements à votre charge',
@@ -591,7 +591,7 @@ export function DigitalServices() {
             <div className="flex shrink-0 flex-col gap-2 sm:flex-row md:items-center">
               <a
                 href="#ai-studio"
-                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white/10 px-5 py-3 text-sm font-black text-white ring-1 ring-white/25 transition hover:bg-white/20"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white/10 px-5 py-3 text-sm font-semibold text-white ring-1 ring-white/25 transition hover:bg-white/20"
               >
                 <Sparkles className="h-4 w-4" />
                 {t({ ar: 'جرّب AI Studio', fr: 'Essayer AI Studio', en: 'Try AI Studio' })}
@@ -604,7 +604,7 @@ export function DigitalServices() {
                       services[0]?.bookingValue,
                   )
                 }
-                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-black text-primary shadow-lg transition hover:-translate-y-0.5"
+                className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-primary shadow-lg transition hover:-translate-y-0.5"
               >
                 {t({ ar: 'اطلب خدمة AI', fr: 'Demander un service IA', en: 'Request an AI service' })}
                 <ArrowRight className="h-4 w-4 rtl:rotate-180" />
@@ -634,9 +634,9 @@ export function DigitalServices() {
                 type="button"
                 onClick={() => setActiveCategory(category.id)}
                 aria-pressed={isActive}
-                className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-black transition sm:text-sm ${
+                className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold transition sm:text-sm ${
                   isActive
-                    ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-primary/20'
+                    ? 'border-primary bg-primary text-primary-foreground shadow-sm'
                     : 'border-border bg-card text-muted-foreground hover:border-primary/40 hover:text-primary'
                 }`}
               >
@@ -670,10 +670,10 @@ export function DigitalServices() {
         <div className="mt-14 md:mt-20">
           <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
-              <span className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">
+              <span className="text-[11px] font-semibold tracking-normal text-primary">
                 {t({ ar: '01 — الخدمات', fr: '01 — Services', en: '01 — Services' })}
               </span>
-              <h3 className="mt-2 text-2xl font-black md:text-3xl">
+              <h3 className="mt-2 text-2xl font-semibold md:text-3xl">
                 {t({ ar: 'خدمات رقمية وذكاء اصطناعي في مكان واحد', fr: 'Services digitaux et IA au même endroit', en: 'Digital services and AI in one place' })}
               </h3>
             </div>
@@ -705,13 +705,13 @@ export function DigitalServices() {
                       <Icon className="h-6 w-6" />
                     </span>
                     {service.badge && (
-                      <span className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-black text-primary">
+                      <span className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary">
                         {t(service.badge)}
                       </span>
                     )}
                   </div>
 
-                  <h4 className="mt-4 text-xl font-black leading-snug">{t(service.title)}</h4>
+                  <h4 className="mt-4 text-xl font-semibold leading-snug">{t(service.title)}</h4>
                   <p className="mt-1 text-sm font-bold text-primary">{t(service.tagline)}</p>
                   <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{t(service.description)}</p>
 
@@ -737,13 +737,13 @@ export function DigitalServices() {
                         <span className="block text-[11px] font-semibold text-muted-foreground">
                           {t({ ar: 'تبدأ من', fr: 'À partir de', en: 'Starting from' })}
                         </span>
-                        <span className="text-xl font-black text-primary">{priceLabel(service.startingPrice)}</span>
+                        <span className="text-xl font-semibold text-primary">{priceLabel(service.startingPrice)}</span>
                         <span className="ms-1 text-[11px] font-semibold text-muted-foreground">{t(service.priceUnit)}</span>
                       </div>
                       <button
                         type="button"
                         onClick={() => openQuote(service.bookingValue)}
-                        className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-primary/10 px-3 py-2 text-xs font-black text-primary transition group-hover:bg-primary group-hover:text-primary-foreground"
+                        className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-primary/10 px-3 py-2 text-xs font-semibold text-primary transition group-hover:bg-primary group-hover:text-primary-foreground"
                       >
                         {service.category === 'ai'
                           ? t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order now' })
@@ -759,7 +759,7 @@ export function DigitalServices() {
 
           {visibleServices.length === 0 && (
             <div className="rounded-3xl border border-dashed border-border bg-card/60 p-10 text-center">
-              <p className="text-lg font-black">
+              <p className="text-lg font-semibold">
                 {t({ ar: 'لا توجد خدمة مطابقة لبحثك', fr: 'Aucun service ne correspond à votre recherche', en: 'No service matches your search' })}
               </p>
               <p className="mt-1 text-sm text-muted-foreground">
@@ -771,7 +771,7 @@ export function DigitalServices() {
                   setSearch('');
                   setActiveCategory('all');
                 }}
-                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-black text-primary-foreground"
+                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground"
               >
                 {t({ ar: 'عرض كل الخدمات', fr: 'Voir tous les services', en: 'Show all services' })}
               </button>
@@ -782,10 +782,10 @@ export function DigitalServices() {
         {/* Packages */}
         <div className="mt-16 scroll-mt-24 md:mt-24" id="digital-packages">
           <div className="mb-6 text-center">
-            <span className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">
+            <span className="text-[11px] font-semibold tracking-normal text-primary">
               {t({ ar: '02 — الباقات', fr: '02 — Packs', en: '02 — Packs' })}
             </span>
-            <h3 className="mt-2 text-2xl font-black md:text-3xl">
+            <h3 className="mt-2 text-2xl font-semibold md:text-3xl">
               {t({ ar: 'باقات جاهزة بأسعار واضحة', fr: 'Des packs prêts à l’emploi, à prix clair', en: 'Ready-made packs with clear pricing' })}
             </h3>
             <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
@@ -807,23 +807,23 @@ export function DigitalServices() {
                 transition={{ duration: 0.45, delay: index * 0.07 }}
                 className={`relative flex h-full flex-col rounded-3xl border p-6 ${
                   pkg.featured
-                    ? `border-transparent bg-gradient-to-br ${pkg.gradient} text-white shadow-2xl shadow-primary/25 xl:-translate-y-2`
+                    ? `border-transparent bg-gradient-to-br ${pkg.gradient} text-white shadow-sm xl:-translate-y-2`
                     : 'border-border bg-card shadow-sm'
                 }`}
               >
                 {pkg.featured && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-amber-400 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-amber-950 shadow">
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-amber-400 px-3 py-1 text-[10px] font-semibold tracking-normal text-amber-950 shadow">
                     {t({ ar: 'الأكثر طلباً', fr: 'Le plus demandé', en: 'Most popular' })}
                   </span>
                 )}
 
-                <h4 className="text-lg font-black">{t(pkg.name)}</h4>
+                <h4 className="text-lg font-semibold">{t(pkg.name)}</h4>
                 <p className={`mt-1 text-xs leading-relaxed ${pkg.featured ? 'text-white/80' : 'text-muted-foreground'}`}>
                   {t(pkg.tagline)}
                 </p>
 
                 <div className="mt-4 flex items-end gap-1.5">
-                  <span className="text-3xl font-black tracking-tight">{priceLabel(pkg.price)}</span>
+                  <span className="text-3xl font-semibold tracking-tight">{priceLabel(pkg.price)}</span>
                   <span className={`pb-1 text-[11px] font-semibold ${pkg.featured ? 'text-white/75' : 'text-muted-foreground'}`}>
                     {t(pkg.period)}
                   </span>
@@ -847,7 +847,7 @@ export function DigitalServices() {
                 <button
                   type="button"
                   onClick={() => openQuote(pkg.bookingValue, pkg.id)}
-                  className={`mt-auto inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-black transition ${
+                  className={`mt-auto inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition ${
                     pkg.featured
                       ? 'mt-6 bg-white text-slate-900 hover:bg-white/90'
                       : 'mt-6 bg-primary text-primary-foreground hover:bg-primary/90'
@@ -872,21 +872,21 @@ export function DigitalServices() {
         {/* Process + guarantees */}
         <div className="mt-16 grid grid-cols-1 gap-6 md:mt-24 lg:grid-cols-2">
           <div className="rounded-3xl border border-border bg-card p-6 shadow-sm md:p-8">
-            <span className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">
+            <span className="text-[11px] font-semibold tracking-normal text-primary">
               {t({ ar: '03 — طريقة العمل', fr: '03 — Notre méthode', en: '03 — How we work' })}
             </span>
-            <h3 className="mt-2 text-2xl font-black">
+            <h3 className="mt-2 text-2xl font-semibold">
               {t({ ar: 'أربع خطوات واضحة من الفكرة إلى الإطلاق', fr: 'Quatre étapes claires, de l’idée au lancement', en: 'Four clear steps from idea to launch' })}
             </h3>
 
             <ol className="mt-6 space-y-5">
               {DIGITAL_STEPS.map((step, index) => (
                 <li key={step.id} className="flex gap-4">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-black text-primary">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
                     {index + 1}
                   </span>
                   <div className="border-b border-border pb-4 last:border-0 last:pb-0">
-                    <h4 className="text-sm font-black">{t(step.title)}</h4>
+                    <h4 className="text-sm font-semibold">{t(step.title)}</h4>
                     <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{t(step.description)}</p>
                   </div>
                 </li>
@@ -895,10 +895,10 @@ export function DigitalServices() {
           </div>
 
           <div className="rounded-3xl border border-border bg-gradient-to-br from-primary/5 via-card to-card p-6 shadow-sm md:p-8">
-            <span className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">
+            <span className="text-[11px] font-semibold tracking-normal text-primary">
               {t({ ar: '04 — ضماناتنا', fr: '04 — Nos garanties', en: '04 — Our guarantees' })}
             </span>
-            <h3 className="mt-2 text-2xl font-black">
+            <h3 className="mt-2 text-2xl font-semibold">
               {t({ ar: 'التزامات مكتوبة تحمي استثمارك', fr: 'Des engagements écrits qui protègent votre investissement', en: 'Written commitments that protect your investment' })}
             </h3>
 
@@ -910,7 +910,7 @@ export function DigitalServices() {
                     <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
                       <Icon className="h-[18px] w-[18px]" />
                     </span>
-                    <h4 className="mt-2.5 text-sm font-black">{t(item.title)}</h4>
+                    <h4 className="mt-2.5 text-sm font-semibold">{t(item.title)}</h4>
                     <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t(item.description)}</p>
                   </div>
                 );
@@ -922,10 +922,10 @@ export function DigitalServices() {
         {/* FAQ + quote form */}
         <div className="mt-16 grid grid-cols-1 gap-6 md:mt-24 lg:grid-cols-5">
           <div className="lg:col-span-2">
-            <span className="text-[11px] font-black uppercase tracking-[0.22em] text-primary">
+            <span className="text-[11px] font-semibold tracking-normal text-primary">
               {t({ ar: '05 — أسئلة شائعة', fr: '05 — Questions fréquentes', en: '05 — FAQ' })}
             </span>
-            <h3 className="mt-2 text-2xl font-black md:text-3xl">
+            <h3 className="mt-2 text-2xl font-semibold md:text-3xl">
               {t({ ar: 'كل ما تحتاج معرفته قبل البدء', fr: 'Tout savoir avant de commencer', en: 'Everything to know before starting' })}
             </h3>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
@@ -971,8 +971,8 @@ export function DigitalServices() {
           </div>
 
           <div ref={quoteRef} id="digital-quote" className="scroll-mt-24 lg:col-span-3">
-            <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-2xl shadow-primary/5">
-              <div className="relative overflow-hidden bg-gradient-to-br from-primary via-blue-700 to-indigo-800 p-6 text-white sm:p-8">
+            <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
+              <div className="relative overflow-hidden bg-primary p-6 text-white sm:p-8">
                 <div aria-hidden="true" className="absolute -right-10 -top-10 h-36 w-36 rounded-full bg-white/10 blur-2xl" />
                 <div className="relative">
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold ring-1 ring-white/20">
@@ -981,7 +981,7 @@ export function DigitalServices() {
                       ? t({ ar: 'سعر واضح — دفع بعد التسليم', fr: 'Prix clair — paiement à la livraison', en: 'Clear price — pay on delivery' })
                       : t({ ar: 'مجاني وبدون التزام', fr: 'Gratuit et sans engagement', en: 'Free and without obligation' })}
                   </span>
-                  <h3 className="mt-3 text-2xl font-black sm:text-3xl">
+                  <h3 className="mt-3 text-2xl font-semibold sm:text-3xl">
                     {quotePrice
                       ? t({ ar: 'اطلب خدمتك الآن', fr: 'Commandez votre service', en: 'Order your service' })
                       : t({ ar: 'اطلب عرض سعر مفصلاً', fr: 'Demandez un devis détaillé', en: 'Request a detailed quote' })}
@@ -1007,7 +1007,7 @@ export function DigitalServices() {
                   <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-xl shadow-emerald-500/25">
                     <CheckCircle2 className="h-8 w-8 text-white" />
                   </div>
-                  <h4 className="mt-4 text-2xl font-black">
+                  <h4 className="mt-4 text-2xl font-semibold">
                     {t({ ar: 'وصلنا طلبك بنجاح!', fr: 'Votre demande est bien reçue !', en: 'Your request was received!' })}
                   </h4>
                   <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
@@ -1020,7 +1020,7 @@ export function DigitalServices() {
 
                   <div className="mt-5 rounded-2xl border border-border bg-background p-5 text-start">
                     <div className="mb-3 flex items-center justify-between gap-3 border-b border-border pb-3">
-                      <span className="text-xs font-black uppercase tracking-wider text-muted-foreground">
+                      <span className="text-xs font-semibold tracking-normal text-muted-foreground">
                         {t({ ar: 'ملخص الطلب', fr: 'Récapitulatif', en: 'Request summary' })}
                       </span>
                       {summary.reference && (
@@ -1040,7 +1040,7 @@ export function DigitalServices() {
                       {summary.price && (
                         <div className="flex items-start justify-between gap-4">
                           <dt className="text-muted-foreground">{t({ ar: 'السعر', fr: 'Prix', en: 'Price' })}</dt>
-                          <dd className="text-end font-black text-primary">
+                          <dd className="text-end font-semibold text-primary">
                             {summary.price}
                             {summary.priceUnit ? ` ${summary.priceUnit}` : ''}
                           </dd>
@@ -1070,7 +1070,7 @@ export function DigitalServices() {
                       href={summary.whatsappUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3.5 text-sm font-black text-white transition hover:bg-emerald-700"
+                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-emerald-700"
                     >
                       <MessageCircle className="h-[18px] w-[18px]" />
                       {t({ ar: 'تابع الطلب عبر واتساب', fr: 'Suivre sur WhatsApp', en: 'Follow up on WhatsApp' })}
@@ -1078,7 +1078,7 @@ export function DigitalServices() {
                     <button
                       type="button"
                       onClick={resetQuote}
-                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-border px-5 py-3.5 text-sm font-black transition hover:border-primary/40 hover:text-primary"
+                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-border px-5 py-3.5 text-sm font-semibold transition hover:border-primary/40 hover:text-primary"
                     >
                       {t({ ar: 'طلب عرض سعر آخر', fr: 'Nouvelle demande', en: 'New request' })}
                     </button>
@@ -1270,12 +1270,12 @@ export function DigitalServices() {
                   {quotePrice && (
                     <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4">
                       <div>
-                        <p className="text-sm font-black">{t({ ar: 'قيمة الخدمة', fr: 'Prix du service', en: 'Service price' })}</p>
+                        <p className="text-sm font-semibold">{t({ ar: 'قيمة الخدمة', fr: 'Prix du service', en: 'Service price' })}</p>
                         <p className="mt-0.5 text-[11px] text-muted-foreground">
                           {t({ ar: 'الدفع بعد التسليم — بدون اشتراكات', fr: 'Paiement à la livraison — sans abonnement', en: 'Payment on delivery — no subscriptions' })}
                         </p>
                       </div>
-                      <p className="text-xl font-black text-primary">
+                      <p className="text-xl font-semibold text-primary">
                         {priceLabel(quotePrice.amount)}
                         <span className="ms-1 text-[11px] font-semibold text-muted-foreground">{quotePrice.unit}</span>
                       </p>
@@ -1285,7 +1285,7 @@ export function DigitalServices() {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-blue-700 px-6 py-4 text-base font-black text-primary-foreground shadow-lg shadow-primary/20 transition hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-4 text-base font-semibold text-primary-foreground shadow-sm transition hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
                   >
                     {submitting ? (
                       <>

@@ -89,7 +89,7 @@ function Stepper({ status }: { status: OrderStatus }) {
                     className={`h-full rounded-full ${
                       isCancelledStep
                         ? 'bg-gradient-to-r from-red-500 to-rose-600'
-                        : 'bg-gradient-to-r from-primary to-blue-500'
+                        : 'bg-primary'
                     }`}
                   />
                 </div>
@@ -154,20 +154,20 @@ function OrderCard({ order }: { order: OrderRecord }) {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="bg-muted rounded-xl p-4">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+            <p className="text-xs font-semibold text-muted-foreground tracking-normal mb-1">
               {t({ ar: 'العميل', fr: 'Client', en: 'Customer' })}
             </p>
             <p className="font-semibold">{order.customer}</p>
           </div>
           <div className="bg-muted rounded-xl p-4">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+            <p className="text-xs font-semibold text-muted-foreground tracking-normal mb-1">
               {t({ ar: 'الهاتف', fr: 'Téléphone', en: 'Phone' })}
             </p>
             <p className="font-semibold" dir="ltr">{order.phone}</p>
           </div>
           {order.email && (
             <div className="bg-muted rounded-xl p-4 sm:col-span-2">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+              <p className="text-xs font-semibold text-muted-foreground tracking-normal mb-1">
                 {t({ ar: 'البريد الإلكتروني', fr: 'Email', en: 'Email' })}
               </p>
               <p className="font-semibold break-all">{order.email}</p>
@@ -197,7 +197,7 @@ function OrderCard({ order }: { order: OrderRecord }) {
 
         <div className="flex items-center justify-between pt-4 border-t border-border">
           <div className="flex items-center gap-2">
-            <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider ${
+            <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold tracking-normal ${
               order.status === 'cancelled'
                 ? 'bg-red-500/15 text-red-500 dark:text-red-400 ring-1 ring-red-500/30'
                 : order.status === 'completed'
@@ -402,7 +402,7 @@ export function OrderTracking() {
                     className="group flex w-full items-center justify-between gap-4 rounded-2xl border border-border bg-card px-4 py-3 text-start shadow-sm transition-all hover:border-primary/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                   >
                     <div className="flex min-w-0 items-center gap-3">
-                      <span className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide ${statusBadgeClasses[record.status]}`}>
+                      <span className={`inline-flex shrink-0 items-center rounded-full px-2.5 py-1 text-[11px] font-bold tracking-normal ${statusBadgeClasses[record.status]}`}>
                         {statusLabels[language][record.status]}
                       </span>
                       <div className="min-w-0">

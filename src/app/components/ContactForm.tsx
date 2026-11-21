@@ -145,7 +145,7 @@ export function ContactForm() {
   return (
     <div className="mx-auto mb-12 max-w-4xl rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
       <div className="mb-6 text-center">
-        <h3 id="contact-form-title" className="mb-2 text-2xl font-extrabold">
+        <h3 id="contact-form-title" className="mb-2 text-2xl font-semibold">
           {t({ ar: 'أرسل لنا رسالة', fr: 'Envoyez-nous un message', en: 'Send us a message' })}
         </h3>
         <p className="text-sm text-muted-foreground">
@@ -294,7 +294,7 @@ export function ContactForm() {
           <button
             type="submit"
             disabled={sending}
-            className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-primary px-7 py-3 font-bold text-primary-foreground shadow-lg shadow-primary/20 transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+            className="inline-flex min-h-[48px] w-full items-center justify-center gap-2 rounded-xl bg-primary px-7 py-3 font-bold text-primary-foreground shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           >
             {sending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
             {sending

@@ -315,3 +315,13 @@ Optional follow-ups:
 2. `/ai-tools`, `/ai-tools/calculator`, `/premium-services` and `/subscription` still get their titles/meta from client-side JS only; a prerender step would give crawlers the exact per-page title.
 3. `aiLimiter` is now 30 requests / 10 min / IP; watch Render logs for 429s.
 4. Keep an eye on the OpenRouter `limit` ($5 lifetime) via `GET https://openrouter.ai/api/v1/key`.
+
+
+## Last Working Session (2026-11-21)
+Typography-only refresh, per the owner's explicit direction: keep the existing layout, colours and motion; change the writing face and remove small tells of machine-generated UI.
+- Fonts: self-hosted IBM Plex Sans Arabic (UI, AR/FR/EN) + Bricolage Grotesque (Latin display). Templates load the same families from Google Fonts; per-template palettes and the hero motion layer were deliberately left intact.
+- AI-tell cleanup: no gradient text, violet/fuchsia blocks, multicoloured buttons, "New" badges, coloured blur blobs or tracked uppercase labels on the public pages; one blue accent remains. The hero particle backdrop, marquee and template hero animation are unchanged.
+- Fix: template previews no longer use inline onclick attributes (CSP); the to-top handler lives in assets/site.js, and the offline page's retry is a plain link.
+- Routes: /Subscribe, /Abonnement, /Calculators rewrites added alongside the lowercase versions. Account dashboard shows subscription status; per-route SEO shells are generated at build time.
+- QA: typecheck + build pass; 92 templates / 1104 preview files. Local preview shows fallback demo products only because the dev proxy has no backend; production API data was checked and is unchanged.
+- Note: an earlier broad styling sweep was reverted in full — do not reapply whitespace-collapsing passes across src/app/components.

@@ -27,10 +27,10 @@ export function Services() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12 md:mb-14">
-          <span className="inline-block bg-primary/10 text-primary text-sm font-semibold px-4 py-2 rounded-full mb-4">
+          <span className="inline-flex items-center rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium text-muted-foreground mb-4">
             {t({ ar: 'خدماتنا', fr: 'Nos Services', en: 'Our Services' })}
           </span>
-          <h2 className="text-3xl md:text-4xl font-black mb-4">
+          <h2 className="text-3xl md:text-4xl font-semibold mb-4">
             {t(content.services.title)}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-base md:text-lg">
@@ -57,9 +57,9 @@ export function Services() {
                     loading="lazy"
                     className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-70 group-hover:opacity-60 transition-opacity duration-300`} />
-                  <div className="absolute top-4 left-4 bg-white/20 backdrop-blur-sm p-3 rounded-xl">
-                    <Icon className="w-6 h-6 text-white" />
+                  
+                  <div className="absolute top-4 left-4 bg-background/90 backdrop-blur-sm p-3 rounded-xl">
+                    <Icon className="w-6 h-6 text-primary" />
                   </div>
                 </div>
 
@@ -82,8 +82,8 @@ export function Services() {
                 transition={{ delay: index * 0.1, duration: 0.5 }}
                 className="group bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-border overflow-hidden"
               >
-                <div className={`h-36 sm:h-44 bg-gradient-to-br ${item.color} flex items-center justify-center relative`}>
-                  <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <div className="h-36 sm:h-44 bg-muted/50 flex items-center justify-center relative">
+                  <div className="w-16 h-16 bg-card border border-border rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                     <Icon className="w-8 h-8 text-white" />
                   </div>
                 </div>
@@ -102,19 +102,19 @@ export function Services() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="group relative mt-6 flex flex-col items-start gap-4 overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-blue-700 to-indigo-800 p-6 text-white shadow-lg shadow-primary/20 transition-all hover:shadow-xl sm:flex-row sm:items-center sm:justify-between md:p-8"
+          className="group relative mt-6 flex flex-col items-start gap-4 overflow-hidden rounded-2xl bg-primary p-6 text-primary-foreground shadow-sm transition-all hover:shadow-xl sm:flex-row sm:items-center sm:justify-between md:p-8"
         >
-          <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" aria-hidden="true" />
-          <div className="absolute -bottom-12 -left-10 h-44 w-44 rounded-full bg-white/10 blur-2xl" aria-hidden="true" />
+          
+          
           <div className="relative flex items-start gap-4">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/15 ring-1 ring-white/25">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-foreground/10 ring-1 ring-primary-foreground/25">
               <Globe className="h-6 w-6" />
             </span>
             <div>
-              <h3 className="text-lg font-black md:text-xl">
+              <h3 className="text-lg font-semibold md:text-xl">
                 {t({ ar: 'موقعك الاحترافي جاهز خلال أيام', fr: 'Votre site professionnel prêt en quelques jours', en: 'Your professional website ready in days' })}
               </h3>
-              <p className="mt-1 max-w-2xl text-sm leading-relaxed text-white/75">
+              <p className="mt-1 max-w-2xl text-sm leading-relaxed text-primary-foreground/80">
                 {t({
                   ar: '24 قالباً جاهزاً — متجر، شركة، عيادة، مطعم، صيدلية وغيرها — معاينة حية قبل الطلب، ونطاق مجاني على pages.dev.',
                   fr: '24 modèles prêts — boutique, entreprise, clinique, restaurant, pharmacie et plus — aperçu live avant commande et domaine gratuit sur pages.dev.',
@@ -123,7 +123,7 @@ export function Services() {
               </p>
             </div>
           </div>
-          <span className="relative inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-black text-slate-900 transition group-hover:bg-white/90">
+          <span className="relative inline-flex shrink-0 items-center gap-2 rounded-xl bg-primary-foreground px-5 py-3 text-sm font-semibold text-primary transition group-hover:bg-primary-foreground/90">
             {t({ ar: 'أنشئ موقعك الآن', fr: 'Créez votre site', en: 'Create your website' })}
             <ArrowRight className="h-4 w-4 rtl:rotate-180" />
           </span>

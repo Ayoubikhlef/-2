@@ -29,7 +29,7 @@ export function AboutPage() {
           <span className="inline-block bg-primary/10 text-primary text-sm font-semibold px-4 py-2 rounded-full mb-4">
             {t({ ar: 'من نحن', fr: 'À propos', en: 'About Us' })}
           </span>
-          <h1 className="text-3xl md:text-4xl font-black mb-4">
+          <h1 className="text-3xl md:text-4xl font-semibold mb-4">
             {t(content.about.title)}
           </h1>
         </div>

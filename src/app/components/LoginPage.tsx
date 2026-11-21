@@ -615,7 +615,7 @@ export function LoginPage({ onClose, onAuthenticated }: { onClose: () => void; o
             height="520"
             className="mx-auto w-[150px] drop-shadow-[0_0_28px_rgba(56,189,248,.25)]"
           />
-          <p className="mt-2 text-[15px] font-extrabold tracking-[0.32em] text-white">TECH STORE</p>
+          <p className="mt-2 text-[15px] font-semibold tracking-[0.32em] text-white">TECH STORE</p>
           <p className="mt-1 text-[8px] font-semibold tracking-[0.38em] text-sky-300/80">AYOUB OFFICE SERVICES</p>
         </div>
 
@@ -650,14 +650,14 @@ export function LoginPage({ onClose, onAuthenticated }: { onClose: () => void; o
                 height="520"
                 className="aos-auth-logo mx-auto w-[238px]"
               />
-              <p className="mt-4 text-[27px] font-extrabold tracking-[0.36em] text-white">TECH STORE</p>
-              <p className="mt-2 text-[9.5px] font-semibold uppercase tracking-[0.44em] text-sky-300/85">
+              <p className="mt-4 text-[27px] font-semibold tracking-[0.36em] text-white">TECH STORE</p>
+              <p className="mt-2 text-[9.5px] font-semibold tracking-normal text-sky-300/85">
                 AYOUB OFFICE SERVICES
               </p>
             </div>
 
             <div className="mt-9 max-w-[440px]">
-              <p className="text-[10.5px] font-bold uppercase tracking-[0.34em] text-sky-300/80">
+              <p className="text-[10.5px] font-bold tracking-normal text-sky-300/80">
                 {t({ ar: 'خدماتنا', fr: 'Nos services', en: 'Our services' })}
               </p>
               <ul className="mt-3.5 flex flex-wrap gap-2">
@@ -739,7 +739,7 @@ export function LoginPage({ onClose, onAuthenticated }: { onClose: () => void; o
             </div>
           )}
 
-          <h1 className="mt-6 text-[26px] font-extrabold tracking-tight text-white sm:text-[28px]">{title()}</h1>
+          <h1 className="mt-6 text-[26px] font-semibold tracking-tight text-white sm:text-[28px]">{title()}</h1>
 
           {mode === 'login' && (
             <p className="mt-1.5 text-[13.5px] leading-6 text-slate-400">
@@ -792,7 +792,7 @@ export function LoginPage({ onClose, onAuthenticated }: { onClose: () => void; o
 
               <div className="my-5 flex items-center gap-3">
                 <span aria-hidden="true" className="h-px flex-1 bg-white/10" />
-                <span className="text-[10.5px] font-bold uppercase tracking-[0.32em] text-slate-600">
+                <span className="text-[10.5px] font-bold tracking-normal text-slate-600">
                   {t({ ar: 'أو', fr: 'ou', en: 'or' })}
                 </span>
                 <span aria-hidden="true" className="h-px flex-1 bg-white/10" />
@@ -1236,7 +1236,7 @@ export function LoginPage({ onClose, onAuthenticated }: { onClose: () => void; o
                   <ShieldCheck className="h-[18px] w-[18px]" aria-hidden="true" />
                 </span>
                 <div className="min-w-0">
-                  <h2 id="aos-account-security" className="text-[13.5px] font-extrabold text-white">
+                  <h2 id="aos-account-security" className="text-[13.5px] font-semibold text-white">
                     {t({ ar: 'حسابك محمي كيف؟', fr: 'Comment votre compte est protégé', en: 'How your account is protected' })}
                   </h2>
                   <p className="truncate text-[10.5px] text-sky-300/75">

@@ -100,7 +100,7 @@ function StatCard({
       <div className={`mb-2 flex h-9 w-9 items-center justify-center rounded-xl ${tone}`}>
         <Icon className="h-4 w-4" />
       </div>
-      <p className="text-2xl font-black text-white">{value}</p>
+      <p className="text-2xl font-semibold text-white">{value}</p>
       <p className="mt-0.5 text-[11px] font-medium text-white/45">{label}</p>
     </div>
   );
@@ -665,7 +665,7 @@ export function SiteFactoryTab() {
             <Rocket className="h-5 w-5" />
           </span>
           <div>
-            <h2 className="text-lg font-black text-white">
+            <h2 className="text-lg font-semibold text-white">
               {t({ ar: 'مصنع المواقع', fr: 'Usine à sites', en: 'Website Factory' })}
             </h2>
             <p className="mt-0.5 max-w-2xl text-xs leading-relaxed text-white/45">
@@ -815,7 +815,7 @@ export function SiteFactoryTab() {
                   </div>
                   <div className="mt-2 flex flex-wrap items-end justify-between gap-2">
                     <div className="min-w-0">
-                      <h3 className="truncate text-base font-black text-white">{request.siteName}</h3>
+                      <h3 className="truncate text-base font-semibold text-white">{request.siteName}</h3>
                       <p className="mt-0.5 truncate font-mono text-[11px] text-white/40" dir="ltr">
                         {request.subdomain}.pages.dev
                       </p>
@@ -886,7 +886,7 @@ export function SiteFactoryTab() {
               <div key={site.id} className="rounded-2xl border border-white/10 bg-slate-900/70 p-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <StatusBadge status={site.status} />
-                  <span className="text-base font-black text-white">{site.name}</span>
+                  <span className="text-base font-semibold text-white">{site.name}</span>
                   <span className="font-mono text-[11px] text-white/40" dir="ltr">
                     {site.subdomain}.pages.dev
                   </span>
@@ -1199,7 +1199,7 @@ export function SiteFactoryTab() {
       {view === 'settings' && settingsDraft && (
         <div className="grid gap-4 xl:grid-cols-2">
           <div className="space-y-3 rounded-2xl border border-white/10 bg-slate-900/70 p-4">
-            <h3 className="text-sm font-black text-white">
+            <h3 className="text-sm font-semibold text-white">
               {t({ ar: 'بيانات صاحب الخدمة', fr: 'Coordonnées du service', en: 'Owner details' })}
             </h3>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -1255,7 +1255,7 @@ export function SiteFactoryTab() {
           </div>
 
           <div className="space-y-3 rounded-2xl border border-white/10 bg-slate-900/70 p-4">
-            <h3 className="text-sm font-black text-white">
+            <h3 className="text-sm font-semibold text-white">
               {t({ ar: 'الدفع', fr: 'Paiement', en: 'Payment' })}
             </h3>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -1347,7 +1347,7 @@ export function SiteFactoryTab() {
                   <p className="font-mono text-xs font-bold text-white/40" dir="ltr">
                     {detail?.ref || '...'}
                   </p>
-                  <h3 className="text-lg font-black text-white">
+                  <h3 className="text-lg font-semibold text-white">
                     {detail?.siteName || t({ ar: 'جاري التحميل...', fr: 'Chargement...', en: 'Loading...' })}
                   </h3>
                 </div>
@@ -1375,7 +1375,7 @@ export function SiteFactoryTab() {
               <div className="space-y-5 p-4 sm:p-5">
                 <div className="grid gap-4 lg:grid-cols-2">
                   <div className="space-y-2 rounded-2xl border border-white/10 bg-slate-900/60 p-4 text-xs">
-                    <h4 className="text-sm font-black text-white">
+                    <h4 className="text-sm font-semibold text-white">
                       {t({ ar: 'العميل', fr: 'Client', en: 'Client' })}
                     </h4>
                     <p className="flex items-center gap-2 text-white/65">
@@ -1404,7 +1404,7 @@ export function SiteFactoryTab() {
                   </div>
 
                   <div className="space-y-2 rounded-2xl border border-white/10 bg-slate-900/60 p-4 text-xs">
-                    <h4 className="text-sm font-black text-white">
+                    <h4 className="text-sm font-semibold text-white">
                       {t({ ar: 'الموقع والدفع', fr: 'Site & paiement', en: 'Site & payment' })}
                     </h4>
                     <p className="font-mono text-white/70" dir="ltr">
@@ -1446,7 +1446,7 @@ export function SiteFactoryTab() {
 
                 {/* Receipt */}
                 <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
-                  <h4 className="mb-2 flex items-center gap-2 text-sm font-black text-white">
+                  <h4 className="mb-2 flex items-center gap-2 text-sm font-semibold text-white">
                     <FileText className="h-4 w-4 text-primary" />
                     {t({ ar: 'وصل الدفع', fr: 'Reçu de paiement', en: 'Payment receipt' })}
                   </h4>
@@ -1490,7 +1490,7 @@ export function SiteFactoryTab() {
 
                 {/* Status controls */}
                 <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
-                  <h4 className="mb-2 text-sm font-black text-white">
+                  <h4 className="mb-2 text-sm font-semibold text-white">
                     {t({ ar: 'تحديث الحالة', fr: 'Mettre à jour le statut', en: 'Update status' })}
                   </h4>
                   <textarea
@@ -1566,7 +1566,7 @@ export function SiteFactoryTab() {
                 {/* Site actions */}
                 {detail.site && (
                   <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
-                    <h4 className="mb-3 flex items-center gap-2 text-sm font-black text-white">
+                    <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
                       <Rocket className="h-4 w-4 text-primary" />
                       {t({ ar: 'النشر والملفات', fr: 'Publication & fichiers', en: 'Publishing & files' })}
                     </h4>
@@ -1653,7 +1653,7 @@ export function SiteFactoryTab() {
 
                 {/* Events */}
                 <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
-                  <h4 className="mb-3 flex items-center gap-2 text-sm font-black text-white">
+                  <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold text-white">
                     <History className="h-4 w-4 text-primary" />
                     {t({ ar: 'السجل', fr: 'Historique', en: 'History' })}
                   </h4>
@@ -1706,7 +1706,7 @@ export function SiteFactoryTab() {
                 <Trash2 className="h-5 w-5" />
               </span>
               <div className="min-w-0">
-                <h3 className="text-base font-black text-white">
+                <h3 className="text-base font-semibold text-white">
                   {t({ ar: 'حذف الطلب نهائياً؟', fr: 'Supprimer définitivement ?', en: 'Delete request permanently?' })}
                 </h3>
                 <p className="truncate font-mono text-[11px] text-white/40" dir="ltr">
@@ -1746,7 +1746,7 @@ export function SiteFactoryTab() {
                 type="button"
                 onClick={removeRequest}
                 disabled={busy.startsWith('delete-')}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-rose-500 px-3.5 py-2 text-xs font-black text-white hover:bg-rose-600 disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-rose-500 px-3.5 py-2 text-xs font-semibold text-white hover:bg-rose-600 disabled:opacity-50"
               >
                 {busy.startsWith('delete-') ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />

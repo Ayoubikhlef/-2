@@ -73,14 +73,14 @@ export function Header() {
             ))}
             <a
               href="/premium-services"
-              className="inline-flex items-center gap-1.5 px-2.5 2xl:px-3 py-2 text-sm font-bold text-amber-600 hover:bg-amber-500/10 rounded-lg transition-all duration-200 dark:text-amber-300"
+              className="inline-flex items-center gap-1.5 px-2.5 2xl:px-3 py-2 text-sm font-bold text-foreground/70 hover:bg-primary/5 hover:text-primary rounded-lg transition-all duration-200"
             >
               <Gem className="w-4 h-4" />
               {t({ ar: 'الخدمات المميزة', fr: 'Services premium', en: 'Premium Services' })}
             </a>
             <a
               href="/ai-tools"
-              className="hidden xl:inline-flex items-center gap-1.5 px-2.5 2xl:px-3 py-2 text-sm font-bold text-sky-600 hover:bg-sky-500/10 rounded-lg transition-all duration-200 dark:text-sky-300"
+              className="hidden xl:inline-flex items-center gap-1.5 px-2.5 2xl:px-3 py-2 text-sm font-bold text-foreground/70 hover:bg-primary/5 hover:text-primary rounded-lg transition-all duration-200"
             >
               <Wand2 className="w-4 h-4" />
               {t({ ar: 'أدوات AI', fr: 'Outils IA', en: 'AI Tools' })}
@@ -88,7 +88,7 @@ export function Header() {
             {!hasDigitalLink && (
               <a
                 href={pageHref('#digital-services')}
-                className="hidden 2xl:inline-flex items-center gap-1.5 px-3 py-2 text-sm font-bold text-violet-600 hover:bg-violet-500/10 rounded-lg transition-all duration-200 dark:text-violet-300"
+                className="hidden 2xl:inline-flex items-center gap-1.5 px-3 py-2 text-sm font-bold text-foreground/70 hover:bg-primary/5 hover:text-primary rounded-lg transition-all duration-200"
               >
                 <Sparkles className="w-4 h-4" />
                 {t({ ar: 'الخدمات الرقمية', fr: 'Services digitaux', en: 'Digital Services' })}
@@ -149,7 +149,7 @@ export function Header() {
             <a
               href={pageHref('#checkout')}
               onClick={handleOrderClick}
-              className="inline-flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-primary/90 transition-all shadow-sm shadow-primary/20 hover:shadow-md hover:shadow-primary/30"
+              className="inline-flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold hover:bg-primary/90 transition-all shadow-sm hover:shadow-md hover:shadow-primary/30"
             >
               {t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}
             </a>
@@ -224,7 +224,7 @@ export function Header() {
                 ))}
                 <a
                   href="/premium-services"
-                  className="flex items-center gap-2 px-4 py-3 text-base font-bold text-amber-600 hover:bg-amber-500/10 rounded-lg transition-colors mx-2 dark:text-amber-300"
+                  className="flex items-center gap-2 px-4 py-3 text-base font-medium text-foreground/70 hover:bg-primary/5 hover:text-primary rounded-lg transition-colors mx-2"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Gem className="w-4 h-4" />
@@ -232,7 +232,7 @@ export function Header() {
                 </a>
                 <a
                   href="/ai-tools"
-                  className="flex items-center gap-2 px-4 py-3 text-base font-bold text-sky-600 hover:bg-sky-500/10 rounded-lg transition-colors mx-2 dark:text-sky-300"
+                  className="flex items-center gap-2 px-4 py-3 text-base font-medium text-foreground/70 hover:bg-primary/5 hover:text-primary rounded-lg transition-colors mx-2"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Wand2 className="w-4 h-4" />
@@ -241,7 +241,7 @@ export function Header() {
                 {!hasDigitalLink && (
                   <a
                     href={pageHref('#digital-services')}
-                    className="flex items-center gap-2 px-4 py-3 text-base font-bold text-violet-600 hover:bg-violet-500/10 rounded-lg transition-colors mx-2 dark:text-violet-300"
+                    className="flex items-center gap-2 px-4 py-3 text-base font-medium text-foreground/70 hover:bg-primary/5 hover:text-primary rounded-lg transition-colors mx-2"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <Sparkles className="w-4 h-4" />
@@ -303,7 +303,7 @@ export function Header() {
                   <a
                     href={pageHref('#checkout')}
                     onClick={() => setCartOpen(false)}
-                    className="block mt-6 w-full bg-primary text-white text-center py-3 rounded-lg font-bold hover:bg-primary/90 transition-all shadow-sm shadow-primary/20"
+                    className="block mt-6 w-full bg-primary text-white text-center py-3 rounded-lg font-bold hover:bg-primary/90 transition-all shadow-sm"
                   >
                     {t({ ar: 'إتمام الطلب', fr: 'Finaliser la commande', en: 'Checkout' })}
                   </a>

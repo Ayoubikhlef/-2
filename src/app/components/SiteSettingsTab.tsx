@@ -384,8 +384,8 @@ export function SiteSettingsTab() {
               className="rounded-xl p-6 text-white shadow-lg"
               style={{ background: `linear-gradient(135deg, ${data.settings.heroGradientFrom || brand.colors.primary}, ${data.settings.heroGradientVia || data.settings.heroGradientFrom || brand.colors.primary}, ${data.settings.heroGradientTo || brand.colors.gradientTo})` }}
             >
-              <p className="text-xs font-bold uppercase tracking-widest text-white/60">{t({ ar: 'معاينة مباشرة', fr: 'Aperçu direct', en: 'Live preview' })}</p>
-              <h3 className="mt-1 text-2xl font-extrabold">{data.settings.siteName || brand.name}</h3>
+              <p className="text-xs font-bold tracking-normal text-white/60">{t({ ar: 'معاينة مباشرة', fr: 'Aperçu direct', en: 'Live preview' })}</p>
+              <h3 className="mt-1 text-2xl font-semibold">{data.settings.siteName || brand.name}</h3>
               <p className="mt-1 text-sm text-white/80">{t({ ar: 'هكذا سيظهر عنوان المتجر والأزرار.', fr: 'Voici le rendu du titre et des boutons.', en: 'This is how your store title and buttons will look.' })}</p>
               <button type="button" className="mt-4 rounded-full px-5 py-2 text-sm font-bold" style={{ background: '#ffffff', color: data.settings.heroGradientFrom || brand.colors.primary }}>
                 {t({ ar: 'زر تجريبي', fr: 'Bouton de test', en: 'Sample button' })}

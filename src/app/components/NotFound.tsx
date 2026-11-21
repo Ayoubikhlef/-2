@@ -16,7 +16,7 @@ export function NotFound() {
       dir={lang === 'ar' ? 'rtl' : 'ltr'}
     >
       <div className="text-center max-w-md">
-        <div className="text-9xl font-black text-primary/20 mb-4 select-none">404</div>
+        <div className="text-9xl font-semibold text-primary/20 mb-4 select-none">404</div>
         <h1 className="text-3xl font-bold mb-3">
           {t('الصفحة غير موجودة', 'Page introuvable', 'Page Not Found')}
         </h1>

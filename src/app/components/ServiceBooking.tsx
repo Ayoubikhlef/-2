@@ -207,7 +207,7 @@ export function ServiceBooking() {
             </p>
 
             <div className="rounded-xl bg-card border border-border p-5 mb-6 text-right shadow-lg" dir="auto">
-              <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3 text-center">
+              <div className="text-xs font-bold text-muted-foreground tracking-normal mb-3 text-center">
                 {t({ ar: 'ملخص الحجز', fr: 'Résumé', en: 'Booking Summary' })}
               </div>
               <div className="space-y-2.5 text-sm">
@@ -394,7 +394,7 @@ export function ServiceBooking() {
               <button
                 type="submit"
                 disabled={submitting || !form.paymentMethod}
-                className="w-full rounded-2xl bg-gradient-to-r from-primary to-blue-700 px-6 py-5 text-primary-foreground font-bold text-xl shadow-xl shadow-primary/20 hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+                className="w-full rounded-2xl bg-primary px-6 py-5 text-primary-foreground font-bold text-xl shadow-sm hover:shadow-2xl hover:scale-[1.02] transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
                 {submitting
                   ? t({ ar: 'جارٍ إرسال الحجز...', fr: 'Envoi en cours...', en: 'Sending booking...' })

@@ -174,3 +174,13 @@ Next session should focus on:
 - Watch OpenRouter usage against the $5 lifetime limit and Render logs for 429s
 - Optional: configure the GitHub backup destination so daily files leave the ephemeral disk
 
+
+
+## Session 2026-11-21 — typography refresh + AI-tell cleanup
+- Installed the requested skill repositories (supabase/agent-skills, vercel-labs/agent-skills, anthropics/skills, heydamir/unslop); the unslop main SKILL.md was restored into the global skill folder.
+- Self-hosted IBM Plex Sans Arabic (400/500/600, AR + Latin subsets) and Bricolage Grotesque (variable Latin + Latin-ext) in public/fonts, with src/styles/fonts.css rewritten. theme.css now uses them for body and headings; existing layout, palette and motion are unchanged at the owner's request.
+- Removed the visible "AI tells" without restructuring pages: gradient text, violet/fuchsia promo icon, multicolour CTA buttons, "New" badge, coloured glows/blobs, per-link rainbow nav, oversized tracking on labels, and gradient buttons. Hero, sections, cards, marquee and template motion stay as they were.
+- Generated templates use the same two families via Google Fonts; shared template CSS keeps its existing palette and layout. Removed the inline onclick handlers from shell.ts (to-top) and offline.html (retry) so the strict CSP no longer reports inline-handler violations; client.ts binds the to-top button instead.
+- Added CamelCase route aliases /Subscribe, /Abonnement and /Calculators to vercel.json.
+- Added the subscription/renewal card to the account dashboard and per-route SEO HTML generation in vite.config.ts (4 pages).
+- Verified: npm run typecheck and npm run build pass (92 templates, 1104 files). Local preview renders correctly in AR/FR and light/dark; the extra demo products seen in local QA come from the offline default catalog because the local API proxy cannot reach Render — production /api/products returns the real product list and was verified directly.

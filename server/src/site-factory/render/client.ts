@@ -124,6 +124,10 @@ export const SITE_JS = String.raw`
   };
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
+  var toTop = $('.to-top');
+  if (toTop) toTop.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
 
   var mobilePanel = $('#mobile-panel');
   function openMenu(open) {

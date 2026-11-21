@@ -29,7 +29,7 @@ export function Footer() {
           {/* Brand */}
           <div className="lg:col-span-1">
             <img src={brand.logo} alt={brand.name} className="h-14 w-auto mb-4" width="56" height="56" />
-            <p className="text-foreground text-sm font-extrabold mb-1">{brand.name}</p>
+            <p className="text-foreground text-sm font-semibold mb-1">{brand.name}</p>
             <p className="text-muted-foreground text-sm leading-relaxed mb-2">
               {t(content.footer.description)}
             </p>
@@ -53,7 +53,7 @@ export function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h2 className="text-foreground font-bold mb-4 text-sm uppercase tracking-wider">
+            <h2 className="text-foreground font-bold mb-4 text-sm tracking-normal">
               {t(s.footerQuickLinksTitle)}
             </h2>
             <ul className="space-y-2.5">
@@ -66,7 +66,7 @@ export function Footer() {
                 </li>
               ))}
               <li>
-                <a href={pageHref('#digital-services')} className="text-violet-600 dark:text-violet-300 font-semibold hover:text-violet-500 text-sm transition-colors flex items-center gap-2">
+                <a href={pageHref('#digital-services')} className="text-foreground/70 font-medium hover:text-primary text-sm transition-colors flex items-center gap-2">
                   <span className="w-1 h-1 rounded-full bg-violet-500 shrink-0" />
                   {t({ ar: 'الخدمات الرقمية وAI', fr: 'Services digitaux & IA', en: 'Digital & AI services' })}
                 </a>
@@ -84,7 +84,7 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a href="/ai-tools" className="text-sky-600 dark:text-sky-300 font-semibold hover:text-sky-500 text-sm transition-colors flex items-center gap-2">
+                <a href="/ai-tools" className="text-foreground/70 font-medium hover:text-primary text-sm transition-colors flex items-center gap-2">
                   <span className="w-1 h-1 rounded-full bg-sky-500 shrink-0" />
                   {t({ ar: '13 أداة ذكاء اصطناعي', fr: '13 outils IA', en: '13 AI tools' })}
                 </a>
@@ -106,7 +106,7 @@ export function Footer() {
 
           {/* Services */}
           <div>
-            <h2 className="text-foreground font-bold mb-4 text-sm uppercase tracking-wider">
+            <h2 className="text-foreground font-bold mb-4 text-sm tracking-normal">
               {t({ ar: 'خدماتنا', fr: 'Services', en: 'Services' })}
             </h2>
             <ul className="space-y-2.5">
@@ -129,7 +129,7 @@ export function Footer() {
 
           {/* Contact */}
           <div>
-            <h2 className="text-foreground font-bold mb-4 text-sm uppercase tracking-wider">
+            <h2 className="text-foreground font-bold mb-4 text-sm tracking-normal">
               {t(s.footerContactTitle)}
             </h2>
             <ul className="space-y-3 text-sm">

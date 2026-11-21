@@ -239,7 +239,7 @@ function LanguagePicker({
           type="button"
           onClick={() => onChange(code)}
           aria-pressed={value === code}
-          className={`rounded-lg px-2.5 py-1.5 text-[11px] font-black uppercase transition ${
+          className={`rounded-lg px-2.5 py-1.5 text-[11px] font-semibold uppercase transition ${
             value === code ? 'bg-white text-slate-900' : 'text-white/70 hover:bg-white/10 hover:text-white'
           }`}
         >
@@ -839,7 +839,7 @@ export function AiToolsPage() {
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-border bg-gradient-to-br from-primary/10 via-background to-background px-4 pb-14 pt-16">
         <div className="mx-auto max-w-6xl text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-sky-700 dark:text-sky-300">
+          <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-xs font-semibold tracking-normal text-sky-700 dark:text-sky-300">
             <Sparkles className="h-3.5 w-3.5" />
             {t({ ar: 'أدوات الذكاء الاصطناعي', fr: 'Outils d’IA', en: 'AI tools' })}
           </span>
@@ -1005,7 +1005,7 @@ export function AiToolsPage() {
                       aria-pressed={isActive}
                       className={`group flex h-full flex-col rounded-2xl border-2 p-5 text-start transition ${
                         isActive
-                          ? 'border-primary bg-primary/5 shadow-md shadow-primary/10'
+                          ? 'border-primary bg-primary/5 shadow-sm'
                           : 'border-border bg-card hover:border-primary/40 hover:shadow-md'
                       }`}
                     >
@@ -1076,7 +1076,7 @@ export function AiToolsPage() {
             </p>
           </div>
         ) : (
-          <div className="overflow-hidden rounded-3xl border border-primary/20 bg-card shadow-xl shadow-primary/5">
+          <div className="overflow-hidden rounded-3xl border border-primary/20 bg-card shadow-sm">
             <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-primary to-indigo-800 p-6 text-white sm:p-8">
               <div
                 aria-hidden="true"
@@ -1089,7 +1089,7 @@ export function AiToolsPage() {
                   </span>
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="text-xl font-black md:text-2xl">{t(activeTool.name)}</h2>
+                      <h2 className="text-xl font-semibold md:text-2xl">{t(activeTool.name)}</h2>
                       {activeTool.badge && (
                         <span className="rounded-full bg-white/15 px-2.5 py-1 text-[10px] font-bold ring-1 ring-white/20">
                           {t(activeTool.badge)}
@@ -1516,7 +1516,7 @@ export function AiToolsPage() {
               <div className="border-t border-border p-6 sm:p-8 lg:border-t-0">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <h3 className="text-lg font-black">{t({ ar: 'النتيجة', fr: 'Résultat', en: 'Result' })}</h3>
+                    <h3 className="text-lg font-semibold">{t({ ar: 'النتيجة', fr: 'Résultat', en: 'Result' })}</h3>
                     <p className="text-xs text-muted-foreground">
                       {result?.tool === 'landing-page'
                         ? t({

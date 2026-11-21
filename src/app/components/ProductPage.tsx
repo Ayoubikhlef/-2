@@ -197,10 +197,10 @@ export function ProductPage({ slug }: { slug: string }) {
               </span>
             </div>
 
-            <h1 className="mb-4 text-2xl font-extrabold leading-snug sm:text-3xl">{name}</h1>
+            <h1 className="mb-4 text-2xl font-semibold leading-snug sm:text-3xl">{name}</h1>
 
             <div className="mb-5 flex flex-wrap items-end gap-3">
-              <span className="text-3xl font-extrabold text-primary">{formatPrice(pricing.price)}</span>
+              <span className="text-3xl font-semibold text-primary">{formatPrice(pricing.price)}</span>
               {pricing.onSale && (
                 <span className="pb-1 text-lg text-muted-foreground line-through">{formatPrice(pricing.originalPrice)}</span>
               )}
@@ -254,7 +254,7 @@ export function ProductPage({ slug }: { slug: string }) {
                 type="button"
                 onClick={() => addToCart(true)}
                 disabled={!pricing.inStock}
-                className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-primary px-8 py-4 text-lg font-bold text-primary-foreground shadow-lg shadow-primary/20 transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-primary px-8 py-4 text-lg font-bold text-primary-foreground shadow-sm transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <ShoppingCart className="h-5 w-5" />
                 {t({ ar: 'اطلب الآن', fr: 'Commander maintenant', en: 'Order now' })}
@@ -384,13 +384,13 @@ export function ProductPage({ slug }: { slug: string }) {
       <div className="flex items-center gap-3">
         <div className="min-w-0 flex-1">
           <p className="truncate text-xs font-semibold text-muted-foreground">{name}</p>
-          <p className="text-lg font-extrabold leading-tight text-primary">{formatPrice(pricing.price)}</p>
+          <p className="text-lg font-semibold leading-tight text-primary">{formatPrice(pricing.price)}</p>
         </div>
         <button
           type="button"
           onClick={() => addToCart(true)}
           disabled={!pricing.inStock}
-          className="inline-flex min-h-[48px] shrink-0 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-base font-bold text-primary-foreground shadow-lg shadow-primary/20 transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
+          className="inline-flex min-h-[48px] shrink-0 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-base font-bold text-primary-foreground shadow-sm transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
         >
           <ShoppingCart className="h-5 w-5" />
           {pricing.inStock

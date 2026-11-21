@@ -49,8 +49,8 @@ export function FAQ() {
             </Accordion>
           </div>
 
-          <div className="rounded-[32px] border border-border bg-gradient-to-br from-primary/10 to-transparent p-4 sm:p-6 lg:p-8 shadow-lg flex flex-col justify-center">
-            <span className="inline-flex items-center rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-semibold uppercase tracking-wide mb-4">
+          <div className="rounded-[32px] border border-border bg-muted/40 p-4 sm:p-6 lg:p-8 shadow-sm flex flex-col justify-center">
+            <span className="inline-flex items-center rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-semibold tracking-normal mb-4">
               {t({ ar: 'دعم العملاء', fr: 'Support client', en: 'Customer Support' })}
             </span>
             <h3 className="text-3xl font-bold mb-4">

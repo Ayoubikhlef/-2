@@ -328,7 +328,7 @@ export function SubscriptionPage() {
       <section className="relative overflow-hidden border-b border-border bg-gradient-to-br from-indigo-500/12 via-background to-background px-4 pb-12 pt-14">
         <div aria-hidden="true" className="pointer-events-none absolute -right-24 top-0 h-64 w-64 rounded-full bg-indigo-500/15 blur-3xl" />
         <div className="relative mx-auto max-w-6xl text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-indigo-500/25 bg-indigo-500/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-indigo-700 dark:text-indigo-300">
+          <span className="inline-flex items-center gap-2 rounded-full border border-indigo-500/25 bg-indigo-500/10 px-4 py-1.5 text-xs font-semibold tracking-normal text-indigo-700 dark:text-indigo-300">
             <Sparkles className="h-3.5 w-3.5" />
             {t({ ar: 'اشتراك أدوات الذكاء الاصطناعي', fr: 'Abonnement outils IA', en: 'AI tools subscription' })}
           </span>
@@ -361,7 +361,7 @@ export function SubscriptionPage() {
               <button
                 type="button"
                 onClick={() => setAuthOpen(true)}
-                className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/20 transition hover:bg-primary/90"
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-sm transition hover:bg-primary/90"
               >
                 <Lock className="h-4 w-4" />
                 {t({ ar: 'سجّل الدخول أو أنشئ حساباً', fr: 'Se connecter ou créer un compte', en: 'Sign in or create an account' })}
@@ -501,17 +501,17 @@ export function SubscriptionPage() {
                 }`}
               >
                 {plan.popular && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-indigo-600 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-white shadow-lg">
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-indigo-600 px-3 py-1 text-[10px] font-semibold tracking-normal text-white shadow-lg">
                     {t({ ar: 'الأكثر اختياراً', fr: 'Le plus choisi', en: 'Most popular' })}
                   </span>
                 )}
                 <div className="flex items-center gap-2">
                   {plan.popular ? <Crown className="h-4 w-4 text-indigo-500" /> : <Wallet className="h-4 w-4 text-primary" />}
-                  <h2 className="text-lg font-black">{t(plan.name)}</h2>
+                  <h2 className="text-lg font-semibold">{t(plan.name)}</h2>
                 </div>
                 <p className="mt-1 min-h-[2.5rem] text-xs leading-relaxed text-muted-foreground">{t(plan.tagline)}</p>
                 <div className="mt-4">
-                  <span className="text-3xl font-extrabold tabular-nums">{formatDzd(plan.price, language)}</span>
+                  <span className="text-3xl font-semibold tabular-nums">{formatDzd(plan.price, language)}</span>
                   <span className="ms-2 text-xs text-muted-foreground">
                     / {t({ ar: plan.months === 1 ? 'شهر' : `${plan.months} أشهر`, fr: plan.months === 1 ? 'mois' : `${plan.months} mois`, en: plan.months === 1 ? 'month' : `${plan.months} months` })}
                   </span>
@@ -572,7 +572,7 @@ export function SubscriptionPage() {
             <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-muted/30 px-5 py-4">
                 <div>
-                  <p className="text-sm font-black">
+                  <p className="text-sm font-semibold">
                     {t({ ar: 'إتمام الاشتراك', fr: 'Finaliser l’abonnement', en: 'Complete the subscription' })}
                   </p>
                   <p className="mt-0.5 text-xs text-muted-foreground">
@@ -591,7 +591,7 @@ export function SubscriptionPage() {
 
               <div className="grid gap-6 p-5 lg:grid-cols-[1fr_20rem]">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                  <p className="text-xs font-bold tracking-normal text-muted-foreground">
                     {t({ ar: 'طريقة الدفع', fr: 'Moyen de paiement', en: 'Payment method' })}
                   </p>
                   <div className="mt-3 grid gap-2">
@@ -661,7 +661,7 @@ export function SubscriptionPage() {
                 </div>
 
                 <div className="rounded-2xl border border-border bg-muted/20 p-4">
-                  <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                  <p className="text-xs font-bold tracking-normal text-muted-foreground">
                     {t({ ar: 'ملخص الطلب', fr: 'Récapitulatif', en: 'Order summary' })}
                   </p>
                   <div className="mt-3 flex items-center justify-between text-sm">
@@ -698,7 +698,7 @@ export function SubscriptionPage() {
                 <div className="flex items-center gap-2">
                   <Receipt className="h-5 w-5 text-emerald-700 dark:text-emerald-300" />
                   <div>
-                    <p className="text-sm font-black text-emerald-800 dark:text-emerald-300">
+                    <p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
                       {t({ ar: 'طلب الاشتراك جاهز', fr: 'Demande prête', en: 'Subscription request ready' })}
                     </p>
                     <p className="text-[11px] text-muted-foreground">
@@ -721,15 +721,15 @@ export function SubscriptionPage() {
                   <div className="rounded-2xl border border-border bg-muted/20 p-4">
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div>
-                        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                        <p className="text-[11px] tracking-normal text-muted-foreground">
                           {t({ ar: 'المبلغ المطلوب', fr: 'Montant à payer', en: 'Amount due' })}
                         </p>
-                        <p className="mt-1 text-2xl font-extrabold tabular-nums">
+                        <p className="mt-1 text-2xl font-semibold tabular-nums">
                           {formatDzd(manual.payment.amount, language)}
                         </p>
                       </div>
                       <div className="text-end">
-                        <p className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                        <p className="text-[11px] tracking-normal text-muted-foreground">
                           {t({ ar: 'المرجع', fr: 'Référence', en: 'Reference' })}
                         </p>
                         <p className="mt-1 break-all font-mono text-sm font-bold" dir="ltr">
@@ -791,7 +791,7 @@ export function SubscriptionPage() {
                 </div>
 
                 <div className="rounded-2xl border border-border bg-muted/20 p-4">
-                  <p className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                  <p className="text-xs font-bold tracking-normal text-muted-foreground">
                     {t({ ar: 'إرفاق وصل الدفع', fr: 'Joindre le reçu', en: 'Attach the receipt' })}
                   </p>
                   {receiptSent ? (
@@ -841,7 +841,7 @@ export function SubscriptionPage() {
         {/* Payment history */}
         {user && me && me.payments.length > 0 && (
           <div className="mt-10">
-            <h2 className="text-lg font-black">{t({ ar: 'سجل المدفوعات', fr: 'Historique des paiements', en: 'Payment history' })}</h2>
+            <h2 className="text-lg font-semibold">{t({ ar: 'سجل المدفوعات', fr: 'Historique des paiements', en: 'Payment history' })}</h2>
             <div className="mt-3 overflow-hidden rounded-2xl border border-border bg-card">
               {me.payments.map((payment) => (
                 <div key={payment.id} className="flex flex-wrap items-center justify-between gap-3 border-b border-border/60 px-4 py-3 text-xs last:border-0">

@@ -402,7 +402,7 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
                   </div>
 
                   <div className="rounded-xl bg-card/80 border border-border p-4 mb-4 space-y-2.5">
-                    <div className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
+                    <div className="text-xs font-bold text-muted-foreground tracking-normal mb-2">
                       {t({ ar: 'ملخص الطلب', fr: 'Résumé', en: 'Order Summary' })}
                     </div>
                     {orderSummary.items.map((item, idx) => (

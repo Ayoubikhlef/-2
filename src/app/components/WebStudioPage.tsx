@@ -231,7 +231,7 @@ export function WebStudioPage() {
                 {t({ ar: 'إنشاء المواقع والمتاجر · جيجل وكل الجزائر', fr: 'Création de sites & boutiques · Jijel et toute l’Algérie', en: 'Websites & stores · Jijel and all Algeria' })}
               </span>
 
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black leading-[1.15] mb-5">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold leading-[1.15] mb-5">
                 {t({ ar: 'موقع إلكتروني يحوّل الزوار إلى عملاء', fr: 'Un site web qui transforme les visiteurs en clients', en: 'A website that turns visitors into customers' })}
               </h1>
 
@@ -252,7 +252,7 @@ export function WebStudioPage() {
                   }))}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-2 bg-primary text-white px-6 py-3.5 rounded-xl text-sm sm:text-base font-bold hover:bg-primary/90 transition-all shadow-lg shadow-primary/20"
+                  className="inline-flex items-center justify-center gap-2 bg-primary text-white px-6 py-3.5 rounded-xl text-sm sm:text-base font-bold hover:bg-primary/90 transition-all shadow-sm"
                 >
                   <MessageCircle className="w-5 h-5" />
                   {t({ ar: 'تواصل عبر WhatsApp', fr: 'Discuter sur WhatsApp', en: 'Chat on WhatsApp' })}
@@ -290,7 +290,7 @@ export function WebStudioPage() {
                 <div className="p-4 sm:p-5 bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center text-white text-[10px] font-black">AOS</div>
+                      <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center text-white text-[10px] font-semibold">AOS</div>
                       <span className="text-[10px] sm:text-xs font-bold">AOS TECH STORE</span>
                     </div>
                     <div className="hidden sm:flex gap-2">
@@ -341,7 +341,7 @@ export function WebStudioPage() {
       <section className="py-14 md:py-20 bg-slate-50 dark:bg-slate-900/40 border-y border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10 md:mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black mb-3">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold mb-3">
               {t({ ar: '«لدي صفحة Facebook، لماذا أحتاج موقعاً؟»', fr: '« J’ai une page Facebook, pourquoi un site ? »', en: '“I have a Facebook page, why a website?”' })}
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -391,7 +391,7 @@ export function WebStudioPage() {
             <span className="inline-block bg-primary/10 text-primary text-sm font-semibold px-4 py-2 rounded-full mb-4">
               {t({ ar: 'الأسعار', fr: 'Tarifs', en: 'Pricing' })}
             </span>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black mb-3">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold mb-3">
               {t({ ar: 'أسعار واضحة، بلا مفاجآت', fr: 'Des prix clairs, sans surprise', en: 'Clear pricing, no surprises' })}
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -415,7 +415,7 @@ export function WebStudioPage() {
                     }
                   }}
                   aria-pressed={active}
-                  className={`text-start rounded-2xl border-2 p-5 md:p-6 transition-all relative cursor-pointer ${active ? 'border-primary bg-primary/[0.04] shadow-lg shadow-primary/10' : 'border-border bg-white dark:bg-slate-800 hover:border-primary/40'}`}
+                  className={`text-start rounded-2xl border-2 p-5 md:p-6 transition-all relative cursor-pointer ${active ? 'border-primary bg-primary/[0.04] shadow-sm' : 'border-border bg-white dark:bg-slate-800 hover:border-primary/40'}`}
                 >
                   {item.popular && (
                     <span className="absolute -top-3 end-4 bg-primary text-white text-[10px] font-bold px-3 py-1 rounded-full">
@@ -423,14 +423,14 @@ export function WebStudioPage() {
                     </span>
                   )}
                   <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-black text-lg">{t(item.name)}</h3>
+                    <h3 className="font-semibold text-lg">{t(item.name)}</h3>
                     <span className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${active ? 'border-primary bg-primary' : 'border-border'}`}>
                       {active && <Check className="w-3 h-3 text-white" />}
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground mb-4 min-h-[32px]">{t(item.tagline)}</p>
                   <div className="flex items-baseline gap-1 mb-1">
-                    <span className="text-3xl font-black">{fmt(item.price)}</span>
+                    <span className="text-3xl font-semibold">{fmt(item.price)}</span>
                     <span className="text-sm font-bold text-muted-foreground">{currency}</span>
                   </div>
                   <p className="text-xs text-muted-foreground mb-4">
@@ -502,7 +502,7 @@ export function WebStudioPage() {
               <div className="border-t border-white/20 pt-4 mb-5">
                 <div className="flex items-end justify-between">
                   <span className="text-xs text-white/70">{t({ ar: 'المجموع', fr: 'Total', en: 'Total' })}</span>
-                  <span className="text-3xl font-black leading-none">
+                  <span className="text-3xl font-semibold leading-none">
                     {fmt(total)} <span className="text-sm">{currency}</span>
                   </span>
                 </div>
@@ -529,7 +529,7 @@ export function WebStudioPage() {
       <section className="py-14 md:py-20 bg-slate-50 dark:bg-slate-900/40 border-y border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black mb-3">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold mb-3">
               {t({ ar: 'كيف نعمل', fr: 'Comment ça se passe', en: 'How it works' })}
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -545,7 +545,7 @@ export function WebStudioPage() {
               { n: '04', icon: Sparkles, title: { ar: 'تسليم + تكوين', fr: 'Livraison + formation', en: 'Launch + training' }, text: { ar: 'نشر الموقع، تكوين لمدة ساعة، و50% المتبقية.', fr: 'Mise en ligne, formation 1h, solde de 50 %.', en: 'Go live, 1h training, remaining 50%.' } },
             ].map((step, idx) => (
               <div key={idx} className="relative bg-white dark:bg-slate-800 rounded-2xl border border-border p-5 md:p-6">
-                <span className="absolute top-4 end-4 text-3xl font-black text-primary/10">{step.n}</span>
+                <span className="absolute top-4 end-4 text-3xl font-semibold text-primary/10">{step.n}</span>
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
                   <step.icon className="w-5 h-5 text-primary" />
                 </div>
@@ -567,7 +567,7 @@ export function WebStudioPage() {
                   <Check className="w-3.5 h-3.5" />
                   {t({ ar: 'عمل حقيقي', fr: 'Réalisation', en: 'Real work' })}
                 </span>
-                <h3 className="text-xl md:text-2xl font-black mb-3">
+                <h3 className="text-xl md:text-2xl font-semibold mb-3">
                   {t({ ar: 'المتجر الذي تتصفحه الآن', fr: 'La boutique que vous consultez', en: 'The store you are browsing' })}
                 </h3>
                 <p className="text-sm text-muted-foreground leading-relaxed mb-5">
@@ -611,7 +611,7 @@ export function WebStudioPage() {
       {/* FAQ */}
       <section className="pb-14 md:pb-20">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-center mb-8">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-center mb-8">
             {t({ ar: 'أسئلة يتكرر طرحها', fr: 'Questions fréquentes', en: 'Frequently asked questions' })}
           </h2>
           <div className="space-y-3">
@@ -646,7 +646,7 @@ export function WebStudioPage() {
             <div className="absolute -top-24 -start-24 w-72 h-72 rounded-full bg-primary/20 blur-3xl" />
             <div className="absolute -bottom-24 -end-24 w-72 h-72 rounded-full bg-sky-500/20 blur-3xl" />
             <div className="relative">
-              <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-3">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-white mb-3">
                 {t({ ar: 'لديك محل؟ لنمنحه موقعاً هذا الشهر', fr: 'Vous avez un commerce ? Donnons-lui un site ce mois-ci', en: 'Got a business? Let’s get it online this month' })}
               </h2>
               <p className="text-blue-100/70 max-w-xl mx-auto mb-7 text-sm sm:text-base">

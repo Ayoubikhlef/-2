@@ -159,7 +159,7 @@ export function Reviews({ productId, onReviewsChange }: ReviewsProps) {
       <div className="rounded-2xl border border-border bg-gradient-to-br from-card to-muted/30 p-6">
         <div className="flex flex-col sm:flex-row items-center gap-6">
           <div className="text-center shrink-0">
-            <div className="text-5xl font-extrabold text-foreground">{avgRating}</div>
+            <div className="text-5xl font-semibold text-foreground">{avgRating}</div>
             <div className="flex justify-center mt-1" dir="ltr">
               {[1, 2, 3, 4, 5].map((s) => (
                 <Star key={s} className={`w-4 h-4 ${s <= Math.round(avgRating) ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground/30'}`} />
@@ -299,7 +299,7 @@ export function Reviews({ productId, onReviewsChange }: ReviewsProps) {
         <button
           type="submit"
           disabled={submitting}
-          className="rounded-2xl bg-gradient-to-r from-primary to-blue-700 px-8 py-4 text-primary-foreground font-bold text-base shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02] transition-all duration-300 btn-liquid disabled:opacity-50 disabled:cursor-not-allowed"
+          className="rounded-2xl bg-primary px-8 py-4 text-primary-foreground font-bold text-base  hover:scale-[1.02] transition-all duration-300 btn-liquid disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {submitting
             ? t({ ar: 'جاري الإرسال...', fr: 'Envoi en cours...', en: 'Submitting...' })

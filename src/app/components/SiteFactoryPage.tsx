@@ -222,7 +222,7 @@ export function SiteFactoryPage() {
                   en: 'Professional websites • no subscriptions',
                 })}
               </span>
-              <h1 className="mt-5 text-3xl font-black leading-tight sm:text-4xl lg:text-5xl">
+              <h1 className="mt-5 text-3xl font-semibold leading-tight sm:text-4xl lg:text-5xl">
                 {t({
                   ar: 'موقعك الاحترافي جاهز في أيام، وليس شهوراً',
                   fr: 'Votre site professionnel prêt en quelques jours',
@@ -241,7 +241,7 @@ export function SiteFactoryPage() {
                 <button
                   type="button"
                   onClick={startOrder}
-                  className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-black text-slate-900 shadow-xl shadow-black/20 transition hover:bg-white/90"
+                  className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-semibold text-slate-900 shadow-xl shadow-black/20 transition hover:bg-white/90"
                 >
                   <Rocket className="h-4 w-4" />
                   {t({ ar: 'ابدأ طلبك الآن', fr: 'Commencer maintenant', en: 'Start your request' })}
@@ -302,7 +302,7 @@ export function SiteFactoryPage() {
                   href="/templates/store/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group/mock absolute inset-x-4 bottom-4 flex items-center justify-center gap-1.5 rounded-xl bg-slate-950/85 px-3 py-2.5 text-xs font-black text-white shadow-lg ring-1 ring-white/25 backdrop-blur transition hover:bg-slate-950"
+                  className="group/mock absolute inset-x-4 bottom-4 flex items-center justify-center gap-1.5 rounded-xl bg-slate-950/85 px-3 py-2.5 text-xs font-semibold text-white shadow-lg ring-1 ring-white/25 backdrop-blur transition hover:bg-slate-950"
                 >
                   <Eye className="h-4 w-4 text-emerald-300" />
                   {t({ ar: 'معاينة حية — جرّب القالب الآن', fr: 'Aperçu live — essayez ce modèle', en: 'Live preview — try this template' })}
@@ -393,7 +393,7 @@ export function SiteFactoryPage() {
               <Sparkles className="h-3.5 w-3.5" />
               {t({ ar: 'كيف يعمل؟', fr: 'Comment ça marche ?', en: 'How it works' })}
             </span>
-            <h2 className="mt-3 text-2xl font-black sm:text-3xl">
+            <h2 className="mt-3 text-2xl font-semibold sm:text-3xl">
               {t({ ar: 'من الفكرة إلى موقع منشور في 4 خطوات', fr: 'De l’idée au site en ligne en 4 étapes', en: 'From idea to live site in 4 steps' })}
             </h2>
           </div>
@@ -421,11 +421,11 @@ export function SiteFactoryPage() {
               },
             ].map((item, index) => (
               <div key={item.title} className="relative rounded-2xl border border-border bg-card p-5 shadow-sm">
-                <span className="absolute end-4 top-4 text-3xl font-black text-muted-foreground/10">{index + 1}</span>
+                <span className="absolute end-4 top-4 text-3xl font-semibold text-muted-foreground/10">{index + 1}</span>
                 <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   <item.icon className="h-5 w-5" />
                 </span>
-                <h3 className="mt-3 text-sm font-black">{item.title}</h3>
+                <h3 className="mt-3 text-sm font-semibold">{item.title}</h3>
                 <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{item.text}</p>
               </div>
             ))}
@@ -437,7 +437,7 @@ export function SiteFactoryPage() {
       <section className="bg-muted/30 py-12 sm:py-16">
         <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-2xl font-black sm:text-3xl">
+            <h2 className="text-2xl font-semibold sm:text-3xl">
               {t({ ar: 'أسئلة شائعة', fr: 'Questions fréquentes', en: 'Frequently asked questions' })}
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -461,12 +461,12 @@ export function SiteFactoryPage() {
       {/* CTA */}
       <section className="bg-background py-12 sm:py-16">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-blue-700 to-indigo-800 p-7 text-center text-white shadow-xl sm:p-10">
+          <div className="relative overflow-hidden rounded-3xl bg-primary p-7 text-center text-white shadow-xl sm:p-10">
             <div className="absolute -right-10 -top-10 h-44 w-44 rounded-full bg-white/10 blur-2xl" />
             <div className="absolute -bottom-12 -left-10 h-48 w-48 rounded-full bg-white/10 blur-2xl" />
             <div className="relative">
               <Store className="mx-auto h-8 w-8 text-white/80" />
-              <h2 className="mt-3 text-2xl font-black sm:text-3xl">
+              <h2 className="mt-3 text-2xl font-semibold sm:text-3xl">
                 {t({ ar: 'جاهز تطلق موقعك؟', fr: 'Prêt à lancer votre site ?', en: 'Ready to launch your site?' })}
               </h2>
               <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-white/80">
@@ -480,7 +480,7 @@ export function SiteFactoryPage() {
                 <button
                   type="button"
                   onClick={startOrder}
-                  className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-black text-slate-900 transition hover:bg-white/90"
+                  className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:bg-white/90"
                 >
                   <Rocket className="h-4 w-4" />
                   {t({ ar: 'ابدأ طلبك', fr: 'Commencer', en: 'Start now' })}

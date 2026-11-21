@@ -34,7 +34,7 @@ export function WABubble() {
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
       >
-        <div className="w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center shadow-lg shadow-[#25D366]/30 hover:shadow-xl hover:shadow-[#25D366]/40 hover:scale-110 transition-all duration-300 animate-bounce-subtle">
+        <div className="w-14 h-14 bg-[#25D366] rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-all duration-300 animate-bounce-subtle">
           <MessageCircle className="w-7 h-7 text-white" aria-hidden="true" />
         </div>
       </a>

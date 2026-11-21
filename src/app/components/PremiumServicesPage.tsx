@@ -156,7 +156,7 @@ function ServiceCard({
                   index === 1 ? 'border-primary/40 bg-primary/5' : 'border-border bg-muted/40'
                 }`}
               >
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{tier.label}</p>
+                <p className="text-xs font-medium tracking-normal text-muted-foreground">{tier.label}</p>
                 <p className="mt-1 text-base font-bold">{formatPrice(tier.price, language)}</p>
                 {index === 1 && (
                   <span className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold text-primary">
@@ -207,7 +207,7 @@ export function PremiumServicesPage() {
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-border bg-gradient-to-br from-primary/10 via-background to-background px-4 pb-14 pt-16">
         <div className="mx-auto max-w-6xl text-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-primary">
+          <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-1.5 text-xs font-semibold tracking-normal text-primary">
             <Sparkles className="h-3.5 w-3.5" />
             {t({ ar: 'خدمات مميزة', fr: 'Services premium', en: 'Premium services' })}
           </span>

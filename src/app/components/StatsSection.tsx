@@ -63,7 +63,7 @@ export function StatsSection() {
               <div className="mx-auto mb-3 w-12 h-12 md:w-14 md:h-14 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                 <Icon className="w-6 h-6 md:w-7 md:h-7 text-primary" />
               </div>
-              <p className="text-2xl md:text-3xl font-black text-primary mb-1">
+              <p className="text-2xl md:text-3xl font-semibold text-primary mb-1">
                 <Counter target={value} suffix={suffix} />
               </p>
               <p className="text-xs md:text-sm font-semibold text-muted-foreground">{label}</p>
