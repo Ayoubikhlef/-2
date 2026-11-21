@@ -404,7 +404,15 @@ export async function loadSiteContentFromServer(): Promise<boolean> {
   try {
     const data = await loadFromServer<SiteContent>(SERVER_KEY);
     if (data) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      // Drop the retired visa appointment card before it reaches the UI or admin panel.
+      const cleaned: SiteContent = {
+        ...data,
+        services: {
+          ...data.services,
+          cards: (data.services?.cards ?? []).filter((card) => card.id !== 'visa'),
+        },
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cleaned));
       return true;
     }
   } catch {}
