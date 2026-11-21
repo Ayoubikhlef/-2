@@ -184,3 +184,5 @@ Next session should focus on:
 - Added CamelCase route aliases /Subscribe, /Abonnement and /Calculators to vercel.json.
 - Added the subscription/renewal card to the account dashboard and per-route SEO HTML generation in vite.config.ts (4 pages).
 - Verified: npm run typecheck and npm run build pass (92 templates, 1104 files). Local preview renders correctly in AR/FR and light/dark; the extra demo products seen in local QA come from the offline default catalog because the local API proxy cannot reach Render — production /api/products returns the real product list and was verified directly.
+
+- Template product imagery made static at the owner's request: hero product shot, its floating badge and every catalogue/commerce card now have animation/transform/transition disabled; ambient hero motion (orbit, orbs, shine) is unchanged.

@@ -325,3 +325,5 @@ Typography-only refresh, per the owner's explicit direction: keep the existing l
 - Routes: /Subscribe, /Abonnement, /Calculators rewrites added alongside the lowercase versions. Account dashboard shows subscription status; per-route SEO shells are generated at build time.
 - QA: typecheck + build pass; 92 templates / 1104 preview files. Local preview shows fallback demo products only because the dev proxy has no backend; production API data was checked and is unchanged.
 - Note: an earlier broad styling sweep was reverted in full — do not reapply whitespace-collapsing passes across src/app/components.
+
+- Template product imagery made static at the owner's request: hero product shot, its floating badge and every catalogue/commerce card now have animation/transform/transition disabled; ambient hero motion (orbit, orbs, shine) is unchanged.

@@ -1857,4 +1857,19 @@ html[dir="rtl"] .q-nav [data-q-next] .icon{transform:scaleX(-1)}
 h1,h2,h3,h4{font-family:var(--font-display);font-weight:600;letter-spacing:0}
 html[lang="ar"] h1,html[lang="ar"] h2,html[lang="ar"] h3,html[lang="ar"] h4{letter-spacing:0}
 .btn{font-weight:500}
+
+
+/* Product imagery stays still. The hero keeps its ambient motion, but the
+   product/laptop shot, its floating badge and every catalogue card are fixed. */
+.hero-media,.hero-media img,.hero-media::before,.float-card,
+.product-card,.product-card *,.product-thumb,.product-thumb img,
+.boutique-card,.boutique-card *,.digital-card,.digital-card *,
+.car-card,.car-card *,.fleet-card,.fleet-card *,
+.property-card,.property-card *,.room-card,.room-card *,
+.course-card,.course-card *,.bistro-dish,.bistro-dish *{
+  animation:none!important;
+  transform:none!important;
+  transition:none!important;
+  will-change:auto!important;
+}
 `;
