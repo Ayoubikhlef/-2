@@ -43,7 +43,7 @@ export function Hero() {
 
       {/* Content */}
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32 w-full">
-        <div className="max-w-2xl">
+        <div className="max-w-3xl xl:max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -53,7 +53,7 @@ export function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl mb-6 text-slate-900 leading-tight font-semibold dark:text-white"
+              className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[5.5rem] mb-6 text-slate-900 leading-[1.05] font-semibold dark:text-white"
             >
               {t(content.hero.title)}
               <br />
