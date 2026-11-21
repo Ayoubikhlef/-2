@@ -186,3 +186,8 @@ Next session should focus on:
 - Verified: npm run typecheck and npm run build pass (92 templates, 1104 files). Local preview renders correctly in AR/FR and light/dark; the extra demo products seen in local QA come from the offline default catalog because the local API proxy cannot reach Render — production /api/products returns the real product list and was verified directly.
 
 - Template product imagery made static at the owner's request: hero product shot, its floating badge and every catalogue/commerce card now have animation/transform/transition disabled; ambient hero motion (orbit, orbs, shine) is unchanged.
+
+
+## Security documentation cleanup (2026-11-21)
+- Removed the generated SECURITY_HARDENING.md and security-test.js: they contained inaccurate claims and a test script with broken result logic. Also removed start-dev.bat (called a dev:https script that no longer exists) and reverted unrequested dev/color edits from package.json and theme.css.
+- Added SECURITY_NOTES.md with only protections verified in server/src/index.ts (Helmet CSP, proxy-aware IP resolution, per-endpoint rate limits, CORS allowlist, HPP), JWT/bcrypt/role guards, and the deliberate limitations. It does not claim a clean pentest.
