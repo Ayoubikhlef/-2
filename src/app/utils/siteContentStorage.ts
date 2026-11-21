@@ -281,12 +281,19 @@ function getAll(): SiteContent {
       parsed.hero.bgImage = '';
     }
 
+    const digitizationItems = (parsed.services?.digitizationItems ?? defaultContent.services.digitizationItems)
+      .map((item, index) => ({
+        ...(defaultContent.services.digitizationItems[index] ?? {}),
+        ...item,
+        // Saved content written before photos existed keeps the default image.
+        image: item.image ?? defaultContent.services.digitizationItems[index]?.image,
+      }));
     const merged: SiteContent = {
       hero: { ...defaultContent.hero, ...parsed.hero },
       whyUs: { ...defaultContent.whyUs, ...parsed.whyUs, features: parsed.whyUs?.features ?? defaultContent.whyUs.features },
       faq: { ...defaultContent.faq, ...parsed.faq, items: faqItems },
       about: { ...defaultContent.about, ...parsed.about },
-      services: { ...defaultContent.services, ...parsed.services, cards: parsed.services?.cards ?? defaultContent.services.cards, digitizationItems: parsed.services?.digitizationItems ?? defaultContent.services.digitizationItems },
+      services: { ...defaultContent.services, ...parsed.services, cards: parsed.services?.cards ?? defaultContent.services.cards, digitizationItems },
       footer: { ...defaultContent.footer, ...parsed.footer },
     };
     return scrubLegacyBrand(applyIdentityOverrides(merged));
@@ -341,7 +348,19 @@ export function updateSiteContent(update: Partial<SiteContent>): SiteContent {
   if (update.whyUs) next.whyUs = { ...current.whyUs, ...update.whyUs, features: update.whyUs.features ?? current.whyUs.features };
   if (update.faq) next.faq = { ...current.faq, ...update.faq, items: update.faq.items ?? current.faq.items };
   if (update.about) next.about = { ...current.about, ...update.about };
-  if (update.services) next.services = { ...current.services, ...update.services, cards: update.services.cards ?? current.services.cards, digitizationItems: update.services.digitizationItems ?? current.services.digitizationItems };
+  if (update.services) {
+    const items = update.services.digitizationItems ?? current.services.digitizationItems;
+    next.services = {
+      ...current.services,
+      ...update.services,
+      cards: update.services.cards ?? current.services.cards,
+      digitizationItems: items.map((item, index) => ({
+        ...(defaultContent.services.digitizationItems[index] ?? {}),
+        ...item,
+        image: item.image ?? defaultContent.services.digitizationItems[index]?.image,
+      })),
+    };
+  }
   if (update.footer) next.footer = { ...current.footer, ...update.footer };
   saveAll(next);
   dispatchAndSync();
