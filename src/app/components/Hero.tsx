@@ -42,7 +42,7 @@ export function Hero() {
       </div>
 
       {/* Content */}
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32 w-full">
+      <div className="relative w-full px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
         <div className="max-w-3xl xl:max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
