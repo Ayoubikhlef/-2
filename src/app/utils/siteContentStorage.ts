@@ -35,6 +35,8 @@ export interface DigitizationItem {
   title: LangString;
   description: LangString;
   color: string;
+  /** Optional photo from the site settings; older saved content keeps the icon. */
+  image?: string;
 }
 
 export interface SiteContent {
@@ -228,9 +230,9 @@ const defaultContent: SiteContent = {
       },
     ],
     digitizationItems: [
-      { title: { ar: 'تنسيقات متعددة', fr: 'Formats multiples', en: 'Multiple Formats' }, description: { ar: 'PDF، Word، Excel وجميع التنسيقات الشائعة', fr: 'PDF, Word, Excel et tous les formats courants', en: 'PDF, Word, Excel and all common formats' }, color: 'from-emerald-500 to-emerald-600' },
-      { title: { ar: 'خدمة سريعة', fr: 'Service rapide', en: 'Fast Service' }, description: { ar: 'إنجاز سريع دون المساس بالجودة', fr: 'Réalisation rapide sans compromettre la qualité', en: 'Fast delivery without compromising quality' }, color: 'from-purple-500 to-purple-600' },
-      { title: { ar: 'سرية تامة', fr: 'Confidentialité totale', en: 'Complete Confidentiality' }, description: { ar: 'نحافظ على خصوصية وأمان مستنداتك', fr: 'Nous protégeons la confidentialité de vos documents', en: 'We protect your documents\' privacy' }, color: 'from-orange-500 to-orange-600' },
+      { title: { ar: 'تنسيقات متعددة', fr: 'Formats multiples', en: 'Multiple Formats' }, description: { ar: 'PDF، Word، Excel وجميع التنسيقات الشائعة', fr: 'PDF, Word, Excel et tous les formats courants', en: 'PDF, Word, Excel and all common formats' }, color: 'from-emerald-500 to-emerald-600', image: '/services/formats.jpg' },
+      { title: { ar: 'خدمة سريعة', fr: 'Service rapide', en: 'Fast Service' }, description: { ar: 'إنجاز سريع دون المساس بالجودة', fr: 'Réalisation rapide sans compromettre la qualité', en: 'Fast delivery without compromising quality' }, color: 'from-purple-500 to-purple-600', image: '/services/fast-service.jpg' },
+      { title: { ar: 'سرية تامة', fr: 'Confidentialité totale', en: 'Complete Confidentiality' }, description: { ar: 'نحافظ على خصوصية وأمان مستنداتك', fr: 'Nous protégeons la confidentialité de vos documents', en: 'We protect your documents\' privacy' }, color: 'from-orange-500 to-orange-600', image: '/services/confidentiality.jpg' },
     ],
   },
   footer: {

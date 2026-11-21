@@ -82,10 +82,14 @@ export function Services() {
                 transition={{ delay: index * 0.1, duration: 0.5 }}
                 className="group bg-white dark:bg-slate-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 border border-border overflow-hidden"
               >
-                <div className="h-36 sm:h-44 bg-muted/50 flex items-center justify-center relative">
-                  <div className="w-16 h-16 bg-card border border-border rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <Icon className="w-8 h-8 text-white" />
-                  </div>
+                <div className="h-36 sm:h-44 bg-muted/50 flex items-center justify-center relative overflow-hidden">
+                  {item.image ? (
+                    <img src={item.image} alt={item.title[language]} loading="lazy" className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="w-16 h-16 bg-card border border-border rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <Icon className="w-8 h-8 text-white" />
+                    </div>
+                  )}
                 </div>
                 <div className="p-5 md:p-6">
                   <h3 className="text-lg font-bold mb-2">{item.title[language]}</h3>
