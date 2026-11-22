@@ -26,6 +26,7 @@ import { paymentRouter } from './routes/payment';
 import { securityRouter } from './routes/security';
 import { backupRouter } from './routes/backup';
 import { siteFactoryRouter } from './routes/siteFactory';
+import { siteAdminRouter } from './routes/siteAdmin';
 import { subscriptionRouter } from './routes/subscription';
 import { calculatorRouter } from './routes/calculator';
 import { visitRouter } from './routes/visits';
@@ -113,7 +114,8 @@ const standardJson = express.json({
 });
 const factoryJson = express.json({ limit: '12mb' });
 app.use((req, res, next) => {
-  if ((req.path || '').startsWith('/api/site-factory')) return factoryJson(req, res, next);
+  const path = req.path || '';
+  if (path.startsWith('/api/site-factory') || path.startsWith('/api/site-admin')) return factoryJson(req, res, next);
   return standardJson(req, res, next);
 });
 app.use(cookieParser());
@@ -203,6 +205,7 @@ app.use('/api/snapshots/download', snapshotLimiter);
 app.use('/api/snapshots/run', snapshotLimiter);
 app.use('/api/snapshots', generalLimiter, backupRouter);
 app.use('/api/site-factory', siteFactoryRouter);
+app.use('/api/site-admin', siteAdminRouter);
 app.use('/api/subscription', subscriptionRouter);
 app.use('/api/calculator', calculatorRouter);
 app.use('/api/visits', visitLimiter, visitRouter);

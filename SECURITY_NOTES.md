@@ -39,6 +39,25 @@ keep the full history of earlier reviews.
 - The secondary Google Forms order notification cannot itself be rate-limited; it
   does not create server-side orders.
 
+## Generated-site owner dashboards
+
+- Each generated site can be given a **single-use sign-in link** to a dashboard
+  hosted on `aos-tech.store` at `/site-admin` (the generated `pages.dev` bundle
+  itself stays static and unauthenticated). Only a SHA-256 hash of the secret is
+  stored on `Site.adminTokenHash`.
+- Claiming the link rotates the token and bumps `Site.adminSessionVersion`, so
+  the URL cannot be reused and every older dashboard session is revoked. The
+  redirected URL no longer contains the secret.
+- The session is a 12-hour JWT with the dedicated `aos-site-admin` audience,
+  carried in an HttpOnly/Secure/SameSite=Lax cookie scoped to `/api/site-admin`.
+  A normal user access token cannot be used for a site dashboard and vice versa.
+- Every data query in `routes/siteAdmin.ts` filters by the `siteId` from that
+  session; no route accepts a site id from the client. Content edits are
+  whitelisted and only affect the owning site's `SiteRequest` / `SiteProduct` /
+  `SiteOrder` / `SiteLead` rows. Sign-in, writes and publishing are rate-limited.
+- The owner link is generated (or renewed) only from the AOS operator console;
+  it should be sent to the client once, over a private channel.
+
 ## Scope note
 
 This file documents the current code. It is not a pentest report and makes no

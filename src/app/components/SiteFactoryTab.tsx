@@ -7,6 +7,7 @@ import {
   Ban,
   Check,
   CheckCircle2,
+  Copy,
   Download,
   ExternalLink,
   FileArchive,
@@ -391,6 +392,28 @@ export function SiteFactoryTab() {
       await Promise.all([refreshDetail(detail.id), loadRequests(), loadStats()]);
     } catch (error: any) {
       toast.error(error?.message || t({ ar: 'تعذر تحديث الحالة.', fr: 'Échec de la mise à jour.', en: 'Could not update status.' }));
+    } finally {
+      setBusy('');
+    }
+  }
+
+  /** Rotate the single-use dashboard link and copy it for the owner. */
+  async function createOwnerLink(siteId: string) {
+    setBusy('link');
+    try {
+      const { link } = await api.siteFactory.admin.adminLink(siteId);
+      try {
+        await navigator.clipboard.writeText(link);
+        toast.success(t({
+          ar: 'تم نسخ رابط دخول الموقع. أرسله للعميل مرة واحدة فقط.',
+          fr: 'Lien d’accès copié. Envoyez-le au client une seule fois.',
+          en: 'Dashboard link copied. Send it to the client only once.',
+        }));
+      } catch {
+        toast.success(t({ ar: 'رابط الدخول جاهز', fr: 'Lien prêt', en: 'Link ready' }), { description: link });
+      }
+    } catch (error: any) {
+      toast.error(error?.message || t({ ar: 'تعذر إنشاء الرابط.', fr: 'Impossible de créer le lien.', en: 'Could not create the link.' }));
     } finally {
       setBusy('');
     }
@@ -893,10 +916,19 @@ export function SiteFactoryTab() {
                   <button
                     type="button"
                     onClick={() => openDetail(site.request?.id || site.requestId)}
-                    className="ms-auto inline-flex items-center gap-1 rounded-lg border border-white/10 px-2.5 py-1.5 text-[11px] font-bold text-white/70 hover:bg-slate-800"
+                    className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-2.5 py-1.5 text-[11px] font-bold text-white/70 hover:bg-slate-800"
                   >
                     <FileText className="h-3 w-3" />
                     {t({ ar: 'الطلب', fr: 'Demande', en: 'Request' })}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => createOwnerLink(site.id)}
+                    disabled={busy === 'link'}
+                    className="ms-auto inline-flex items-center gap-1 rounded-lg border border-emerald-400/30 bg-emerald-400/10 px-2.5 py-1.5 text-[11px] font-bold text-emerald-300 hover:bg-emerald-400/20 disabled:opacity-60"
+                  >
+                    <Copy className="h-3 w-3" />
+                    {t({ ar: 'رابط اللوحة', fr: 'Lien tableau de bord', en: 'Dashboard link' })}
                   </button>
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-3 text-[11px] text-white/40">

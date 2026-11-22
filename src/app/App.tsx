@@ -61,6 +61,9 @@ const SubscriptionPage = lazy(() =>
 const SecurityChecklistPage = lazy(() =>
   import('./components/SecurityChecklistPage').then(m => ({ default: m.SecurityChecklistPage })),
 );
+const SiteAdminPage = lazy(() =>
+  import('./components/SiteAdminPage').then(m => ({ default: m.SiteAdminPage })),
+);
 function LiquidBackground() {
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
@@ -252,6 +255,13 @@ function readChecklistRoute(): boolean {
   return pathname === '/security-checklist';
 }
 
+/** Dashboard for the owner of one generated website. */
+function readSiteAdminRoute(): boolean {
+  if (typeof window === 'undefined') return false;
+  const pathname = window.location.pathname.replace(/\/+$/, '').toLowerCase();
+  return pathname === '/site-admin';
+}
+
 /** Standalone login route; signed-in customers go straight to their account
  *  unless they are opening a password-reset link. */
 function LoginRoute({ onClose, onAuthenticated }: { onClose: () => void; onAuthenticated: () => void }) {
@@ -276,11 +286,12 @@ export default function App() {
   const [isCalculatorRoute, setIsCalculatorRoute] = useState(readCalculatorRoute);
   const [isSubscriptionRoute, setIsSubscriptionRoute] = useState(readSubscriptionRoute);
   const [isChecklistRoute, setIsChecklistRoute] = useState(readChecklistRoute);
+  const [isSiteAdminRoute, setIsSiteAdminRoute] = useState(readSiteAdminRoute);
   const isFactoryPage =
     typeof window !== 'undefined' && window.location.pathname.replace(/\/+$/, '') === '/create-website';
   const productSlug = typeof window !== 'undefined' ? productPathFromUrl(window.location.pathname) : null;
   const isProductPage = Boolean(productSlug);
-  const is404 = !isFactoryPage && !isProductPage && !isLoginRoute && !isPremiumRoute && !isAiToolsRoute && !isCalculatorRoute && !isSubscriptionRoute && !isChecklistRoute && typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#digital-services', '#digital-quote', '#ai-studio', '#hqpanel', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq', '#web', '#demo', '#order-tracking', '#premium-list'].includes(hash);
+  const is404 = !isFactoryPage && !isProductPage && !isLoginRoute && !isPremiumRoute && !isAiToolsRoute && !isCalculatorRoute && !isSubscriptionRoute && !isChecklistRoute && !isSiteAdminRoute && typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#digital-services', '#digital-quote', '#ai-studio', '#hqpanel', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq', '#web', '#demo', '#order-tracking', '#premium-list'].includes(hash);
   const [maintenance, setMaintenance] = useState(false);
   // Render immediately for returning visitors (the flag is cached locally)
   // and refresh it in the background. Only the very first visit waits, with
@@ -296,6 +307,7 @@ export default function App() {
       setIsCalculatorRoute(readCalculatorRoute());
       setIsSubscriptionRoute(readSubscriptionRoute());
       setIsChecklistRoute(readChecklistRoute());
+      setIsSiteAdminRoute(readSiteAdminRoute());
     };
     window.addEventListener('hashchange', onHashChange);
     // Client-side navigation (see utils/navigation.ts) uses pushState, so the
@@ -407,6 +419,11 @@ export default function App() {
           en: 'VIBE CODING checklist — 20 protections',
         }[lang];
         document.title = `${checklistTitle} | ${brand.name}`;
+        return;
+      }
+      if (pathname.toLowerCase() === '/site-admin') {
+        const dashboardTitle = { ar: 'لوحة إدارة الموقع', fr: 'Tableau de bord du site', en: 'Site dashboard' }[lang];
+        document.title = `${dashboardTitle} | ${brand.name}`;
         return;
       }
       if (pathname.toLowerCase() === '/ai-tools') {
@@ -574,9 +591,9 @@ export default function App() {
               <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-lg focus:outline-none">
                 {typeof window !== 'undefined' && (navigator.language.startsWith('ar') ? 'تخطى إلى المحتوى' : navigator.language.startsWith('fr') ? 'Aller au contenu' : 'Skip to content')}
               </a>
-              {!isPage && !isFactoryPage && !isPremiumRoute && !isAiToolsRoute && !isCalculatorRoute && !isSubscriptionRoute && !isChecklistRoute && <AnnouncementBar />}
+              {!isPage && !isFactoryPage && !isPremiumRoute && !isAiToolsRoute && !isCalculatorRoute && !isSubscriptionRoute && !isChecklistRoute && !isSiteAdminRoute && <AnnouncementBar />}
               <ScrollProgress />
-              {currentHash !== '#demo' && <Header />}
+              {currentHash !== '#demo' && !isSiteAdminRoute && <Header />}
               <main id="main-content">
                 {isProductPage ? (
                   <Suspense fallback={<AdminFallback />}>
@@ -601,6 +618,10 @@ export default function App() {
                 ) : isChecklistRoute ? (
                   <Suspense fallback={<AdminFallback />}>
                     <SecurityChecklistPage />
+                  </Suspense>
+                ) : isSiteAdminRoute ? (
+                  <Suspense fallback={<AdminFallback />}>
+                    <SiteAdminPage />
                   </Suspense>
                 ) : isPage ? (
                   <>

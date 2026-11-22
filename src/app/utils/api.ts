@@ -712,6 +712,12 @@ export const api = {
       ),
 
     admin: {
+      /** Create or renew the single-use sign-in link for a generated site. */
+      adminLink: (id: string) =>
+        request<{ ok: boolean; link: string }>(
+          `/site-factory/admin/sites/${encodeURIComponent(id)}/admin-link`,
+          { method: 'POST' },
+        ),
       stats: () => request<any>('/site-factory/admin/stats'),
       requests: (params: { status?: string; q?: string; page?: number; pageSize?: number } = {}) => {
         const query = new URLSearchParams();
@@ -769,4 +775,74 @@ export const api = {
         }),
     },
   },
+};
+
+/* -------------------------------------------------------------------------
+ * Site-owner dashboard
+ * ---------------------------------------------------------------------- */
+
+/**
+ * The owner dashboard authenticates with an HttpOnly cookie, not the store's
+ * in-memory access token. It must never trigger the automatic token refresh
+ * used by the main API client.
+ */
+async function siteAdminRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const url = getUrls(path)[0];
+  const res = await fetch(url, {
+    ...options,
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options.headers as Record<string, string>),
+    },
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const error: any = new Error(body.error || `Request failed (${res.status})`);
+    error.status = res.status;
+    throw error;
+  }
+  return body as T;
+}
+
+export interface SiteAdminInfo {
+  id: string;
+  name: string;
+  subdomain: string;
+  status: string;
+  url: string;
+  ref: string;
+  requestStatus: string;
+  phone: string;
+  email: string;
+}
+
+export const siteAdminApi = {
+  me: () => siteAdminRequest<{ site: SiteAdminInfo }>('/site-admin/me'),
+  logout: () => siteAdminRequest<{ ok: boolean }>('/site-admin/logout', { method: 'POST' }),
+  orders: () => siteAdminRequest<{ orders: any[] }>('/site-admin/orders'),
+  setOrderStatus: (id: string, status: string) =>
+    siteAdminRequest<{ ok: boolean }>(`/site-admin/orders/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    }),
+  leads: () => siteAdminRequest<{ leads: any[] }>('/site-admin/leads'),
+  products: () => siteAdminRequest<{ products: any[] }>('/site-admin/products'),
+  saveProduct: (data: any, id?: string) =>
+    siteAdminRequest<{ product?: any; ok?: boolean }>(
+      id ? `/site-admin/products/${encodeURIComponent(id)}` : '/site-admin/products',
+      { method: id ? 'PATCH' : 'POST', body: JSON.stringify(data) },
+    ),
+  deleteProduct: (id: string) =>
+    siteAdminRequest<{ ok: boolean }>(`/site-admin/products/${encodeURIComponent(id)}`, { method: 'DELETE' }),
+  content: () => siteAdminRequest<{ content: any }>('/site-admin/content'),
+  saveContent: (data: any) =>
+    siteAdminRequest<{ ok: boolean; message: string }>('/site-admin/content', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+  publish: () =>
+    siteAdminRequest<{ ok: boolean; url?: string; message?: string }>('/site-admin/publish', {
+      method: 'POST',
+    }),
 };

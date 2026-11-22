@@ -369,3 +369,12 @@ Typography-only refresh, per the owner's explicit direction: keep the existing l
 - `src/styles/theme.css` now has unlayered `html:not(.dark)` rules mapping those utilities to the solid `--foreground` (#1e293b) and `--muted-foreground` (#475569). Dark mode and `text-white/xx` dark panels keep their original colours; `Admin.tsx` order-id changed to `text-slate-500` to avoid darkening text inside its dark panel.
 - Verified on six public routes in light mode (nav/footer links #1e293b, muted copy #475569) and confirmed the dark toggle still works. typecheck/build pass.
 - Commit `4f37b0f`, pushed and deployed to Vercel.
+
+## Session 2026-11-22 - per-site owner dashboard
+- New capability: every generated site can get a private dashboard at `https://aos-tech.store/site-admin`. Generated pages.dev bundles remain static; the dashboard is hosted on the AOS origin so it reuses the existing API/CORS/cookie path.
+- Owner choices: dashboard on AOS store; manage orders/messages + products/prices + content/colours; sign in via a private one-use link issued from the factory console.
+- `Site` gained `adminTokenHash` / `adminLinkAt` / `adminSessionVersion`. Secret tokens are random 32-byte base64url, stored as SHA-256 only; claiming rotates the token and the session version, invalidating the old URL and prior sessions. 12-hour JWT with audience `aos-site-admin` in an HttpOnly/Secure/SameSite=Lax cookie scoped to `/api/site-admin`.
+- `routes/siteAdmin.ts` + `middleware/siteAdmin.ts` implement me/logout, orders, leads, product CRUD, whitelisted content edits (with `refreshPreview`) and publish; every query is filtered by the session siteId. `SiteFactoryTab` has a "Dashboard link" button calling `/site-factory/admin/sites/:id/admin-link`. `SiteAdminPage.tsx` is the AR/FR/EN RTL/LTR dashboard UI; its API helper deliberately avoids the main client's auto token refresh.
+- Vercel: `/site-admin` rewrite + no-store header; robots.txt disallows `/site-admin` and `/api/site-admin`. SECURITY_NOTES.md updated.
+- Local DB env is empty; server tsc + root typecheck/build pass. Production smoke test pending after Render applies `prisma db push` and Vercel deploys.
+- Vercel free storage warning: removed old unaliased deployments; keep deploy count low (each build ships ~1100 template preview files).

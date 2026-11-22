@@ -13,6 +13,7 @@ const REFRESH_SECRET = requireEnv('JWT_REFRESH_SECRET');
 const EXPIRES_IN = process.env.JWT_EXPIRES_IN || '15m';
 const REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRES_IN || '7d';
 const TWO_FACTOR_AUDIENCE = 'aos-2fa-challenge';
+const SITE_ADMIN_AUDIENCE = 'aos-site-admin';
 
 export interface AccessTokenPayload {
   userId: string;
@@ -90,4 +91,26 @@ export function verifyTwoFactorChallenge(token: string) {
     throw new Error('Invalid two-factor challenge');
   }
   return { userId: String(payload.userId) };
+}
+
+/**
+ * Short session for the owner dashboard of one generated site. The dedicated
+ * audience means a normal user access token can never open a site dashboard,
+ * and vice versa. `version` is bumped whenever the owner link is rotated,
+ * which immediately invalidates every session issued from the old link.
+ */
+export function signSiteAdminSession(siteId: string, version: number) {
+  return jwt.sign({ siteId: String(siteId), v: Number(version) || 0 }, SECRET, {
+    expiresIn: '12h',
+    audience: SITE_ADMIN_AUDIENCE,
+  });
+}
+
+export function verifySiteAdminSession(token: string) {
+  const payload = jwt.verify(token, SECRET, { audience: SITE_ADMIN_AUDIENCE }) as jwt.JwtPayload & {
+    siteId?: string;
+    v?: number;
+  };
+  if (!payload?.siteId) throw new Error('Invalid site admin session');
+  return { siteId: String(payload.siteId), version: Number(payload.v || 0) };
 }

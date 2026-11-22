@@ -394,6 +394,12 @@ siteFactoryRouter.get('/admin/sites', async (_req, res) => {
   res.json({ sites });
 });
 
+/** Issue (or renew) the single-use dashboard link for a generated site. */
+siteFactoryRouter.post('/admin/sites/:id/admin-link', async (_req, res) => {
+  const link = await factory.rotateSiteAdminLink(String(_req.params.id));
+  res.json({ ok: true, link });
+});
+
 siteFactoryRouter.post('/admin/sites/:id/publish', async (req, res) => {
   const result = await factory.publishSite(String(req.params.id));
   res.json(result);

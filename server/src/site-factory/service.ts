@@ -357,6 +357,65 @@ function makeRef(prefix: string): string {
 }
 
 /* -------------------------------------------------------------------------
+ * Owner dashboard sign-in links
+ * ---------------------------------------------------------------------- */
+
+function hashSiteAdminToken(token: string): string {
+  return crypto.createHash('sha256').update(token).digest('hex');
+}
+
+function newSiteAdminToken(): string {
+  // 32 random bytes, URL-safe. The plaintext is never stored or logged.
+  return crypto.randomBytes(32).toString('base64url');
+}
+
+function siteAdminLink(token: string): string {
+  const base = (process.env.PUBLIC_SITE_URL || 'https://aos-tech.store').replace(/\/+$/, '');
+  return `${base}/api/site-admin/claim/${token}`;
+}
+
+/**
+ * Issue a fresh single-use link for the owner of a generated site. Rotating
+ * also bumps the session version, so any dashboard session opened from an
+ * older link is revoked immediately.
+ */
+export async function rotateSiteAdminLink(siteId: string): Promise<string> {
+  const site = await prisma.site.findUnique({ where: { id: siteId }, select: { id: true } });
+  if (!site) throw new NotFound('الموقع غير موجود.');
+  const token = newSiteAdminToken();
+  await prisma.site.update({
+    where: { id: siteId },
+    data: {
+      adminTokenHash: hashSiteAdminToken(token),
+      adminLinkAt: new Date(),
+      adminSessionVersion: { increment: 1 },
+    },
+  });
+  return siteAdminLink(token);
+}
+
+/** Exchange a link token for a session, invalidating that link in the same write. */
+export async function consumeSiteAdminToken(token: string): Promise<{ siteId: string; version: number } | null> {
+  if (!/^[A-Za-z0-9_-]{40,80}$/.test(token)) return null;
+  const site = await prisma.site.findFirst({
+    where: { adminTokenHash: hashSiteAdminToken(token) },
+    select: { id: true, adminSessionVersion: true },
+  });
+  if (!site) return null;
+  const version = site.adminSessionVersion + 1;
+  const next = newSiteAdminToken();
+  await prisma.site.update({
+    where: { id: site.id },
+    data: {
+      adminTokenHash: hashSiteAdminToken(next),
+      adminLinkAt: new Date(),
+      adminSessionVersion: version,
+    },
+  });
+  return { siteId: site.id, version };
+}
+
+/* -------------------------------------------------------------------------
  * Create request + preview site
  * ---------------------------------------------------------------------- */
 

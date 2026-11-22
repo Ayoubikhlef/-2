@@ -400,6 +400,11 @@ model Site {
   lastDeployAt   DateTime?
   deployProvider String?
   deployError    String?   @db.Text
+  // Single-use sign-in link for the site owner's dashboard. Only the hash is
+  // stored; the secret itself is shown once to the AOS operator.
+  adminTokenHash    String?   @unique
+  adminLinkAt       DateTime?
+  adminSessionVersion Int     @default(0)
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 

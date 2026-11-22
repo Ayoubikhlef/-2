@@ -228,3 +228,11 @@ Next session should focus on:
 - Added light-mode-only rules in `src/styles/theme.css` under `html:not(.dark)` so those utilities use the solid tokens (#1e293b / #475569). Dark mode and white-on-dark sections are untouched; one admin order-id span moved to `text-slate-500` so its dark panel keeps the original look.
 - Verified in light mode on /, /premium-services, /ai-tools, /subscription, /create-website and /security-checklist: nav and footer links #1e293b, muted copy #475569. Dark mode toggle still works. typecheck/build pass.
 - Commit `4f37b0f`, pushed and deployed to Vercel.
+
+## Session 2026-11-22 - per-site owner dashboard
+- Owner asked that a generated site come with its own working admin dashboard "like mine". Confirmed choices: dashboard hosted on aos-tech.store (not inside the static pages.dev build), managing orders/messages, products/prices and content/colours, accessed with a private link.
+- Added `Site.adminTokenHash`, `adminLinkAt`, `adminSessionVersion` to the Prisma schema. Links are random 32-byte tokens, stored only as SHA-256 hashes; `rotateSiteAdminLink()` issues one and `consumeSiteAdminToken()` exchanges it once and rotates it, so the URL cannot be reused.
+- New `server/src/routes/siteAdmin.ts` (mounted at `/api/site-admin`) + `middleware/siteAdmin.ts`: claim endpoint sets an HttpOnly/Secure/SameSite cookie with a 12-hour JWT using the dedicated `aos-site-admin` audience, scoped to that siteId. Every query filters by the session siteId. Endpoints: me/logout, orders list + status update, leads list, product CRUD, content/colour whitelist update with preview refresh, publish.
+- Frontend `/site-admin` page (`SiteAdminPage.tsx`) with four tabs and a dedicated API client that never triggers the store's token refresh; AOS factory console got a "رابط اللوحة" button that issues/copies the link. Added Vercel rewrite/no-store header and robots.txt disallow. SECURITY_NOTES.md documents the model.
+- Server `tsc`, root `typecheck` and `build` pass. Local DB env is empty, so the happy path could not be exercised locally; production smoke test pending after deploy/Render db push.
+- Vercel free deployment storage hit 100% (10 GB). Removed two old unaliased production deployments; the active aliased deployment was left untouched.

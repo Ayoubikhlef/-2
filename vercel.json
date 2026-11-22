@@ -75,6 +75,10 @@
       "destination": "/security-checklist/index.html"
     },
     {
+      "source": "/site-admin",
+      "destination": "/index.html"
+    },
+    {
       "source": "/landing-preview",
       "destination": "/landing-preview.html"
     },
@@ -189,6 +193,15 @@
     },
     {
       "source": "/security-checklist",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/site-admin",
       "headers": [
         {
           "key": "Cache-Control",
