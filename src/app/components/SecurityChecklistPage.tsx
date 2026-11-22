@@ -170,12 +170,13 @@ export function SecurityChecklistPage() {
     copyTimer.current = window.setTimeout(() => setCopied(null), 1800);
   };
 
-  const copy = async (id: string, text: string) => {
+  const copy = async (id: string, text: string, successMessage?: string) => {
     const ok = await copyText(text);
     if (ok) {
       markCopied(id);
       toast.success(
-        t({ ar: 'تم نسخ الأمر', fr: 'Commande copiée', en: 'Prompt copied' }),
+        successMessage ||
+          t({ ar: 'تم نسخ الأمر', fr: 'Commande copiée', en: 'Prompt copied' }),
       );
     } else {
       toast.error(
@@ -186,6 +187,34 @@ export function SecurityChecklistPage() {
         }),
       );
     }
+  };
+
+  const copyAll = () => {
+    const heading = t({
+      ar: 'قائمة VIBE CODING — كل الأوامر',
+      fr: 'Liste VIBE CODING — toutes les commandes',
+      en: 'VIBE CODING checklist — all prompts',
+    });
+    const lines = [`${heading} — AOS Tech Store`, ''];
+
+    SECURITY_CHECKLIST.forEach((item, index) => {
+      lines.push(`${String(index + 1).padStart(2, '0')}. ${item.title[lang]}`);
+      lines.push(item.command[lang]);
+      lines.push('');
+    });
+    lines.push('---');
+    lines.push(t({ ar: 'التقرير النهائي', fr: 'Rapport final', en: 'Final report' }));
+    lines.push(REPORT_COMMAND[lang]);
+
+    return copy(
+      'all',
+      lines.join('\n'),
+      t({
+        ar: 'تم نسخ كل الأوامر',
+        fr: 'Toutes les commandes copiées',
+        en: 'All prompts copied',
+      }),
+    );
   };
 
   const toggle = (id: string) => {
@@ -350,6 +379,20 @@ export function SecurityChecklistPage() {
                 >
                   <Download className="h-4 w-4" aria-hidden="true" />
                   {t({ ar: 'تحميل القائمة', fr: 'Télécharger', en: 'Download' })}
+                </button>
+                <button
+                  type="button"
+                  onClick={copyAll}
+                  className="inline-flex items-center gap-2 rounded-xl border border-primary/30 bg-background px-3.5 py-2 text-xs font-bold text-primary transition-colors hover:bg-primary/5"
+                >
+                  {copied === 'all' ? (
+                    <Check className="h-4 w-4" aria-hidden="true" />
+                  ) : (
+                    <Copy className="h-4 w-4" aria-hidden="true" />
+                  )}
+                  {copied === 'all'
+                    ? t({ ar: 'تم النسخ', fr: 'Copié', en: 'Copied' })
+                    : t({ ar: 'نسخ الكل', fr: 'Tout copier', en: 'Copy all' })}
                 </button>
                 <button
                   type="button"
