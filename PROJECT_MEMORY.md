@@ -332,3 +332,8 @@ Typography-only refresh, per the owner's explicit direction: keep the existing l
 ## Security documentation cleanup (2026-11-21)
 - Removed the generated SECURITY_HARDENING.md and security-test.js: they contained inaccurate claims and a test script with broken result logic. Also removed start-dev.bat (called a dev:https script that no longer exists) and reverted unrequested dev/color edits from package.json and theme.css.
 - Added SECURITY_NOTES.md with only protections verified in server/src/index.ts (Helmet CSP, proxy-aware IP resolution, per-endpoint rate limits, CORS allowlist, HPP), JWT/bcrypt/role guards, and the deliberate limitations. It does not claim a clean pentest.
+
+
+## Session 2026-11-22 - hero heading + header login control
+- Hero: widened the text column, made the headline fluid `clamp(3.5rem, 10vw, 7rem)` so it tracks the viewport, and removed the centering cap so the text aligns to the right edge. Layout, palette and motion are otherwise unchanged (commits f006b98, 3fd7cc9, d71118d, f30b78f).
+- Header: the old "حسابي" user icon is now a "تسجيل الدخول" (LogIn) control that still opens #account; a text label shows from 2xl, icon-only at xl and on mobile. No other header item moved.

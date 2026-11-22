@@ -1,4 +1,4 @@
-import { Phone, Menu, X, ShoppingCart, Sun, Moon, User, Sparkles, Gem, Wand2 } from 'lucide-react';
+import { Phone, Menu, X, ShoppingCart, Sun, Moon, LogIn, Sparkles, Gem, Wand2 } from 'lucide-react';
 import { useState, useEffect, type MouseEvent } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useCart } from '../contexts/CartContext';
@@ -115,11 +115,14 @@ export function Header() {
 
             <a
               href={pageHref('#account')}
-              className="p-2.5 rounded-lg hover:bg-primary/5 transition-colors"
-              aria-label={t({ ar: 'حسابي', fr: 'Mon compte', en: 'My account' })}
-              title={t({ ar: 'حسابي', fr: 'Mon compte', en: 'My account' })}
+              className="flex items-center gap-1.5 p-2.5 rounded-lg hover:bg-primary/5 transition-colors"
+              aria-label={t({ ar: 'تسجيل الدخول', fr: 'Se connecter', en: 'Sign in' })}
+              title={t({ ar: 'تسجيل الدخول', fr: 'Se connecter', en: 'Sign in' })}
             >
-              <User className="w-5 h-5 text-foreground/70" />
+              <LogIn className="w-5 h-5 text-foreground/70" />
+              <span className="hidden 2xl:inline text-sm font-semibold text-foreground/70 whitespace-nowrap">
+                {t({ ar: 'تسجيل الدخول', fr: 'Connexion', en: 'Sign in' })}
+              </span>
             </a>
 
             <LanguageSwitcher />
@@ -160,9 +163,10 @@ export function Header() {
             <a
               href={pageHref('#account')}
               className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg hover:bg-muted transition-colors"
-              aria-label={t({ ar: 'حسابي', fr: 'Mon compte', en: 'My account' })}
+              aria-label={t({ ar: 'تسجيل الدخول', fr: 'Se connecter', en: 'Sign in' })}
+              title={t({ ar: 'تسجيل الدخول', fr: 'Se connecter', en: 'Sign in' })}
             >
-              <User className="w-5 h-5" />
+              <LogIn className="w-5 h-5" />
             </a>
             <LanguageSwitcher />
             <button
