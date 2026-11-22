@@ -96,6 +96,12 @@ export function Footer() {
                 </a>
               </li>
               <li>
+                <a href="/security-checklist" className="text-emerald-600 dark:text-emerald-300 font-semibold hover:text-emerald-500 text-sm transition-colors flex items-center gap-2">
+                  <span className="w-1 h-1 rounded-full bg-emerald-500 shrink-0" />
+                  {t({ ar: 'قائمة VIBE CODING — الحماية', fr: 'Liste VIBE CODING — sécurité', en: 'VIBE CODING security list' })}
+                </a>
+              </li>
+              <li>
                 <a href="/subscription" className="text-indigo-600 dark:text-indigo-300 font-semibold hover:text-indigo-500 text-sm transition-colors flex items-center gap-2">
                   <span className="w-1 h-1 rounded-full bg-indigo-500 shrink-0" />
                   {t({ ar: 'اشتراك أدوات الذكاء الاصطناعي', fr: 'Abonnement outils IA', en: 'AI tools subscription' })}

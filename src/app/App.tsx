@@ -58,6 +58,9 @@ const ProfitCalculatorPage = lazy(() =>
 const SubscriptionPage = lazy(() =>
   import('./components/SubscriptionPage').then(m => ({ default: m.SubscriptionPage })),
 );
+const SecurityChecklistPage = lazy(() =>
+  import('./components/SecurityChecklistPage').then(m => ({ default: m.SecurityChecklistPage })),
+);
 function LiquidBackground() {
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
@@ -242,6 +245,13 @@ function readSubscriptionRoute(): boolean {
   return pathname === '/subscription' || pathname === '/subscribe' || pathname === '/abonnement';
 }
 
+/** Public security checklist resource page. */
+function readChecklistRoute(): boolean {
+  if (typeof window === 'undefined') return false;
+  const pathname = window.location.pathname.replace(/\/+$/, '').toLowerCase();
+  return pathname === '/security-checklist';
+}
+
 /** Standalone login route; signed-in customers go straight to their account
  *  unless they are opening a password-reset link. */
 function LoginRoute({ onClose, onAuthenticated }: { onClose: () => void; onAuthenticated: () => void }) {
@@ -265,11 +275,12 @@ export default function App() {
   const [isAiToolsRoute, setIsAiToolsRoute] = useState(readAiToolsRoute);
   const [isCalculatorRoute, setIsCalculatorRoute] = useState(readCalculatorRoute);
   const [isSubscriptionRoute, setIsSubscriptionRoute] = useState(readSubscriptionRoute);
+  const [isChecklistRoute, setIsChecklistRoute] = useState(readChecklistRoute);
   const isFactoryPage =
     typeof window !== 'undefined' && window.location.pathname.replace(/\/+$/, '') === '/create-website';
   const productSlug = typeof window !== 'undefined' ? productPathFromUrl(window.location.pathname) : null;
   const isProductPage = Boolean(productSlug);
-  const is404 = !isFactoryPage && !isProductPage && !isLoginRoute && !isPremiumRoute && !isAiToolsRoute && !isCalculatorRoute && !isSubscriptionRoute && typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#digital-services', '#digital-quote', '#ai-studio', '#hqpanel', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq', '#web', '#demo', '#order-tracking', '#premium-list'].includes(hash);
+  const is404 = !isFactoryPage && !isProductPage && !isLoginRoute && !isPremiumRoute && !isAiToolsRoute && !isCalculatorRoute && !isSubscriptionRoute && !isChecklistRoute && typeof window !== 'undefined' && hash && !['#products', '#booking', '#services', '#digital-services', '#digital-quote', '#ai-studio', '#hqpanel', '#contact', '#checkout', '#about', '#terms', '#privacy', '#loyalty', '#account', '#wishlist', '#faq', '#web', '#demo', '#order-tracking', '#premium-list'].includes(hash);
   const [maintenance, setMaintenance] = useState(false);
   // Render immediately for returning visitors (the flag is cached locally)
   // and refresh it in the background. Only the very first visit waits, with
@@ -284,6 +295,7 @@ export default function App() {
       setIsAiToolsRoute(readAiToolsRoute());
       setIsCalculatorRoute(readCalculatorRoute());
       setIsSubscriptionRoute(readSubscriptionRoute());
+      setIsChecklistRoute(readChecklistRoute());
     };
     window.addEventListener('hashchange', onHashChange);
     // Client-side navigation (see utils/navigation.ts) uses pushState, so the
@@ -386,6 +398,15 @@ export default function App() {
       if (pathname.toLowerCase() === '/subscription' || pathname.toLowerCase() === '/subscribe' || pathname.toLowerCase() === '/abonnement') {
         const subscriptionTitle = { ar: 'اشتراك أدوات الذكاء الاصطناعي', fr: 'Abonnement outils IA', en: 'AI Tools Subscription' }[lang];
         document.title = `${subscriptionTitle} | ${brand.name}`;
+        return;
+      }
+      if (pathname.toLowerCase() === '/security-checklist') {
+        const checklistTitle = {
+          ar: 'قائمة VIBE CODING — 20 حماية لموقعك',
+          fr: 'Liste VIBE CODING — 20 protections',
+          en: 'VIBE CODING checklist — 20 protections',
+        }[lang];
+        document.title = `${checklistTitle} | ${brand.name}`;
         return;
       }
       if (pathname.toLowerCase() === '/ai-tools') {
@@ -553,7 +574,7 @@ export default function App() {
               <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-primary focus:text-primary-foreground focus:px-4 focus:py-2 focus:rounded-lg focus:outline-none">
                 {typeof window !== 'undefined' && (navigator.language.startsWith('ar') ? 'تخطى إلى المحتوى' : navigator.language.startsWith('fr') ? 'Aller au contenu' : 'Skip to content')}
               </a>
-              {!isPage && !isFactoryPage && !isPremiumRoute && !isAiToolsRoute && !isCalculatorRoute && !isSubscriptionRoute && <AnnouncementBar />}
+              {!isPage && !isFactoryPage && !isPremiumRoute && !isAiToolsRoute && !isCalculatorRoute && !isSubscriptionRoute && !isChecklistRoute && <AnnouncementBar />}
               <ScrollProgress />
               {currentHash !== '#demo' && <Header />}
               <main id="main-content">
@@ -576,6 +597,10 @@ export default function App() {
                 ) : isSubscriptionRoute ? (
                   <Suspense fallback={<AdminFallback />}>
                     <SubscriptionPage />
+                  </Suspense>
+                ) : isChecklistRoute ? (
+                  <Suspense fallback={<AdminFallback />}>
+                    <SecurityChecklistPage />
                   </Suspense>
                 ) : isPage ? (
                   <>
@@ -643,7 +668,7 @@ export default function App() {
                   </>
                 )}
               </main>
-              {(isProductPage || isPremiumRoute || isAiToolsRoute || isCalculatorRoute || isSubscriptionRoute) && <Footer />}
+              {(isProductPage || isPremiumRoute || isAiToolsRoute || isCalculatorRoute || isSubscriptionRoute || isChecklistRoute) && <Footer />}
               <ScrollToTop />
               {currentHash !== '#demo' && !isFactoryPage && !isProductPage && (
                 <>

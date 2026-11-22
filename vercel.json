@@ -71,6 +71,10 @@
       "destination": "/ai-tools/calculator/index.html"
     },
     {
+      "source": "/security-checklist",
+      "destination": "/security-checklist/index.html"
+    },
+    {
       "source": "/landing-preview",
       "destination": "/landing-preview.html"
     },
@@ -176,6 +180,15 @@
     },
     {
       "source": "/subscription",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/security-checklist",
       "headers": [
         {
           "key": "Cache-Control",

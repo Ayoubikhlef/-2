@@ -91,7 +91,8 @@ async function main() {
     urlEntry(`${SITE}/premium-services`, '0.7', 'monthly'),
     urlEntry(`${SITE}/ai-tools`, '0.8', 'monthly'),
     urlEntry(`${SITE}/ai-tools/calculator`, '0.8', 'monthly'),
-  urlEntry(`${SITE}/subscription`, '0.7', 'monthly'),
+    urlEntry(`${SITE}/subscription`, '0.7', 'monthly'),
+    urlEntry(`${SITE}/security-checklist`, '0.6', 'monthly'),
   ];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
