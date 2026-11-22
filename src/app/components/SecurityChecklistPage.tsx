@@ -228,7 +228,11 @@ export function SecurityChecklistPage() {
       lines.push('');
       lines.push(item.summary[lang]);
       lines.push('');
-      lines.push(done.has(item.id) ? '- [x] Done' : '- [ ] To do');
+      lines.push(
+        done.has(item.id)
+          ? t({ ar: '- [x] منجز', fr: '- [x] Fait', en: '- [x] Done' })
+          : t({ ar: '- [ ] غير منجز', fr: '- [ ] À faire', en: '- [ ] To do' }),
+      );
       lines.push('');
       lines.push('```text');
       lines.push(item.command[lang]);
