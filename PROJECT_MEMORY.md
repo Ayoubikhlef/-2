@@ -378,3 +378,8 @@ Typography-only refresh, per the owner's explicit direction: keep the existing l
 - Vercel: `/site-admin` rewrite + no-store header; robots.txt disallows `/site-admin` and `/api/site-admin`. SECURITY_NOTES.md updated.
 - Local DB env is empty; server tsc + root typecheck/build pass. Production smoke test pending after Render applies `prisma db push` and Vercel deploys.
 - Vercel free storage warning: removed old unaliased deployments; keep deploy count low (each build ships ~1100 template preview files).
+
+## Session 2026-11-22 - package price bidi + preview redirect loop
+- Prices in the factory wizard showed reversed digit groups in RTL ("45 000" → "000 45"). `money()` (`src/app/components/site-factory/factoryUtils.ts`) now wraps the numeric run with LRI `\u2066` / PDI `\u2069`; the currency label stays outside the isolate. Browser RTL snapshot confirmed the fix.
+- Preview URLs (`/api/site-factory/preview/<siteId>/`) looped with ERR_TOO_MANY_REDIRECTS because Express non-strict routing let the `/preview/:siteId` redirect route also match the trailing-slash URL. That route now serves `index.html` when `req.path` already ends with `/`, and only redirects the slash-less form.
+- Server tsc + root typecheck/build pass.

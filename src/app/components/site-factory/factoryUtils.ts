@@ -299,7 +299,10 @@ export function categoryLabel(key: string, lang: Lang): string {
 export function money(value: number, lang: Lang): string {
   const amount = Number(value) || 0;
   const text = amount.toLocaleString('fr-FR').replace(/\u202f|\u00a0/g, ' ');
-  return lang === 'ar' ? `${text} د.ج` : `${text} DA`;
+  // In an RTL paragraph a space-grouped amount ("45 000") can be displayed
+  // as "000 45". Isolate the numeric run so its groups keep reading order.
+  const isolated = `\u2066${text}\u2069`;
+  return lang === 'ar' ? `${isolated} د.ج` : `${text} DA`;
 }
 
 export function formatDate(value: string | Date | null | undefined, lang: Lang): string {

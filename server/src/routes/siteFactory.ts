@@ -284,13 +284,17 @@ async function servePreview(req: Request, res: Response, requestedPath: string) 
   res.send(body);
 }
 
+// Express matches both `/preview/:id` and `/preview/:id/` with this one route
+// (strict routing is off). Redirecting whenever the first one matched used to
+// send the browser to the very same URL and loop forever. Serve the index when
+// the path already ends with a slash; only add the slash once.
 siteFactoryRouter.get('/preview/:siteId', publicLimiter, async (req, res) => {
+  if ((req.path || '').endsWith('/')) {
+    await servePreview(req, res, 'index.html');
+    return;
+  }
   const query = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
   res.redirect(301, `${req.baseUrl}/preview/${encodeURIComponent(String(req.params.siteId))}/${query}`);
-});
-
-siteFactoryRouter.get('/preview/:siteId/', publicLimiter, async (req, res) => {
-  await servePreview(req, res, 'index.html');
 });
 
 siteFactoryRouter.get('/preview/:siteId/*', publicLimiter, async (req, res) => {

@@ -236,3 +236,9 @@ Next session should focus on:
 - Frontend `/site-admin` page (`SiteAdminPage.tsx`) with four tabs and a dedicated API client that never triggers the store's token refresh; AOS factory console got a "رابط اللوحة" button that issues/copies the link. Added Vercel rewrite/no-store header and robots.txt disallow. SECURITY_NOTES.md documents the model.
 - Server `tsc`, root `typecheck` and `build` pass. Local DB env is empty, so the happy path could not be exercised locally; production smoke test pending after deploy/Render db push.
 - Vercel free deployment storage hit 100% (10 GB). Removed two old unaliased production deployments; the active aliased deployment was left untouched.
+
+## Session 2026-11-22 - package price bidi + preview redirect loop
+- Owner reported package prices rendered reversed in the create-website wizard ("45 000" showed as "000 45") and the preview link failing with ERR_TOO_MANY_REDIRECTS.
+- Root cause 1: space-grouped amounts in an RTL paragraph get visually reordered. `money()` in `factoryUtils.ts` now wraps the number in Unicode LRI/PDI isolates (`\u2066 ... \u2069`), keeping "45 000 د.ج" in reading order. Verified in a browser RTL snapshot: before/after strings compared.
+- Root cause 2: Express (strict routing off) matched `/preview/:id/` with the `/preview/:id` redirect route, which redirected to the same URL forever. The route now detects a trailing slash and serves `index.html` directly; only the slash-less URL redirects once.
+- Server `tsc`, root `typecheck` and `build` pass.
