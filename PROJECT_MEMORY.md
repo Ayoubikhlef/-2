@@ -352,3 +352,8 @@ Typography-only refresh, per the owner's explicit direction: keep the existing l
 - `FactoryWizard.tsx` step 1 now shows a ShieldCheck link card immediately above the templates grid, pointing to `/security-checklist` in a new tab (`target="_blank" rel="noopener noreferrer"`). Text is localized in AR/FR/EN; the small arrow flips in RTL. This keeps the wizard draft intact while the owner reads the prompts.
 - Verified: typecheck/build pass; local preview confirmed the click opens the 20-card checklist in a new tab; production `/create-website` shows the shortcut above the 91 template cards with no failed resources or overflow.
 - Commit `0199650`, pushed and deployed to Vercel.
+
+## Session 2026-11-22 - copy all prompts
+- The checklist hero now has a "نسخ الكل" / "Tout copier" / "Copy all" button next to Download. `copyAll()` builds one plain-text block from all 20 localized `command` strings (numbered with their titles) and appends `REPORT_COMMAND`; it reuses the existing clipboard helper and its fallback. The button briefly switches to a "copied" label and emits a specific toast.
+- Clipboard content verified by pasting back into a page textarea: ~5k chars, 20 numbered prompts and the final report prompt. Live button and toast confirmed; typecheck/build pass.
+- Commit `a3e6e8e`, pushed and deployed to Vercel.

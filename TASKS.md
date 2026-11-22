@@ -211,3 +211,8 @@ Next session should focus on:
 - Added a compact ShieldCheck shortcut directly above the template grid in step 1 of the create-website wizard (`src/app/components/site-factory/FactoryWizard.tsx`). Label: "VIBE CODING — الحماية" / "sécurité" / "security", with a one-line description and an RTL-aware arrow. It opens `/security-checklist` in a new tab so the in-progress order draft is preserved.
 - Verified locally and in production: the shortcut sits above the 91 template cards, opens the checklist (20 cards), and causes no horizontal overflow or failed resources. `npm run typecheck` and `npm run build` pass.
 - Commit `0199650`, pushed and deployed to Vercel.
+
+## Session 2026-11-22 - copy all prompts
+- Added a "نسخ الكل" / "Tout copier" / "Copy all" button beside the download button in the checklist hero (`SecurityChecklistPage.tsx`). It copies every one of the 20 prompts with its number and title, plus the final report prompt, in the current language; shows a dedicated success toast and a temporary "copied" state.
+- Verified by pasting the clipboard into a page textarea: 4,981 characters, exactly 20 numbered prompts and the final report prompt. Live page shows the button and fires the toast. `npm run typecheck` and `npm run build` pass.
+- Commit `a3e6e8e`, pushed and deployed to Vercel.
