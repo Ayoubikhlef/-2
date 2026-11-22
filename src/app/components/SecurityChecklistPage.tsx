@@ -480,7 +480,7 @@ export function SecurityChecklistPage() {
                         {item.title[lang]}
                       </h3>
                       {isDone && (
-                        <span className="shrink-0 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-extrabold text-emerald-700 dark:text-emerald-300">
+                        <span className="shrink-0 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-extrabold text-emerald-700 dark:text-emerald-300">
                           {t({ ar: 'منجز', fr: 'Fait', en: 'Done' })}
                         </span>
                       )}
@@ -493,7 +493,7 @@ export function SecurityChecklistPage() {
 
                 <div className="mt-4 rounded-xl border border-border bg-muted/40 p-3">
                   <div className="flex items-center justify-between gap-2 pb-2">
-                    <span className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">
+                    <span className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-muted-foreground">
                       {t({ ar: 'الأمر', fr: 'Commande', en: 'Prompt' })}
                     </span>
                     <button
@@ -518,7 +518,7 @@ export function SecurityChecklistPage() {
                   </div>
                   <pre
                     dir={lang === 'ar' ? 'rtl' : 'ltr'}
-                    className={`max-h-36 overflow-y-auto whitespace-pre-wrap break-words text-start text-[12px] leading-relaxed text-foreground/80 ${
+                    className={`max-h-36 overflow-y-auto whitespace-pre-wrap break-words text-start text-[13px] leading-relaxed text-foreground ${
                       lang === 'ar' ? 'font-sans' : 'font-mono'
                     }`}
                   >
@@ -583,7 +583,7 @@ export function SecurityChecklistPage() {
           </div>
           <pre
             dir={lang === 'ar' ? 'rtl' : 'ltr'}
-            className={`mt-4 whitespace-pre-wrap break-words rounded-xl border border-border bg-muted/40 p-4 text-start text-[12px] leading-relaxed text-foreground/80 ${
+            className={`mt-4 whitespace-pre-wrap break-words rounded-xl border border-border bg-muted/40 p-4 text-start text-[13px] leading-relaxed text-foreground ${
               lang === 'ar' ? 'font-sans' : 'font-mono'
             }`}
           >
