@@ -61,26 +61,26 @@ export function Header() {
           </a>
 
           {/* Desktop Navigation */}
-          <nav className="hidden xl:flex items-center gap-0.5">
+          <nav className="hidden xl:flex items-center gap-0.5 2xl:gap-0">
             {navLinks.map((link, idx) => (
               <a
                 key={idx}
                 href={pageHref(link.href)}
-                className="px-2.5 2xl:px-3 py-2 text-sm font-semibold text-foreground/70 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200"
+                className="px-2.5 2xl:px-2 py-2 text-sm 2xl:text-base font-semibold text-foreground/70 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200"
               >
                 {t(link.label)}
               </a>
             ))}
             <a
               href="/premium-services"
-              className="inline-flex items-center gap-1.5 px-2.5 2xl:px-3 py-2 text-sm font-bold text-foreground/70 hover:bg-primary/5 hover:text-primary rounded-lg transition-all duration-200"
+              className="inline-flex items-center gap-1.5 px-2.5 2xl:px-2 py-2 text-sm 2xl:text-base font-bold text-foreground/70 hover:bg-primary/5 hover:text-primary rounded-lg transition-all duration-200"
             >
               <Gem className="w-4 h-4" />
               {t({ ar: 'الخدمات المميزة', fr: 'Services premium', en: 'Premium Services' })}
             </a>
             <a
               href="/ai-tools"
-              className="hidden xl:inline-flex items-center gap-1.5 px-2.5 2xl:px-3 py-2 text-sm font-bold text-foreground/70 hover:bg-primary/5 hover:text-primary rounded-lg transition-all duration-200"
+              className="hidden xl:inline-flex items-center gap-1.5 px-2.5 2xl:px-2 py-2 text-sm 2xl:text-base font-bold text-foreground/70 hover:bg-primary/5 hover:text-primary rounded-lg transition-all duration-200"
             >
               <Wand2 className="w-4 h-4" />
               {t({ ar: 'أدوات AI', fr: 'Outils IA', en: 'AI Tools' })}
@@ -88,7 +88,7 @@ export function Header() {
             {!hasDigitalLink && (
               <a
                 href={pageHref('#digital-services')}
-                className="hidden min-[1600px]:inline-flex items-center gap-1.5 px-3 py-2 text-sm font-bold text-foreground/70 hover:bg-primary/5 hover:text-primary rounded-lg transition-all duration-200"
+                className="hidden min-[1600px]:inline-flex items-center gap-1.5 px-3 2xl:px-2 py-2 text-sm 2xl:text-base font-bold text-foreground/70 hover:bg-primary/5 hover:text-primary rounded-lg transition-all duration-200"
               >
                 <Sparkles className="w-4 h-4" />
                 {t({ ar: 'الخدمات الرقمية', fr: 'Services digitaux', en: 'Digital Services' })}
@@ -96,13 +96,13 @@ export function Header() {
             )}
             <a
               href="/create-website"
-              className="hidden xl:inline-flex items-center px-3 py-2 text-sm font-bold text-primary hover:bg-primary/5 rounded-lg transition-all duration-200"
+              className="hidden xl:inline-flex items-center px-3 2xl:px-2 py-2 text-sm 2xl:text-base font-bold text-primary hover:bg-primary/5 rounded-lg transition-all duration-200"
             >
               {t({ ar: 'إنشاء المواقع', fr: 'Création de sites', en: 'Web Design' })}
             </a>
             <a
               href={pageHref('#account')}
-              className="hidden 2xl:inline-flex items-center gap-1.5 px-2.5 py-2 text-sm font-bold text-foreground/70 hover:bg-primary/5 hover:text-primary rounded-lg transition-all duration-200"
+              className="hidden 2xl:inline-flex items-center gap-1.5 px-2.5 2xl:px-2 py-2 text-sm 2xl:text-base font-bold text-foreground/70 hover:bg-primary/5 hover:text-primary rounded-lg transition-all duration-200"
             >
               <LogIn className="w-4 h-4" />
               {t({ ar: 'تسجيل الدخول', fr: 'Connexion', en: 'Sign in' })}
