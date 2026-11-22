@@ -195,4 +195,4 @@ Next session should focus on:
 
 ## Session 2026-11-22 - hero heading + header login control
 - Hero: widened the text column, made the headline fluid `clamp(3.5rem, 10vw, 7rem)` so it tracks the viewport, and removed the centering cap so the text aligns to the right edge. Layout, palette and motion are otherwise unchanged (commits f006b98, 3fd7cc9, d71118d, f30b78f).
-- Header: the old "حسابي" user icon is now a "تسجيل الدخول" (LogIn) control that still opens #account; a text label shows from 2xl, icon-only at xl and on mobile. No other header item moved.
+- Header: added a "تسجيل الدخول" (LogIn icon + label) link directly beside "إنشاء المواقع" from 2xl up; below 2xl the existing icon slot opens the same #account login. Nav padding was trimmed by 1px per side at 2xl and the phone-number label starts at 1600px so every nav label stays on one line; the phone icon still calls.

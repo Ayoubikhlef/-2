@@ -66,7 +66,7 @@ export function Header() {
               <a
                 key={idx}
                 href={pageHref(link.href)}
-                className="px-2.5 2xl:px-3.5 py-2 text-sm font-semibold text-foreground/70 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200"
+                className="px-2.5 2xl:px-3 py-2 text-sm font-semibold text-foreground/70 hover:text-primary hover:bg-primary/5 rounded-lg transition-all duration-200"
               >
                 {t(link.label)}
               </a>
@@ -102,7 +102,7 @@ export function Header() {
             </a>
             <a
               href={pageHref('#account')}
-              className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-bold text-foreground/70 hover:bg-primary/5 hover:text-primary rounded-lg transition-all duration-200"
+              className="hidden 2xl:inline-flex items-center gap-1.5 px-2.5 py-2 text-sm font-bold text-foreground/70 hover:bg-primary/5 hover:text-primary rounded-lg transition-all duration-200"
             >
               <LogIn className="w-4 h-4" />
               {t({ ar: 'تسجيل الدخول', fr: 'Connexion', en: 'Sign in' })}
@@ -112,12 +112,21 @@ export function Header() {
           {/* Desktop Actions */}
           <div className="hidden xl:flex items-center gap-2 2xl:gap-3">
             <a
+              href={pageHref('#account')}
+              className="2xl:hidden p-2.5 rounded-lg hover:bg-primary/5 transition-colors"
+              aria-label={t({ ar: 'تسجيل الدخول', fr: 'Se connecter', en: 'Sign in' })}
+              title={t({ ar: 'تسجيل الدخول', fr: 'Se connecter', en: 'Sign in' })}
+            >
+              <LogIn className="w-5 h-5 text-foreground/70" />
+            </a>
+
+            <a
               href={`tel:${settings.contact.phone}`}
               className="flex items-center gap-2 text-sm font-medium bg-primary/5 text-primary px-3 py-2 rounded-lg"
               aria-label={`${t({ ar: 'اتصل بنا', fr: 'Appelez-nous', en: 'Call us' })}: ${settings.contact.phoneDisplay}`}
             >
               <Phone className="w-4 h-4" />
-              <span className="hidden 2xl:inline font-bold whitespace-nowrap" dir="ltr">{settings.contact.phoneDisplay}</span>
+              <span className="hidden min-[1600px]:inline font-bold whitespace-nowrap" dir="ltr">{settings.contact.phoneDisplay}</span>
             </a>
 
             <LanguageSwitcher />
