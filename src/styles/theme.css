@@ -461,3 +461,19 @@ textarea {
 .sr-only {
   inset-inline-start: -99999px;
 }
+
+/* Light-mode readability: text utilities with a low alpha (/50, /60, /70, /80)
+   turn into pale grey on a white background, especially in the Arabic UI font.
+   Use the solid token colour in light mode; dark mode keeps its original values.
+   White-on-dark sections are untouched because they use text-white/xx. */
+html:not(.dark) .text-foreground\/60,
+html:not(.dark) .text-foreground\/70,
+html:not(.dark) .text-foreground\/80 {
+  color: var(--foreground);
+}
+
+html:not(.dark) .text-muted-foreground\/50,
+html:not(.dark) .text-muted-foreground\/60,
+html:not(.dark) .text-muted-foreground\/80 {
+  color: var(--muted-foreground);
+}

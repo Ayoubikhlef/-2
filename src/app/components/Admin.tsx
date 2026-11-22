@@ -1227,7 +1227,7 @@ export function Admin() {
                         <span className="text-sm text-muted-foreground">
                           {new Date(order.createdAt).toLocaleString(language === 'ar' ? 'ar-DZ' : language === 'fr' ? 'fr-FR' : 'en-US')}
                         </span>
-                        <span className="text-xs text-muted-foreground/50">
+                        <span className="text-xs text-slate-500">
                           #{order.id.slice(0, 6)}
                         </span>
                       </div>
