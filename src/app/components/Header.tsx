@@ -126,7 +126,7 @@ export function Header() {
               aria-label={`${t({ ar: 'اتصل بنا', fr: 'Appelez-nous', en: 'Call us' })}: ${settings.contact.phoneDisplay}`}
             >
               <Phone className="w-4 h-4" />
-              <span className="hidden min-[1600px]:inline font-bold whitespace-nowrap" dir="ltr">{settings.contact.phoneDisplay}</span>
+              <span className="hidden min-[1700px]:inline font-bold whitespace-nowrap" dir="ltr">{settings.contact.phoneDisplay}</span>
             </a>
 
             <LanguageSwitcher />

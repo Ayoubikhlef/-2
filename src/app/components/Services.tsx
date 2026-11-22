@@ -84,7 +84,12 @@ export function Services() {
               >
                 <div className="relative h-40 sm:h-48 bg-muted/50 overflow-hidden">
                   {item.image ? (
-                    <img src={item.image} alt={item.title[language]} loading="lazy" className="w-full h-full object-cover" />
+                    <img
+                      src={item.image}
+                      alt={item.title[language]}
+                      loading="lazy"
+                      className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+                    />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="w-16 h-16 bg-card border border-border rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
