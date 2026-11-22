@@ -363,3 +363,9 @@ Typography-only refresh, per the owner's explicit direction: keep the existing l
 - Changed light `--muted-foreground` to #475569 (slate-600) in `src/styles/theme.css`; dark tokens untouched. In `SecurityChecklistPage.tsx`, prompt/report blocks use full `text-foreground` at 13 px and the smallest labels moved from 10 px to 11 px.
 - Verified live in light mode: muted text #475569, prompt text #1e293b at 13 px, 20 cards, no console errors; typecheck/build pass.
 - Commit `efb7d18`, pushed and deployed to Vercel.
+
+## Session 2026-11-22 - site-wide light-mode contrast
+- The faint text was site-wide, not just the checklist. The cause is Tailwind alpha utilities (`text-foreground/60|70|80`, `text-muted-foreground/50|60|80`) resolving to pale grey on the light background.
+- `src/styles/theme.css` now has unlayered `html:not(.dark)` rules mapping those utilities to the solid `--foreground` (#1e293b) and `--muted-foreground` (#475569). Dark mode and `text-white/xx` dark panels keep their original colours; `Admin.tsx` order-id changed to `text-slate-500` to avoid darkening text inside its dark panel.
+- Verified on six public routes in light mode (nav/footer links #1e293b, muted copy #475569) and confirmed the dark toggle still works. typecheck/build pass.
+- Commit `4f37b0f`, pushed and deployed to Vercel.

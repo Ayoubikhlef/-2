@@ -222,3 +222,9 @@ Next session should focus on:
 - Fix: light `--muted-foreground` darkened to #475569 in `src/styles/theme.css` (dark theme unchanged, all pages benefit); checklist prompts and the final-report block now use full `text-foreground` at 13 px, and the small badges/labels moved from 10 px to 11 px.
 - Verified in production light mode: computed muted text #475569, prompt text #1e293b / 13 px, 20 cards, no opacity or filter issues. `npm run typecheck` and `npm run build` pass.
 - Commit `efb7d18`, pushed and deployed to Vercel.
+
+## Session 2026-11-22 - site-wide light-mode contrast
+- Owner clarified the faint text was across the whole site. Audit found low-alpha utilities (`text-foreground/60|70|80`, `text-muted-foreground/50|60|80`) rendering as pale grey on white, mainly in the header nav, footer, account and cart.
+- Added light-mode-only rules in `src/styles/theme.css` under `html:not(.dark)` so those utilities use the solid tokens (#1e293b / #475569). Dark mode and white-on-dark sections are untouched; one admin order-id span moved to `text-slate-500` so its dark panel keeps the original look.
+- Verified in light mode on /, /premium-services, /ai-tools, /subscription, /create-website and /security-checklist: nav and footer links #1e293b, muted copy #475569. Dark mode toggle still works. typecheck/build pass.
+- Commit `4f37b0f`, pushed and deployed to Vercel.
