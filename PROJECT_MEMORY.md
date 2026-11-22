@@ -357,3 +357,9 @@ Typography-only refresh, per the owner's explicit direction: keep the existing l
 - The checklist hero now has a "نسخ الكل" / "Tout copier" / "Copy all" button next to Download. `copyAll()` builds one plain-text block from all 20 localized `command` strings (numbered with their titles) and appends `REPORT_COMMAND`; it reuses the existing clipboard helper and its fallback. The button briefly switches to a "copied" label and emits a specific toast.
 - Clipboard content verified by pasting back into a page textarea: ~5k chars, 20 numbered prompts and the final report prompt. Live button and toast confirmed; typecheck/build pass.
 - Commit `a3e6e8e`, pushed and deployed to Vercel.
+
+## Session 2026-11-22 - light-mode readability
+- Light mode used `--muted-foreground: #64748b`, which looks faint for the small Arabic copy; the checklist prompts also used `text-foreground/80` at 12 px. No opacity/filter problem was found.
+- Changed light `--muted-foreground` to #475569 (slate-600) in `src/styles/theme.css`; dark tokens untouched. In `SecurityChecklistPage.tsx`, prompt/report blocks use full `text-foreground` at 13 px and the smallest labels moved from 10 px to 11 px.
+- Verified live in light mode: muted text #475569, prompt text #1e293b at 13 px, 20 cards, no console errors; typecheck/build pass.
+- Commit `efb7d18`, pushed and deployed to Vercel.

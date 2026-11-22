@@ -216,3 +216,9 @@ Next session should focus on:
 - Added a "نسخ الكل" / "Tout copier" / "Copy all" button beside the download button in the checklist hero (`SecurityChecklistPage.tsx`). It copies every one of the 20 prompts with its number and title, plus the final report prompt, in the current language; shows a dedicated success toast and a temporary "copied" state.
 - Verified by pasting the clipboard into a page textarea: 4,981 characters, exactly 20 numbered prompts and the final report prompt. Live page shows the button and fires the toast. `npm run typecheck` and `npm run build` pass.
 - Commit `a3e6e8e`, pushed and deployed to Vercel.
+
+## Session 2026-11-22 - light-mode readability
+- Owner reported faint writing in light mode. Root cause: light `--muted-foreground` was #64748b (faint at 12-14 px Arabic) and the checklist prompts used `text-foreground/80` at 12 px.
+- Fix: light `--muted-foreground` darkened to #475569 in `src/styles/theme.css` (dark theme unchanged, all pages benefit); checklist prompts and the final-report block now use full `text-foreground` at 13 px, and the small badges/labels moved from 10 px to 11 px.
+- Verified in production light mode: computed muted text #475569, prompt text #1e293b / 13 px, 20 cards, no opacity or filter issues. `npm run typecheck` and `npm run build` pass.
+- Commit `efb7d18`, pushed and deployed to Vercel.
