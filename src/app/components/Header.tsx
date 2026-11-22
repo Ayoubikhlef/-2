@@ -88,7 +88,7 @@ export function Header() {
             {!hasDigitalLink && (
               <a
                 href={pageHref('#digital-services')}
-                className="hidden 2xl:inline-flex items-center gap-1.5 px-3 py-2 text-sm font-bold text-foreground/70 hover:bg-primary/5 hover:text-primary rounded-lg transition-all duration-200"
+                className="hidden min-[1600px]:inline-flex items-center gap-1.5 px-3 py-2 text-sm font-bold text-foreground/70 hover:bg-primary/5 hover:text-primary rounded-lg transition-all duration-200"
               >
                 <Sparkles className="w-4 h-4" />
                 {t({ ar: 'الخدمات الرقمية', fr: 'Services digitaux', en: 'Digital Services' })}
