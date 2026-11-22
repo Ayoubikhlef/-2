@@ -100,6 +100,13 @@ export function Header() {
             >
               {t({ ar: 'إنشاء المواقع', fr: 'Création de sites', en: 'Web Design' })}
             </a>
+            <a
+              href={pageHref('#account')}
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-bold text-foreground/70 hover:bg-primary/5 hover:text-primary rounded-lg transition-all duration-200"
+            >
+              <LogIn className="w-4 h-4" />
+              {t({ ar: 'تسجيل الدخول', fr: 'Connexion', en: 'Sign in' })}
+            </a>
           </nav>
 
           {/* Desktop Actions */}
@@ -111,18 +118,6 @@ export function Header() {
             >
               <Phone className="w-4 h-4" />
               <span className="hidden 2xl:inline font-bold whitespace-nowrap" dir="ltr">{settings.contact.phoneDisplay}</span>
-            </a>
-
-            <a
-              href={pageHref('#account')}
-              className="flex items-center gap-1.5 p-2.5 rounded-lg hover:bg-primary/5 transition-colors"
-              aria-label={t({ ar: 'تسجيل الدخول', fr: 'Se connecter', en: 'Sign in' })}
-              title={t({ ar: 'تسجيل الدخول', fr: 'Se connecter', en: 'Sign in' })}
-            >
-              <LogIn className="w-5 h-5 text-foreground/70" />
-              <span className="hidden 2xl:inline text-sm font-semibold text-foreground/70 whitespace-nowrap">
-                {t({ ar: 'تسجيل الدخول', fr: 'Connexion', en: 'Sign in' })}
-              </span>
             </a>
 
             <LanguageSwitcher />
@@ -258,6 +253,14 @@ export function Header() {
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {t({ ar: 'إنشاء المواقع', fr: 'Création de sites', en: 'Web Design' })}
+                </a>
+                <a
+                  href={pageHref('#account')}
+                  className="flex items-center gap-2 px-4 py-3 text-base font-bold text-foreground/80 hover:bg-primary/5 hover:text-primary rounded-lg transition-colors mx-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <LogIn className="w-4 h-4" />
+                  {t({ ar: 'تسجيل الدخول', fr: 'Connexion', en: 'Sign in' })}
                 </a>
                 <div className="pt-2 px-2">
                   <a
