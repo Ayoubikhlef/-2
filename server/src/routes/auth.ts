@@ -15,6 +15,7 @@ import { AppError, BadRequest, Unauthorized } from '../utils/errors';
 import { requireAuth, AuthRequest } from '../middleware/auth';
 import { logAction } from '../services/audit';
 import { isTransactionalEmailConfigured, sendTransactionalEmail } from '../services/emailAlerts';
+import { sendCustomerWelcomeEmail } from '../services/welcomeEmail';
 import { clientIp, reportSecurityEvent, unblockIp } from '../services/security';
 import {
   TWO_FACTOR_ISSUER,
@@ -364,31 +365,21 @@ async function fetchOAuthProfile(
   };
 }
 
+/**
+ * Password sign-up. The welcome mail doubles as the confirmation mail: the
+ * account is only created when this send succeeds, so one strong email greets
+ * the customer and activates the account without a second message.
+ */
 async function sendVerificationEmail(email: string, token: string, userName: string): Promise<boolean> {
   const verifyUrl = `${apiBaseUrl()}/auth/verify-email?token=${encodeURIComponent(token)}`;
-  const storeUrl = siteUrl();
-  return sendTransactionalEmail(
+  return sendCustomerWelcomeEmail({
     email,
-    'Confirm your email - AOS Tech Store',
-    `Hello ${userName},\n\nConfirm your email address to activate your AOS Tech Store account:\n${verifyUrl}\n\nThis link expires in ${EMAIL_VERIFICATION_HOURS} hours. If you did not create this account, ignore this message.`,
-    `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #1e293b;">Confirm your email</h2>
-        <p>Hello ${escapeHtml(userName)},</p>
-        <p>Click the button below to activate your AOS Tech Store account and view your orders.</p>
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${verifyUrl}" style="background-color: #1e293b; color: #f1f5f9; padding: 12px 28px; text-decoration: none; border-radius: 20px; font-weight: 700;">Confirm email</a>
-        </div>
-        <p>This link expires in ${EMAIL_VERIFICATION_HOURS} hours.</p>
-        <p>If the button does not work, copy this address into your browser:</p>
-        <p style="word-break: break-all; color: #475569;">${verifyUrl}</p>
-        <p>If you did not create this account, ignore this message.</p>
-        <hr style="margin: 30px 0; border: none; border-top: 1px solid #cbd5e1;">
-        <p style="font-size: 12px; color: #64748b;">&copy; 2026 AOS Tech Store. All rights reserved.</p>
-        <p style="font-size: 12px;"><a href="${storeUrl}" style="color: #64748b;">${storeUrl}</a></p>
-      </div>
-    `
-  );
+    name: userName,
+    mode: 'verify',
+    actionUrl: verifyUrl,
+    storeUrl: siteUrl(),
+    expiresHours: EMAIL_VERIFICATION_HOURS,
+  });
 }
 
 /** Issues a fresh verification token and emails it; returns false if unsent. */
@@ -1736,6 +1727,15 @@ authRouter.get('/oauth/:provider/callback', async (req, res) => {
         },
       });
       await logAction(user.id, 'OAUTH_REGISTER', 'User', { provider }, clientIp(req));
+      // Social sign-up needs no confirmation step, so the welcome mail simply
+      // announces that the account is ready. It must not delay the redirect.
+      void sendCustomerWelcomeEmail({
+        email: user.email,
+        name: user.name,
+        mode: 'ready',
+        actionUrl: `${siteUrl()}/`,
+        storeUrl: siteUrl(),
+      }).catch((err) => console.error('[Auth] Welcome email failed:', err));
     } else {
       // The provider proved ownership of this address. Clear any password
       // lockout and fill a missing avatar without touching the local password.
