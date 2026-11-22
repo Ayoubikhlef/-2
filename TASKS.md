@@ -206,3 +206,8 @@ Next session should focus on:
 - Wired into `src/app/App.tsx` (route reader, lazy page, per-language `document.title`, 404 exclusion, header/announcement/footer rules), footer link, `vercel.json` rewrite + no-store header, `public/sitemap.xml` through `scripts/generate-sitemap.mjs`, and a fifth route-SEO shell in `vite.config.ts`.
 - QA: typecheck and build pass; local preview verified toggle persistence, copy toast, reset, AR/FR/EN and no horizontal overflow; production returns 200 with the correct title/canonical, 20 cards and no console errors.
 - Commits `6d21cac` + `afd1de2` (localized the download status markers); both pushed and deployed to Vercel, live URL returns 200. This page is educational only; the real audit gaps and the pending pentest are tracked in SECURITY_NOTES.md and the follow-ups below, not on the public page.
+
+## Session 2026-11-22 - checklist shortcut in the create-website wizard
+- Added a compact ShieldCheck shortcut directly above the template grid in step 1 of the create-website wizard (`src/app/components/site-factory/FactoryWizard.tsx`). Label: "VIBE CODING — الحماية" / "sécurité" / "security", with a one-line description and an RTL-aware arrow. It opens `/security-checklist` in a new tab so the in-progress order draft is preserved.
+- Verified locally and in production: the shortcut sits above the 91 template cards, opens the checklist (20 cards), and causes no horizontal overflow or failed resources. `npm run typecheck` and `npm run build` pass.
+- Commit `0199650`, pushed and deployed to Vercel.
