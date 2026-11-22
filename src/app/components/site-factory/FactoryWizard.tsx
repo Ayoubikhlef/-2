@@ -574,6 +574,30 @@ export function FactoryWizard({
                     })}
                   </p>
                 </div>
+                <a
+                  href="/security-checklist"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mb-4 flex items-center gap-3 rounded-2xl border border-emerald-500/25 bg-emerald-500/5 p-3.5 transition-colors hover:border-emerald-500/50 hover:bg-emerald-500/10"
+                >
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+                    <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-black">VIBE CODING — {t({ ar: 'الحماية', fr: 'sécurité', en: 'security' })}</span>
+                    <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">
+                      {t({
+                        ar: 'عشرون حماية لموقعك، مع أوامر جاهزة تُنسخ وتُستخدم مع Claude Code.',
+                        fr: 'Vingt protections pour votre site, avec des commandes prêtes à copier dans Claude Code.',
+                        en: 'Twenty protections for your site, with ready prompts to copy into Claude Code.',
+                      })}
+                    </span>
+                  </span>
+                  <ArrowLeft
+                    className={`h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400 ${language === 'ar' ? 'rotate-180' : ''}`}
+                    aria-hidden="true"
+                  />
+                </a>
                 {config.templates.length === 0 ? (
                   <div className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
                     {t({ ar: 'لا توجد قوالب متاحة حالياً. حاول لاحقاً.', fr: 'Aucun modèle disponible.', en: 'No templates available.' })}
