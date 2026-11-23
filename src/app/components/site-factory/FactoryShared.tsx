@@ -558,21 +558,30 @@ export function ImageField({
       onChange(dataUrl);
     } catch (err: any) {
       const code = err?.message;
-      setError(
-        code === 'NOT_AN_IMAGE'
-          ? t({ ar: 'اختر ملف صورة صالحاً.', fr: 'Choisissez un fichier image valide.', en: 'Choose a valid image file.' })
-          : code === 'IMAGE_TOO_LARGE'
-            ? t({
-                ar: 'الصورة كبيرة جداً. جرّب صورة أصغر أو أقل دقة.',
-                fr: 'Image trop lourde. Essayez une image plus petite.',
-                en: 'Image is too large. Try a smaller one.',
-              })
-            : t({
-                ar: 'تعذر تجهيز الصورة. جرّب صورة أخرى.',
-                fr: 'Impossible de préparer l’image. Essayez-en une autre.',
-                en: 'Could not prepare the image. Try another one.',
-              }),
-      );
+      const messages: Record<string, Localized> = {
+        NOT_AN_IMAGE: { ar: 'اختر ملف صورة صالحاً.', fr: 'Choisissez un fichier image valide.', en: 'Choose a valid image file.' },
+        EMPTY_FILE: { ar: 'الملف فارغ. اختر صورة أخرى.', fr: 'Fichier vide. Choisissez une autre image.', en: 'Empty file. Choose another image.' },
+        IMAGE_TOO_LARGE: {
+          ar: 'الصورة كبيرة جداً. جرّب صورة أصغر أو أقل دقة.',
+          fr: 'Image trop lourde. Essayez une image plus petite.',
+          en: 'Image is too large. Try a smaller one.',
+        },
+        HEIC_UNSUPPORTED: {
+          ar: 'تعذّر قراءة صورة iPhone بصيغة HEIC. افتحها في المعرض واختر «حفظ كـ JPG» أو فعّل «الأكثر توافقاً» في إعدادات الكاميرا، ثم أعد رفعها.',
+          fr: 'Impossible de lire cette photo HEIC d’iPhone. Ouvrez-la dans Photos, choisissez «Enregistrer en JPG» ou activez «Plus compatible» dans les réglages de l’appareil photo, puis réessayez.',
+          en: 'Could not read this iPhone HEIC photo. Open it in Photos and save it as JPG, or enable “Most Compatible” in camera settings, then upload it again.',
+        },
+        COMPRESS_FAILED: {
+          ar: 'تعذّر تصغير الصورة بما يكفي. اختر صورة أقل تفاصيل.',
+          fr: 'Impossible de réduire l’image assez. Choisissez une image moins détaillée.',
+          en: 'Could not shrink the image enough. Choose a less detailed one.',
+        },
+      };
+      setError(t(messages[code] || {
+        ar: 'تعذر تجهيز الصورة. جرّب صورة أخرى.',
+        fr: 'Impossible de préparer l’image. Essayez-en une autre.',
+        en: 'Could not prepare the image. Try another one.',
+      }));
     } finally {
       setBusy(false);
       if (inputRef.current) inputRef.current.value = '';
@@ -636,6 +645,11 @@ export function ImageField({
         <div className="min-w-0 flex-1">
           <p className="text-[13px] font-semibold">{label}</p>
           {hint && <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">{hint}</p>}
+          {busy && (
+            <p className="mt-1 text-[11px] font-medium text-primary">
+              {t({ ar: 'جارٍ تجهيز الصورة…', fr: 'Préparation de l’image…', en: 'Preparing the image…' })}
+            </p>
+          )}
           {error && <p className="mt-1 text-[11px] font-medium text-rose-500">{error}</p>}
         </div>
         <div className="flex shrink-0 flex-col gap-1">

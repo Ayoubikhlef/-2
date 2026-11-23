@@ -893,7 +893,7 @@ export function FactoryWizard({
                     <div className="sm:col-span-2">
                       <ImageField
                         label={t({ ar: 'شعار النشاط', fr: 'Logo de l’activité', en: 'Business logo' })}
-                        hint={t({ ar: 'PNG أو JPG، يُضغط تلقائياً. حتى 120KB.', fr: 'PNG ou JPG, compressé automatiquement. Max 120 Ko.', en: 'PNG or JPG, auto-compressed. Max 120 KB.' })}
+                        hint={t({ ar: 'PNG أو JPG أو HEIC من iPhone، يُضغط تلقائياً. حتى 120KB.', fr: 'PNG, JPG ou HEIC d’iPhone, compressé automatiquement. Max 120 Ko.', en: 'PNG, JPG or iPhone HEIC, auto-compressed. Max 120 KB.' })}
                         value={draft.logoUrl}
                         onChange={(value) => update('logoUrl', value)}
                         maxBytes={IMAGE_LIMITS.logo}
@@ -904,7 +904,7 @@ export function FactoryWizard({
                     <div className="sm:col-span-2">
                       <ImageField
                         label={t({ ar: 'صورة الغلاف', fr: 'Image de couverture', en: 'Cover image' })}
-                        hint={t({ ar: 'تظهر في أعلى الموقع. حتى 300KB.', fr: 'Affichée en haut du site. Max 300 Ko.', en: 'Shown at the top of the site. Max 300 KB.' })}
+                        hint={t({ ar: 'تظهر في أعلى الموقع. PNG أو JPG أو HEIC. حتى 300KB.', fr: 'Affichée en haut du site. PNG, JPG ou HEIC. Max 300 Ko.', en: 'Shown at the top of the site. PNG, JPG or HEIC. Max 300 KB.' })}
                         value={draft.coverUrl}
                         onChange={(value) => update('coverUrl', value)}
                         maxBytes={IMAGE_LIMITS.cover}

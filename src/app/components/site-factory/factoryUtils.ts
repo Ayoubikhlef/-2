@@ -420,12 +420,12 @@ export async function copyText(value: string): Promise<boolean> {
   }
 }
 
-export function readAsDataURL(file: File): Promise<string> {
+export function readAsDataURL(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(String(reader.result || ''));
     reader.onerror = () => reject(new Error('FILE_READ_ERROR'));
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(blob);
   });
 }
 
@@ -438,9 +438,127 @@ export function loadImage(source: string): Promise<HTMLImageElement> {
   });
 }
 
+type DecodedSource = {
+  width: number;
+  height: number;
+  draw: (context: CanvasRenderingContext2D, width: number, height: number) => void;
+  close?: () => void;
+};
+
+const HEIC_MIME = /^image\/(heic|heif)$/i;
+const HEIC_EXT = /\.(heic|heif)$/i;
+
+function isHeicFile(file: File): boolean {
+  return HEIC_MIME.test(file.type) || HEIC_EXT.test(file.name || '');
+}
+
+/**
+ * Prefer createImageBitmap: it decodes the File directly instead of asking a
+ * phone browser to hold a 5 MB data: URL in an <img>, which silently fails on
+ * iOS. The data: fallback also works with our CSP, which blocks blob: images.
+ */
+async function decodeSource(blob: Blob): Promise<DecodedSource> {
+  if (typeof createImageBitmap === 'function') {
+    try {
+      const bitmap = await createImageBitmap(blob);
+      return {
+        width: bitmap.width,
+        height: bitmap.height,
+        draw: (context, width, height) => context.drawImage(bitmap, 0, 0, width, height),
+        close: () => bitmap.close(),
+      };
+    } catch {
+      // Older browsers and unsupported formats fall through to the <img> path.
+    }
+  }
+  const image = await loadImage(await readAsDataURL(blob));
+  return {
+    width: image.naturalWidth || image.width,
+    height: image.naturalHeight || image.height,
+    draw: (context, width, height) => context.drawImage(image, 0, 0, width, height),
+  };
+}
+
+/** HEIC from iPhones is decoded locally; the library is only fetched when needed. */
+async function convertHeicToJpeg(file: File): Promise<Blob> {
+  const { heicTo } = await import('heic-to/csp');
+  return heicTo({ blob: file, type: 'image/jpeg', quality: 0.92 });
+}
+
+function encodeSource(
+  source: DecodedSource,
+  maxBytes: number,
+  maxDimension: number,
+  alpha: boolean,
+): string {
+  const baseScale = Math.min(1, maxDimension / Math.max(source.width, source.height));
+  let scale = baseScale;
+  let transparent = alpha;
+
+  for (let pass = 0; pass < 9; pass++) {
+    const width = Math.max(1, Math.round(source.width * scale));
+    const height = Math.max(1, Math.round(source.height * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext('2d');
+    if (!context) throw new Error('CANVAS_ERROR');
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = 'high';
+    if (!transparent) {
+      context.fillStyle = '#ffffff';
+      context.fillRect(0, 0, width, height);
+    }
+    source.draw(context, width, height);
+
+    if (transparent) {
+      // WebP keeps transparency at a small size; Safari may fall back to PNG.
+      let webpSupported = false;
+      for (let quality = 0.86; quality >= 0.34; quality -= 0.08) {
+        let data = '';
+        try {
+          data = canvas.toDataURL('image/webp', quality);
+        } catch {
+          break;
+        }
+        if (data.startsWith('data:image/webp')) webpSupported = true;
+        if (data.length * 0.75 <= maxBytes) return data;
+      }
+      if (!webpSupported) {
+        try {
+          const png = canvas.toDataURL('image/png');
+          if (png.length * 0.75 <= maxBytes) return png;
+        } catch {
+          // Try a smaller canvas on the next pass.
+        }
+      }
+      if (Math.min(width, height) <= 180) {
+        // A full-colour "logo" cannot fit transparently: use a white JPEG.
+        transparent = false;
+        scale = baseScale;
+        continue;
+      }
+    } else {
+      for (let quality = 0.86; quality >= 0.34; quality -= 0.08) {
+        let data = '';
+        try {
+          data = canvas.toDataURL('image/jpeg', quality);
+        } catch {
+          break;
+        }
+        if (data.length * 0.75 <= maxBytes) return data;
+      }
+      if (Math.min(width, height) <= 90) break;
+    }
+    scale *= 0.78;
+  }
+  throw new Error('COMPRESS_FAILED');
+}
+
 /**
  * Downscale and compress an image until it fits under `maxBytes`. The browser
- * only ever receives data URLs, which keeps the API stateless.
+ * only ever receives data URLs, which keeps the API stateless. HEIC photos are
+ * converted in the browser when the native decoder is unavailable.
  */
 export async function compressImage(
   file: File,
@@ -448,39 +566,26 @@ export async function compressImage(
   maxDimension: number,
   alpha = false,
 ): Promise<string> {
-  if (!file.type.startsWith('image/')) throw new Error('NOT_AN_IMAGE');
+  if (!file || !file.size) throw new Error('EMPTY_FILE');
+  const heic = isHeicFile(file);
+  if (!file.type.startsWith('image/') && !heic) throw new Error('NOT_AN_IMAGE');
   if (file.size > 15 * 1024 * 1024) throw new Error('IMAGE_TOO_LARGE');
-  const source = await readAsDataURL(file);
-  const image = await loadImage(source);
-  let scale = Math.min(1, maxDimension / Math.max(image.width, image.height));
 
-  for (let pass = 0; pass < 7; pass++) {
-    const width = Math.max(1, Math.round(image.width * scale));
-    const height = Math.max(1, Math.round(image.height * scale));
-    const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) throw new Error('CANVAS_ERROR');
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
-    if (!alpha) {
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, width, height);
+  let decoded = await decodeSource(file).catch(() => null);
+  if (!decoded && heic) {
+    try {
+      decoded = await decodeSource(await convertHeicToJpeg(file));
+    } catch {
+      throw new Error('HEIC_UNSUPPORTED');
     }
-    ctx.drawImage(image, 0, 0, width, height);
-
-    const type = alpha ? 'image/webp' : 'image/jpeg';
-    for (let quality = 0.86; quality >= 0.34; quality -= 0.08) {
-      const data = canvas.toDataURL(type, quality);
-      if (data.length * 0.75 <= maxBytes) return data;
-    }
-    scale *= 0.78;
-    if (Math.min(width, height) <= 90) break;
   }
+  if (!decoded) throw new Error(heic ? 'HEIC_UNSUPPORTED' : 'IMAGE_READ_ERROR');
 
-  if (alpha) return compressImage(file, maxBytes, maxDimension, false);
-  throw new Error('IMAGE_TOO_LARGE');
+  try {
+    return encodeSource(decoded, maxBytes, maxDimension, alpha);
+  } finally {
+    decoded.close?.();
+  }
 }
 
 export function ownerWhatsapp(settings?: FactorySettings | null): string {

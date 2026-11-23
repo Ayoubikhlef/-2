@@ -251,3 +251,10 @@ Next session should focus on:
 - Root cause 1: space-grouped amounts in an RTL paragraph get visually reordered. `money()` in `factoryUtils.ts` now wraps the number in Unicode LRI/PDI isolates (`\u2066 ... \u2069`), keeping "45 000 د.ج" in reading order. Verified in a browser RTL snapshot: before/after strings compared.
 - Root cause 2: Express (strict routing off) matched `/preview/:id/` with the `/preview/:id` redirect route, which redirected to the same URL forever. The route now detects a trailing slash and serves `index.html` directly; only the slash-less URL redirects once.
 - Server `tsc`, root `typecheck` and `build` pass.
+
+## Session 2026-11-23 - site-factory logo upload on phones (HEIC)
+- Reproduced on a 390x844 mobile emulation of `/create-website`: chose the store template, opened step 2 and uploaded a real iPhone HEIC file to "شعار النشاط". The logo field showed the generic "تعذر تجهيز الصورة. جرّب صورة أخرى." while the decoder failed silently; JPEG upload worked.
+- Root cause: the shared `compressImage()` read every File as a multi-megabyte `data:` URL and decoded it in an `<img>`; iOS/mobile browsers can fail that decode silently, and HEIC has no browser decoder outside Safari 17.
+- Fix in `src/app/components/site-factory/factoryUtils.ts`: decode with `createImageBitmap(File)` first, keep the `<img src="data:">` fallback, and lazily load `heic-to/csp` (wasm2js, no CSP eval needed) to convert HEIC/HEIF to JPEG when native decoding fails. Compression no longer re-reads the original file and falls back from transparent WebP to PNG and then white JPEG instead of shrinking a logo to 90 px.
+- `FactoryShared.tsx` now shows distinct localized errors (empty file, HEIC guidance to save as JPG / enable "Most Compatible", compression failure) and a "جارٍ تجهيز الصورة…" progress line. Logo/cover hints mention HEIC support.
+- Local QA (390x844 emulated mobile): 640x480 HEIC -> WebP logo 3.2 KB + JPEG cover 14.7 KB; 1596x1064 HEIC -> 41 KB logo + 271 KB cover; 4000x3000 JPEG and transparent PNG also compress successfully; all outputs stay under logo/cover byte caps.
