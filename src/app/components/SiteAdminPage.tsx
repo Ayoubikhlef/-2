@@ -77,8 +77,11 @@ export function SiteAdminPage() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [me, o, l, p, c] = await Promise.all([
-        siteAdminApi.me(),
+      // Establish the session first. Calling every endpoint in parallel meant
+      // a visitor without a valid link produced five 401s before the error
+      // screen appeared.
+      const me = await siteAdminApi.me();
+      const [o, l, p, c] = await Promise.all([
         siteAdminApi.orders(),
         siteAdminApi.leads(),
         siteAdminApi.products(),
@@ -203,6 +206,10 @@ export function SiteAdminPage() {
     window.location.href = '/';
   };
 
+  // The server only publishes after AOS confirms the payment. Reflecting that
+  // rule in the UI avoids a button that can only fail for a fresh preview.
+  const canPublish = Boolean(site && ['confirmed', 'published'].includes(site.requestStatus));
+
   const tabs: Array<{ id: Tab; label: string; icon: typeof Package }> = [
     { id: 'orders', label: t({ ar: 'الطلبات', fr: 'Commandes', en: 'Orders' }), icon: Package },
     { id: 'leads', label: t({ ar: 'الرسائل', fr: 'Messages', en: 'Messages' }), icon: MessageSquare },
@@ -275,7 +282,16 @@ export function SiteAdminPage() {
           <button
             type="button"
             onClick={publish}
-            disabled={busy}
+            disabled={busy || !canPublish}
+            title={
+              canPublish
+                ? undefined
+                : t({
+                    ar: 'سيُفعّل النشر بعد تأكيد الدفع من AOS.',
+                    fr: 'La publication sera activée après confirmation du paiement par AOS.',
+                    en: 'Publishing unlocks after AOS confirms the payment.',
+                  })
+            }
             className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-60"
           >
             <Rocket className="h-4 w-4" />

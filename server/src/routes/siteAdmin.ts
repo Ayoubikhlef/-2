@@ -69,20 +69,113 @@ function asyncRoute(fn: (req: SiteAdminRequest, res: Response) => Promise<unknow
  * Link claim — public, single use
  * ---------------------------------------------------------------------- */
 
-siteAdminRouter.get('/claim/:token', claimLimiter, async (req, res) => {
+const CLAIM_TOKEN_RE = /^[A-Za-z0-9_-]{40,80}$/;
+
+type ClaimLang = 'ar' | 'fr' | 'en';
+
+function claimLang(header: string | undefined): ClaimLang {
+  const value = String(header || '').toLowerCase();
+  if (value.startsWith('fr')) return 'fr';
+  if (value.startsWith('en')) return 'en';
+  return 'ar';
+}
+
+const CLAIM_TEXT: Record<ClaimLang, { title: string; body: string; button: string; note: string; dir: 'rtl' | 'ltr' }> = {
+  ar: {
+    title: 'دخول لوحة إدارة الموقع',
+    body: 'اضغط الزر أدناه للدخول إلى لوحة تحكم موقعك.',
+    button: 'الدخول إلى لوحة الموقع',
+    note: 'هذا الرابط صالح للاستخدام مرة واحدة فقط.',
+    dir: 'rtl',
+  },
+  fr: {
+    title: 'Tableau de bord du site',
+    body: 'Cliquez sur le bouton ci-dessous pour ouvrir le tableau de bord de votre site.',
+    button: 'Ouvrir le tableau de bord',
+    note: 'Ce lien est à usage unique.',
+    dir: 'ltr',
+  },
+  en: {
+    title: 'Site dashboard',
+    body: 'Click the button below to open your site dashboard.',
+    button: 'Open the dashboard',
+    note: 'This link can only be used once.',
+    dir: 'ltr',
+  },
+};
+
+/**
+ * A GET only shows a confirmation page. Link previews (WhatsApp, Telegram,
+ * email scanners) fetch every URL they see, so consuming the token on GET
+ * would burn the owner's single-use link before they ever clicked it.
+ * The token is exchanged on the form POST instead.
+ */
+siteAdminRouter.get('/claim/:token', claimLimiter, (req, res) => {
+  const token = String(req.params.token || '');
+  if (!CLAIM_TOKEN_RE.test(token)) {
+    res.redirect(302, `${STORE_URL}/site-admin?error=invalid`);
+    return;
+  }
+  const lang = claimLang(req.headers['accept-language']);
+  const copy = CLAIM_TEXT[lang];
+  const action = `/api/site-admin/claim/${encodeURIComponent(token)}`;
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-store, max-age=0, must-revalidate');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+  res.setHeader(
+    'Content-Security-Policy',
+    "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
+  );
+  res.send(`<!DOCTYPE html>
+<html lang="${lang}" dir="${copy.dir}">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>${copy.title} — AOS Tech Store</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 50% 20%,#1e3a8a 0%,#0f172a 55%,#020617 100%);color:#e2e8f0;font-family:system-ui,-apple-system,"Segoe UI",Tahoma,sans-serif}
+main{width:100%;max-width:440px;background:rgba(15,23,42,.82);border:1px solid rgba(96,165,250,.22);border-radius:24px;padding:34px 28px;text-align:center;box-shadow:0 24px 60px rgba(2,6,23,.55)}
+.logo{display:inline-grid;place-items:center;width:52px;height:52px;border-radius:16px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;font-weight:900;font-size:15px;letter-spacing:.5px}
+h1{margin:18px 0 10px;font-size:1.25rem}
+p{margin:0;color:#94a3b8;line-height:1.8;font-size:.95rem}
+form{margin-top:24px}
+button{width:100%;border:0;cursor:pointer;padding:14px 20px;border-radius:999px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);color:#fff;font-weight:800;font-size:1rem;font-family:inherit}
+button:hover{filter:brightness(1.08)}
+.note{margin-top:14px;font-size:.78rem;color:#64748b}
+</style>
+</head>
+<body>
+<main>
+<span class="logo">AOS</span>
+<h1>${copy.title}</h1>
+<p>${copy.body}</p>
+<form method="POST" action="${action}">
+<button type="submit">${copy.button}</button>
+</form>
+<p class="note">${copy.note}</p>
+</main>
+</body>
+</html>`);
+});
+
+siteAdminRouter.post('/claim/:token', claimLimiter, async (req, res) => {
   try {
     const claimed = await consumeSiteAdminToken(String(req.params.token || ''));
     if (!claimed) {
-      res.redirect(302, `${STORE_URL}/site-admin?error=invalid`);
+      res.redirect(303, `${STORE_URL}/site-admin?error=invalid`);
       return;
     }
     const session = signSiteAdminSession(claimed.siteId, claimed.version);
     res.cookie(SITE_ADMIN_COOKIE, session, cookieOptions());
-    // The link token must never survive in the browser history or referrer.
-    res.redirect(302, `${STORE_URL}/site-admin`);
+    // 303 turns the POST into a clean GET; the token is already invalid, so
+    // it can no longer be replayed from the browser history.
+    res.redirect(303, `${STORE_URL}/site-admin`);
   } catch (err) {
     console.error('[SiteAdmin] claim failed:', err);
-    res.redirect(302, `${STORE_URL}/site-admin?error=invalid`);
+    res.redirect(303, `${STORE_URL}/site-admin?error=invalid`);
   }
 });
 

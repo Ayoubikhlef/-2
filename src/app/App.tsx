@@ -691,7 +691,7 @@ export default function App() {
               </main>
               {(isProductPage || isPremiumRoute || isAiToolsRoute || isCalculatorRoute || isSubscriptionRoute || isChecklistRoute) && <Footer />}
               <ScrollToTop />
-              {currentHash !== '#demo' && !isFactoryPage && !isProductPage && (
+              {currentHash !== '#demo' && !isFactoryPage && !isProductPage && !isSiteAdminRoute && (
                 <>
                   <Suspense fallback={null}><WABubble /></Suspense>
                   <Suspense fallback={null}><AIAssistant /></Suspense>

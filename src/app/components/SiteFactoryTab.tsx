@@ -398,7 +398,19 @@ export function SiteFactoryTab() {
   }
 
   /** Rotate the single-use dashboard link and copy it for the owner. */
-  async function createOwnerLink(siteId: string) {
+  async function createOwnerLink(siteId: string, hasExistingLink: boolean) {
+    if (
+      hasExistingLink &&
+      !window.confirm(
+        t({
+          ar: 'إنشاء رابط جديد سيلغي رابط الدخول السابق فوراً. هل تريد المتابعة؟',
+          fr: 'Créer un nouveau lien annulera immédiatement le lien précédent. Continuer ?',
+          en: 'Creating a new link will immediately revoke the previous one. Continue?',
+        }),
+      )
+    ) {
+      return;
+    }
     setBusy('link');
     try {
       const { link } = await api.siteFactory.admin.adminLink(siteId);
@@ -923,7 +935,7 @@ export function SiteFactoryTab() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => createOwnerLink(site.id)}
+                    onClick={() => createOwnerLink(site.id, Boolean(site.adminLinkAt))}
                     disabled={busy === 'link'}
                     className="ms-auto inline-flex items-center gap-1 rounded-lg border border-emerald-400/30 bg-emerald-400/10 px-2.5 py-1.5 text-[11px] font-bold text-emerald-300 hover:bg-emerald-400/20 disabled:opacity-60"
                   >

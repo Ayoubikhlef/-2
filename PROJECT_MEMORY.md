@@ -379,6 +379,12 @@ Typography-only refresh, per the owner's explicit direction: keep the existing l
 - Local DB env is empty; server tsc + root typecheck/build pass. Production smoke test pending after Render applies `prisma db push` and Vercel deploys.
 - Vercel free storage warning: removed old unaliased deployments; keep deploy count low (each build ships ~1100 template preview files).
 
+## Session 2026-11-23 - QA pass on the owner dashboard
+- The one-use claim link now has a two-step flow: `GET /api/site-admin/claim/:token` renders a confirmation page and leaves the token untouched, and the form's POST exchanges it and sets the cookie. This stops messaging-app link previews from consuming the link. The page uses an impact-only CSP, `Referrer-Policy: no-referrer` and `X-Robots-Tag: noindex`.
+- `/site-admin` is excluded from the store chrome (WhatsApp bubble, AI assistant). The page first calls `/me` and only then loads the four datasets, so invalid links yield one 401. Publishing is disabled until AOS confirms payment, and rotating a link asks for confirmation in the factory console.
+- Live QA: home/create-website/checklist had zero console errors; `/api/health` 200; `/site-admin` returns the page with a single expected 401; preview route no longer loops.
+- Remaining manual test: full claim → dashboard → edit → publish path (no local DB/admin session available).
+
 ## Session 2026-11-22 - package price bidi + preview redirect loop
 - Prices in the factory wizard showed reversed digit groups in RTL ("45 000" → "000 45"). `money()` (`src/app/components/site-factory/factoryUtils.ts`) now wraps the numeric run with LRI `\u2066` / PDI `\u2069`; the currency label stays outside the isolate. Browser RTL snapshot confirmed the fix.
 - Preview URLs (`/api/site-factory/preview/<siteId>/`) looped with ERR_TOO_MANY_REDIRECTS because Express non-strict routing let the `/preview/:siteId` redirect route also match the trailing-slash URL. That route now serves `index.html` when `req.path` already ends with `/`, and only redirects the slash-less form.

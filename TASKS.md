@@ -237,6 +237,15 @@ Next session should focus on:
 - Server `tsc`, root `typecheck` and `build` pass. Local DB env is empty, so the happy path could not be exercised locally; production smoke test pending after deploy/Render db push.
 - Vercel free deployment storage hit 100% (10 GB). Removed two old unaliased production deployments; the active aliased deployment was left untouched.
 
+## Session 2026-11-23 - QA pass on the owner dashboard
+- Found and fixed a real flaw in the one-use sign-in link: the GET claim endpoint exchanged the token immediately, so WhatsApp/Telegram/email link previews (which fetch every URL) could burn the link before the owner clicked it. `GET /api/site-admin/claim/:token` now returns a small AR/FR/EN confirmation page (no token consumed, impact-only CSP, `no-referrer`, `noindex`), and the token is exchanged on the form's POST with a 303 redirect.
+- `/site-admin` no longer renders the WhatsApp bubble and AI assistant, which used to float over the dashboard.
+- The dashboard now calls `/me` first and only then fetches orders/leads/products/content, so an invalid or expired link produces one 401 instead of five.
+- "Publish changes" is disabled until the request is `confirmed`/`published` (matching the server rule), with a localized explanation.
+- Issuing a new dashboard link now asks for confirmation when a previous link exists, because rotation revokes it immediately.
+- Verified live: no console errors on home/create-website/checklist; preview URLs now answer 301 → 404 instead of looping; API health 200. Server tsc, root typecheck and build pass.
+- Still untested end-to-end: the success path of the claim link, because the local DB URL is empty and no production admin session is available.
+
 ## Session 2026-11-22 - package price bidi + preview redirect loop
 - Owner reported package prices rendered reversed in the create-website wizard ("45 000" showed as "000 45") and the preview link failing with ERR_TOO_MANY_REDIRECTS.
 - Root cause 1: space-grouped amounts in an RTL paragraph get visually reordered. `money()` in `factoryUtils.ts` now wraps the number in Unicode LRI/PDI isolates (`\u2066 ... \u2069`), keeping "45 000 د.ج" in reading order. Verified in a browser RTL snapshot: before/after strings compared.
