@@ -1302,9 +1302,11 @@ authRouter.post('/reset-password', async (req, res: Response) => {
   // Both paths share the exact same token validation and single-use update.
   const contentType = String(req.headers['content-type'] || '');
   const wantsHtml = contentType.startsWith('application/x-www-form-urlencoded');
-  const respond = (status: number, error?: string) => {
+  const respond = (status: number, error?: string, apiError?: string) => {
     if (!wantsHtml) {
-      return error ? res.status(status).json({ error }) : res.status(200).json({ ok: true });
+      return error
+        ? res.status(status).json({ error: apiError || error })
+        : res.status(200).json({ ok: true });
     }
     return error
       ? sendResetResultPage(res, status, false, error)
@@ -1339,7 +1341,11 @@ authRouter.post('/reset-password', async (req, res: Response) => {
       },
     });
     if (result.count !== 1) {
-      return respond(400, 'الرابط غير صالح أو انتهت صلاحيته. اطلب رابطاً جديداً.');
+      return respond(
+        400,
+        'الرابط غير صالح أو انتهت صلاحيته. اطلب رابطاً جديداً.',
+        'Reset link is invalid or expired'
+      );
     }
 
     return respond(200);
@@ -1349,7 +1355,7 @@ authRouter.post('/reset-password', async (req, res: Response) => {
       return res.status(400).json({ error: 'Validation failed', details: err.issues });
     }
     console.error('[Auth] Reset password error:', err);
-    return respond(500, 'تعذّر تغيير كلمة المرور. حاول مرة أخرى.');
+    return respond(500, 'تعذّر تغيير كلمة المرور. حاول مرة أخرى.', 'Failed to process request');
   }
 });
 
