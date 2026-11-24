@@ -432,3 +432,7 @@ Typography-only refresh, per the owner's explicit direction: keep the existing l
 - `aos-tech.store` is added to Cloudflare Free (zone ID `91ba91b0697550ca994eaf649d2a5cc7`), SSL mode Full (strict), nameservers at Namecheap switched to `daisy.ns.cloudflare.com` / `kipp.ns.cloudflare.com` (propagation pending at time of writing).
 - If Cloudflare WAF rules cannot be deployed from the dashboard, the authenticated Vercel CLI is a working fallback: `vercel firewall rules add ... --action deny -y` then `vercel firewall publish --confirm-name aos-tech-store --effects-digest <digest>`. Live rule `Block scanner paths` returns 403 for `/wp-login.php`, `/xmlrpc.php`, `/.env`, `/phpmyadmin`, `/.git`.
 - Do not enable Attack Mode or broad bot challenges without the owner's explicit request; they block real customers.
+
+## Cloudflare edge state (2026-11-24, final)
+- `aos-tech.store` is Active on Cloudflare Free (zone ID `91ba91b0697550ca994eaf649d2a5cc7`), SSL Full (strict), nameservers `daisy`/`kipp` propagated. Custom WAF rule `Block scanner paths` Active; scanner paths 403, home 200. Vercel firewall keeps an equivalent deny rule as a second layer.
+- When deploying a Cloudflare WAF rule via the dashboard, beware two buttons named "Deploy": `nth=0` is "Deploy with API call" (needs a token), `nth=1` is the real UI Deploy, followed by a confirmation dialog Deploy.

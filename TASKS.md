@@ -311,3 +311,9 @@ Next session should focus on:
 - Cloudflare WAF custom rules could not be deployed from the dashboard: the login lacks `Zone > Zone WAF` permission (dashboard offered an API-call fallback with a token we do not have). Instead used the authenticated Vercel CLI: staged and published firewall rule `Block scanner paths` (deny `/wp-*`, `/xmlrpc.php`, `/phpmyadmin`, `/.env`, `/.git`). `vercel firewall status` shows Firewall Enabled, 1 active rule. Verified live: `/wp-login.php`, `/.env`, `/xmlrpc.php` all 403, `/` still 200.
 - Left Attack Mode, bot protection and OWASP off to avoid blocking customers; server-side auth/AI/order rate limits remain the main behavioural protection.
 - **Remaining:** wait for Cloudflare nameserver propagation (minutes to 24h), then re-check zone status in Cloudflare DNS overview; grant the user's Cloudflare login `Zone WAF` permission if dashboard-side WAF rules are wanted. `aos-store.dz` is a separate domain in the account with invalid nameservers and was not touched.
+
+## Session 2026-11-24 - Cloudflare WAF rule completed (follow-up)
+- The earlier WAF failure was a tooling mistake, not a missing permission: the logged-in Cloudflare user is Super Admin. Our first `button:has-text("Deploy") >> nth=0` clicked the "Deploy with API call" button, which opened the API-token fallback. Using `nth=1` plus the dialog's Deploy button deployed the rule through the UI.
+- Cloudflare custom rule `Block scanner paths` is now **Active (1/5)**: blocks `/wp-login.php`, `/xmlrpc.php`, `/wp-admin`, `/phpmyadmin`, `/.env`, `/.git`.
+- Nameservers propagated: Cloudflare Domains list shows `aos-tech.store — Active`. `curl -I` returns `Server: cloudflare` and HSTS; scanner paths return 403 through Cloudflare, home 200.
+- Both layers are now live: Cloudflare WAF at the edge + Vercel firewall rule (same paths) as backup.
