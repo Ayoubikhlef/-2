@@ -413,3 +413,8 @@ Typography-only refresh, per the owner's explicit direction: keep the existing l
 ## Loader handover timing (2026-11-24)
 - Counter reaches 100% only after `window.load` and `__AOS_MOUNTED__`; from there the loader is gone in ~340 ms (short door fade), so the mounted site is never hidden behind a long animation on desktop.
 - If a user ever reports it "stuck at 100%" again, check `__AOS_MOUNTED__` (React mount) and `window.load` first — the counter is capped at 92% until both are true by design.
+
+## Entrance loader device scope (2026-11-24)
+- The AOS door loader is phone/touch only. Desktop uses `(hover: hover) and (pointer: fine)` CSS to hide it and the external loader script removes the node synchronously; the site is visible immediately.
+- Recovery UI for a failed mount is independent of the loader: `boot-guard.js` builds a small overlay when no loader node exists.
+- **Vercel cleanup rule:** `vercel alias ls` prints bare hostnames, while `vercel ls --prod` prints full `https://...` URLs. Never compare them directly when deciding which deployments to keep — that mistake removed the aliased deployment once; it was restored by an immediate `vercel --prod --yes` redeploy.
