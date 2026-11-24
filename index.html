@@ -88,6 +88,10 @@
       @keyframes aosFloat { 50% { transform: translateY(-10px); } }
       @keyframes aosOx { from { transform: translateX(-50%); } to { transform: translateX(50%); } }
       @keyframes aosOy { from { transform: translateY(-50%); } to { transform: translateY(50%); } }
+      /* Safety net: even before the loader script runs, a desktop never shows it. */
+      @media (hover: hover) and (pointer: fine) {
+        #aos-loader { display: none !important; }
+      }
       @media (prefers-reduced-motion: reduce) {
         #aos-loader .avatar, #aos-loader .dotx, #aos-loader .doty { animation: none; }
         #aos-loader .door, #aos-loader .door::after, #aos-loader .content { transition-duration: .01ms; }

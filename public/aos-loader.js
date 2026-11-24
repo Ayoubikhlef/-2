@@ -12,6 +12,23 @@
   var loader = document.getElementById('aos-loader');
   if (!loader) return;
 
+  // Phones only: on desktop the store must be visible immediately, with no
+  // entrance animation at all. This runs while the page is still parsing, so
+  // a desktop visitor never sees a flash of the loader.
+  var finePointer = false;
+  var coarsePointer = false;
+  try {
+    finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    coarsePointer = window.matchMedia('(pointer: coarse)').matches;
+  } catch (e) {
+    /* old browser */
+  }
+  var phone = /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent) || coarsePointer;
+  if (!phone || finePointer) {
+    loader.parentNode.removeChild(loader);
+    return;
+  }
+
   var bar = document.getElementById('aosBar');
   var pct = document.getElementById('aosPct');
   var tag = loader.querySelector('[data-loader-tag]');

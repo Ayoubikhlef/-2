@@ -28,7 +28,29 @@
   }
 
   function showRetry(message) {
-    if (!boot) return;
+    // On desktop the entrance loader removes itself, so the recovery UI needs
+    // its own small overlay instead of living inside that loader.
+    if (!boot || !document.body.contains(boot)) {
+      var box = document.createElement('div');
+      box.setAttribute('role', 'status');
+      box.style.cssText =
+        'position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;text-align:center;background:#061a3d;color:#e2e8f0;font-family:Tajawal,system-ui,sans-serif';
+      var text = document.createElement('p');
+      text.textContent = message;
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = 'إعادة المحاولة';
+      button.style.cssText =
+        'border:0;border-radius:999px;padding:10px 22px;background:#2563eb;color:#fff;font:inherit;font-weight:800;cursor:pointer';
+      button.addEventListener('click', function () {
+        setFlag(false);
+        reloadFresh();
+      });
+      box.appendChild(text);
+      box.appendChild(button);
+      document.body.appendChild(box);
+      return;
+    }
     if (hint) hint.textContent = message;
     if (retry) retry.hidden = false;
   }
@@ -72,7 +94,6 @@
   // instead of leaving the visitor on the fallback page forever.
   window.setTimeout(function () {
     if (window.__AOS_MOUNTED__ === true) return;
-    if (!document.getElementById('aos-loader') && !document.getElementById('boot-screen')) return;
     if (getFlag()) {
       showRetry('تعذر تحميل الموقع. تحقق من اتصالك ثم أعد المحاولة.');
     }
