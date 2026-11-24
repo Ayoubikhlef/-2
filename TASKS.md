@@ -291,3 +291,9 @@ Next session should focus on:
 - `boot-guard.js` creates its own minimal retry overlay when the loader is absent (desktop), so the 12 s no-mount recovery still works.
 - Verified: 1440x900 desktop shows no loader and the full storefront immediately; 390x844 touch emulation shows the loader, 100% -> removed in ~0.35 s. Production verified after deploy: desktop no loader, phone loader present and removed, zero console errors on a fresh tab.
 - **Deployment incident:** while pruning old Vercel deployments the alias-matching check used full URLs against bare hostnames from `vercel alias ls`, so it removed every deployment including the aliased one (site briefly 404). Immediately redeployed `aos-tech-store-9ujhsa1kf-...` with `vercel --prod --yes`, aliases restored and HOME/loader URLs back to 200. Only one production deployment remains; do not prune again unless the alias source is matched by hostname without the scheme.
+
+## Session 2026-11-24 - SEO fallback flash on refresh
+- Owner reported a sudden flash of the raw Arabic SEO text when refreshing/entering the store, then it disappeared. Cause: the `#seo-fallback` markup inside `#root` was visible until React replaced it; the old boot screen used to cover it, but the desktop loader is now hidden/removed.
+- Fix in `index.html`: `#seo-fallback { display: none; }` in the head stylesheet (so it never paints) plus `<noscript>` style restoring `display:block!important`, keeping the no-JS fallback available for crawlers/visitors without scripts. Source text remains in the HTML.
+- Verified with `waitUntil: 'commit'` on production: fallback computed `display:none` before React mounts on both desktop and phone; after mount the node is gone, the storefront h1 is present, no console errors, no overflow. Build-time SEO route pages carry the same rule.
+- Commit `4e6eecd`, Vercel production deploy `aos-tech-store-ddo0yf8bh-...` (aliases restored automatically). No deployment pruning performed this time.

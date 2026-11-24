@@ -418,3 +418,7 @@ Typography-only refresh, per the owner's explicit direction: keep the existing l
 - The AOS door loader is phone/touch only. Desktop uses `(hover: hover) and (pointer: fine)` CSS to hide it and the external loader script removes the node synchronously; the site is visible immediately.
 - Recovery UI for a failed mount is independent of the loader: `boot-guard.js` builds a small overlay when no loader node exists.
 - **Vercel cleanup rule:** `vercel alias ls` prints bare hostnames, while `vercel ls --prod` prints full `https://...` URLs. Never compare them directly when deciding which deployments to keep — that mistake removed the aliased deployment once; it was restored by an immediate `vercel --prod --yes` redeploy.
+
+## SEO fallback visibility (2026-11-24)
+- `#seo-fallback` is `display:none` from the head CSS and only revealed by a `<noscript>` override. It stays in the HTML for crawlers/no-JS users but can never flash before React mounts — important because the desktop entrance loader is hidden and no longer covers it.
+- Check a flash with `browse.navigate({ waitUntil: 'commit' })` and inspect `getComputedStyle(document.getElementById('seo-fallback')).display`.
