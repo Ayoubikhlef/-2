@@ -37,7 +37,9 @@
     <style>
       body { margin: 0; min-height: 100vh; background: #f8fafc; }
       html.dark body { background: #0f172a; }
-      #seo-fallback { max-width: 880px; margin: 0 auto; padding: 56px 22px; font-family: 'Tajawal', 'Noto Sans Arabic', system-ui, -apple-system, sans-serif; color: #0f172a; line-height: 1.85; }
+      /* Source text stays in the HTML for crawlers, but must never flash on
+         screen while React mounts. Shown again only without JavaScript. */
+      #seo-fallback { display: none; max-width: 880px; margin: 0 auto; padding: 56px 22px; font-family: 'Tajawal', 'Noto Sans Arabic', system-ui, -apple-system, sans-serif; color: #0f172a; line-height: 1.85; }
       html.dark #seo-fallback { color: #e2e8f0; }
       #seo-fallback h1 { font-size: 1.65rem; line-height: 1.5; margin: 0 0 14px; }
       #seo-fallback h2 { font-size: 1.1rem; margin: 26px 0 8px; }
@@ -97,7 +99,7 @@
         #aos-loader .door, #aos-loader .door::after, #aos-loader .content { transition-duration: .01ms; }
       }
     </style>
-    <noscript><style>#aos-loader{display:none!important}</style></noscript>
+    <noscript><style>#aos-loader{display:none!important}#seo-fallback{display:block!important}</style></noscript>
     <script>
       (function () {
         try {
