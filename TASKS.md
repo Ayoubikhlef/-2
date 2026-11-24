@@ -271,3 +271,11 @@ Next session should focus on:
 - Commits `5c83fb5`, `794e825`, `4185d07`, pushed to `origin/main`.
 - Test account `aosqa1124092527@euploading.com` was created and verified on production for this QA; its password was changed during the test. Delete it if a clean DB is wanted.
 - Minor known issue: `public/sw.js:55` tries `cache.put()` on the form's POST navigation and logs a harmless service-worker TypeError; the reset still completes. Fixing it would need a Vercel deploy, so it was deferred.
+
+## Session 2026-11-24 - AOS door loader at storefront entry
+- Added the owner's door-opening loader to the storefront entry: brand-blue double doors, owner portrait, orbit dots, AOS name and progress bar. It replaces the old plain boot spinner but keeps the `boot-guard.js` recovery path (retry button + hint) intact.
+- The loader lives outside `#root` so React cannot cut the animation short; `public/aos-loader.js` is external so the Vercel CSP's hashed inline-script policy is untouched. It waits for both `window.load` and `__AOS_MOUNTED__` before completing, localizes the tagline/hint for ar/fr/en (RTL/LTR), and skips animation for `prefers-reduced-motion`.
+- Portrait moved from a 45 KB inline data URL to `/aos-loader-avatar.jpg` (34 KB, cacheable). `public/sw.js` precaches the two new assets (cache v14) and no longer calls `cache.put()` on POST navigations, which removed the console TypeError from the password-reset flow.
+- SEO route generation (`vite.config.ts`) and product fallback (`api/product-page.ts`) now target `<div id="aos-loader"` instead of the removed `#boot-screen`; verified `/premium-services/` fallback still swaps.
+- Local QA (390x844 + 1280x800, reduced motion off): loader visible, 20% -> 100%, doors open, element removed, no overflow, EN shows LTR + English tagline, AR shows RTL. Reduced motion removes it immediately. Production QA after deploy: same, zero console errors; `/aos-loader.js` and avatar both 200.
+- Commit `6bb29f8`; Vercel production deploy `aos-tech-store-8q50x1fb5-...` aliased to `aos-tech.store`. Removed six old unaliased production deployments, leaving only the two aliased ones.

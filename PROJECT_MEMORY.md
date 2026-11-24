@@ -402,3 +402,10 @@ Typography-only refresh, per the owner's explicit direction: keep the existing l
 - Edge CSP on `/api/*` replaces any page-level `script-src 'nonce-...'`, so the reset page must not depend on inline JavaScript. It now posts natively with a hidden token field; the endpoint parses form encoding and returns a no-JS HTML result. Never put a reset token or password in a query string after submit.
 - `passwordResetLimiter` (10 per 15 min) applies only to state-changing POSTs on `/api/auth/reset-password`; GET/HEAD/OPTIONS page loads are unmetered so a customer cannot lock themselves out by refreshing or by a mail scanner prefetching.
 - Verified end to end on production with a real disposable inbox and mobile emulation after Render auto-deploy (`5c83fb5`, `794e825`, `4185d07`).
+
+## Storefront entry loader (2026-11-24)
+- `index.html` renders `#aos-loader` outside `#root` (React only owns `#root`), with inline CSS only and an external `/aos-loader.js`; no inline script hashes changed in `vercel.json`.
+- Loader only finishes after the app is mounted and the page is loaded, so a stale cached document cannot hide the SEO fallback with a "complete" loader. `boot-guard.js` shows its retry UI inside the loader after 12 s when the app never mounts.
+- Localization reads `localStorage.language`; the hint/tagline follow ar/fr/en and `dir` flips to LTR for fr/en. `prefers-reduced-motion: reduce` skips the animation entirely.
+- Assets: `/aos-loader.js`, `/aos-loader-avatar.jpg` (extracted from the owner's snippet). Both are in the service-worker precache (v14), and `sw.js` now caches GET navigations only.
+- Build-time SEO fallback rewriting keys on `#aos-loader` now (was `#boot-screen`).
