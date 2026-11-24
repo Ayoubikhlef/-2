@@ -572,6 +572,47 @@ function sendInvalidResetPage(res: Response) {
     `);
 }
 
+/**
+ * Result page for the password-reset form. The form posts natively (no inline
+ * JavaScript) so it keeps working even when an edge CSP replaces the page's
+ * own policy. Never reflect the token or the password in the response.
+ */
+function sendResetResultPage(res: Response, status: number, ok: boolean, message: string) {
+  const storeUrl = siteUrl();
+  const target = ok ? `${storeUrl}/login` : `${storeUrl}/login?forgot=1`;
+  const label = ok ? 'تسجيل الدخول' : 'طلب رابط جديد';
+  res.status(status);
+  res.setHeader('Cache-Control', 'no-store');
+  res.setHeader('Referrer-Policy', 'no-referrer');
+  res.type('html').send(`
+      <!DOCTYPE html>
+      <html lang="ar" dir="rtl">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="robots" content="noindex, nofollow" />
+        <title>${ok ? 'تم تغيير كلمة المرور' : 'تعذّر تغيير كلمة المرور'} | AOS Tech Store</title>
+        <style>
+          body { font-family: system-ui, -apple-system, "Segoe UI", Tahoma, sans-serif; background: radial-gradient(circle at 50% 25%, #1e3a8a 0%, #0f172a 55%, #020617 100%); color: #e2e8f0; margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+          .card { background: #111f38; border: 1px solid rgba(96,165,250,.25); border-radius: 28px; box-shadow: 0 0 60px rgba(59,130,246,.18); padding: 40px 32px; max-width: 440px; width: 100%; box-sizing: border-box; text-align: center; }
+          .icon { display: grid; place-items: center; width: 64px; height: 64px; margin: 0 auto 18px; border-radius: 20px; font-size: 30px; background: ${ok ? 'rgba(34,197,94,.12)' : 'rgba(239,68,68,.12)'}; border: 1px solid ${ok ? 'rgba(34,197,94,.3)' : 'rgba(239,68,68,.3)'}; }
+          h1 { margin: 0 0 10px; font-size: 21px; }
+          p { margin: 0 0 8px; font-size: 14px; line-height: 1.9; color: #94a3b8; }
+          .btn { display: block; margin: 24px 0 0; padding: 14px 24px; border-radius: 16px; background: linear-gradient(90deg,#2563eb,#38bdf8); color: #fff; text-decoration: none; font-weight: 800; font-size: 15px; }
+        </style>
+      </head>
+      <body>
+        <main class="card">
+          <div class="icon" aria-hidden="true">${ok ? '✅' : '🔒'}</div>
+          <h1>${ok ? 'تم تغيير كلمة المرور' : 'تعذّر تغيير كلمة المرور'}</h1>
+          <p>${escapeHtml(message)}</p>
+          <a class="btn" href="${escapeHtml(target)}">${label}</a>
+        </main>
+      </body>
+      </html>
+    `);
+}
+
 // --- Routes ---
 
 // Public customer sign-up. Every account must confirm its email address before
@@ -1257,7 +1298,27 @@ authRouter.post('/forgot-password', async (req, res: Response) => {
 });
 
 authRouter.post('/reset-password', async (req, res: Response) => {
+  // The reset screen posts a normal HTML form; scripts and API clients post JSON.
+  // Both paths share the exact same token validation and single-use update.
+  const contentType = String(req.headers['content-type'] || '');
+  const wantsHtml = contentType.startsWith('application/x-www-form-urlencoded');
+  const respond = (status: number, error?: string) => {
+    if (!wantsHtml) {
+      return error ? res.status(status).json({ error }) : res.status(200).json({ ok: true });
+    }
+    return error
+      ? sendResetResultPage(res, status, false, error)
+      : sendResetResultPage(res, 200, true, 'تم تغيير كلمة المرور بنجاح. يمكنك الآن تسجيل الدخول.');
+  };
+
   try {
+    if (
+      wantsHtml &&
+      String(req.body?.confirmPassword ?? '') !== String(req.body?.password ?? '')
+    ) {
+      return respond(400, 'كلمتا المرور غير متطابقتين.');
+    }
+
     const { token, password } = resetSchema.parse(req.body);
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
     const now = new Date();
@@ -1278,16 +1339,17 @@ authRouter.post('/reset-password', async (req, res: Response) => {
       },
     });
     if (result.count !== 1) {
-      return res.status(400).json({ error: 'Reset link is invalid or expired' });
+      return respond(400, 'الرابط غير صالح أو انتهت صلاحيته. اطلب رابطاً جديداً.');
     }
 
-    res.status(200).json({ ok: true });
+    return respond(200);
   } catch (err) {
     if (err instanceof z.ZodError) {
+      if (wantsHtml) return respond(400, 'كلمة المرور يجب أن تكون 12 حرفاً على الأقل.');
       return res.status(400).json({ error: 'Validation failed', details: err.issues });
     }
     console.error('[Auth] Reset password error:', err);
-    res.status(500).json({ error: 'Failed to process request' });
+    return respond(500, 'تعذّر تغيير كلمة المرور. حاول مرة أخرى.');
   }
 });
 
@@ -1295,23 +1357,21 @@ authRouter.get('/reset-password', async (req, res) => {
   try {
     const { token } = req.query as { token?: string };
     // Tokens are generated as 32 random bytes encoded in hex. Enforcing that
-    // format also keeps the value safe when the reset page embeds it in JS.
-    // Trim first: copying a link from an email often adds a trailing space.
+    // format also keeps the value safe when it is embedded in the hidden form
+    // field. Trim first: copying a link from an email often adds a space.
     const sanitizedToken = String(token || '').trim();
     if (!/^[a-f0-9]{64}$/i.test(sanitizedToken)) return sendInvalidResetPage(res);
 
-    // Helmet's global policy blocks inline scripts, so this page gets its own
-    // nonce-based policy. Without it the form silently does nothing in
-    // production.
-    const nonce = crypto.randomBytes(18).toString('base64');
+    // No inline script here: the edge CSP can override a page-level nonce
+    // policy, which used to turn the form into a native GET that dropped the
+    // token and put the password in the address bar. A plain POST form works
+    // under both the server and the edge policy.
     res.setHeader(
       'Content-Security-Policy',
-      `default-src 'none'; style-src 'unsafe-inline'; script-src 'nonce-${nonce}'; connect-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'`
+      "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'"
     );
     res.setHeader('Cache-Control', 'no-store');
     res.setHeader('Referrer-Policy', 'no-referrer');
-
-    const loginUrl = `${siteUrl()}/login`;
 
     res.type('html').send(`
       <!DOCTYPE html>
@@ -1331,9 +1391,6 @@ authRouter.get('/reset-password', async (req, res) => {
           input { width: 100%; box-sizing: border-box; padding: 14px 18px; background: #0a162b; border: 1px solid rgba(255,255,255,.08); border-radius: 16px; color: #e2e8f0; font-size: 15px; outline: none; }
           input:focus { border-color: rgba(56,189,248,.7); background: #0b1a32; }
           button { width: 100%; margin-top: 22px; padding: 15px; background: linear-gradient(90deg,#2563eb,#38bdf8); color: #fff; border: none; border-radius: 16px; font-size: 16px; font-weight: 800; cursor: pointer; }
-          button:disabled { opacity: .6; cursor: not-allowed; }
-          .error { color: #fca5a5; background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.25); border-radius: 14px; padding: 10px 14px; margin: 16px 0 0; font-size: 13px; line-height: 1.8; display: none; }
-          .success { color: #86efac; background: rgba(34,197,94,.1); border: 1px solid rgba(34,197,94,.25); border-radius: 14px; padding: 10px 14px; margin: 16px 0 0; font-size: 13px; line-height: 1.8; display: none; }
           .muted { margin-top: 18px; font-size: 11.5px; color: #64748b; text-align: center; line-height: 1.8; }
         </style>
       </head>
@@ -1342,66 +1399,16 @@ authRouter.get('/reset-password', async (req, res) => {
           <div class="brand">AOS TECH STORE</div>
           <h1>إعادة تعيين كلمة المرور</h1>
           <p class="hint">أدخل كلمة المرور الجديدة (12 حرفاً على الأقل).</p>
-          <form id="resetForm" novalidate>
+          <form method="POST" action="/api/auth/reset-password">
+            <input type="hidden" name="token" value="${escapeHtml(sanitizedToken)}" />
             <label for="password">كلمة المرور الجديدة</label>
             <input id="password" type="password" name="password" required minlength="12" autocomplete="new-password" placeholder="••••••••••••" />
             <label for="confirmPassword">تأكيد كلمة المرور</label>
             <input id="confirmPassword" type="password" name="confirmPassword" required minlength="12" autocomplete="new-password" placeholder="••••••••••••" />
-            <button type="submit" id="submitBtn">حفظ كلمة المرور</button>
+            <button type="submit">حفظ كلمة المرور</button>
           </form>
-          <div id="error" class="error" role="alert"></div>
-          <div id="success" class="success" role="status"></div>
           <p class="muted" dir="ltr">New password (12+ characters) · Nouveau mot de passe (12 caractères minimum)</p>
         </main>
-        <script nonce="${nonce}">
-          const form = document.getElementById('resetForm');
-          const errorDiv = document.getElementById('error');
-          const successDiv = document.getElementById('success');
-          const submitBtn = document.getElementById('submitBtn');
-
-          const showError = (message) => {
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-            successDiv.style.display = 'none';
-          };
-
-          form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const password = form.password.value;
-            const confirmPassword = form.confirmPassword.value;
-
-            if (password !== confirmPassword) return showError('كلمتا المرور غير متطابقتين.');
-            if (password.length < 12) return showError('كلمة المرور يجب أن تكون 12 حرفاً على الأقل.');
-
-            errorDiv.style.display = 'none';
-            successDiv.style.display = 'none';
-            submitBtn.disabled = true;
-
-            try {
-              const response = await fetch('/api/auth/reset-password', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token: ${JSON.stringify(sanitizedToken)}, password })
-              });
-              const data = await response.json().catch(() => ({}));
-
-              if (response.ok && data.ok) {
-                form.style.display = 'none';
-                successDiv.textContent = 'تم تغيير كلمة المرور بنجاح. سيتم تحويلك لتسجيل الدخول...';
-                successDiv.style.display = 'block';
-                setTimeout(() => { window.location.href = ${JSON.stringify(loginUrl)}; }, 2200);
-              } else if (data.error === 'Reset link is invalid or expired') {
-                showError('الرابط غير صالح أو انتهت صلاحيته. اطلب رابطاً جديداً من صفحة الدخول.');
-              } else {
-                showError(data.error || 'تعذّر تغيير كلمة المرور. حاول مرة أخرى.');
-              }
-            } catch (err) {
-              showError('تعذّر الاتصال بالخادم. تحقق من الشبكة وحاول مرة أخرى.');
-            } finally {
-              submitBtn.disabled = false;
-            }
-          });
-        </script>
       </body>
       </html>
     `);

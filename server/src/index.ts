@@ -121,9 +121,15 @@ app.use((req, res, next) => {
 app.use(cookieParser());
 app.use(hpp());
 
-// The email-confirmation screen submits a plain HTML form (no JavaScript), so
-// that one endpoint accepts form encoding in addition to JSON.
-app.use('/api/auth/verify-email', express.urlencoded({ extended: false, limit: '8kb' }));
+// The email-confirmation and password-reset screens submit plain HTML forms
+// (no JavaScript), so those endpoints accept form encoding in addition to JSON.
+// The reset page cannot rely on an inline script: the edge CSP can override the
+// page's nonce policy, which used to turn the form into a native GET that
+// dropped the token and leaked the password into the address bar.
+app.use(
+  ['/api/auth/verify-email', '/api/auth/reset-password'],
+  express.urlencoded({ extended: false, limit: '8kb' })
+);
 
 app.use(securityMonitor);
 
