@@ -427,3 +427,8 @@ Typography-only refresh, per the owner's explicit direction: keep the existing l
 - `assets/banners/aos-sponsor/` holds five 1080x1080 Facebook/Instagram ads plus `README.md` (captions + posting notes) and the editable `preview.template.html` / offline `preview.html`.
 - All copy is grounded in existing store facts: free delivery above 8,000 DZD, cash on delivery, 69 wilayas, AR/FR/EN websites with an owner dashboard, AI logo/content/CV/chatbot. No invented prices or discounts.
 - For paid Meta, lead with the low-text variants (free delivery, order now); the denser service grids are better for organic posts/retargeting.
+
+## Edge protection (2026-11-24)
+- `aos-tech.store` is added to Cloudflare Free (zone ID `91ba91b0697550ca994eaf649d2a5cc7`), SSL mode Full (strict), nameservers at Namecheap switched to `daisy.ns.cloudflare.com` / `kipp.ns.cloudflare.com` (propagation pending at time of writing).
+- If Cloudflare WAF rules cannot be deployed from the dashboard, the authenticated Vercel CLI is a working fallback: `vercel firewall rules add ... --action deny -y` then `vercel firewall publish --confirm-name aos-tech-store --effects-digest <digest>`. Live rule `Block scanner paths` returns 403 for `/wp-login.php`, `/xmlrpc.php`, `/.env`, `/phpmyadmin`, `/.git`.
+- Do not enable Attack Mode or broad bot challenges without the owner's explicit request; they block real customers.
