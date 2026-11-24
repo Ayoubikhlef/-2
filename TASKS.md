@@ -279,3 +279,9 @@ Next session should focus on:
 - SEO route generation (`vite.config.ts`) and product fallback (`api/product-page.ts`) now target `<div id="aos-loader"` instead of the removed `#boot-screen`; verified `/premium-services/` fallback still swaps.
 - Local QA (390x844 + 1280x800, reduced motion off): loader visible, 20% -> 100%, doors open, element removed, no overflow, EN shows LTR + English tagline, AR shows RTL. Reduced motion removes it immediately. Production QA after deploy: same, zero console errors; `/aos-loader.js` and avatar both 200.
 - Commit `6bb29f8`; Vercel production deploy `aos-tech-store-8q50x1fb5-...` aliased to `aos-tech.store`. Removed six old unaliased production deployments, leaving only the two aliased ones.
+
+## Session 2026-11-24 - loader handover on desktop
+- Owner reported the loader looked stuck on desktop: after the counter reached 100% the site still did not appear. The old sequence waited 220 ms + 620 ms before opening, then kept the node for 1900 ms while a 1.3 s door swing and a 1 s background fade ran.
+- Fix: `minMs` 1800 -> 1200; at 100% the loader gets `fade open` after 40 ms and the node is removed at 340 ms. Door/background/content transitions shortened to 260 ms (180 ms content). React is already mounted underneath, so the full site is visible ~0.35 s after 100%.
+- Verified locally and in production (1440x900 desktop, reduced motion off): 100% -> node removed in 312-356 ms, site fully rendered, no overflow. Production served JS confirms `minMs = 1200` and 340 ms removal.
+- Commit `babed00`; Vercel production deploy `aos-tech-store-bjzjb1o09-...` now holds all aliases. Old unaliased deployments removed; two remain.

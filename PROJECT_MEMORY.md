@@ -409,3 +409,7 @@ Typography-only refresh, per the owner's explicit direction: keep the existing l
 - Localization reads `localStorage.language`; the hint/tagline follow ar/fr/en and `dir` flips to LTR for fr/en. `prefers-reduced-motion: reduce` skips the animation entirely.
 - Assets: `/aos-loader.js`, `/aos-loader-avatar.jpg` (extracted from the owner's snippet). Both are in the service-worker precache (v14), and `sw.js` now caches GET navigations only.
 - Build-time SEO fallback rewriting keys on `#aos-loader` now (was `#boot-screen`).
+
+## Loader handover timing (2026-11-24)
+- Counter reaches 100% only after `window.load` and `__AOS_MOUNTED__`; from there the loader is gone in ~340 ms (short door fade), so the mounted site is never hidden behind a long animation on desktop.
+- If a user ever reports it "stuck at 100%" again, check `__AOS_MOUNTED__` (React mount) and `window.load` first — the counter is capped at 92% until both are true by design.
