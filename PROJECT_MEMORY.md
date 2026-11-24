@@ -422,3 +422,8 @@ Typography-only refresh, per the owner's explicit direction: keep the existing l
 ## SEO fallback visibility (2026-11-24)
 - `#seo-fallback` is `display:none` from the head CSS and only revealed by a `<noscript>` override. It stays in the HTML for crawlers/no-JS users but can never flash before React mounts — important because the desktop entrance loader is hidden and no longer covers it.
 - Check a flash with `browse.navigate({ waitUntil: 'commit' })` and inspect `getComputedStyle(document.getElementById('seo-fallback')).display`.
+
+## Sponsor ad assets (2026-11-24)
+- `assets/banners/aos-sponsor/` holds five 1080x1080 Facebook/Instagram ads plus `README.md` (captions + posting notes) and the editable `preview.template.html` / offline `preview.html`.
+- All copy is grounded in existing store facts: free delivery above 8,000 DZD, cash on delivery, 69 wilayas, AR/FR/EN websites with an owner dashboard, AI logo/content/CV/chatbot. No invented prices or discounts.
+- For paid Meta, lead with the low-text variants (free delivery, order now); the denser service grids are better for organic posts/retargeting.

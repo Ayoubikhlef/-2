@@ -297,3 +297,10 @@ Next session should focus on:
 - Fix in `index.html`: `#seo-fallback { display: none; }` in the head stylesheet (so it never paints) plus `<noscript>` style restoring `display:block!important`, keeping the no-JS fallback available for crawlers/visitors without scripts. Source text remains in the HTML.
 - Verified with `waitUntil: 'commit'` on production: fallback computed `display:none` before React mounts on both desktop and phone; after mount the node is gone, the storefront h1 is present, no console errors, no overflow. Build-time SEO route pages carry the same rule.
 - Commit `4e6eecd`, Vercel production deploy `aos-tech-store-ddo0yf8bh-...` (aliases restored automatically). No deployment pruning performed this time.
+
+## Session 2026-11-24 - sponsor ad set for orders
+- Owner asked for a strong, attractive sponsor ad that brings orders. Gathered requirements: Facebook/Instagram 1080x1080, owner portrait + bold type, five variations. Offer combines free delivery over 8,000 DZD with cash on delivery in all 69 wilayas, the website factory, and AI services (logo/content/CV/chatbot).
+- Built `assets/banners/aos-sponsor/preview.template.html` with five 1080x1080 CSS banners using Tajawal, verified brand blue, owner portrait (`public/aos-loader-avatar.jpg`) and `icon-512.png`. `preview.html` embeds both images as data URLs for offline preview.
+- Exported `01-free-delivery`, `02-website-factory`, `03-ai-services`, `04-all-services`, `05-order-now` (all 1080x1080 PNG) and `README.md` with per-banner angle, Arabic post captions, and the note that paid Meta tends to favour the lower-text variants 1 and 5.
+- QA: captured at exactly 1080x1080; fixed an invisible white logo on the light website variant and an overlapping headline on the AI variant, then re-exported. All five checked visually; safe zones and single CTA respected.
+- No app source changed; these are static marketing assets only. Source screenshots were captured via a temporary local static server on port 8899, now stopped.
