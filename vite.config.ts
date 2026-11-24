@@ -196,7 +196,7 @@ function routeSeoPages() {
         page = page.replace(/(<meta name="twitter:title" content=")[^"]*(")/, `$1${title}$2`);
         page = page.replace(/(<meta name="twitter:description" content=")[^"]*(")/, `$1${description}$2`);
         page = page.replace(
-          /(<div id="seo-fallback"[^>]*>)[\s\S]*?(<\/div>\s*<div id="boot-screen")/,
+          /(<div id="seo-fallback"[^>]*>)[\s\S]*?(<\/div>\s*<div id="aos-loader")/,
           `$1${route.fallback}\n      $2`,
         );
 

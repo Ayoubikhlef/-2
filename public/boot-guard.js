@@ -8,7 +8,7 @@
  */
 (function () {
   var RETRY_KEY = 'aos-boot-retry';
-  var boot = document.getElementById('boot-screen');
+  var boot = document.getElementById('aos-loader') || document.getElementById('boot-screen');
   var hint = document.querySelector('[data-boot-hint]');
   var retry = document.querySelector('[data-boot-retry]');
 
@@ -72,7 +72,7 @@
   // instead of leaving the visitor on the fallback page forever.
   window.setTimeout(function () {
     if (window.__AOS_MOUNTED__ === true) return;
-    if (!document.getElementById('boot-screen')) return;
+    if (!document.getElementById('aos-loader') && !document.getElementById('boot-screen')) return;
     if (getFlag()) {
       showRetry('تعذر تحميل الموقع. تحقق من اتصالك ثم أعد المحاولة.');
     }

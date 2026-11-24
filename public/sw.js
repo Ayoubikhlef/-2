@@ -1,10 +1,12 @@
-const CACHE = 'aos-cache-v13';
-const STATIC_CACHE = 'aos-static-v13';
+const CACHE = 'aos-cache-v14';
+const STATIC_CACHE = 'aos-static-v14';
 const OFFLINE_URL = '/offline.html';
 
 const PRECACHE_URLS = [
   OFFLINE_URL,
   '/boot-guard.js',
+  '/aos-loader.js',
+  '/aos-loader-avatar.jpg',
   '/favicon-192.png',
   '/icon-512.png',
   '/manifest.json',
@@ -50,7 +52,9 @@ self.addEventListener('fetch', (e) => {
           // Always ask the network for a fresh document. Cached HTML often
           // points at assets that a new deployment has already removed.
           const networkResponse = await fetch(request, { cache: 'no-store' });
-          if (networkResponse.ok) {
+          // The cache API only accepts GET; form POSTs (password reset, claim
+          // links) must pass through without trying to store the response.
+          if (networkResponse.ok && request.method === 'GET') {
             const cache = await caches.open(CACHE);
             cache.put(request, networkResponse.clone());
           }

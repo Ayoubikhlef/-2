@@ -343,7 +343,7 @@ function renderProductPage(shell: string, product: Product, reviews: Review[] = 
   );
 
   const fallbackStart = html.indexOf('<div id="seo-fallback"');
-  const fallbackEnd = fallbackStart === -1 ? -1 : html.indexOf('<div id="boot-screen"', fallbackStart);
+  const fallbackEnd = fallbackStart === -1 ? -1 : html.indexOf('<div id="aos-loader"', fallbackStart);
   if (fallbackStart !== -1 && fallbackEnd !== -1) {
     html =
       html.slice(0, fallbackStart) +
