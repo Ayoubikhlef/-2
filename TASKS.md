@@ -317,3 +317,10 @@ Next session should focus on:
 - Cloudflare custom rule `Block scanner paths` is now **Active (1/5)**: blocks `/wp-login.php`, `/xmlrpc.php`, `/wp-admin`, `/phpmyadmin`, `/.env`, `/.git`.
 - Nameservers propagated: Cloudflare Domains list shows `aos-tech.store — Active`. `curl -I` returns `Server: cloudflare` and HSTS; scanner paths return 403 through Cloudflare, home 200.
 - Both layers are now live: Cloudflare WAF at the edge + Vercel firewall rule (same paths) as backup.
+
+## Session 2026-11-24 - site unreachable scare + Cloudflare login rate limit
+- After switching Namecheap nameservers, the site briefly returned `ERR_CONNECTION_FAILED`/`curl 000`. Root cause was **stale DNS cache**, not a Cloudflare or Vercel failure: registry RDAP showed the correct Cloudflare nameservers (`daisy`/`kipp`) and `cloudflare-dns.com` resolved the correct A records, while the local resolver and Google DNS still held the old Namecheap verification nameservers with TTL 300. `ipconfig /flushdns` restored HTTPS 200 immediately. On phones, toggling mobile data / waiting for the 300s TTL clears it.
+- Namecheap WHOIS contact verification had completed: domain list shows `aos-tech.store ACTIVE` and the Custom DNS nameservers persisted. No further registrar change was needed.
+- Added and deployed Cloudflare **rate limiting rule** `Limit login page`: `URI Path equals /login`, 100 requests / 10 seconds per IP, action Block for 10 seconds, Active (1/1 rule; free plan). Free plan offered only 10-second periods/durations.
+- Verified after deploy: `/` 200, `/login` 200, `/wp-login.php` 403, `/.env` 403, all `Server: cloudflare`.
+- Earlier dashboard WAF deployment was valid; the failure was clicking "Deploy with API call" instead of the real Deploy button.

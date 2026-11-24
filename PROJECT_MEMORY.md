@@ -436,3 +436,7 @@ Typography-only refresh, per the owner's explicit direction: keep the existing l
 ## Cloudflare edge state (2026-11-24, final)
 - `aos-tech.store` is Active on Cloudflare Free (zone ID `91ba91b0697550ca994eaf649d2a5cc7`), SSL Full (strict), nameservers `daisy`/`kipp` propagated. Custom WAF rule `Block scanner paths` Active; scanner paths 403, home 200. Vercel firewall keeps an equivalent deny rule as a second layer.
 - When deploying a Cloudflare WAF rule via the dashboard, beware two buttons named "Deploy": `nth=0` is "Deploy with API call" (needs a token), `nth=1` is the real UI Deploy, followed by a confirmation dialog Deploy.
+
+## DNS propagation gotcha (2026-11-24)
+- After changing nameservers at the registrar, a site can appear down even when the registry RDAP and Cloudflare DNS already show the correct records: recursive resolvers keep the old NS for the old TTL (here 300 s). Confirm with `https://rdap.org/domain/<domain>` and `https://cloudflare-dns.com/dns-query?name=<domain>&type=A`, then flush local DNS / wait out the TTL. Do not revert the nameservers while this happens.
+- Cloudflare Free rate limit UI only exposes 10-second periods/durations; the live rule blocks `/login` above 100 requests/10s per IP for 10 s.
