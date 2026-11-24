@@ -48,18 +48,18 @@
       html.dark #seo-fallback a { color: #60a5fa; }
 
       /* AOS entry loader: brand-blue doors, owner portrait, progress bar. */
-      #aos-loader { position: fixed; inset: 0; z-index: 99999; overflow: hidden; perspective: 1600px; font-family: 'Tajawal', 'Noto Sans Arabic', system-ui, sans-serif; direction: rtl; color: #fff; text-align: center; background: #061a3d; transition: background 1s ease; }
+      #aos-loader { position: fixed; inset: 0; z-index: 99999; overflow: hidden; perspective: 1600px; font-family: 'Tajawal', 'Noto Sans Arabic', system-ui, sans-serif; direction: rtl; color: #fff; text-align: center; background: #061a3d; transition: background .26s ease, opacity .26s ease; }
       #aos-loader[dir='ltr'] { direction: ltr; }
-      #aos-loader.open { pointer-events: none; background: rgba(6,26,61,0); }
-      #aos-loader .door { position: absolute; top: 0; bottom: 0; width: 50%; background: radial-gradient(ellipse at 50% 40%, #0b5ed7 0%, #0a3d91 45%, #061a3d 100%); background-size: 200% 100%; transition: transform 1.3s cubic-bezier(.75,0,.2,1); will-change: transform; backface-visibility: hidden; }
+      #aos-loader.open { pointer-events: none; background: rgba(6,26,61,0); opacity: 0; }
+      #aos-loader .door { position: absolute; top: 0; bottom: 0; width: 50%; background: radial-gradient(ellipse at 50% 40%, #0b5ed7 0%, #0a3d91 45%, #061a3d 100%); background-size: 200% 100%; transition: transform .26s ease-in; will-change: transform; backface-visibility: hidden; }
       #aos-loader .door.l { left: 0; background-position: 0 0; transform-origin: left center; box-shadow: inset -1px 0 0 rgba(160,200,255,.45); }
       #aos-loader .door.r { right: 0; background-position: 100% 0; transform-origin: right center; box-shadow: inset 1px 0 0 rgba(160,200,255,.45); }
       #aos-loader.open .door.l { transform: rotateY(-108deg); }
       #aos-loader.open .door.r { transform: rotateY(108deg); }
-      #aos-loader .door::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg,rgba(0,0,0,0),rgba(0,0,0,.55)); opacity: 0; transition: opacity 1.3s; }
+      #aos-loader .door::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg,rgba(0,0,0,0),rgba(0,0,0,.55)); opacity: 0; transition: opacity .26s ease; }
       #aos-loader .door.r::after { background: linear-gradient(270deg,rgba(0,0,0,0),rgba(0,0,0,.55)); }
       #aos-loader.open .door::after { opacity: 1; }
-      #aos-loader .content { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 16px; transition: opacity .45s ease; }
+      #aos-loader .content { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0 16px; transition: opacity .18s ease; }
       #aos-loader.fade .content { opacity: 0; }
       #aos-loader .floor { position: absolute; left: -50%; width: 200%; bottom: -10%; height: 55%; background-image: linear-gradient(rgba(140,180,255,.2) 1px,transparent 1px),linear-gradient(90deg,rgba(140,180,255,.2) 1px,transparent 1px); background-size: 70px 70px; transform: perspective(500px) rotateX(62deg); -webkit-mask-image: linear-gradient(to top,#000 20%,transparent 90%); mask-image: linear-gradient(to top,#000 20%,transparent 90%); }
       #aos-loader .scene { position: relative; width: 380px; max-width: 100%; height: 230px; display: flex; align-items: center; justify-content: center; }
