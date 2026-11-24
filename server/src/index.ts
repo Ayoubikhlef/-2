@@ -168,7 +168,12 @@ const visitLimiter = limiter({ windowMs: 60 * 1000, max: 30, handler: securityRa
 app.use('/api/auth', authLimiter);
 app.use('/api/auth/admin-gate', adminGateLimiter);
 app.use('/api/auth/forgot-password', passwordResetLimiter);
-app.use('/api/auth/reset-password', passwordResetLimiter);
+// Opening the reset page is a harmless page load (mail scanners also prefetch
+// it). Only the state-changing POST should spend the 10-request budget.
+app.use('/api/auth/reset-password', (req, res, next) => {
+  if (req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') return next();
+  return passwordResetLimiter(req, res, next);
+});
 app.use('/api/auth/register', registerLimiter);
 app.use('/api/auth/resend-verification', passwordResetLimiter);
 app.use('/api/newsletter', generalLimiter);
