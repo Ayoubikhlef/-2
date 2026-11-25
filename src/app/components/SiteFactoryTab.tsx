@@ -37,6 +37,7 @@ import { toast } from 'sonner';
 import { useLanguage } from '../contexts/LanguageContext';
 import { api, getAccessToken } from '../utils/api';
 import { formatDate, money, type Lang, type Localized } from './site-factory/factoryUtils';
+import { DashboardLinkCard } from './site-factory/FactoryPanels';
 
 type FactoryView = 'requests' | 'sites' | 'templates' | 'packages' | 'settings';
 
@@ -1487,6 +1488,8 @@ export function SiteFactoryTab() {
                     )}
                   </div>
                 </div>
+
+                <DashboardLinkCard link={detail.adminLink} />
 
                 {/* Receipt */}
                 <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">

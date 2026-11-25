@@ -742,6 +742,7 @@ export const api = {
         previewUrl: string;
         ref: string;
         subdomain: string;
+        adminLink?: string;
         status: string;
         price: number;
       }>('/site-factory/public/requests', { method: 'POST', body: JSON.stringify(data) }, true, 90000),
@@ -749,6 +750,14 @@ export const api = {
       request<any>(
         `/site-factory/public/requests/${encodeURIComponent(ref)}?contact=${encodeURIComponent(contact)}`,
         {},
+        true,
+        60000,
+      ),
+    /** Get a fresh dashboard claim link if the customer lost the first one. */
+    regenerateAdminLink: (ref: string, contact: string) =>
+      request<{ adminLink: string }>(
+        `/site-factory/public/requests/${encodeURIComponent(ref)}/admin-link`,
+        { method: 'POST', body: JSON.stringify({ contact }) },
         true,
         60000,
       ),

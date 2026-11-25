@@ -61,6 +61,8 @@ export interface FactoryResult {
   previewUrl: string;
   ref: string;
   subdomain: string;
+  /** One-use owner dashboard claim link issued with the site. */
+  adminLink?: string;
   status: string;
   price: number;
 }

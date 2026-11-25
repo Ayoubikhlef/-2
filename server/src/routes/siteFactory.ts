@@ -195,6 +195,14 @@ siteFactoryRouter.get('/public/requests/:ref', publicLimiter, async (req, res) =
   res.json(request);
 });
 
+siteFactoryRouter.post('/public/requests/:ref/admin-link', writeLimiter, async (req, res) => {
+  const { contact } = parseBody(
+    z.object({ contact: z.string().trim().min(3, 'أدخل رقم الهاتف أو البريد.').max(200) }),
+    req.body,
+  );
+  res.json(await factory.regenerateTrackedDashboardLink(String(req.params.ref), contact));
+});
+
 siteFactoryRouter.post('/public/requests/:ref/receipt', uploadLimiter, async (req, res) => {
   const input = parseBody(receiptSchema, req.body);
   const result = await factory.uploadReceipt(String(req.params.ref), input.contact, input.receipt, input.name);

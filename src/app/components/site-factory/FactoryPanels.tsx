@@ -5,10 +5,12 @@ import {
   ArrowRight,
   CheckCircle2,
   Clock,
+  Copy,
   ExternalLink,
   Eye,
   FileText,
   Globe,
+  LayoutDashboard,
   Loader2,
   MessageCircle,
   RefreshCw,
@@ -140,6 +142,96 @@ const STATUS_HINT: Record<string, Localized> = {
   },
 };
 
+export function DashboardLinkCard({
+  link,
+  busy,
+  onRegenerate,
+}: {
+  link?: string | null;
+  busy?: boolean;
+  onRegenerate?: () => void;
+}) {
+  const { t } = useLanguage();
+  const [copied, setCopied] = useState(false);
+
+  async function copy() {
+    if (!link) return;
+    try {
+      await navigator.clipboard.writeText(link);
+    } catch {
+      const input = document.createElement('textarea');
+      input.value = link;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand('copy');
+      input.remove();
+    }
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 2000);
+  }
+
+  return (
+    <div className="rounded-2xl border border-emerald-500/25 bg-emerald-500/[0.06] p-4">
+      <h4 className="flex items-center gap-2 text-sm font-black text-emerald-700 dark:text-emerald-300">
+        <LayoutDashboard className="h-4 w-4" />
+        {t({ ar: 'لوحة تحكم موقعك', fr: 'Votre tableau de bord', en: 'Your website dashboard' })}
+      </h4>
+      {link ? (
+        <>
+          <p className="mt-2 break-all font-mono text-[11px] text-foreground/75" dir="ltr">
+            {link}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={copy}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs font-bold hover:bg-muted"
+            >
+              <Copy className="h-3.5 w-3.5" />
+              {copied
+                ? t({ ar: 'تم النسخ', fr: 'Copié', en: 'Copied' })
+                : t({ ar: 'نسخ الرابط', fr: 'Copier le lien', en: 'Copy link' })}
+            </button>
+            <a
+              href={link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-700"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+              {t({ ar: 'فتح لوحة التحكم', fr: 'Ouvrir le tableau de bord', en: 'Open dashboard' })}
+            </a>
+          </div>
+          <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
+            {t({
+              ar: 'هذا الرابط خاص بك ويعمل مرة واحدة. احتفظ به، ولو فقدته اطلب رابطاً جديداً من صفحة تتبع الطلب.',
+              fr: 'Ce lien vous appartient et ne sert qu’une fois. Conservez-le ; en cas de perte, demandez-en un nouveau depuis le suivi.',
+              en: 'This link is private and works once. Keep it; if you lose it, request a new one from the tracking page.',
+            })}
+          </p>
+        </>
+      ) : (
+        <div className="mt-2 flex flex-wrap items-center gap-3">
+          <p className="text-xs text-muted-foreground">
+            {t({ ar: 'لم يُنشأ رابط بعد.', fr: 'Aucun lien créé pour le moment.', en: 'No link has been created yet.' })}
+          </p>
+          {onRegenerate && (
+            <button
+              type="button"
+              onClick={onRegenerate}
+              disabled={busy}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-bold text-white disabled:opacity-60"
+            >
+              {busy && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+              {t({ ar: 'إنشاء رابط الدخول', fr: 'Créer le lien', en: 'Create access link' })}
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function SuccessPanel({
   result,
   draft,
@@ -158,12 +250,15 @@ export function SuccessPanel({
   const deposit = Math.round((Number(result.price) || 0) * (settings.depositPercent / 100));
   const previewUrl = resolveApiUrl(result.previewUrl);
   const template = config.templates.find((item) => item.slug === draft.templateSlug);
+  const dashboardLine = result.adminLink
+    ? `\n${t({ ar: 'لوحة التحكم: ', fr: 'Tableau de bord : ', en: 'Dashboard: ' })}${result.adminLink}`
+    : '';
   const whatsapp = waLink(
     settings,
     t({
-      ar: `مرحباً، أرسلت طلب موقع جديد.\nالمرجع: ${result.ref}\nالاسم: ${draft.siteName}\nالنطاق: ${result.subdomain}.pages.dev`,
-      fr: `Bonjour, j’ai envoyé une demande de site.\nRéférence : ${result.ref}\nNom : ${draft.siteName}\nDomaine : ${result.subdomain}.pages.dev`,
-      en: `Hello, I submitted a website request.\nReference: ${result.ref}\nName: ${draft.siteName}\nDomain: ${result.subdomain}.pages.dev`,
+      ar: `مرحباً، أرسلت طلب موقع جديد.\nالمرجع: ${result.ref}\nالاسم: ${draft.siteName}\nالنطاق: ${result.subdomain}.pages.dev${dashboardLine}`,
+      fr: `Bonjour, j’ai envoyé une demande de site.\nRéférence : ${result.ref}\nNom : ${draft.siteName}\nDomaine : ${result.subdomain}.pages.dev${dashboardLine}`,
+      en: `Hello, I submitted a website request.\nReference: ${result.ref}\nName: ${draft.siteName}\nDomain: ${result.subdomain}.pages.dev${dashboardLine}`,
     }),
   );
 
@@ -224,6 +319,8 @@ export function SuccessPanel({
               })}
             </p>
           </div>
+
+          <DashboardLinkCard link={result.adminLink} />
 
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="rounded-xl bg-muted/50 p-3">
@@ -324,6 +421,8 @@ export function TrackingPanel({
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [adminLink, setAdminLink] = useState<string | null>(null);
+  const [regenerating, setRegenerating] = useState(false);
 
   const lookup = useCallback(
     async (refValue: string, contactValue: string) => {
@@ -344,8 +443,10 @@ export function TrackingPanel({
       try {
         const response = await api.siteFactory.track(ref, contact);
         setData(response);
+        setAdminLink(response?.adminLink || null);
       } catch (err: any) {
         setData(null);
+        setAdminLink(null);
         setError(err?.message || t({ ar: 'تعذر جلب الطلب.', fr: 'Impossible de charger la demande.', en: 'Could not load the request.' }));
       } finally {
         setLoading(false);
@@ -353,6 +454,22 @@ export function TrackingPanel({
     },
     [t],
   );
+
+  async function regenerateDashboardLink() {
+    const ref = refInput.trim().toUpperCase();
+    const contact = contactInput.trim();
+    if (!ref || !contact) return;
+    setRegenerating(true);
+    setError('');
+    try {
+      const result = await api.siteFactory.regenerateAdminLink(ref, contact);
+      setAdminLink(result.adminLink);
+    } catch (err: any) {
+      setError(err?.message || t({ ar: 'تعذر إنشاء رابط الدخول.', fr: 'Lien impossible à créer.', en: 'Could not create the access link.' }));
+    } finally {
+      setRegenerating(false);
+    }
+  }
 
   useEffect(() => {
     if (initialRef && initialContact) {
@@ -504,6 +621,12 @@ export function TrackingPanel({
                 </button>
               </div>
             </div>
+
+            <DashboardLinkCard
+              link={adminLink}
+              busy={regenerating}
+              onRegenerate={regenerateDashboardLink}
+            />
 
             {STATUS_HINT[data.status] && (
               <div className="flex items-start gap-2 rounded-xl bg-primary/5 px-4 py-3 text-sm leading-relaxed text-foreground">

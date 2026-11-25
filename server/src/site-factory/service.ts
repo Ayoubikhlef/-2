@@ -9,6 +9,7 @@ import {
   type Lang,
 } from './defaults';
 import { checkSubdomain, normalizeSubdomain } from './subdomain';
+import { decryptDashboardToken, encryptDashboardToken } from './adminAccess';
 import { renderSite } from './render';
 import type { RenderedFile, RenderConfig, RenderProduct, RenderService } from './render/types';
 import { deleteCloudflareProject, deployToCloudflare, isCloudflareConfigured } from './cloudflare';
@@ -380,18 +381,55 @@ function siteAdminLink(token: string): string {
  * older link is revoked immediately.
  */
 export async function rotateSiteAdminLink(siteId: string): Promise<string> {
-  const site = await prisma.site.findUnique({ where: { id: siteId }, select: { id: true } });
+  const site = await prisma.site.findUnique({
+    where: { id: siteId },
+    select: { id: true, config: true },
+  });
   if (!site) throw new NotFound('الموقع غير موجود.');
   const token = newSiteAdminToken();
+  const config = objectOrNull(site.config) || {};
   await prisma.site.update({
     where: { id: siteId },
     data: {
       adminTokenHash: hashSiteAdminToken(token),
       adminLinkAt: new Date(),
       adminSessionVersion: { increment: 1 },
+      config: {
+        ...config,
+        dashboardAccess: encryptDashboardToken(token),
+      } as any,
     },
   });
   return siteAdminLink(token);
+}
+
+/**
+ * Return the current owner link when it is still decryptable and matches the
+ * stored hash; otherwise issue a fresh one. Used when a site is generated and
+ * when the customer/owner opens the order details, so the link can be shown
+ * again without ever rotating it on a simple page refresh.
+ */
+export async function ensureSiteDashboardLink(siteId: string): Promise<string> {
+  const site = await prisma.site.findUnique({
+    where: { id: siteId },
+    select: { id: true, config: true, adminTokenHash: true },
+  });
+  if (!site) throw new NotFound('الموقع غير موجود.');
+  const stored = decryptDashboardToken(objectOrNull(site.config)?.dashboardAccess);
+  if (stored && site.adminTokenHash === hashSiteAdminToken(stored)) {
+    return siteAdminLink(stored);
+  }
+  return rotateSiteAdminLink(siteId);
+}
+
+/** Read-only view used in authenticated owner and verified-customer responses. */
+export async function getSiteDashboardLink(site: {
+  config: unknown;
+  adminTokenHash: string | null;
+}): Promise<string | null> {
+  const stored = decryptDashboardToken(objectOrNull(site.config)?.dashboardAccess);
+  if (!stored || !site.adminTokenHash) return null;
+  return site.adminTokenHash === hashSiteAdminToken(stored) ? siteAdminLink(stored) : null;
 }
 
 /** Exchange a link token for a session, invalidating that link in the same write. */
@@ -399,17 +437,21 @@ export async function consumeSiteAdminToken(token: string): Promise<{ siteId: st
   if (!/^[A-Za-z0-9_-]{40,80}$/.test(token)) return null;
   const site = await prisma.site.findFirst({
     where: { adminTokenHash: hashSiteAdminToken(token) },
-    select: { id: true, adminSessionVersion: true },
+    select: { id: true, adminSessionVersion: true, config: true },
   });
   if (!site) return null;
   const version = site.adminSessionVersion + 1;
-  const next = newSiteAdminToken();
+  // The link is consumed: keep the random hash as a one-way marker, but drop
+  // the reversible copy so an old order detail can no longer reveal it.
+  const config = { ...(objectOrNull(site.config) || {}) };
+  delete config.dashboardAccess;
   await prisma.site.update({
     where: { id: site.id },
     data: {
-      adminTokenHash: hashSiteAdminToken(next),
+      adminTokenHash: hashSiteAdminToken(newSiteAdminToken()),
       adminLinkAt: new Date(),
       adminSessionVersion: version,
+      config: config as any,
     },
   });
   return { siteId: site.id, version };
@@ -503,6 +545,14 @@ export async function createSiteRequest(input: CreateSiteInput) {
     },
   });
 
+  // Every generated site gets its own owner dashboard at creation time. The
+  // one-use claim link is returned to the customer with the order and is also
+  // kept (encrypted) for the order-detail views.
+  const adminLink = await ensureSiteDashboardLink(site.id).catch((err) => {
+    console.error('[SiteFactory] Owner dashboard link failed:', err);
+    return '';
+  });
+
   if (products.length) {
     await prisma.siteProduct.createMany({
       data: products.map((product, index) => ({
@@ -536,6 +586,7 @@ export async function createSiteRequest(input: CreateSiteInput) {
     previewUrl,
     ref: request.ref,
     subdomain,
+    adminLink,
     status: request.status,
     price: request.price,
     packageSlug: request.packageSlug,
@@ -968,7 +1019,7 @@ export async function getTrackedRequest(ref: string, contact: string) {
   const request = await prisma.siteRequest.findUnique({
     where: { ref: String(ref || '').toUpperCase() },
     include: {
-      site: { select: { id: true, status: true, url: true, subdomain: true } },
+      site: { select: { id: true, status: true, url: true, subdomain: true, config: true, adminTokenHash: true } },
       events: { orderBy: { createdAt: 'asc' } },
     },
   });
@@ -998,9 +1049,32 @@ export async function getTrackedRequest(ref: string, contact: string) {
       message: event.message,
       createdAt: event.createdAt,
     })),
-    site: request.site,
+    site: request.site
+      ? {
+          id: request.site.id,
+          status: request.site.status,
+          url: request.site.url,
+          subdomain: request.site.subdomain,
+        }
+      : null,
+    adminLink: request.site ? await getSiteDashboardLink(request.site) : null,
     payment: publicSettings(settings),
   };
+}
+
+/** Customer-initiated replacement for a lost dashboard claim link. */
+export async function regenerateTrackedDashboardLink(ref: string, contact: string) {
+  const request = await prisma.siteRequest.findUnique({
+    where: { ref: String(ref || '').toUpperCase() },
+    include: { site: { select: { id: true } } },
+  });
+  if (!request) throw new NotFound('لم نجد طلباً بهذا الرقم.');
+  if (!contactMatches(request, contact)) {
+    throw new AppError(403, 'رقم الهاتف أو البريد لا يطابق صاحب الطلب.');
+  }
+  if (!request.site) throw new BadRequest('لم يتم توليد موقع لهذا الطلب بعد.');
+  // Regeneration is intentional: rotating invalidates any older link.
+  return { adminLink: await rotateSiteAdminLink(request.site.id) };
 }
 
 export async function uploadReceipt(ref: string, contact: string, receiptUrl: string, name?: string | null) {
@@ -1101,7 +1175,10 @@ export async function getRequestDetail(id: string) {
     },
   });
   if (!request) throw new NotFound('الطلب غير موجود.');
-  return request;
+  return {
+    ...request,
+    adminLink: request.site ? await getSiteDashboardLink(request.site) : null,
+  };
 }
 
 export async function getFactoryStats() {
