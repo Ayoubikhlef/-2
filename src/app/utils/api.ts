@@ -321,7 +321,8 @@ export type AiTool =
   | 'order-confirmation'
   | 'ad-image-review'
   | 'page-review'
-  | 'campaign-doctor';
+  | 'campaign-doctor'
+  | 'site-copy';
 
 /** The three tools embedded in the AI Studio section. */
 export type AiStudioTool = Extract<AiTool, 'cv' | 'post' | 'product'>;
@@ -336,6 +337,22 @@ export type AiStudioResult = {
   /** Server-side free previews left while the account has no subscription. */
   previewRemaining?: number | null;
   subscribed?: boolean;
+};
+
+/** Structured copy returned by the website-factory auto-fill tool. */
+export type SiteCopyService = { title: string; description: string };
+export type SiteCopyProduct = { name: string; description: string; category: string };
+export type SiteCopyData = {
+  tagline: string;
+  description: string;
+  services: SiteCopyService[];
+  products: SiteCopyProduct[];
+};
+
+export type SiteCopyResult = {
+  data: SiteCopyData;
+  mock?: boolean;
+  previewRemaining?: number | null;
 };
 
 /* ------------------------------------------------------------------ */
@@ -433,7 +450,7 @@ export const api = {
         method: 'POST',
         body: JSON.stringify({ email }),
       }),
-    login: (data: { email: string; password: string; twoFactorCode?: string }) =>
+    login: (data: { email: string; password: string; twoFactorCode?: string; captchaToken?: string }) =>
       request<LoginResponse>('/auth/login', {
         method: 'POST',
         body: JSON.stringify(data),
@@ -490,6 +507,38 @@ export const api = {
         { method: 'POST', body: JSON.stringify(data) },
         true,
         // Provider calls can take a few seconds; the server gives up at 25s.
+        60000,
+      ),
+    /**
+     * Website-factory auto-fill. Uses the same generator endpoint but its own
+     * daily allowance, because it is part of the website order rather than a
+     * standalone AI Studio preview.
+     */
+    siteCopy: (data: {
+      language: AiStudioLanguage;
+      siteName: string;
+      activity: string;
+      category?: string;
+      template?: string;
+      needs?: 'copy' | 'services' | 'products' | 'both';
+    }) =>
+      request<SiteCopyResult>(
+        '/ai/generate',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            tool: 'site-copy',
+            language: data.language,
+            fields: {
+              siteName: data.siteName,
+              activity: data.activity,
+              category: data.category || '',
+              template: data.template || '',
+              needs: data.needs || 'copy',
+            },
+          }),
+        },
+        true,
         60000,
       ),
   },

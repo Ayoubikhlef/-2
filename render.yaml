@@ -31,6 +31,10 @@ services:
       # verified in Resend, otherwise registration fails with a send error.
       - key: MAIL_FROM
         sync: false
+      # Cloudflare Turnstile secret for the customer login page. The matching
+      # public site key is a Vercel build variable (VITE_TURNSTILE_SITE_KEY).
+      - key: TURNSTILE_SECRET_KEY
+        sync: false
       - key: NODE_ENV
         value: production
       - key: SEED_ADMIN_PASSWORD

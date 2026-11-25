@@ -36,7 +36,7 @@ export interface TwoFactorSetupData {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (email: string, password: string, twoFactorCode?: string) => Promise<LoginResult>;
+  login: (email: string, password: string, twoFactorCode?: string, captchaToken?: string) => Promise<LoginResult>;
   startTwoFactorSetup: (challengeToken: string) => Promise<TwoFactorSetupData>;
   confirmTwoFactorSetup: (
     challengeToken: string,
@@ -85,9 +85,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(
-    async (email: string, password: string, twoFactorCode?: string): Promise<LoginResult> => {
+    async (email: string, password: string, twoFactorCode?: string, captchaToken?: string): Promise<LoginResult> => {
       // The response is a discriminated step result rather than an error.
-      const data: any = await api.auth.login({ email, password, twoFactorCode });
+      const data: any = await api.auth.login({ email, password, twoFactorCode, captchaToken });
 
       if (data?.accessToken) {
         setAccessToken(data.accessToken);

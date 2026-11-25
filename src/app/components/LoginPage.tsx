@@ -21,6 +21,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { TURNSTILE_ENABLED, TurnstileWidget } from './TurnstileWidget';
 
 type Mode =
   | 'login'
@@ -225,6 +226,8 @@ export function LoginPage({ onClose, onAuthenticated }: { onClose: () => void; o
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [oauthProviders, setOauthProviders] = useState({ google: false, github: false });
   const [oauthProvider, setOauthProvider] = useState<'google' | 'github' | null>(null);
+  const [captchaToken, setCaptchaToken] = useState('');
+  const [captchaReset, setCaptchaReset] = useState(0);
 
   // Password-reset links may still arrive as ?token=... on the storefront;
   // the "invalid link" page links back with ?forgot=1 to open recovery.
@@ -355,12 +358,23 @@ export function LoginPage({ onClose, onAuthenticated }: { onClose: () => void; o
     event.preventDefault();
     setError('');
     setUnverifiedEmail('');
+    if (TURNSTILE_ENABLED && !captchaToken) {
+      setError(
+        t({
+          ar: 'أكمل التحقق الأمني أولاً ثم أعد المحاولة.',
+          fr: 'Complétez la vérification de sécurité puis réessayez.',
+          en: 'Complete the security check first, then try again.',
+        })
+      );
+      return;
+    }
     setLoading(true);
     try {
       const result = await login(
         form.email.trim(),
         form.password,
-        mode === 'twofactor' ? twoFactorCode.trim() : undefined
+        mode === 'twofactor' ? twoFactorCode.trim() : undefined,
+        captchaToken || undefined
       );
 
       if (result.setupRequired) {
@@ -406,9 +420,35 @@ export function LoginPage({ onClose, onAuthenticated }: { onClose: () => void; o
         );
         return;
       }
+      if (err?.code === 'CAPTCHA_FAILED') {
+        setError(
+          t({
+            ar: 'تعذّر التحقق الأمني. أكمل التحقق من جديد ثم أعد المحاولة.',
+            fr: 'La vérification de sécurité a échoué. Recommencez-la puis réessayez.',
+            en: 'The security check failed. Complete it again and retry.',
+          })
+        );
+        return;
+      }
+      if (err?.code === 'CAPTCHA_UNAVAILABLE') {
+        setError(
+          t({
+            ar: 'خدمة التحقق الأمني غير متاحة الآن. حاول بعد لحظات.',
+            fr: 'La vérification de sécurité est indisponible. Réessayez dans un instant.',
+            en: 'The security check is temporarily unavailable. Try again in a moment.',
+          })
+        );
+        return;
+      }
       setError(err.message || t({ ar: 'بريد إلكتروني أو كلمة مرور خاطئة', fr: 'Identifiants incorrects', en: 'Invalid email or password' }));
     } finally {
       setLoading(false);
+      // Turnstile tokens are single-use: always start a fresh challenge after
+      // an attempt, including a successful one that led to the 2FA step.
+      if (TURNSTILE_ENABLED && captchaToken) {
+        setCaptchaToken('');
+        setCaptchaReset((value) => value + 1);
+      }
     }
   };
 
@@ -869,6 +909,13 @@ export function LoginPage({ onClose, onAuthenticated }: { onClose: () => void; o
 
               {errorBlock}
 
+              <TurnstileWidget
+                language={language}
+                onToken={setCaptchaToken}
+                resetKey={captchaReset}
+                className="pt-1"
+              />
+
               <button type="submit" disabled={loading} className={primaryClass}>
                 {loading ? (
                   <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
@@ -909,6 +956,13 @@ export function LoginPage({ onClose, onAuthenticated }: { onClose: () => void; o
               />
 
               {errorBlock}
+
+              <TurnstileWidget
+                language={language}
+                onToken={setCaptchaToken}
+                resetKey={captchaReset}
+                className="pt-1"
+              />
 
               <button type="submit" disabled={loading} className={primaryClass}>
                 {loading && <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />}

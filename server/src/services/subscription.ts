@@ -253,6 +253,39 @@ export async function resolveAiAccess(input: {
   return { allowed: false, subscribed: false, previewRemaining: 0, status: 403, code: 'ai_login_required' };
 }
 
+/**
+ * The website factory's auto-fill is part of the paid website service, not a
+ * standalone AI Studio preview. It therefore has its own small daily budget
+ * instead of consuming the customer's single free Studio answer. The cap also
+ * protects the provider bill from a scripted visitor.
+ */
+export const SITE_COPY_DAILY_LIMIT = 5;
+const SITE_COPY_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+export async function resolveSiteCopyAccess(input: {
+  userId?: string;
+  ip: string;
+  guestId?: string;
+}): Promise<AiAccess> {
+  const since = new Date(Date.now() - SITE_COPY_WINDOW_MS);
+  const used = input.userId
+    ? await prisma.aiUsage.count({
+        where: { userId: input.userId, tool: 'site-copy', createdAt: { gte: since } },
+      })
+    : await prisma.aiUsage.count({
+        where: {
+          ipHash: hashIp(input.guestId ? `guest:${input.guestId}` : `ip:${input.ip}`),
+          tool: 'site-copy',
+          createdAt: { gte: since },
+        },
+      });
+  const remaining = Math.max(0, SITE_COPY_DAILY_LIMIT - used);
+  if (remaining > 0) {
+    return { allowed: true, subscribed: false, previewRemaining: remaining };
+  }
+  return { allowed: false, subscribed: false, previewRemaining: 0, status: 429, code: 'ai_daily_limit' };
+}
+
 export async function recordAiUsage(input: {
   userId?: string;
   ip: string;

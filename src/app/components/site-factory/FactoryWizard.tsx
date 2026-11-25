@@ -43,6 +43,7 @@ import {
   packageDescription,
   packageFeatures,
   packageName,
+  templateDescription,
   templateName,
   usesProducts,
   usesServices,
@@ -113,6 +114,9 @@ export function FactoryWizard({
   const [submitting, setSubmitting] = useState(false);
   const [accepted, setAccepted] = useState(false);
   const [honeypot, setHoneypot] = useState('');
+  const [aiBrief, setAiBrief] = useState('');
+  const [aiState, setAiState] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
+  const [aiMessage, setAiMessage] = useState('');
   const checkSeq = useRef(0);
 
   const selectedTemplate = useMemo(
@@ -161,6 +165,156 @@ export function FactoryWizard({
       return next;
     });
     setFormError('');
+  }
+
+  /**
+   * Fill the customer-facing copy from the site name, the chosen category and
+   * one short description of the activity. Prices and photos stay manual: the
+   * model is never allowed to invent them.
+   */
+  async function generateAiCopy() {
+    if (aiState === 'loading') return;
+    setAiMessage('');
+
+    const siteName = draft.siteName.trim();
+    const activity = aiBrief.trim();
+    if (siteName.length < 2) {
+      setErrors((previous) => ({
+        ...previous,
+        siteName: t({ ar: 'اسم الموقع مطلوب (حرفان على الأقل).', fr: 'Le nom du site est requis.', en: 'Site name is required.' }),
+      }));
+      setAiState('error');
+      setAiMessage(t({ ar: 'اكتب اسم الموقع أولاً ثم أعد المحاولة.', fr: 'Saisissez d’abord le nom du site.', en: 'Enter the site name first, then try again.' }));
+      document.getElementById('factory-site-name')?.focus();
+      return;
+    }
+    if (activity.length < 4) {
+      setAiState('error');
+      setAiMessage(
+        t({
+          ar: 'اكتب جملة قصيرة عن نشاطك (4 أحرف على الأقل) ليعرف الذكاء الاصطناعي ماذا يكتب.',
+          fr: 'Décrivez votre activité en une courte phrase (4 caractères minimum).',
+          en: 'Describe your activity in a short sentence (at least 4 characters).',
+        })
+      );
+      document.getElementById('factory-ai-brief')?.focus();
+      return;
+    }
+
+    setAiState('loading');
+    try {
+      const needs =
+        isServiceTemplate && isProductTemplate
+          ? 'both'
+          : isServiceTemplate
+            ? 'services'
+            : isProductTemplate
+              ? 'products'
+              : 'copy';
+      const response = await api.ai.siteCopy({
+        language: draft.language,
+        siteName,
+        activity,
+        category: categoryLabel(draft.categoryKey, language),
+        template: selectedTemplate
+          ? [templateName(selectedTemplate, language), templateDescription(selectedTemplate, language)]
+              .filter(Boolean)
+              .join(' — ')
+          : '',
+        needs,
+      });
+      const copy = response?.data;
+      if (!copy || (!copy.tagline && !copy.description)) throw new Error('EMPTY_COPY');
+
+      setDraft((previous) => {
+        const next: Draft = {
+          ...previous,
+          tagline: copy.tagline || previous.tagline,
+          description: copy.description || previous.description,
+        };
+        if (isServiceTemplate && Array.isArray(copy.services) && copy.services.length) {
+          next.services = copy.services
+            .slice(0, MAX_SERVICES)
+            .map((row) => ({
+              title: String(row.title || '').slice(0, 120),
+              description: String(row.description || '').slice(0, 400),
+            }))
+            .filter((row) => row.title.trim());
+        }
+        if (isProductTemplate && Array.isArray(copy.products) && copy.products.length) {
+          const existing = new Map(previous.products.map((row) => [row.name.trim().toLowerCase(), row]));
+          next.products = copy.products
+            .slice(0, MAX_PRODUCTS)
+            .map((row) => {
+              const name = String(row.name || '').slice(0, 120);
+              const match = existing.get(name.trim().toLowerCase());
+              return {
+                name,
+                description: String(row.description || '').slice(0, 500),
+                category: String(row.category || '').slice(0, 60),
+                // Price and photo are owner decisions, never generated.
+                price: match?.price || '',
+                imageUrl: match?.imageUrl || '',
+              };
+            })
+            .filter((row) => row.name.trim());
+        }
+        return next;
+      });
+      setErrors((previous) => {
+        const next = { ...previous };
+        for (const key of ['siteName', 'tagline', 'description', 'services', 'products']) delete next[key];
+        return next;
+      });
+      setAiState('done');
+      setAiMessage(
+        response.mock
+          ? t({
+              ar: 'تم توليد نموذج تجريبي. راجع النصوص وأكمل الأسعار قبل المتابعة.',
+              fr: 'Exemple de démonstration généré. Relisez les textes et complétez les prix.',
+              en: 'A demo sample was generated. Review the text and complete the prices.',
+            })
+          : t({
+              ar: 'تم توليد المحتوى. راجع العبارة والوصف، وأكمل أسعار المنتجات قبل المتابعة.',
+              fr: 'Contenu généré. Relisez le slogan et la description, puis complétez les prix.',
+              en: 'Content generated. Review the tagline and description, then complete the prices.',
+            })
+      );
+    } catch (err: any) {
+      setAiState('error');
+      const code = err?.code;
+      const message =
+        code === 'ai_daily_limit'
+          ? t({
+              ar: 'وصلت إلى الحد اليومي للتوليد. يمكنك إكمال المعلومات يدوياً أو المحاولة غداً.',
+              fr: 'Limite quotidienne atteinte. Complétez les informations manuellement ou réessayez demain.',
+              en: 'Daily generation limit reached. Fill the details manually or try again tomorrow.',
+            })
+          : code === 'ai_invalid_output'
+            ? t({
+                ar: 'تعذّر تجهيز المحتوى هذه المرة. حاول مرة أخرى بعد لحظات.',
+                fr: 'Le contenu n’a pas pu être préparé. Réessayez dans un instant.',
+                en: 'The content could not be prepared. Please try again in a moment.',
+              })
+            : code === 'ai_timeout'
+              ? t({
+                  ar: 'استغرق التوليد وقتاً طويلاً. حاول مرة أخرى، أو أكمل الحقول يدوياً.',
+                  fr: 'La génération a pris trop de temps. Réessayez ou remplissez les champs manuellement.',
+                  en: 'Generation took too long. Try again or fill the fields manually.',
+                })
+              : code === 'ai_missing_fields'
+                ? t({
+                    ar: 'أكمل اسم الموقع ووصف النشاط أولاً.',
+                    fr: 'Complétez le nom du site et la description de l’activité.',
+                    en: 'Complete the site name and the activity description first.',
+                  })
+                : t({
+                    ar: 'خدمة التوليد غير متاحة الآن. يمكنك إكمال المعلومات يدوياً والمحاولة لاحقاً.',
+                    fr: 'La génération est indisponible pour le moment. Remplissez les champs manuellement.',
+                    en: 'Generation is unavailable right now. You can fill the details manually.',
+                  });
+      setAiMessage(message);
+    }
   }
 
   /* Live subdomain availability check (debounced). */
@@ -665,6 +819,7 @@ export function FactoryWizard({
                       className="sm:col-span-2"
                     >
                       <input
+                        id="factory-site-name"
                         value={draft.siteName}
                         onChange={(event) => update('siteName', event.target.value)}
                         maxLength={80}
@@ -685,6 +840,78 @@ export function FactoryWizard({
                         ))}
                       </select>
                     </Field>
+                    <div className="sm:col-span-2 rounded-2xl border border-primary/25 bg-gradient-to-br from-primary/10 via-primary/[0.04] to-transparent p-3.5">
+                      <div className="flex items-start gap-2.5">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-white shadow-sm shadow-primary/30">
+                          <Sparkles className="h-4 w-4" />
+                        </span>
+                        <div className="min-w-0">
+                          <p className="text-xs font-black">
+                            {t({ ar: 'تعبئة ذكية للمحتوى', fr: 'Remplissage intelligent', en: 'Smart content fill' })}
+                          </p>
+                          <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
+                            {t({
+                              ar: 'صف نشاطك بجملة واحدة، وسنولّد العبارة والوصف والخدمات أو المنتجات. راجعها وعدّلها كما تريد قبل المتابعة.',
+                              fr: 'Décrivez votre activité en une phrase : nous générons le slogan, la description et les services ou produits. Relisez et modifiez librement.',
+                              en: 'Describe your activity in one sentence and we will generate the tagline, description and services or products. Review and edit freely.',
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                        <input
+                          id="factory-ai-brief"
+                          value={aiBrief}
+                          onChange={(event) => {
+                            setAiBrief(event.target.value);
+                            if (aiState === 'error') {
+                              setAiState('idle');
+                              setAiMessage('');
+                            }
+                          }}
+                          maxLength={160}
+                          placeholder={t({
+                            ar: 'مثال: بيع الهواتف الذكية وملحقاتها مع خدمة الضمان',
+                            fr: 'Ex : vente de smartphones et accessoires avec garantie',
+                            en: 'E.g. smartphones and accessories with a warranty',
+                          })}
+                          className={fieldClass(undefined, 'flex-1')}
+                        />
+                        <button
+                          type="button"
+                          onClick={generateAiCopy}
+                          disabled={aiState === 'loading'}
+                          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-white shadow-sm shadow-primary/25 transition hover:bg-primary/90 disabled:cursor-wait disabled:opacity-60"
+                        >
+                          {aiState === 'loading' ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Sparkles className="h-4 w-4" />
+                          )}
+                          {aiState === 'loading'
+                            ? t({ ar: 'جارٍ التوليد...', fr: 'Génération...', en: 'Generating...' })
+                            : t({ ar: 'املأ بالذكاء الاصطناعي', fr: 'Remplir avec l’IA', en: 'Fill with AI' })}
+                        </button>
+                      </div>
+                      {aiMessage && (
+                        <p
+                          className={`mt-2 flex items-start gap-1.5 text-[11px] font-medium leading-relaxed ${
+                            aiState === 'error'
+                              ? 'text-rose-500'
+                              : aiState === 'done'
+                                ? 'text-emerald-600 dark:text-emerald-400'
+                                : 'text-muted-foreground'
+                          }`}
+                        >
+                          {aiState === 'error' ? (
+                            <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                          ) : aiState === 'done' ? (
+                            <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                          ) : null}
+                          {aiMessage}
+                        </p>
+                      )}
+                    </div>
                     <Field
                       label={t({ ar: 'العبارة التعريفية', fr: 'Slogan', en: 'Tagline' })}
                       hint={t({ ar: 'سطر قصير يوضح ما تقدمه.', fr: 'Une courte phrase qui décrit votre offre.', en: 'A short line about what you offer.' })}

@@ -10,7 +10,7 @@ import {
   isAiMock,
 } from '../services/aiProvider';
 import { optionalAuth, type AuthRequest } from '../middleware/auth';
-import { recordAiUsage, resolveAiAccess } from '../services/subscription';
+import { recordAiUsage, resolveAiAccess, resolveSiteCopyAccess } from '../services/subscription';
 import { resolveClientIp } from '../utils/trustProxy';
 
 export const aiRouter = Router();
@@ -68,20 +68,29 @@ aiRouter.post('/generate', optionalAuth, async (req: AuthRequest, res: Response)
         });
       }
     }
-    const access = await resolveAiAccess({
-      userId: req.userId,
-      ip,
-      // A request without the cookie is counted by IP, so clearing cookies or
-      // calling the API directly cannot mint an unlimited trial.
-      guestId: req.userId || !incomingGuestId ? undefined : guestId,
-      tool,
-    });
+    const access =
+      tool === 'site-copy'
+        ? await resolveSiteCopyAccess({
+            userId: req.userId,
+            ip,
+            guestId: req.userId || !incomingGuestId ? undefined : guestId,
+          })
+        : await resolveAiAccess({
+            userId: req.userId,
+            ip,
+            // A request without the cookie is counted by IP, so clearing cookies or
+            // calling the API directly cannot mint an unlimited trial.
+            guestId: req.userId || !incomingGuestId ? undefined : guestId,
+            tool,
+          });
     if (!access.allowed) {
-      return res.status(access.status).json({
+      return res.status(access.status || 403).json({
         error:
-          access.code === 'subscription_required'
-            ? 'Your free preview is used. Subscribe to keep using the tools.'
-            : 'Sign in to get one extra free preview.',
+          access.code === 'ai_daily_limit'
+            ? 'The daily website-copy limit is reached. You can continue filling the details manually.'
+            : access.code === 'subscription_required'
+              ? 'Your free preview is used. Subscribe to keep using the tools.'
+              : 'Sign in to get one extra free preview.',
         code: access.code,
       });
     }
@@ -107,6 +116,7 @@ aiRouter.post('/generate', optionalAuth, async (req: AuthRequest, res: Response)
 
     res.json({
       text: result.text,
+      ...(tool === 'site-copy' ? { data: JSON.parse(result.text) } : {}),
       tool,
       language,
       mock: result.mock,

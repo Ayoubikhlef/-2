@@ -17,6 +17,7 @@ import { logAction } from '../services/audit';
 import { isTransactionalEmailConfigured, sendTransactionalEmail } from '../services/emailAlerts';
 import { sendCustomerWelcomeEmail } from '../services/welcomeEmail';
 import { clientIp, reportSecurityEvent, unblockIp } from '../services/security';
+import { isTurnstileConfigured, verifyTurnstileToken } from '../services/turnstile';
 import {
   TWO_FACTOR_ISSUER,
   buildOtpauthUrl,
@@ -37,6 +38,8 @@ const loginSchema = z.object({
   password: z.string().min(1),
   // TOTP code or a one-time backup code, supplied on the second login step.
   twoFactorCode: z.string().trim().max(32).optional(),
+  // Cloudflare Turnstile token, present when the customer login widget is on.
+  captchaToken: z.string().trim().max(4096).optional(),
 });
 
 const forgotSchema = z.object({
@@ -859,7 +862,7 @@ authRouter.post('/login', async (req, res: Response) => {
       return res.status(503).json({ error: 'Database is temporarily unavailable. Please try again later.' });
     }
 
-    const { email: rawEmail, password, twoFactorCode } = loginSchema.parse(req.body);
+    const { email: rawEmail, password, twoFactorCode, captchaToken } = loginSchema.parse(req.body);
     const email = normalizeEmail(rawEmail);
 
     // 2. Normal Login Flow
@@ -909,6 +912,35 @@ authRouter.post('/login', async (req, res: Response) => {
         });
       }
       throw new BadRequest('Invalid email or password');
+    }
+
+    // Turnstile gate for customer sign-ins. Admin sign-in is exempted on
+    // purpose: the owner panel has mandatory two-factor authentication and
+    // must remain reachable if the captcha provider is down. The password has
+    // already been verified here, so an attacker cannot use the exemption to
+    // probe account roles.
+    if (!isAdminAccount(user.role) && isTurnstileConfigured()) {
+      const captcha = await verifyTurnstileToken(captchaToken, clientIp(req));
+      if (!captcha.ok) {
+        if (captcha.unavailable) {
+          return res.status(503).json({
+            error: 'The security check is temporarily unavailable. Please try again in a moment.',
+            code: 'CAPTCHA_UNAVAILABLE',
+          });
+        }
+        reportSecurityEvent({
+          type: 'captcha_failed',
+          severity: 'low',
+          req,
+          details: `Turnstile rejected a customer login for ${email.slice(0, 3)}***`,
+          autoBlock: false,
+          notify: false,
+        });
+        return res.status(400).json({
+          error: 'The security check failed. Please complete it again.',
+          code: 'CAPTCHA_FAILED',
+        });
+      }
     }
 
     // A publicly known default admin password must never grant access.

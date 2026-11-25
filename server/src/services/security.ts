@@ -21,6 +21,7 @@ export type SecurityEventType =
   | 'rate_limit'
   | 'failed_login'
   | 'failed_totp'
+  | 'captcha_failed'
   | 'brute_force_detected'
   | 'admin_gate'
   | 'admin_login'
