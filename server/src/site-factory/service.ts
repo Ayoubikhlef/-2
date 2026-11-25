@@ -375,6 +375,17 @@ function siteAdminLink(token: string): string {
   return `${base}/api/site-admin/claim/${token}`;
 }
 
+/** The Pages project name when the site was published at <name>.pages.dev. */
+function pagesProjectFromUrl(url?: string | null): string | null {
+  try {
+    const host = new URL(String(url || '')).hostname.toLowerCase();
+    if (host.endsWith('.pages.dev')) return host.slice(0, -'.pages.dev'.length);
+  } catch {
+    /* not a URL */
+  }
+  return null;
+}
+
 /**
  * Issue a fresh single-use link for the owner of a generated site. Rotating
  * also bumps the session version, so any dashboard session opened from an
@@ -839,14 +850,23 @@ export async function deleteRequest(requestId: string) {
   if (!request) throw new NotFound('الطلب غير موجود.');
 
   let deployWarning: string | null = null;
+  let cloudflareDeleted = false;
   const site = request.site;
   if (site) {
     const liveUrl = site.deployedUrl || site.url;
-    if (site.deployProvider === 'cloudflare') {
-      const removed = await deleteCloudflareProject(site.subdomain);
+    // `deployProvider` can say "manual" even when a Pages project exists (for
+    // example after markSitePublished with a pages.dev URL). Try to remove it
+    // whenever the API is configured: a 404 is already treated as success.
+    const projectName = pagesProjectFromUrl(liveUrl) || site.subdomain;
+    if (isCloudflareConfigured() && projectName) {
+      const removed = await deleteCloudflareProject(projectName);
       if (!removed.ok && !removed.skipped) {
-        deployWarning = `تم حذف الطلب من اللوحة، لكن تعذّر حذف مشروع Cloudflare «${site.subdomain}»: ${removed.error}`;
-      } else if (removed.skipped && liveUrl) {
+        // Do not orphan a live site under a deleted order. Keep the record so
+        // the owner can retry the deletion.
+        throw new AppError(502, `تعذّر حذف مشروع Cloudflare «${projectName}»: ${removed.error}. لم يتم حذف الطلب، أعد المحاولة.`);
+      }
+      cloudflareDeleted = removed.ok;
+      if (removed.skipped && liveUrl) {
         deployWarning = `تم حذف الطلب من اللوحة. الموقع كان منشوراً على ${liveUrl} — احذفه يدوياً من Cloudflare Pages إن لزم.`;
       }
     } else if (liveUrl) {
@@ -861,6 +881,7 @@ export async function deleteRequest(requestId: string) {
     ref: request.ref,
     subdomain: request.subdomain,
     siteDeleted: !!site,
+    cloudflareDeleted,
     deployWarning,
   };
 }

@@ -348,11 +348,17 @@ export function SiteFactoryTab() {
     try {
       const result = await api.siteFactory.admin.deleteRequest(deleteTarget.id);
       toast.success(
-        t({
-          ar: 'تم حذف الطلب نهائياً.',
-          fr: 'Demande supprimée définitivement.',
-          en: 'Request permanently deleted.',
-        }),
+        result?.cloudflareDeleted
+          ? t({
+              ar: 'تم حذف الطلب وموقع Cloudflare نهائياً.',
+              fr: 'Demande et site Cloudflare supprimés définitivement.',
+              en: 'Request and Cloudflare site permanently deleted.',
+            })
+          : t({
+              ar: 'تم حذف الطلب نهائياً.',
+              fr: 'Demande supprimée définitivement.',
+              en: 'Request permanently deleted.',
+            }),
       );
       if (result?.deployWarning) toast.warning(result.deployWarning);
       if (detail?.id === deleteTarget.id) setDetail(null);
