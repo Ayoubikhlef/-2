@@ -490,3 +490,10 @@ Typography-only refresh, per the owner's explicit direction: keep the existing l
 - Live QA on `WEB-20261125-7430` (`hideqa20261125.pages.dev`): claimed a dashboard link, PATCHed `hideProducts:true`, the content endpoint returned true, and the preview HTML contained no "منتج اختبار" but did contain the hide style. Reverting to false restored the product in the preview and removed the style. Server `tsc --noEmit` and `npm run build` pass.
 - Commit `458bf24`; Render auto-deployed (verified by the new `hideProducts` field in `/api/site-admin/content`).
 - QA data: order `WEB-20261125-7430` / subdomain `hideqa20261125` (products visible again, dashboard links consumed). The earlier `WEB-20261125-CF58` QA order was deleted by the owner.
+
+## Session 2026-11-25 - explicit hide icon for the original store products
+- Owner corrected the earlier request: the product-visibility change they wanted was for the original store `aos-tech.store`, not only generated sites. They want to hide specific items (an unwanted subscription item, a mouse, etc.), not all products. Previous generated-site work stays as is.
+- The store already had `toggleProductVisibility(id)` and an eye icon in `ManageProductsTab`. Made it explicit: the list button now shows an icon plus a text label (`إخفاء` / `إظهار`), a title/aria-label, clearer green/amber styling and a toast naming the product. Hidden products remain listed in admin with their badge, so they can be restored.
+- Closed the remaining storefront gaps so a hidden product cannot surface elsewhere: `ProductComparison` and `VisualSearch` now filter `!p.hidden`, joining `Products`, `ProductPage`, `ProductSuggestions` and the AI assistant (also filtered now). The change is saved through `syncToServer('aos_products')`, so it reaches every visitor; admins are the only ones allowed to write it.
+- Server `tsc --noEmit`, root `npm run build` pass (only the pre-existing `capture-error.ts` typecheck errors remain).
+- Commit `3f08ccb`; Vercel deploy expected. Render is unaffected (frontend-only change).
