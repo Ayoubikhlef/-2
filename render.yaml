@@ -35,6 +35,17 @@ services:
       # public site key is a Vercel build variable (VITE_TURNSTILE_SITE_KEY).
       - key: TURNSTILE_SECRET_KEY
         sync: false
+      # PayPal sandbox/live subscription checkout. No frontend key is needed.
+      - key: PAYPAL_MODE
+        value: sandbox
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_SECRET
+        sync: false
+      - key: PAYPAL_WEBHOOK_ID
+        sync: false
+      - key: PAYPAL_USD_RATE
+        value: "135"
       - key: NODE_ENV
         value: production
       - key: SEED_ADMIN_PASSWORD

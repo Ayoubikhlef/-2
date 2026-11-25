@@ -360,7 +360,7 @@ export type SiteCopyResult = {
 /* ------------------------------------------------------------------ */
 
 export type SubscriptionPlanId = 'monthly' | 'quarterly' | 'yearly';
-export type SubscriptionPaymentMethod = 'chargily' | 'ccp' | 'baridimob';
+export type SubscriptionPaymentMethod = 'chargily' | 'paypal' | 'ccp' | 'baridimob';
 export type LocalizedText = { ar: string; fr: string; en: string };
 
 export type SubscriptionPlan = {
@@ -401,6 +401,7 @@ export type SubscriptionMe = {
   previews: { limit: number; used: number; remaining: number | null };
   payments: SubscriptionPayment[];
   chargily: boolean;
+  paypal: boolean;
   plans: SubscriptionPlan[];
 };
 
@@ -549,6 +550,7 @@ export const api = {
         plans: SubscriptionPlan[];
         currency: string;
         chargily: boolean;
+        paypal: boolean;
         previews: { limit: number };
       }>('/subscription/plans'),
     me: () => request<SubscriptionMe>('/subscription/me', {}, true, 25000),

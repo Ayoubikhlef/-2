@@ -9,6 +9,7 @@ import {
   Copy,
   CreditCard,
   Crown,
+  Globe,
   Landmark,
   Loader2,
   Lock,
@@ -116,6 +117,7 @@ const STATUS_LABEL: Record<string, { ar: string; fr: string; en: string }> = {
 
 const METHOD_LABEL: Record<string, { ar: string; fr: string; en: string }> = {
   chargily: { ar: 'بطاقة CIB / الذهبية', fr: 'Carte CIB / Edahabia', en: 'CIB / Edahabia card' },
+  paypal: { ar: 'PayPal', fr: 'PayPal', en: 'PayPal' },
   ccp: { ar: 'تحويل CCP', fr: 'Virement CCP', en: 'CCP transfer' },
   baridimob: { ar: 'BaridiMob', fr: 'BaridiMob', en: 'BaridiMob' },
   admin: { ar: 'تفعيل من الإدارة', fr: 'Activé par l’admin', en: 'Activated by admin' },
@@ -155,6 +157,7 @@ export function SubscriptionPage() {
 
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [chargily, setChargily] = useState(false);
+  const [paypal, setPaypal] = useState(false);
   const [me, setMe] = useState<SubscriptionMe | null>(null);
   const [loading, setLoading] = useState(true);
   const [plansError, setPlansError] = useState(false);
@@ -181,6 +184,7 @@ export function SubscriptionPage() {
       const data = await api.subscription.me();
       setMe(data);
       setChargily(Boolean(data.chargily));
+      setPaypal(Boolean(data.paypal));
     } catch {
       // The public plans still render; the account card is optional.
     }
@@ -193,6 +197,7 @@ export function SubscriptionPage() {
       const data = await api.subscription.plans();
       setPlans(data.plans);
       setChargily(Boolean(data.chargily));
+      setPaypal(Boolean(data.paypal));
     } catch {
       setPlans([]);
       setPlansError(true);
@@ -225,8 +230,8 @@ export function SubscriptionPage() {
   }, [user, loadMe]);
 
   useEffect(() => {
-    if (!chargily) setMethod('ccp');
-  }, [chargily]);
+    if (!chargily && !paypal) setMethod('ccp');
+  }, [chargily, paypal]);
 
   const active = me?.subscription || null;
   const previews = me?.previews || null;
@@ -281,7 +286,11 @@ export function SubscriptionPage() {
           ? t({ ar: 'الدفع بالبطاقة غير مفعّل حالياً. اختر CCP أو BaridiMob.', fr: 'Le paiement par carte n’est pas actif. Choisissez CCP ou BaridiMob.', en: 'Card payment is not enabled. Choose CCP or BaridiMob.' })
           : code === 'chargily_error'
             ? t({ ar: 'تعذر بدء الدفع بالبطاقة. جرّب CCP أو BaridiMob.', fr: 'Impossible de démarrer le paiement carte. Essayez CCP ou BaridiMob.', en: 'Could not start the card payment. Try CCP or BaridiMob.' })
-            : t({ ar: 'تعذر إنشاء طلب الاشتراك. حاول مرة أخرى.', fr: 'Impossible de créer la demande. Réessayez.', en: 'Could not create the subscription request. Try again.' }),
+            : code === 'paypal_not_configured' || code === 'paypal_rate_invalid'
+              ? t({ ar: 'PayPal غير مفعّل حالياً. اختر CCP أو BaridiMob.', fr: 'PayPal n’est pas actif. Choisissez CCP ou BaridiMob.', en: 'PayPal is not enabled. Choose CCP or BaridiMob.' })
+              : code === 'paypal_error'
+                ? t({ ar: 'تعذر بدء الدفع عبر PayPal. جرّب طريقة أخرى.', fr: 'Impossible de démarrer PayPal. Essayez une autre méthode.', en: 'Could not start PayPal checkout. Try another method.' })
+                : t({ ar: 'تعذر إنشاء طلب الاشتراك. حاول مرة أخرى.', fr: 'Impossible de créer la demande. Réessayez.', en: 'Could not create the subscription request. Try again.' }),
       );
     } finally {
       setCheckingOut(false);
@@ -614,6 +623,25 @@ export function SubscriptionPage() {
                         </span>
                       </button>
                     )}
+                    {paypal && (
+                      <button
+                        type="button"
+                        onClick={() => setMethod('paypal')}
+                        className={`flex items-center gap-3 rounded-2xl border p-4 text-start transition ${
+                          method === 'paypal'
+                            ? 'border-primary bg-primary/5 ring-1 ring-primary/30'
+                            : 'border-border hover:border-primary/30'
+                        }`}
+                      >
+                        <Globe className="h-5 w-5 shrink-0 text-primary" />
+                        <span className="min-w-0">
+                          <span className="block text-sm font-bold">{t(METHOD_LABEL.paypal)}</span>
+                          <span className="mt-0.5 block text-[11px] text-muted-foreground">
+                            {t({ ar: 'دفع آمن عبر PayPal — يُفعّل الاشتراك تلقائياً بعد التأكيد.', fr: 'Paiement sécurisé via PayPal — activation automatique.', en: 'Secure PayPal checkout — activated automatically after confirmation.' })}
+                          </span>
+                        </span>
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={() => setMethod('ccp')}
@@ -649,7 +677,7 @@ export function SubscriptionPage() {
                       </span>
                     </button>
                   </div>
-                  {!chargily && (
+                  {!chargily && !paypal && (
                     <p className="mt-3 rounded-xl bg-amber-500/10 p-3 text-[11px] leading-relaxed text-amber-800 dark:text-amber-200">
                       {t({
                         ar: 'الدفع بالبطاقة غير مفعّل حالياً. استعمل CCP أو BaridiMob وسيُفعّل اشتراكك بعد مراجعة الوصل.',

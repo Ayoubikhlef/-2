@@ -17,11 +17,18 @@ import {
   publicSubscription,
   verifyChargilySignature,
 } from '../services/subscription';
+import {
+  capturePaypalOrder,
+  createPaypalOrder,
+  isPaypalConfigured,
+  paypalAmountDzdToUsd,
+  verifyPaypalWebhook,
+} from '../services/paypal';
 
 export const subscriptionRouter = Router();
 
 const planSchema = z.enum(['monthly', 'quarterly', 'yearly']);
-const methodSchema = z.enum(['chargily', 'ccp', 'baridimob']);
+const methodSchema = z.enum(['chargily', 'paypal', 'ccp', 'baridimob']);
 
 function paymentView(payment: any) {
   return {
@@ -44,6 +51,32 @@ function publicBaseUrl(): string {
   return configured || 'https://aos-tech.store';
 }
 
+/** Finalize a PayPal order: capture it, check the amount, then grant access. */
+async function completePaypalPayment(payment: any, orderId: string) {
+  if (payment.status === 'paid') return { duplicate: true };
+  const captured = await capturePaypalOrder(orderId);
+  if (captured.status !== 'COMPLETED') {
+    throw new Error(`PayPal capture status ${captured.status || 'unknown'}`);
+  }
+  const expected = Number(paypalAmountDzdToUsd(payment.amount));
+  if (expected && Math.abs(Number(captured.amountUsd) - expected) > 0.02) {
+    throw new Error('PayPal capture amount does not match the payment');
+  }
+  const plan = planOf(payment.plan);
+  if (!plan) throw new Error('Unknown plan');
+  await prisma.subscriptionPayment.update({
+    where: { id: payment.id },
+    data: { providerRef: orderId },
+  });
+  await activateSubscription({
+    userId: payment.userId,
+    plan: plan.id,
+    paymentId: payment.id,
+    price: payment.amount,
+  });
+  return { activated: true };
+}
+
 /* -------------------------------------------------------------------------
  * Public plans
  * ---------------------------------------------------------------------- */
@@ -53,6 +86,7 @@ subscriptionRouter.get('/plans', (_req, res: Response) => {
     plans: planList(),
     currency: 'DZD',
     chargily: isChargilyConfigured(),
+    paypal: isPaypalConfigured(),
     previews: { limit: ACCOUNT_FREE_PREVIEWS },
   });
 });
@@ -108,10 +142,16 @@ subscriptionRouter.post('/checkout', requireAuth, async (req: AuthRequest, res: 
       code: 'chargily_not_configured',
     });
   }
+  if (method === 'paypal' && !isPaypalConfigured()) {
+    return res.status(400).json({
+      error: 'PayPal is not configured yet',
+      code: 'paypal_not_configured',
+    });
+  }
 
   // Reuse a recent pending manual payment so refreshing the page does not
   // create a new reference every time.
-  if (method !== 'chargily') {
+  if (method !== 'chargily' && method !== 'paypal') {
     const existing = await prisma.subscriptionPayment.findFirst({
       where: {
         userId,
@@ -178,11 +218,112 @@ subscriptionRouter.post('/checkout', requireAuth, async (req: AuthRequest, res: 
     }
   }
 
+  if (method === 'paypal') {
+    const amountUsd = paypalAmountDzdToUsd(plan.price);
+    if (!amountUsd) {
+      await prisma.subscriptionPayment
+        .update({ where: { id: payment.id }, data: { status: 'failed', note: 'PAYPAL_USD_RATE is missing or invalid' } })
+        .catch(() => null);
+      return res.status(500).json({ error: 'PayPal conversion rate is not configured', code: 'paypal_rate_invalid' });
+    }
+    try {
+      const order = await createPaypalOrder({
+        amountUsd,
+        reference,
+        paymentId: payment.id,
+        returnUrl: `${publicBaseUrl()}/api/subscription/paypal/return?reference=${encodeURIComponent(reference)}`,
+        cancelUrl: `${publicBaseUrl()}/api/subscription/paypal/cancel?reference=${encodeURIComponent(reference)}`,
+      });
+      const updated = await prisma.subscriptionPayment.update({
+        where: { id: payment.id },
+        data: { providerRef: order.id, checkoutUrl: order.approveUrl },
+      });
+      return res.json({
+        mode: 'redirect',
+        checkoutUrl: order.approveUrl,
+        payment: paymentView(updated),
+      });
+    } catch (err: any) {
+      await prisma.subscriptionPayment
+        .update({ where: { id: payment.id }, data: { status: 'failed', note: String(err?.message || err).slice(0, 300) } })
+        .catch(() => null);
+      console.error('[Subscription] PayPal order failed:', err?.message || err);
+      return res.status(502).json({ error: 'PayPal checkout could not be started', code: 'paypal_error' });
+    }
+  }
+
   res.json({
     mode: 'manual',
     payment: paymentView(payment),
     instructions: await manualPaymentDetails(),
   });
+});
+
+/* -------------------------------------------------------------------------
+ * PayPal return + webhook
+ * ---------------------------------------------------------------------- */
+
+subscriptionRouter.get('/paypal/return', async (req, res: Response) => {
+  const orderId = String(req.query.token || '');
+  const reference = String(req.query.reference || '');
+  const payment = reference
+    ? await prisma.subscriptionPayment.findUnique({ where: { reference } })
+    : orderId
+      ? await prisma.subscriptionPayment.findFirst({ where: { providerRef: orderId } })
+      : null;
+  if (!payment || payment.method !== 'paypal' || (orderId && payment.providerRef !== orderId)) {
+    return res.redirect(303, `${publicBaseUrl()}/subscription?status=failed&payment=paypal_invalid`);
+  }
+  try {
+    await completePaypalPayment(payment, orderId || String(payment.providerRef || ''));
+    return res.redirect(303, `${publicBaseUrl()}/subscription?status=success&payment=${encodeURIComponent(payment.reference)}&provider=paypal`);
+  } catch (err: any) {
+    console.error('[Subscription] PayPal return failed:', err?.message || err);
+    return res.redirect(303, `${publicBaseUrl()}/subscription?status=failed&payment=${encodeURIComponent(payment.reference)}&provider=paypal`);
+  }
+});
+
+subscriptionRouter.get('/paypal/cancel', async (req, res: Response) => {
+  const reference = String(req.query.reference || '');
+  const payment = reference
+    ? await prisma.subscriptionPayment.findUnique({ where: { reference } })
+    : null;
+  if (payment && payment.method === 'paypal' && payment.status === 'pending') {
+    await prisma.subscriptionPayment.update({ where: { id: payment.id }, data: { status: 'failed', note: 'PayPal checkout cancelled' } });
+  }
+  return res.redirect(303, `${publicBaseUrl()}/subscription?status=failed&payment=${encodeURIComponent(reference || 'paypal')}&provider=paypal`);
+});
+
+subscriptionRouter.post('/paypal/webhook', async (req, res: Response) => {
+  const raw = (req as any).rawBody;
+  if (!(await verifyPaypalWebhook(req.headers, raw || JSON.stringify(req.body || {})))) {
+    return res.status(401).json({ error: 'Invalid webhook signature' });
+  }
+  const event = req.body || {};
+  const type = String(event.type || '');
+  const resource = event.resource || {};
+  const orderId = String(
+    resource?.supplementary_data?.related_ids?.order_id ||
+      resource?.custom_id ||
+      resource?.id ||
+      '',
+  );
+
+  if (type === 'PAYMENT.CAPTURE.COMPLETED' || type === 'CHECKOUT.ORDER.APPROVED') {
+    const payment = orderId
+      ? await prisma.subscriptionPayment.findFirst({ where: { providerRef: orderId, method: 'paypal' } })
+      : null;
+    if (!payment) return res.json({ ok: true, ignored: 'unknown_payment' });
+    if (payment.status === 'paid') return res.json({ ok: true, duplicate: true });
+    try {
+      const result = await completePaypalPayment(payment, orderId);
+      return res.json({ ok: true, ...result });
+    } catch (err: any) {
+      console.error('[Subscription] PayPal webhook failed:', err?.message || err);
+      return res.status(500).json({ error: 'Could not complete payment' });
+    }
+  }
+  return res.json({ ok: true, ignored: type || 'unknown_event' });
 });
 
 // Receipts are compressed to a JPEG data URL in the browser. Keeping the
