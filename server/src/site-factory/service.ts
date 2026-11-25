@@ -320,7 +320,8 @@ export async function buildConfig(siteId: string, preview: boolean): Promise<Ren
     },
     hours,
     services,
-    products: productsFrom(site.products),
+    products: content.hideProducts === true ? [] : productsFrom(site.products),
+    hideProducts: content.hideProducts === true,
     subdomain: site.subdomain,
     // A requested custom domain is not live until its DNS/Pages mapping has
     // actually been confirmed. Until then the generated site must use the
@@ -884,6 +885,27 @@ export async function deleteRequest(requestId: string) {
     cloudflareDeleted,
     deployWarning,
   };
+}
+
+/** Owner/AOS switch to hide the whole products section on a generated site. */
+export async function setSiteProductVisibility(siteId: string, hideProducts: boolean) {
+  const site = await prisma.site.findUnique({
+    where: { id: siteId },
+    select: { id: true, requestId: true },
+  });
+  if (!site) throw new NotFound('الموقع غير موجود.');
+  if (!site.requestId) throw new BadRequest('لا يوجد طلب مرتبط بهذا الموقع.');
+  const request = await prisma.siteRequest.findUnique({
+    where: { id: site.requestId },
+    select: { content: true },
+  });
+  const content = objectOrNull(request?.content) || {};
+  await prisma.siteRequest.update({
+    where: { id: site.requestId },
+    data: { content: { ...content, hideProducts } },
+  });
+  await refreshPreview(siteId);
+  return { ok: true, hideProducts };
 }
 
 export async function regenerateSite(siteId: string) {

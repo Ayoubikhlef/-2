@@ -65,6 +65,8 @@ export interface RenderConfig {
   hours?: string | null;
   services: RenderService[];
   products: RenderProduct[];
+  /** Owner switch: hide every product/catalog section on the generated site. */
+  hideProducts?: boolean;
   /** Optional team/doctor profiles used by the medical template. */
   team?: RenderTeamMember[];
   subdomain: string;

@@ -129,7 +129,9 @@ export function renderSite(input: RenderConfig): RenderedSite {
     templateSlug: resolveLayout(input.templateSlug),
     primaryColor: safeColor(input.primaryColor, '#0b5ed7'),
     secondaryColor: safeColor(input.secondaryColor, '#1e3a8a'),
-    products: (input.products || []).map((p) => ({ ...p })),
+    // Hidden catalogs must not leave product names/prices in the HTML at all.
+    products: input.hideProducts === true ? [] : (input.products || []).map((p) => ({ ...p })),
+    hideProducts: input.hideProducts === true,
     gallery: (input.gallery || [])
       .filter((url) => typeof url === 'string' && (/^https?:\/\//i.test(url) || url.startsWith('/')))
       .slice(0, 12),
@@ -207,7 +209,14 @@ export function renderSite(input: RenderConfig): RenderedSite {
       siteUrl,
       coverFile: config.coverUrl || null,
       favicon: 'assets/favicon.svg',
-      extraHead: config.preview ? '<meta name="robots" content="noindex,nofollow">' : '',
+      extraHead: [
+        config.preview ? '<meta name="robots" content="noindex,nofollow">' : '',
+        config.hideProducts
+          ? '<style id="aos-hide-products">#products,#menu,#catalog,#cart-drawer,.cart-btn,.product-grid,.products-grid,.menu-grid,.catalog-grid,[data-section="products"],a[href="#products"],a[href="#menu"],.product-empty{display:none!important}</style>'
+          : '',
+      ]
+        .filter(Boolean)
+        .join('\n'),
     });
     addFile(pagePaths[lang], html);
   }

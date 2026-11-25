@@ -324,6 +324,7 @@ const contentSchema = z.object({
   primaryColor: hex.optional(),
   secondaryColor: hex.optional(),
   hours: z.string().trim().max(120).optional().nullable(),
+  hideProducts: z.boolean().optional(),
   socials: z.object({
     facebook: z.string().trim().max(300).optional(),
     instagram: z.string().trim().max(300).optional(),
@@ -358,6 +359,7 @@ siteAdminRouter.get('/content', asyncRoute(async (req, res) => {
       hours: typeof r?.hours === 'string' ? r.hours : '',
       socials: (r?.socials && typeof r.socials === 'object' ? r.socials : {}) as Record<string, string>,
       services: Array.isArray(content.services) ? content.services : [],
+      hideProducts: content.hideProducts === true,
     },
   });
 }));
@@ -375,6 +377,13 @@ siteAdminRouter.patch('/content', writeLimiter, asyncRoute(async (req, res) => {
   const oldSocials = (site.request?.socials && typeof site.request.socials === 'object' && !Array.isArray(site.request.socials)
     ? site.request.socials : {}) as Record<string, any>;
 
+  const contentChanged = input.services !== undefined || input.hideProducts !== undefined;
+  const nextContent = {
+    ...oldContent,
+    ...(input.services !== undefined ? { services: input.services } : {}),
+    ...(input.hideProducts !== undefined ? { hideProducts: input.hideProducts } : {}),
+  };
+
   await prisma.siteRequest.update({
     where: { id: site.requestId },
     data: {
@@ -391,7 +400,7 @@ siteAdminRouter.patch('/content', writeLimiter, asyncRoute(async (req, res) => {
       ...(input.secondaryColor !== undefined ? { secondaryColor: input.secondaryColor } : {}),
       ...(input.hours !== undefined ? { hours: input.hours || null } : {}),
       ...(input.socials !== undefined ? { socials: { ...oldSocials, ...input.socials } } : {}),
-      ...(input.services !== undefined ? { content: { ...oldContent, services: input.services } } : {}),
+      ...(contentChanged ? { content: nextContent } : {}),
     },
   });
   if (input.siteName !== undefined) {

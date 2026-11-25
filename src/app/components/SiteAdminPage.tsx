@@ -3,6 +3,8 @@ import {
   ArrowUpRight,
   Check,
   ExternalLink,
+  Eye,
+  EyeOff,
   LayoutDashboard,
   LogOut,
   Mail,
@@ -37,6 +39,7 @@ const EMPTY_CONTENT: Record<string, any> = {
   hours: '',
   socials: { facebook: '', instagram: '', tiktok: '' },
   services: [],
+  hideProducts: false,
 };
 
 function formatMoney(value: any, lang: string) {
@@ -177,6 +180,32 @@ export function SiteAdminPage() {
       const result = await siteAdminApi.saveContent(content);
       await reloadSection('content');
       toast.success(result.message || t({ ar: 'تم حفظ المحتوى', fr: 'Contenu enregistré', en: 'Content saved' }));
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const toggleProducts = async () => {
+    const hide = content.hideProducts !== true;
+    setBusy(true);
+    try {
+      await siteAdminApi.saveContent({ hideProducts: hide });
+      setContent((previous) => ({ ...previous, hideProducts: hide }));
+      toast.success(
+        hide
+          ? t({
+              ar: 'تم إخفاء المنتجات من المعاينة. اضغط «نشر التغييرات» ليختفي القسم من موقعك المنشور.',
+              fr: 'Produits masqués de l’aperçu. Cliquez sur «Publier» pour mettre à jour le site en ligne.',
+              en: 'Products hidden from the preview. Click “Publish changes” to update your live site.',
+            })
+          : t({
+              ar: 'تم إظهار المنتجات في المعاينة. اضغط «نشر التغييرات» لتحديث موقعك.',
+              fr: 'Produits affichés dans l’aperçu. Cliquez sur «Publier» pour mettre à jour le site.',
+              en: 'Products shown in the preview. Click “Publish changes” to update your site.',
+            }),
+      );
     } catch (err: any) {
       toast.error(err.message);
     } finally {
@@ -445,6 +474,36 @@ export function SiteAdminPage() {
         )}
 
         {tab === 'content' && (
+          <>
+          <section className="mt-5 rounded-2xl border border-primary/30 bg-primary/5 p-5">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 className="flex items-center gap-2 text-sm font-black">
+                  {content.hideProducts ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {t({ ar: 'عرض المنتجات في الموقع', fr: 'Afficher les produits', en: 'Show products on the site' })}
+                </h2>
+                <p className="mt-1 max-w-xl text-xs leading-relaxed text-muted-foreground">
+                  {t({
+                    ar: 'أخفِ كل المنتجات وقسم المنتجات بضغطة زر، ثم انشر التغييرات ليختفي من موقعك المنشور.',
+                    fr: 'Masquez tous les produits et leur section en un clic, puis publiez pour mettre à jour votre site.',
+                    en: 'Hide every product and its section with one click, then publish to update your live site.',
+                  })}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={toggleProducts}
+                disabled={busy}
+                className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-primary-foreground disabled:opacity-60"
+              >
+                {busy ? <RefreshCw className="h-4 w-4 animate-spin" /> : content.hideProducts ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                {content.hideProducts
+                  ? t({ ar: 'إظهار المنتجات', fr: 'Afficher', en: 'Show products' })
+                  : t({ ar: 'إخفاء المنتجات', fr: 'Masquer', en: 'Hide products' })}
+              </button>
+            </div>
+          </section>
+
           <section className="mt-5 rounded-2xl border border-border bg-card p-5">
             <h2 className="text-sm font-black">{t({ ar: 'بيانات الموقع', fr: 'Informations du site', en: 'Site details' })}</h2>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
@@ -473,6 +532,7 @@ export function SiteAdminPage() {
               {t({ ar: 'حفظ المحتوى', fr: 'Enregistrer', en: 'Save content' })}
             </button>
           </section>
+          </>
         )}
       </main>
     </div>

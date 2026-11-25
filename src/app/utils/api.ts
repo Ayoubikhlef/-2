@@ -776,6 +776,12 @@ export const api = {
           `/site-factory/admin/sites/${encodeURIComponent(id)}/admin-link`,
           { method: 'POST' },
         ),
+      /** Hide or show every product section on a generated site. */
+      setVisibility: (id: string, hideProducts: boolean) =>
+        request<{ ok: boolean; hideProducts: boolean }>(
+          `/site-factory/admin/sites/${encodeURIComponent(id)}/visibility`,
+          { method: 'PATCH', body: JSON.stringify({ hideProducts }) },
+        ),
       stats: () => request<any>('/site-factory/admin/stats'),
       requests: (params: { status?: string; q?: string; page?: number; pageSize?: number } = {}) => {
         const query = new URLSearchParams();

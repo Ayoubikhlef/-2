@@ -399,7 +399,7 @@ siteFactoryRouter.get('/admin/sites', async (_req, res) => {
     orderBy: { createdAt: 'desc' },
     take: 200,
     include: {
-      request: { select: { id: true, ref: true, phone: true, status: true, price: true, packageSlug: true } },
+      request: { select: { id: true, ref: true, phone: true, status: true, price: true, packageSlug: true, content: true } },
       _count: { select: { orders: true, leads: true, products: true } },
     },
   });
@@ -410,6 +410,11 @@ siteFactoryRouter.get('/admin/sites', async (_req, res) => {
 siteFactoryRouter.post('/admin/sites/:id/admin-link', async (_req, res) => {
   const link = await factory.rotateSiteAdminLink(String(_req.params.id));
   res.json({ ok: true, link });
+});
+
+siteFactoryRouter.patch('/admin/sites/:id/visibility', async (req, res) => {
+  const input = parseBody(z.object({ hideProducts: z.boolean() }), req.body);
+  res.json(await factory.setSiteProductVisibility(String(req.params.id), input.hideProducts));
 });
 
 siteFactoryRouter.post('/admin/sites/:id/publish', async (req, res) => {

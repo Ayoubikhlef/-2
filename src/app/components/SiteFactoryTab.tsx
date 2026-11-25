@@ -10,6 +10,8 @@ import {
   Copy,
   Download,
   ExternalLink,
+  Eye,
+  EyeOff,
   FileArchive,
   FileText,
   Globe,
@@ -433,6 +435,30 @@ export function SiteFactoryTab() {
       }
     } catch (error: any) {
       toast.error(error?.message || t({ ar: 'تعذر إنشاء الرابط.', fr: 'Impossible de créer le lien.', en: 'Could not create the link.' }));
+    } finally {
+      setBusy('');
+    }
+  }
+
+  async function toggleSiteProducts(site: any) {
+    const hidden = site.request?.content?.hideProducts === true;
+    setBusy(`products-${site.id}`);
+    try {
+      const result = await api.siteFactory.admin.setVisibility(site.id, !hidden);
+      toast.success(
+        result.hideProducts
+          ? t({ ar: 'تم إخفاء منتجات الموقع من المعاينة. انشر الموقع لتحديث النسخة الحية.', fr: 'Produits masqués de l’aperçu. Publiez pour mettre à jour le site.', en: 'Products hidden from the preview. Publish to update the live site.' })
+          : t({ ar: 'تم إظهار منتجات الموقع في المعاينة. انشر الموقع لتحديث النسخة الحية.', fr: 'Produits affichés dans l’aperçu. Publiez pour mettre à jour le site.', en: 'Products shown in the preview. Publish to update the live site.' }),
+      );
+      setSites((rows) =>
+        rows.map((row) =>
+          row.id === site.id
+            ? { ...row, request: { ...row.request, content: { ...(row.request?.content || {}), hideProducts: result.hideProducts } } }
+            : row,
+        ),
+      );
+    } catch (error: any) {
+      toast.error(error?.message || t({ ar: 'تعذر تغيير عرض المنتجات.', fr: 'Impossible de modifier l’affichage.', en: 'Could not change product visibility.' }));
     } finally {
       setBusy('');
     }
@@ -942,9 +968,21 @@ export function SiteFactoryTab() {
                   </button>
                   <button
                     type="button"
+                    onClick={() => toggleSiteProducts(site)}
+                    disabled={busy === `products-${site.id}`}
+                    title={t({ ar: 'إخفاء/إظهار المنتجات بضغطة زر', fr: 'Masquer/afficher les produits', en: 'Toggle product visibility' })}
+                    className="ms-auto inline-flex items-center gap-1 rounded-lg border border-white/10 px-2.5 py-1.5 text-[11px] font-bold text-white/70 hover:bg-slate-800 disabled:opacity-60"
+                  >
+                    {site.request?.content?.hideProducts ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+                    {site.request?.content?.hideProducts
+                      ? t({ ar: 'إظهار المنتجات', fr: 'Afficher', en: 'Show products' })
+                      : t({ ar: 'إخفاء المنتجات', fr: 'Masquer', en: 'Hide products' })}
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => createOwnerLink(site.id, Boolean(site.adminLinkAt))}
                     disabled={busy === 'link'}
-                    className="ms-auto inline-flex items-center gap-1 rounded-lg border border-emerald-400/30 bg-emerald-400/10 px-2.5 py-1.5 text-[11px] font-bold text-emerald-300 hover:bg-emerald-400/20 disabled:opacity-60"
+                    className="inline-flex items-center gap-1 rounded-lg border border-emerald-400/30 bg-emerald-400/10 px-2.5 py-1.5 text-[11px] font-bold text-emerald-300 hover:bg-emerald-400/20 disabled:opacity-60"
                   >
                     <Copy className="h-3 w-3" />
                     {t({ ar: 'رابط اللوحة', fr: 'Lien tableau de bord', en: 'Dashboard link' })}
