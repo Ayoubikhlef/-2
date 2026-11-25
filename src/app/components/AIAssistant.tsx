@@ -8,7 +8,7 @@ import { getStoredProducts } from '../utils/productStorage';
 import { api, getAccessToken } from '../utils/api';
 
 function loadProducts() {
-  return getStoredProducts(defaultProducts);
+  return getStoredProducts(defaultProducts).filter((product) => !product.hidden);
 }
 const STORAGE_KEY = 'aos_chat_history';
 

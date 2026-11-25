@@ -73,6 +73,18 @@ export function ManageProductsTab({ products, onUpdate }: { products: Product[];
     toast.success(t({ ar: 'تم نسخ المنتج', fr: 'Produit dupliqué', en: 'Product duplicated' }));
   };
 
+  /** Hide/show one product from the main store; the change syncs to visitors. */
+  const handleVisibility = (product: Product) => {
+    const next = !product.hidden;
+    toggleProductVisibility(product.id);
+    onUpdate();
+    toast.success(
+      next
+        ? t({ ar: `تم إخفاء «${product.nameAr}» من المتجر`, fr: `« ${product.nameAr} » masqué du magasin`, en: `“${product.nameEn}” hidden from the store` })
+        : t({ ar: `تم إظهار «${product.nameAr}» في المتجر`, fr: `« ${product.nameAr} » affiché dans le magasin`, en: `“${product.nameEn}” shown in the store` }),
+    );
+  };
+
   // Stock changes are sent as deltas so a sale made while this page is open
   // cannot be overwritten by an absolute quantity from a stale snapshot.
   const pushStockDelta = async (id: number, delta: number): Promise<boolean> => {
@@ -529,9 +541,27 @@ export function ManageProductsTab({ products, onUpdate }: { products: Product[];
               </div>
             </div>
             <div className="flex items-center gap-1.5 sm:gap-2">
-              <button onClick={() => { toggleProductVisibility(product.id); onUpdate(); }}
-                className="p-2 sm:p-2.5 rounded-xl bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 transition-all border border-amber-500/20">
+              <button
+                type="button"
+                onClick={() => handleVisibility(product)}
+                title={product.hidden
+                  ? t({ ar: 'إظهار هذا المنتج في المتجر', fr: 'Afficher ce produit', en: 'Show this product in the store' })
+                  : t({ ar: 'إخفاء هذا المنتج من المتجر', fr: 'Masquer ce produit', en: 'Hide this product from the store' })}
+                aria-label={product.hidden
+                  ? t({ ar: 'إظهار هذا المنتج في المتجر', fr: 'Afficher ce produit', en: 'Show this product in the store' })
+                  : t({ ar: 'إخفاء هذا المنتج من المتجر', fr: 'Masquer ce produit', en: 'Hide this product from the store' })}
+                className={`inline-flex items-center gap-1 rounded-xl px-2.5 py-2 text-[11px] font-bold transition-all border sm:px-3 ${
+                  product.hidden
+                    ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/25 hover:bg-emerald-500/25'
+                    : 'bg-amber-500/15 text-amber-300 border-amber-500/25 hover:bg-amber-500/25'
+                }`}
+              >
                 {product.hidden ? <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <EyeOff className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+                <span>
+                  {product.hidden
+                    ? t({ ar: 'إظهار', fr: 'Afficher', en: 'Show' })
+                    : t({ ar: 'إخفاء', fr: 'Masquer', en: 'Hide' })}
+                </span>
               </button>
               <button onClick={() => handleCopy(product.id)}
                 className="p-2 sm:p-2.5 rounded-xl bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-all border border-blue-500/20">

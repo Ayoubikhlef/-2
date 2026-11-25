@@ -13,7 +13,7 @@ export function ProductComparison({ onClose }: Props) {
   const allProducts = useMemo(() => getStoredProducts(defaultProducts), []);
   const [selected, setSelected] = useState<Product[]>([]);
 
-  const available = allProducts.filter(p => !selected.find(s => s.id === p.id));
+  const available = allProducts.filter(p => !p.hidden && !selected.find(s => s.id === p.id));
 
   const toggleProduct = (product: Product) => {
     if (selected.find(s => s.id === product.id)) {

@@ -7,7 +7,7 @@ import { Search, Camera, ImageUp, X, ShoppingCart, Loader2 } from 'lucide-react'
 import { toast } from 'sonner';
 
 function loadProducts() {
-  return getStoredProducts(defaultProducts);
+  return getStoredProducts(defaultProducts).filter((product) => !product.hidden);
 }
 
 type DominantColor = { hex: string; name: string; weight: number };
