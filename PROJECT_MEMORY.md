@@ -522,3 +522,9 @@ Typography-only refresh, per the owner's explicit direction: keep the existing l
 - Builds pass; commit `fb2cfe3` pushed, Render deployed with migration, Vercel aliased to aos-tech.store.
 - Sandbox E2E PASS: order `PAYPALQA20261126A` paid (30.74 USD), site request `WEB-20261126-8260` / `paypalqasite20261126` confirmed (92.59 USD deposit). Treat as QA junk.
 - NEXT: owner signs in to verify Business status; create Live app + webhook, switch `PAYPAL_MODE=live` on Render, test a small real receipt.
+
+## Session 2026-11-26 - Business verified and Live mode configured
+- The account was still Personal, so conversion was redone. The owner completed the wizard (`Vendeur particulier / Personne physique`); `/mep/dashboard` now opens the Business dashboard, so the account is Business.
+- Created Live REST app "AOS Tech Store Live" and a Live All Events webhook on `https://aos-tech.store/api/subscription/paypal/webhook`. Secrets stay in Render.
+- Render now runs `PAYPAL_MODE=live` with live Client ID/Secret/Webhook ID and `PAYPAL_USD_RATE=135`; deploy completed and `/api/subscription/plans` returns `paypal:true`.
+- BLOCKED: no real Live receipt tested. Need a separate buyer PayPal account (can't pay yourself) for a small purchase (monthly AI plan ~14 USD) before trusting collections in Algeria.

@@ -408,3 +408,9 @@ Next session should focus on:
 - E2E PASS (sandbox, US accounts): order `PAYPALQA20261126A` (4,150 DZD -> 30.74 USD) captured, `paymentStatus: paid` and `providerRef` set; site request `WEB-20261126-8260` / `paypalqasite20261126` (25,000 DZD, 50% deposit -> 92.59 USD) moved to `confirmed` / `paypal-paid`.
 - QA junk to ignore/delete: order `PAYPALQA20261126A`, site request `WEB-20261126-8260` and its Pages preview/subdomain.
 - NEXT: owner must sign in to PayPal and confirm the account shows Business; then create a Live REST app + Live webhook, set `PAYPAL_MODE=live` with live credentials on Render, and test one small real receipt.
+
+## Session 2026-11-26 - Business verified and Live mode configured
+- Owner confirmed the account was still Personal, so the conversion was redone in the browser. The `Vendeur particulier / Personne physique` path was completed again; this time `https://www.paypal.com/mep/dashboard` opened the Business dashboard and `/api/subscription/plans.charge...` etc. confirmed the account is now Business.
+- Created a Live REST app "AOS Tech Store Live" (Client ID/Secret are in Render only), plus a Live webhook `https://aos-tech.store/api/subscription/paypal/webhook` with All Events (Webhook ID in Render only).
+- Render env now has `PAYPAL_MODE=live`, live `PAYPAL_CLIENT_ID`, live `PAYPAL_SECRET`, live `PAYPAL_WEBHOOK_ID`, `PAYPAL_USD_RATE=135`. "Save, rebuild, and deploy" completed and the new deploy is Live; `/api/subscription/plans` still returns `paypal:true`.
+- BLOCKED: no real Live receipt has been tested yet. A separate buyer PayPal account is required (a Business account cannot pay itself). Owner should buy the cheapest option (e.g. the monthly AI subscription, ~14 USD) and confirm the money actually settles; the earlier DZ sandbox `COMPLIANCE_VIOLATION` makes this check important before relying on PayPal for collections in Algeria.
