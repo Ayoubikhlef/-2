@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { api } from '../../utils/api';
+import { BrutalistCard } from '../BrutalistCard';
 import { Field, ImageField, PackageFeatures, PaymentDetails, TemplateCard } from './FactoryShared';
 import {
   CATEGORY_OPTIONS,
@@ -1549,47 +1550,38 @@ export function FactoryWizard({
                       const features = packageFeatures(pack);
                       const active = draft.packageSlug === pack.slug;
                       return (
-                        <button
-                          type="button"
+                        <BrutalistCard
                           key={pack.id}
-                          onClick={() => update('packageSlug', pack.slug)}
-                          className={`relative rounded-2xl border-2 bg-background p-4 text-start transition-all ${
-                            active
-                              ? 'border-primary shadow-lg shadow-primary/10'
-                              : 'border-border hover:border-primary/40'
-                          }`}
-                        >
-                          {pack.isPopular && (
-                            <span className="absolute -top-2.5 start-4 rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-black text-white">
-                              {t({ ar: 'الأكثر طلباً', fr: 'Populaire', en: 'Popular' })}
-                            </span>
-                          )}
-                          <div className="flex items-start justify-between gap-2">
-                            <div>
-                              <p className="text-sm font-black">{packageName(pack, language)}</p>
-                              <p className="mt-1 text-lg font-black text-primary">{money(pack.price, language)}</p>
-                              {pack.oldPrice ? (
-                                <p className="text-[11px] text-muted-foreground line-through">{money(pack.oldPrice, language)}</p>
-                              ) : null}
-                            </div>
-                            {active && (
-                              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-white">
-                                <Check className="h-3 w-3" />
+                          title={packageName(pack, language)}
+                          price={money(pack.price, language)}
+                          description={
+                            <>
+                              {packageDescription(pack, language)}
+                              <span className="mt-1 block">
+                                {pack.deliveryDays} {t({ ar: 'أيام تسليم', fr: 'jours', en: 'days' })}
+                                {' • '}
+                                {pack.revisions} {t({ ar: 'تعديلات', fr: 'révisions', en: 'revisions' })}
                               </span>
-                            )}
-                          </div>
-                          <p className="mt-1.5 text-[11px] leading-relaxed text-muted-foreground">
-                            {packageDescription(pack, language)}
-                          </p>
-                          <div className="mt-3 border-t border-border pt-2.5">
+                            </>
+                          }
+                          badge={
+                            pack.isPopular
+                              ? t({ ar: 'الأكثر طلباً', fr: 'Populaire', en: 'Popular' })
+                              : active
+                                ? <Check className="h-4 w-4" />
+                                : undefined
+                          }
+                          active={active}
+                          onClick={() => update('packageSlug', pack.slug)}
+                          actionLabel={active
+                            ? t({ ar: 'مختارة', fr: 'Choisi', en: 'Selected' })
+                            : t({ ar: 'اختر الباقة', fr: 'Choisir', en: 'Choose package' })}
+                          backLabel={t({ ar: 'الباقة مختارة', fr: 'Offre choisie', en: 'Package selected' })}
+                        >
+                          <div className="uv-brut-card__features">
                             <PackageFeatures features={features} limit={4} />
                           </div>
-                          <p className="mt-2 text-[10px] font-semibold text-muted-foreground">
-                            {pack.deliveryDays} {t({ ar: 'أيام تسليم', fr: 'jours', en: 'days' })}
-                            {' • '}
-                            {pack.revisions} {t({ ar: 'تعديلات', fr: 'révisions', en: 'revisions' })}
-                          </p>
-                        </button>
+                        </BrutalistCard>
                       );
                     })}
                   </div>

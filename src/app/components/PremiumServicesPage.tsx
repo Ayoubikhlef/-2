@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { premiumServices, type PremiumService } from '../data/highValueServices';
+import { BrutalistCard } from './BrutalistCard';
 
 type Language = 'ar' | 'fr' | 'en';
 
@@ -150,21 +151,21 @@ function ServiceCard({
 
           <div className="grid gap-3 sm:grid-cols-3">
             {tiers.map((tier, index) => (
-              <div
+              <BrutalistCard
                 key={tier.key}
-                className={`rounded-xl border p-4 ${
-                  index === 1 ? 'border-primary/40 bg-primary/5' : 'border-border bg-muted/40'
-                }`}
-              >
-                <p className="text-xs font-medium tracking-normal text-muted-foreground">{tier.label}</p>
-                <p className="mt-1 text-base font-bold">{formatPrice(tier.price, language)}</p>
-                {index === 1 && (
-                  <span className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold text-primary">
-                    <BadgeCheck className="h-3 w-3" />
-                    {t({ ar: 'الأكثر طلباً', fr: 'Le plus demandé', en: 'Most requested' })}
-                  </span>
-                )}
-              </div>
+                title={tier.label}
+                price={formatPrice(tier.price, language)}
+                description={t({ ar: 'سعر واضح بدون التزام.', fr: 'Tarif clair, sans engagement.', en: 'Clear price, no commitment.' })}
+                badge={index === 1
+                  ? t({ ar: 'الأكثر طلباً', fr: 'Le plus demandé', en: 'Most requested' })
+                  : undefined}
+                actionLabel={t({ ar: 'اطلب الخدمة', fr: 'Commander', en: 'Request service' })}
+                backLabel={t({ ar: 'تم الاختيار', fr: 'Choisi', en: 'Selected' })}
+                active={index === 1}
+                onClick={() => {
+                  window.location.assign('/#booking');
+                }}
+              />
             ))}
           </div>
 

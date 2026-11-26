@@ -25,6 +25,7 @@ import { toast } from 'sonner';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { LoginPage } from './LoginPage';
+import { BrutalistCard } from './BrutalistCard';
 import {
   AI_TOOL_STAGES,
   aiSellerTools,
@@ -998,57 +999,30 @@ export function AiToolsPage() {
                   const isActive = tool.id === activeId;
                   const isUsed = Boolean(trials[tool.id]);
                   return (
-                    <button
+                    <BrutalistCard
                       key={tool.id}
-                      type="button"
+                      title={t(tool.name)}
+                      price={
+                        subscribed
+                          ? t({ ar: 'غير محدود', fr: 'Illimité', en: 'Unlimited' })
+                          : isUsed
+                            ? t({ ar: 'جُرّبت', fr: 'Essai utilisé', en: 'Trial used' })
+                            : t({ ar: 'تجربة مجانية', fr: 'Essai gratuit', en: 'Free trial' })
+                      }
+                      description={t(tool.tagline)}
+                      badge={tool.badge ? t(tool.badge) : undefined}
+                      active={isActive}
                       onClick={() => chooseTool(tool)}
-                      aria-pressed={isActive}
-                      className={`group flex h-full flex-col rounded-2xl border-2 p-5 text-start transition ${
-                        isActive
-                          ? 'border-primary bg-primary/5 shadow-sm'
-                          : 'border-border bg-card hover:border-primary/40 hover:shadow-md'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary transition group-hover:bg-primary group-hover:text-primary-foreground">
-                          <ToolIcon className="h-5 w-5" />
-                        </span>
-                        <span className="flex flex-wrap justify-end gap-1.5">
-                          {tool.badge && (
-                            <span className="rounded-full bg-violet-500/10 px-2.5 py-1 text-[10px] font-bold text-violet-700 dark:text-violet-300">
-                              {t(tool.badge)}
-                            </span>
-                          )}
-                          <span
-                            className={`rounded-full px-2.5 py-1 text-[10px] font-bold ${
-                              subscribed
-                                ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
-                                : isUsed
-                                  ? 'bg-muted text-muted-foreground'
-                                  : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300'
-                            }`}
-                          >
-                            {subscribed
-                              ? t({ ar: 'مشترك', fr: 'Abonné', en: 'Subscribed' })
-                              : isUsed
-                                ? t({ ar: 'تمّت التجربة', fr: 'Essai utilisé', en: 'Trial used' })
-                                : t({ ar: 'تجربة مجانية', fr: 'Essai gratuit', en: 'Free trial' })}
-                          </span>
-                        </span>
-                      </div>
-
-                      <h3 className="mt-4 text-base font-bold leading-snug">{t(tool.name)}</h3>
-                      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{t(tool.tagline)}</p>
-
-                      <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-sky-700 dark:text-sky-300">
-                        {isUsed
+                      actionLabel={
+                        isUsed
                           ? t({ ar: 'اعرض النتيجة', fr: 'Voir le résultat', en: 'View result' })
                           : isActive
                             ? t({ ar: 'الأداة مفتوحة', fr: 'Outil ouvert', en: 'Tool open' })
-                            : t({ ar: 'ابدأ الآن', fr: 'Commencer', en: 'Start now' })}
-                        <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5 rtl:rotate-180" />
-                      </span>
-                    </button>
+                            : t({ ar: 'ابدأ الآن', fr: 'Commencer', en: 'Start now' })
+                      }
+                      backLabel={t({ ar: 'الأداة جاهزة', fr: 'Outil prêt', en: 'Tool ready' })}
+                      icon={<ToolIcon className="h-14 w-14 text-white" />}
+                    />
                   );
                 })}
               </div>

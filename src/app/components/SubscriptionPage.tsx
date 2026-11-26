@@ -26,6 +26,7 @@ import { toast } from 'sonner';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { LoginPage } from './LoginPage';
+import { BrutalistCard } from './BrutalistCard';
 import {
   api,
   type ManualPaymentDetails,
@@ -499,60 +500,46 @@ export function SubscriptionPage() {
           {plans.map((plan) => {
             const isSelected = selectedPlan === plan.id;
             return (
-              <div
+              <BrutalistCard
                 key={plan.id}
-                className={`relative flex flex-col rounded-3xl border bg-card p-6 shadow-sm transition ${
-                  plan.popular
-                    ? 'border-indigo-500/50 shadow-indigo-500/10 ring-1 ring-indigo-500/20'
-                    : isSelected
-                      ? 'border-primary/50 ring-1 ring-primary/20'
-                      : 'border-border hover:border-primary/30'
-                }`}
+                title={t(plan.name)}
+                price={`${formatDzd(plan.price, language)} / ${t({
+                  ar: plan.months === 1 ? 'شهر' : `${plan.months} أشهر`,
+                  fr: plan.months === 1 ? 'mois' : `${plan.months} mois`,
+                  en: plan.months === 1 ? 'month' : `${plan.months} months`,
+                })}`}
+                description={
+                  <>
+                    {t(plan.tagline)}
+                    {plan.months > 1 && (
+                      <span className="mt-1 block">
+                        ≈ {formatDzd(plan.perMonth, language)} {t({ ar: 'شهرياً', fr: 'par mois', en: 'per month' })}
+                      </span>
+                    )}
+                  </>
+                }
+                badge={plan.popular ? t({ ar: 'الأكثر اختياراً', fr: 'Le plus choisi', en: 'Most popular' }) : undefined}
+                active={isSelected}
+                onClick={() => choosePlan(plan.id)}
+                actionLabel={active
+                  ? t({ ar: 'تمديد الاشتراك', fr: 'Prolonger', en: 'Extend subscription' })
+                  : t({ ar: 'اشترك الآن', fr: 'S’abonner', en: 'Subscribe now' })}
+                backLabel={t({ ar: 'الخطة مختارة', fr: 'Formule choisie', en: 'Plan selected' })}
+                icon={plan.popular
+                  ? <Crown className="h-14 w-14 text-white" />
+                  : <Wallet className="h-14 w-14 text-white" />}
               >
-                {plan.popular && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-indigo-600 px-3 py-1 text-[10px] font-semibold tracking-normal text-white shadow-lg">
-                    {t({ ar: 'الأكثر اختياراً', fr: 'Le plus choisi', en: 'Most popular' })}
-                  </span>
-                )}
-                <div className="flex items-center gap-2">
-                  {plan.popular ? <Crown className="h-4 w-4 text-indigo-500" /> : <Wallet className="h-4 w-4 text-primary" />}
-                  <h2 className="text-lg font-semibold">{t(plan.name)}</h2>
+                <div className="uv-brut-card__features">
+                  <ul>
+                    {plan.features.map((feature, index) => (
+                      <li key={index}>
+                        <Check className="mt-0.5 h-3 w-3 shrink-0" />
+                        <span>{t(feature)}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <p className="mt-1 min-h-[2.5rem] text-xs leading-relaxed text-muted-foreground">{t(plan.tagline)}</p>
-                <div className="mt-4">
-                  <span className="text-3xl font-semibold tabular-nums">{formatDzd(plan.price, language)}</span>
-                  <span className="ms-2 text-xs text-muted-foreground">
-                    / {t({ ar: plan.months === 1 ? 'شهر' : `${plan.months} أشهر`, fr: plan.months === 1 ? 'mois' : `${plan.months} mois`, en: plan.months === 1 ? 'month' : `${plan.months} months` })}
-                  </span>
-                </div>
-                {plan.months > 1 && (
-                  <p className="mt-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-300">
-                    ≈ {formatDzd(plan.perMonth, language)} {t({ ar: 'شهرياً', fr: 'par mois', en: 'per month' })}
-                  </p>
-                )}
-                <ul className="mt-5 space-y-2.5 text-xs leading-relaxed">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
-                      <span>{t(feature)}</span>
-                    </li>
-                  ))}
-                </ul>
-                <button
-                  type="button"
-                  onClick={() => choosePlan(plan.id)}
-                  className={`mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-bold transition ${
-                    plan.popular
-                      ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-700'
-                      : 'border border-border bg-background hover:border-primary/40 hover:bg-muted'
-                  }`}
-                >
-                  {active
-                    ? t({ ar: 'تمديد الاشتراك', fr: 'Prolonger', en: 'Extend subscription' })
-                    : t({ ar: 'اشترك الآن', fr: 'S’abonner', en: 'Subscribe now' })}
-                  <ArrowRight className="h-4 w-4 rtl:rotate-180" />
-                </button>
-              </div>
+              </BrutalistCard>
             );
           })}
         </div>
