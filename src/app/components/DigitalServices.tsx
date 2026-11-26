@@ -693,6 +693,7 @@ export function DigitalServices() {
               return (
                 <BrutalistCard
                   key={service.id}
+                  className="uv-brut-card--tall"
                   title={t(service.title)}
                   price={`${priceLabel(service.startingPrice)} ${t(service.priceUnit)}`}
                   description={
@@ -771,6 +772,7 @@ export function DigitalServices() {
             {packages.map((pkg) => (
               <BrutalistCard
                 key={pkg.id}
+                className="uv-brut-card--tall"
                 title={t(pkg.name)}
                 price={`${priceLabel(pkg.price)} ${t(pkg.period)}`}
                 description={t(pkg.tagline)}

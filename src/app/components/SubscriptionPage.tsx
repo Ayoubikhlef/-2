@@ -27,6 +27,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { LoginPage } from './LoginPage';
 import { BrutalistCard } from './BrutalistCard';
+import { PricingCard } from './PricingCard';
 import {
   api,
   type ManualPaymentDetails,
@@ -497,6 +498,20 @@ export function SubscriptionPage() {
               </button>
             </div>
           )}
+
+          {/* Free tier: uses the Uiverse pricing card and starts the AI tools. */}
+          <PricingCard
+            title={t({ ar: 'مجاني', fr: 'Gratuit', en: 'Free' })}
+            tagline={t({
+              ar: 'جرّب أداة واحدة مجاناً قبل أي اشتراك.',
+              fr: 'Essayez un outil gratuitement avant tout abonnement.',
+              en: 'Try one tool for free before subscribing.',
+            })}
+            price={t({ ar: '0 دج', fr: '0 DA', en: '0 DZD' })}
+            cta={t({ ar: 'ابدأ مجاناً', fr: 'Commencer gratuitement', en: 'Start for free' })}
+            href="/ai-tools"
+          />
+
           {plans.map((plan) => {
             const isSelected = selectedPlan === plan.id;
             return (

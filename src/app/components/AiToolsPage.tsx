@@ -26,6 +26,8 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { LoginPage } from './LoginPage';
 import { BrutalistCard } from './BrutalistCard';
+import { GenerateButton } from './GenerateButton';
+import { ChatBotCard } from './ChatBotCard';
 import {
   AI_TOOL_STAGES,
   aiSellerTools,
@@ -1413,14 +1415,18 @@ export function AiToolsPage() {
                               {field.required && <span className="ms-1 text-destructive">*</span>}
                             </label>
                             {field.multiline ? (
-                              <textarea
+                              <ChatBotCard
                                 id={`ai-field-${field.key}`}
                                 value={value}
-                                onChange={(event) => updateField(field.key, event.target.value)}
+                                onChange={(next) => updateField(field.key, next.slice(0, field.maxLength || 700))}
                                 placeholder={t(field.placeholder)}
-                                rows={field.rows || 4}
-                                maxLength={field.maxLength || 700}
-                                className={inputClass}
+                                disabled={loading || uploading}
+                                onSubmit={() => void handleGenerate()}
+                                tags={[
+                                  t({ ar: 'أنشئ صورة', fr: 'Créer une image', en: 'Create An Image' }),
+                                  t({ ar: 'حلّل البيانات', fr: 'Analyser les données', en: 'Analyse Data' }),
+                                  t({ ar: 'المزيد', fr: 'Plus', en: 'More' }),
+                                ]}
                               />
                             ) : (
                               <input
@@ -1445,16 +1451,13 @@ export function AiToolsPage() {
                       </div>
                     )}
 
-                    <button
+                    <GenerateButton
                       type="submit"
                       disabled={loading || uploading}
-                      className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-bold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                      {loading
-                        ? t({ ar: 'جارٍ التوليد…', fr: 'Génération…', en: 'Generating…' })
-                        : t({ ar: 'ولّد النتيجة', fr: 'Générer le résultat', en: 'Generate result' })}
-                    </button>
+                      className="mt-5"
+                      label={t({ ar: 'ولّد النتيجة', fr: 'Générer le résultat', en: 'Generate result' })}
+                      altLabel={t({ ar: 'جارٍ التوليد', fr: 'Génération', en: 'Generating' })}
+                    />
 
                     <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
                       {loading && slow
