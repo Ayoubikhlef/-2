@@ -21,6 +21,7 @@ import { SearchSuggestions } from './SearchSuggestions';
 import { ProductSuggestions } from './ProductSuggestions';
 import TiltedCard from './TiltedCard';
 import { TrustBadges } from './AnnouncementBar';
+import { ProductShowcaseCard } from './ProductShowcaseCard';
 import { submitOrderToSheet } from '../utils/googleForm';
 import { productPath } from '../utils/productPath';
 
@@ -84,106 +85,40 @@ const ProductCard = memo(function ProductCard({
   const wished = isInWishlist(product.id);
 
   return (
-    <div
-      onClick={() => onDetails(product)}
-      className="product-card group"
-    >
-      <div className="product-card__image">
-        <TiltedCard
-          imageSrc={product.image}
-          priority={priority}
-          altText={language === 'ar' ? product.nameAr : product.nameEn}
-          containerHeight="100%"
-          containerWidth="100%"
-          imageHeight="100%"
-          imageWidth="100%"
-          scaleOnHover={1.04}
-          rotateAmplitude={10}
-          showMobileWarning={false}
-          showTooltip={false}
-        />
-
-        {onSale && (
-          <span className="product-card__sale">
-            {language === 'ar' ? 'تخفيض' : language === 'fr' ? 'SOLDE' : 'SALE'}
-          </span>
-        )}
-        {product.brand && product.brand.toLowerCase() !== 'generic' && (
-          <span className="product-card__brand" data-brand={product.brand}>
-            {product.brand}
-          </span>
-        )}
-        <button
-          onClick={(e) => { e.stopPropagation(); onQuickView(product); }}
-          className="product-card__quick-view"
-          aria-label={t({ ar: 'معاينة', fr: 'Aperçu', en: 'Quick view' })}
-        >
-          <Eye className="h-4 w-4" />
-        </button>
-      </div>
-
-      <div className="product-card__body">
-        <div className="product-card__heading">
-          <h3 className="product-card__title">{name}</h3>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              const added = toggleWishlist(product.id);
-              toast.success(added
-                ? t({ ar: 'أضيف إلى المفضلة', fr: 'Ajouté aux favoris', en: 'Added to wishlist' })
-                : t({ ar: 'أزيل من المفضلة', fr: 'Retiré des favoris', en: 'Removed from wishlist' }));
-            }}
-            aria-label={`${wished ? t({ ar: 'إزالة من المفضلة', fr: 'Retirer des favoris', en: 'Remove from wishlist' }) : t({ ar: 'إضافة إلى المفضلة', fr: 'Ajouter aux favoris', en: 'Add to wishlist' })}: ${name}`}
-            title={wished ? t({ ar: 'إزالة من المفضلة', fr: 'Retirer des favoris', en: 'Remove from wishlist' }) : t({ ar: 'إضافة إلى المفضلة', fr: 'Ajouter aux favoris', en: 'Add to wishlist' })}
-            className="product-card__fav"
-          >
-            <Heart className={wished ? 'fill-red-500 text-red-500' : 'text-muted-foreground'} />
-          </button>
-        </div>
-
-        <p className="product-card__desc">{description}</p>
-
-        <div className="product-card__price" onClick={(e) => e.stopPropagation()}>
-          {onSale ? (
-            <>
-              <span className="product-card__price-current">{product.salePrice!.toLocaleString()} د.ج</span>
-              <span className="product-card__price-old">{product.price.toLocaleString()} د.ج</span>
-              <span className="product-card__discount">
-                -{Math.round((1 - product.salePrice! / product.price) * 100)}%
-              </span>
-            </>
-          ) : (
-            <span className="product-card__price-current">{product.price.toLocaleString()} د.ج</span>
-          )}
-        </div>
-
-        <div className="product-card__actions" onClick={(e) => e.stopPropagation()}>
-          <div className="product-card__qty">
-            <button
-              onClick={() => onQuantityChange(product.id, -1)}
-              aria-label={t({ ar: 'إنقاص الكمية', fr: 'Diminuer', en: 'Decrease' })}
-            >
-              <Minus className="h-4 w-4" />
-            </button>
-            <span>{quantity}</span>
-            <button
-              onClick={() => onQuantityChange(product.id, 1)}
-              aria-label={t({ ar: 'زيادة الكمية', fr: 'Augmenter', en: 'Increase' })}
-            >
-              <Plus className="h-4 w-4" />
-            </button>
-          </div>
-          <button
-            onClick={() => onOrder(product)}
-            aria-label={t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}
-            className="product-card__order"
-          >
-            <ShoppingCart className="h-4 w-4 shrink-0" />
-            <span>{t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}</span>
-          </button>
-        </div>
-      </div>
-    </div>
+    <ProductShowcaseCard
+      title={name}
+      description={description}
+      price={onSale ? `${product.salePrice!.toLocaleString()} د.ج` : `${product.price.toLocaleString()} د.ج`}
+      image={product.image}
+      eager={priority}
+      badge={onSale
+        ? t({ ar: 'تخفيض', fr: 'SOLDE', en: 'SALE' })
+        : product.brand && product.brand.toLowerCase() !== 'generic' ? product.brand : undefined}
+      buyLabel={t({ ar: 'اطلب الآن', fr: 'Commander', en: 'Order Now' })}
+      cartLabel={t({ ar: 'أضف للسلة', fr: 'Ajouter au panier', en: 'Add to Cart' })}
+      onBuy={() => onOrder(product)}
+      onAddCart={() => {
+        onQuantityChange(product.id, 1);
+        toast.success(t({ ar: 'أُضيف إلى السلة', fr: 'Ajouté au panier', en: 'Added to cart' }));
+      }}
+      onDetails={() => onDetails(product)}
+      onQuickView={() => onQuickView(product)}
+      wished={wished}
+      onWishlist={() => {
+        const added = toggleWishlist(product.id);
+        toast.success(added
+          ? t({ ar: 'أضيف إلى المفضلة', fr: 'Ajouté aux favoris', en: 'Added to wishlist' })
+          : t({ ar: 'أزيل من المفضلة', fr: 'Retiré des favoris', en: 'Removed from wishlist' }));
+      }}
+      quantity={quantity}
+      onQuantityChange={(delta) => onQuantityChange(product.id, delta)}
+      labels={{
+        wishlist: t({ ar: 'المفضلة', fr: 'Favoris', en: 'Wishlist' }),
+        quickView: t({ ar: 'معاينة', fr: 'Aperçu', en: 'Quick view' }),
+        decrease: t({ ar: 'إنقاص الكمية', fr: 'Diminuer', en: 'Decrease' }),
+        increase: t({ ar: 'زيادة الكمية', fr: 'Augmenter', en: 'Increase' }),
+      }}
+    />
   );
 });
 

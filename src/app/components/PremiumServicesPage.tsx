@@ -17,6 +17,7 @@ import {
 import { useLanguage } from '../contexts/LanguageContext';
 import { premiumServices, type PremiumService } from '../data/highValueServices';
 import { BrutalistCard } from './BrutalistCard';
+import { ProductShowcaseCard } from './ProductShowcaseCard';
 
 type Language = 'ar' | 'fr' | 'en';
 
@@ -86,6 +87,7 @@ function ServiceCard({
   t: (translations: { ar: string; fr: string; en: string }) => string;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const CategoryIcon = CATEGORY_META[service.category].icon;
   const panelId = `premium-panel-${service.id}`;
   const name = language === 'ar' ? service.nameAr : language === 'fr' ? service.nameFr : service.nameEn;
   const shortDesc =
@@ -101,49 +103,33 @@ function ServiceCard({
 
   return (
     <article className="rounded-2xl border border-border bg-card text-card-foreground shadow-sm transition-shadow hover:shadow-md">
-      <div className="flex flex-col gap-4 p-6">
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            <h3 className="text-lg font-bold leading-snug">{name}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{shortDesc}</p>
-          </div>
-          <span className="shrink-0 rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
-            {t({ ar: 'من', fr: 'Dès', en: 'From' })} {formatPrice(service.prices.basic, language)}
-          </span>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-          {service.implementationTime && (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1">
-              <Clock className="h-3.5 w-3.5" />
-              {service.implementationTime}
-            </span>
-          )}
-          {service.recurringMonthly && (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1">
-              <CreditCard className="h-3.5 w-3.5" />
-              {formatPrice(service.recurringMonthly, language)} {t({ ar: '/شهر', fr: '/mois', en: '/month' })}
-            </span>
-          )}
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1">
-            <ShieldCheck className="h-3.5 w-3.5" />
-            {t({ ar: 'دعم بعد التسليم', fr: 'Suivi après livraison', en: 'Post-delivery support' })}
-          </span>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setExpanded((value) => !value)}
-          aria-expanded={expanded}
-          aria-controls={panelId}
-          className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80"
-        >
-          {expanded
-            ? t({ ar: 'إخفاء التفاصيل', fr: 'Masquer les détails', en: 'Hide details' })
-            : t({ ar: 'عرض التفاصيل والأسعار', fr: 'Voir les détails et tarifs', en: 'View details and pricing' })}
-          <ChevronDown className={`h-4 w-4 transition-transform ${expanded ? 'rotate-180' : ''}`} />
-        </button>
-      </div>
+      <ProductShowcaseCard
+        title={name}
+        description={shortDesc}
+        price={`${t({ ar: 'من', fr: 'Dès', en: 'From' })} ${formatPrice(service.prices.basic, language)}`}
+        image=""
+        icon={<CategoryIcon className="h-14 w-14 text-primary" strokeWidth={1.5} />}
+        showStoreControls={false}
+        badge={service.implementationTime || undefined}
+        buyLabel={expanded
+          ? t({ ar: 'إخفاء التفاصيل', fr: 'Masquer les détails', en: 'Hide details' })
+          : t({ ar: 'عرض التفاصيل', fr: 'Voir les détails', en: 'View details' })}
+        cartLabel={t({ ar: 'احجز الآن', fr: 'Réserver', en: 'Book now' })}
+        onBuy={() => setExpanded((value) => !value)}
+        onAddCart={() => { window.location.assign('/#booking'); }}
+        onDetails={() => setExpanded((value) => !value)}
+        onQuickView={() => setExpanded((value) => !value)}
+        wished={false}
+        onWishlist={() => undefined}
+        quantity={0}
+        onQuantityChange={() => undefined}
+        labels={{
+          wishlist: t({ ar: 'المفضلة', fr: 'Favoris', en: 'Wishlist' }),
+          quickView: t({ ar: 'معاينة', fr: 'Aperçu', en: 'Quick view' }),
+          decrease: t({ ar: 'إنقاص', fr: 'Diminuer', en: 'Decrease' }),
+          increase: t({ ar: 'زيادة', fr: 'Augmenter', en: 'Increase' }),
+        }}
+      />
 
       {expanded && (
         <div id={panelId} className="border-t border-border px-6 pb-6 pt-4">
