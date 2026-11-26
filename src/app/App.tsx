@@ -108,7 +108,7 @@ function AdminFallback() {
 /** Neutral splash for the customer login route (never the admin one). */
 function LoginFallback() {
   return (
-    <div className="fixed inset-0 z-[100] grid place-items-center bg-[#050b18]" dir="rtl">
+    <div className="fixed inset-0 z-[100] grid place-items-center bg-gray-950" dir="rtl">
       <div className="text-center">
         <img
           src="/aos-logo-white.png"
@@ -165,7 +165,7 @@ function AdminLoadingPage() {
     : 'en';
   const t = (ar: string, fr: string, en: string) => lang === 'ar' ? ar : lang === 'fr' ? fr : en;
   return (
-    <div className="fixed inset-0 z-[100] overflow-hidden bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 flex items-center justify-center" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+    <div className="fixed inset-0 z-[100] overflow-hidden bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800 flex items-center justify-center" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-32 -left-32 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
         <div className="absolute -bottom-32 -right-32 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-500" />
@@ -464,7 +464,7 @@ export default function App() {
 
   if (!maintenanceChecked && hash !== '#hqpanel') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 flex items-center justify-center" dir="rtl">
+      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800 flex items-center justify-center" dir="rtl">
         <div className="text-center">
           <div className="w-20 h-20 mx-auto mb-6 rounded-[24px] bg-white/5 backdrop-blur-xl border border-white/10 flex items-center justify-center">
             <span className="text-2xl font-black bg-gradient-to-br from-sky-300 to-cyan-500 bg-clip-text text-transparent">AOS</span>
@@ -485,7 +485,7 @@ export default function App() {
     const slogan = msg?.[lang] || msg?.ar || msg?.fr || msg?.en || '';
     const t = (ar: string, fr: string, en: string) => lang === 'ar' ? ar : lang === 'fr' ? fr : en;
     return (
-      <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 flex items-center justify-center" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+      <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800 flex items-center justify-center" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -left-40 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
           <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-1000" />

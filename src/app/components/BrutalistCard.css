@@ -214,8 +214,9 @@
   box-sizing: border-box;
 }
 
+/* The sweep stays, but the label is always the site's own action text. */
 .uv-brut-card__buy-button::before {
-  content: "BUY NOW";
+  content: "";
   position: absolute;
   top: 10px;
   left: -100%;

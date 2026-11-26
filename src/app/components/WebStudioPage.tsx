@@ -287,7 +287,7 @@ export function WebStudioPage() {
                     aos-tech.store
                   </div>
                 </div>
-                <div className="p-4 sm:p-5 bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-slate-800">
+                <div className="p-4 sm:p-5 bg-gradient-to-br from-slate-50 to-gray-100 dark:from-slate-900 dark:to-slate-800">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center text-white text-[10px] font-semibold">AOS</div>
@@ -642,7 +642,7 @@ export function WebStudioPage() {
       {/* Final CTA */}
       <section className="pb-16 md:pb-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 p-7 md:p-12 text-center">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800 p-7 md:p-12 text-center">
             <div className="absolute -top-24 -start-24 w-72 h-72 rounded-full bg-primary/20 blur-3xl" />
             <div className="absolute -bottom-24 -end-24 w-72 h-72 rounded-full bg-sky-500/20 blur-3xl" />
             <div className="relative">

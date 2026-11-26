@@ -1051,7 +1051,7 @@ export function AiToolsPage() {
           </div>
         ) : (
           <div className="overflow-hidden rounded-3xl border border-primary/20 bg-card shadow-sm">
-            <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-primary to-indigo-800 p-6 text-white sm:p-8">
+            <div className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 p-6 text-white sm:p-8">
               <div
                 aria-hidden="true"
                 className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-white/10 blur-2xl"

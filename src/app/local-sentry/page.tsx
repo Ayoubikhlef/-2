@@ -46,7 +46,7 @@ export default function LocalSentryDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 text-white p-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 text-white p-8">
       {/* رأس الصفحة */}
       <header className="bg-black/30 backdrop-blur-lg rounded-xl p-6 mb-8 border border-blue-500/30">
         <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">

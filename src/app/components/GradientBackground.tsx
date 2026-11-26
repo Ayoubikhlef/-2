@@ -6,7 +6,7 @@ export function GradientBackground({ children }: { children: React.ReactNode }) 
   return (
     <div className="relative flex min-h-screen flex-col">
       {/* Dark blue gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#0f172a] to-[#1e3a8a]" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0a] to-[#262626]" />
 
       {/* Glowing ambient effects */}
       <div aria-hidden="true" className="pointer-events-none fixed inset-0 overflow-hidden">

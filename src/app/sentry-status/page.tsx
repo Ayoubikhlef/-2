@@ -16,7 +16,7 @@ export default async function SentryStatusPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-blue-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-700 flex items-center justify-center p-4">
       <div className="max-w-3xl w-full rounded-xl border border-white/10 bg-black/20 backdrop-blur-xl p-8 space-y-6">
         {/* Header */}
         <div className="text-center space-y-2">

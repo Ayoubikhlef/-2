@@ -610,7 +610,7 @@ export function LoginPage({ onClose, onAuthenticated }: { onClose: () => void; o
 
   return (
     <div
-      className="fixed inset-0 z-[var(--z-overlay)] overflow-y-auto bg-[#050b18]"
+      className="fixed inset-0 z-[var(--z-overlay)] overflow-y-auto bg-[#0a0a0a]"
       onClick={onClose}
       dir={dir}
     >
@@ -677,8 +677,8 @@ export function LoginPage({ onClose, onAuthenticated }: { onClose: () => void; o
                   'linear-gradient(to top, rgba(0,0,0,1) 10%, rgba(0,0,0,.85) 45%, rgba(0,0,0,.25) 75%, transparent 100%)',
               }}
             />
-            <div className="absolute inset-0 bg-[linear-gradient(90deg,#050b18_0%,rgba(5,11,24,.6)_38%,rgba(5,11,24,0)_75%)]" />
-            <div className="absolute inset-0 bg-[linear-gradient(0deg,#050b18_0%,rgba(5,11,24,.25)_38%,transparent_72%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,#0a0a0a_0%,rgba(5,11,24,.6)_38%,rgba(5,11,24,0)_75%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(0deg,#0a0a0a_0%,rgba(5,11,24,.25)_38%,transparent_72%)]" />
           </div>
 
           <div className="relative z-10">
