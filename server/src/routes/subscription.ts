@@ -116,6 +116,9 @@ subscriptionRouter.get('/me', requireAuth, async (req: AuthRequest, res: Respons
     },
     payments: payments.map(paymentView),
     chargily: isChargilyConfigured(),
+    // The subscription page also reads this flag from /me; without it, a
+    // signed-in customer would lose the PayPal option after the plans request.
+    paypal: isPaypalConfigured(),
     plans: planList(),
   });
 });
