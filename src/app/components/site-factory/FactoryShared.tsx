@@ -79,7 +79,7 @@ export function StatusPill({ status, kind = 'request' }: { status: string; kind?
   const { t } = useLanguage();
   const meta = (kind === 'site' ? SITE_STATUS_META : STATUS_META)[status] || {
     label: { ar: status, fr: status, en: status },
-    classes: 'bg-slate-100 text-slate-600 dark:bg-slate-500/15 dark:text-slate-300',
+    classes: 'bg-gray-100 text-slate-600 dark:bg-gray-500/15 dark:text-slate-300',
   };
   return (
     <span
@@ -323,7 +323,7 @@ export function TemplatePreview({
             </div>
             <div className="grid flex-1 grid-cols-4 gap-1.5">
               {[0, 1, 2, 3].map((i) => (
-                <div key={i} className="rounded-md bg-slate-50 p-1 ring-1 ring-slate-100">
+                <div key={i} className="rounded-md bg-gray-50 p-1 ring-1 ring-slate-100">
                   <div className="h-1/2 rounded" style={{ backgroundColor: tint }} />
                   <div className="mt-1 h-1 w-4/5 rounded-full bg-slate-200" />
                   <div className="mt-0.5 h-1 w-2/5 rounded-full" style={{ backgroundColor: accent }} />
@@ -342,7 +342,7 @@ export function TemplatePreview({
             </div>
             <div className="grid flex-1 grid-cols-3 gap-1.5">
               {[0, 1, 2].map((i) => (
-                <div key={i} className="rounded-md bg-slate-50 p-1.5 ring-1 ring-slate-100">
+                <div key={i} className="rounded-md bg-gray-50 p-1.5 ring-1 ring-slate-100">
                   <div className="h-4 w-4 rounded" style={{ backgroundColor: stronger }} />
                   <div className="mt-1 h-1 w-4/5 rounded-full bg-slate-300" />
                   <div className="mt-0.5 h-1 w-3/5 rounded-full bg-slate-200" />
@@ -360,7 +360,7 @@ export function TemplatePreview({
               <div className="h-1.5 w-3/4 rounded-full bg-white/80" />
               <div className="mt-1 h-1 w-1/2 rounded-full bg-white/60" />
             </div>
-            <div className="rounded-lg bg-slate-100 p-1.5">
+            <div className="rounded-lg bg-gray-100 p-1.5">
               <div className="h-1 w-4/5 rounded-full bg-slate-300" />
             </div>
             <div className="rounded-lg p-1.5" style={{ backgroundColor: tint }}>

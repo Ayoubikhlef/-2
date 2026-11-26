@@ -1545,7 +1545,7 @@ export function FactoryWizard({
                 </div>
 
                 <div>
-                  <div className="grid gap-3 md:grid-cols-3">
+                  <div className="grid grid-cols-2 gap-3 xl:grid-cols-3">
                     {config.packages.map((pack) => {
                       const features = packageFeatures(pack);
                       const active = draft.packageSlug === pack.slug;

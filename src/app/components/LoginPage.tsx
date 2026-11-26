@@ -163,7 +163,7 @@ const AUTH_STYLES = `
   .aos-auth-input:-webkit-autofill:hover,
   .aos-auth-input:-webkit-autofill:focus {
     -webkit-text-fill-color: #e2e8f0;
-    -webkit-box-shadow: 0 0 0 1000px #0a162b inset;
+    -webkit-box-shadow: 0 0 0 1000px #101010 inset;
     caret-color: #e2e8f0;
     transition: background-color 9999s ease-out;
   }
@@ -180,7 +180,7 @@ const AUTH_STYLES = `
 `;
 
 const inputClass =
-  'aos-auth-input h-[54px] w-full rounded-2xl border border-white/[0.08] bg-[#0a162b]/90 px-5 text-[15px] text-slate-100 outline-none transition duration-300 placeholder:text-slate-500 hover:border-white/[0.14] focus:border-sky-500/70 focus:bg-[#0b1a32] focus:ring-4 focus:ring-sky-500/10';
+  'aos-auth-input h-[54px] w-full rounded-2xl border border-white/[0.08] bg-[#101010]/90 px-5 text-[15px] text-slate-100 outline-none transition duration-300 placeholder:text-slate-500 hover:border-white/[0.14] focus:border-sky-500/70 focus:bg-[#1a1a1a] focus:ring-4 focus:ring-sky-500/10';
 
 const primaryClass =
   'aos-auth-sweep flex h-[54px] w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-blue-600 via-blue-500 to-sky-500 text-[16px] font-bold text-white shadow-[0_18px_40px_-14px_rgba(37,99,235,.95)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_24px_50px_-14px_rgba(56,189,248,.8)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0';
@@ -618,7 +618,7 @@ export function LoginPage({ onClose, onAuthenticated }: { onClose: () => void; o
 
       {/* Ambient background: navy gradient, faint grid and slow blue light. */}
       <div aria-hidden="true" className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(120%_90%_at_15%_0%,#0d2144_0%,#071226_42%,#030814_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(120%_90%_at_15%_0%,#171717_0%,#0a0a0a_42%,#050505_100%)]" />
         <div
           className="absolute inset-0 opacity-25"
           style={{
@@ -742,7 +742,7 @@ export function LoginPage({ onClose, onAuthenticated }: { onClose: () => void; o
             <div
               role="tablist"
               aria-label={t({ ar: 'نوع الحساب', fr: 'Type de compte', en: 'Account type' })}
-              className="grid grid-cols-2 gap-1.5 rounded-2xl border border-white/[0.07] bg-[#071326]/80 p-1.5"
+              className="grid grid-cols-2 gap-1.5 rounded-2xl border border-white/[0.07] bg-[#0d0d0d]/80 p-1.5"
             >
               <button
                 type="button"

@@ -464,7 +464,7 @@ export function SubscriptionPage() {
         )}
 
         {/* Plans */}
-        <div className="mt-10 grid gap-5 lg:grid-cols-3">
+        <div className="mt-10 grid grid-cols-2 gap-5 lg:grid-cols-3">
           {loading && plans.length === 0 && (
             <div className="col-span-full flex items-center justify-center gap-2 py-16 text-sm text-muted-foreground">
               <Loader2 className="h-5 w-5 animate-spin" />

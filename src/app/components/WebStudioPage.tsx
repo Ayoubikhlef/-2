@@ -259,7 +259,7 @@ export function WebStudioPage() {
                 </a>
                 <button
                   onClick={() => scrollTo('pricing')}
-                  className="inline-flex items-center justify-center gap-2 bg-white dark:bg-slate-800 border border-border px-6 py-3.5 rounded-xl text-sm sm:text-base font-bold hover:border-primary/40 hover:text-primary transition-all"
+                  className="inline-flex items-center justify-center gap-2 bg-white dark:bg-neutral-800 border border-border px-6 py-3.5 rounded-xl text-sm sm:text-base font-bold hover:border-primary/40 hover:text-primary transition-all"
                 >
                   {t({ ar: 'اطّلع على الأسعار', fr: 'Voir les tarifs', en: 'See pricing' })}
                   <ArrowRight className="w-4 h-4 rtl:rotate-180" />
@@ -278,12 +278,12 @@ export function WebStudioPage() {
 
             {/* Preview mockup */}
             <div className="relative">
-              <div className="rounded-2xl border border-border bg-white dark:bg-slate-800 shadow-2xl shadow-black/10 overflow-hidden">
-                <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-slate-50 dark:bg-slate-900/50">
+              <div className="rounded-2xl border border-border bg-white dark:bg-neutral-800 shadow-2xl shadow-black/10 overflow-hidden">
+                <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-gray-50 dark:bg-neutral-900/50">
                   <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
                   <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
-                  <div className="ms-3 flex-1 rounded-md bg-white dark:bg-slate-800 border border-border px-3 py-1 text-[10px] sm:text-xs text-muted-foreground truncate">
+                  <div className="ms-3 flex-1 rounded-md bg-white dark:bg-neutral-800 border border-border px-3 py-1 text-[10px] sm:text-xs text-muted-foreground truncate">
                     aos-tech.store
                   </div>
                 </div>
@@ -301,7 +301,7 @@ export function WebStudioPage() {
                   </div>
                   <div className="grid grid-cols-3 gap-2 sm:gap-3">
                     {[0, 1, 2].map((i) => (
-                      <div key={i} className="rounded-xl bg-white dark:bg-slate-800 border border-border p-2">
+                      <div key={i} className="rounded-xl bg-white dark:bg-neutral-800 border border-border p-2">
                         <div className={`h-12 sm:h-16 rounded-lg mb-2 bg-gradient-to-br ${i === 0 ? 'from-blue-200 to-blue-400' : i === 1 ? 'from-emerald-200 to-emerald-400' : 'from-amber-200 to-amber-400'}`} />
                         <div className="h-1.5 w-3/4 rounded bg-muted mb-1" />
                         <div className="h-1.5 w-1/2 rounded bg-muted" />
@@ -309,7 +309,7 @@ export function WebStudioPage() {
                       </div>
                     ))}
                   </div>
-                  <div className="mt-3 rounded-xl bg-white dark:bg-slate-800 border border-border p-3 flex items-center justify-between">
+                  <div className="mt-3 rounded-xl bg-white dark:bg-neutral-800 border border-border p-3 flex items-center justify-between">
                     <div className="space-y-1">
                       <div className="h-1.5 w-20 rounded bg-muted" />
                       <div className="h-1.5 w-14 rounded bg-muted" />
@@ -321,7 +321,7 @@ export function WebStudioPage() {
                 </div>
               </div>
 
-              <div className="absolute -bottom-5 -start-3 sm:-start-6 bg-white dark:bg-slate-800 border border-border rounded-xl shadow-xl px-4 py-3">
+              <div className="absolute -bottom-5 -start-3 sm:-start-6 bg-white dark:bg-neutral-800 border border-border rounded-xl shadow-xl px-4 py-3">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-lg bg-emerald-500/15 flex items-center justify-center">
                     <Globe className="w-4 h-4 text-emerald-600" />
@@ -338,7 +338,7 @@ export function WebStudioPage() {
       </section>
 
       {/* Why a website */}
-      <section className="py-14 md:py-20 bg-slate-50 dark:bg-slate-900/40 border-y border-border">
+      <section className="py-14 md:py-20 bg-gray-50 dark:bg-neutral-900/40 border-y border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10 md:mb-12">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold mb-3">
@@ -372,7 +372,7 @@ export function WebStudioPage() {
                 text: { ar: 'Facebook قد يوقف الحساب. الموقع واسم النطاق ملكك، ولا يمكن لأحد إيقافهما.', fr: 'Facebook peut suspendre un compte. Le site et le domaine vous appartiennent.', en: 'Facebook can suspend an account. Your site and domain are yours.' },
               },
             ].map((item, idx) => (
-              <div key={idx} className="bg-white dark:bg-slate-800 rounded-2xl border border-border p-5 md:p-6">
+              <div key={idx} className="bg-white dark:bg-neutral-800 rounded-2xl border border-border p-5 md:p-6">
                 <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
                   <item.icon className="w-5 h-5 text-primary" />
                 </div>
@@ -415,7 +415,7 @@ export function WebStudioPage() {
                     }
                   }}
                   aria-pressed={active}
-                  className={`text-start rounded-2xl border-2 p-5 md:p-6 transition-all relative cursor-pointer ${active ? 'border-primary bg-primary/[0.04] shadow-sm' : 'border-border bg-white dark:bg-slate-800 hover:border-primary/40'}`}
+                  className={`text-start rounded-2xl border-2 p-5 md:p-6 transition-all relative cursor-pointer ${active ? 'border-primary bg-primary/[0.04] shadow-sm' : 'border-border bg-white dark:bg-neutral-800 hover:border-primary/40'}`}
                 >
                   {item.popular && (
                     <span className="absolute -top-3 end-4 bg-primary text-white text-[10px] font-bold px-3 py-1 rounded-full">
@@ -451,7 +451,7 @@ export function WebStudioPage() {
 
           {/* Extras + total */}
           <div className="grid lg:grid-cols-5 gap-5">
-            <div className="lg:col-span-3 bg-white dark:bg-slate-800 rounded-2xl border border-border p-5 md:p-6">
+            <div className="lg:col-span-3 bg-white dark:bg-neutral-800 rounded-2xl border border-border p-5 md:p-6">
               <h3 className="font-bold mb-1">{t({ ar: 'خيارات إضافية', fr: 'Options', en: 'Add-ons' })}</h3>
               <p className="text-xs text-muted-foreground mb-4">
                 {t({ ar: 'الخيارات المشمولة في الباقة المتكاملة لا تُحتسب مرتين.', fr: 'Les options déjà incluses dans Pro ne sont pas facturées deux fois.', en: 'Options already included in Pro are not charged twice.' })}
@@ -526,7 +526,7 @@ export function WebStudioPage() {
       </section>
 
       {/* Process */}
-      <section className="py-14 md:py-20 bg-slate-50 dark:bg-slate-900/40 border-y border-border">
+      <section className="py-14 md:py-20 bg-gray-50 dark:bg-neutral-900/40 border-y border-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold mb-3">
@@ -544,7 +544,7 @@ export function WebStudioPage() {
               { n: '03', icon: LayoutDashboard, title: { ar: 'تصميم + برمجة', fr: 'Design + dev', en: 'Design + build' }, text: { ar: 'تتابع التقدم كل 2–3 أيام وتقدّم ملاحظاتك.', fr: 'Vous suivez l’avancement tous les 2–3 jours.', en: 'You follow progress every 2–3 days.' } },
               { n: '04', icon: Sparkles, title: { ar: 'تسليم + تكوين', fr: 'Livraison + formation', en: 'Launch + training' }, text: { ar: 'نشر الموقع، تكوين لمدة ساعة، و50% المتبقية.', fr: 'Mise en ligne, formation 1h, solde de 50 %.', en: 'Go live, 1h training, remaining 50%.' } },
             ].map((step, idx) => (
-              <div key={idx} className="relative bg-white dark:bg-slate-800 rounded-2xl border border-border p-5 md:p-6">
+              <div key={idx} className="relative bg-white dark:bg-neutral-800 rounded-2xl border border-border p-5 md:p-6">
                 <span className="absolute top-4 end-4 text-3xl font-semibold text-primary/10">{step.n}</span>
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
                   <step.icon className="w-5 h-5 text-primary" />
@@ -560,7 +560,7 @@ export function WebStudioPage() {
       {/* Proof */}
       <section className="py-14 md:py-20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="rounded-3xl border border-border bg-white dark:bg-slate-800 overflow-hidden">
+          <div className="rounded-3xl border border-border bg-white dark:bg-neutral-800 overflow-hidden">
             <div className="grid md:grid-cols-2">
               <div className="p-6 md:p-8">
                 <span className="inline-flex items-center gap-2 text-xs font-bold text-emerald-600 bg-emerald-500/10 px-3 py-1.5 rounded-full mb-4">
@@ -596,7 +596,7 @@ export function WebStudioPage() {
                     { icon: Truck, label: { ar: 'توصيل Yalidine', fr: 'Livraison Yalidine', en: 'Yalidine delivery' } },
                     { icon: Languages, label: { ar: '3 لغات', fr: '3 langues', en: '3 languages' } },
                   ].map((item, idx) => (
-                    <div key={idx} className="bg-white/70 dark:bg-slate-900/40 backdrop-blur rounded-xl border border-white/40 dark:border-white/10 p-3">
+                    <div key={idx} className="bg-white/70 dark:bg-neutral-900/40 backdrop-blur rounded-xl border border-white/40 dark:border-white/10 p-3">
                       <item.icon className="w-4 h-4 text-primary mb-2" />
                       <p className="text-[11px] font-bold leading-tight">{t(item.label)}</p>
                     </div>
@@ -618,7 +618,7 @@ export function WebStudioPage() {
             {faqs.map((faq, idx) => {
               const open = openFaq === idx;
               return (
-                <div key={idx} className="rounded-2xl border border-border bg-white dark:bg-slate-800 overflow-hidden">
+                <div key={idx} className="rounded-2xl border border-border bg-white dark:bg-neutral-800 overflow-hidden">
                   <button
                     onClick={() => setOpenFaq(open ? null : idx)}
                     aria-expanded={open}

@@ -42,7 +42,7 @@ export function Contact() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6 max-w-6xl mx-auto mb-12">
-          <div className="bg-white dark:bg-slate-800 p-5 md:p-6 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 text-center border border-border group">
+          <div className="bg-white dark:bg-neutral-800 p-5 md:p-6 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 text-center border border-border group">
             <div className="bg-primary/10 w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
               <MapPin className="w-7 h-7 text-primary" />
             </div>
@@ -54,7 +54,7 @@ export function Contact() {
             </p>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 p-5 md:p-6 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 text-center border border-border group">
+          <div className="bg-white dark:bg-neutral-800 p-5 md:p-6 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 text-center border border-border group">
             <div className="bg-green-500/10 w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-green-500/20 transition-colors">
               <Phone className="w-7 h-7 text-green-600" />
             </div>
@@ -66,7 +66,7 @@ export function Contact() {
             </a>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 p-5 md:p-6 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 text-center border border-border group">
+          <div className="bg-white dark:bg-neutral-800 p-5 md:p-6 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 text-center border border-border group">
             <div className="bg-blue-500/10 w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-500/20 transition-colors">
               <Facebook className="w-7 h-7 text-blue-600" />
             </div>
@@ -85,7 +85,7 @@ export function Contact() {
             </a>
           </div>
 
-          <div className="bg-white dark:bg-slate-800 p-5 md:p-6 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 text-center border border-border group">
+          <div className="bg-white dark:bg-neutral-800 p-5 md:p-6 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 text-center border border-border group">
             <div className="bg-orange-500/10 w-14 h-14 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:bg-orange-500/20 transition-colors">
               <Mail className="w-7 h-7 text-orange-600" />
             </div>
@@ -119,7 +119,7 @@ export function Contact() {
             referrerPolicy="no-referrer-when-downgrade"
             title={t({ ar: 'موقع المتجر على خرائط جوجل', fr: 'Emplacement sur Google Maps', en: 'Store location on Google Maps' })}
           />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-white dark:bg-slate-800 p-4 border-t border-border">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-white dark:bg-neutral-800 p-4 border-t border-border">
             <a
               href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(t(settings.contact.address) + ', El Milia, Jijel')}`}
               target="_blank"

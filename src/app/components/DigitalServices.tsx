@@ -687,7 +687,7 @@ export function DigitalServices() {
             </p>
           </div>
 
-          <div id="digital-services-grid" className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <div id="digital-services-grid" className="grid grid-cols-2 gap-5 xl:grid-cols-3">
             {visibleServices.map((service, index) => {
               const Icon = serviceIcons[service.icon];
               return (
@@ -767,7 +767,7 @@ export function DigitalServices() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-5 xl:grid-cols-4">
             {packages.map((pkg) => (
               <BrutalistCard
                 key={pkg.id}

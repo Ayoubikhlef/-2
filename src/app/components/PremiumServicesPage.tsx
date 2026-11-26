@@ -149,7 +149,7 @@ function ServiceCard({
         <div id={panelId} className="border-t border-border px-6 pb-6 pt-4">
           {fullDesc && <p className="mb-4 text-sm leading-relaxed text-muted-foreground">{fullDesc}</p>}
 
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {tiers.map((tier, index) => (
               <BrutalistCard
                 key={tier.key}

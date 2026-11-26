@@ -993,7 +993,7 @@ export function AiToolsPage() {
                 </span>
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
                 {group.tools.map((tool) => {
                   const ToolIcon = tool.icon;
                   const isActive = tool.id === activeId;
