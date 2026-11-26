@@ -721,6 +721,16 @@ export const api = {
       request<{ success: boolean; status: string }>('/payment/confirm', { method: 'POST', body: JSON.stringify(data) }),
   },
 
+  /** PayPal redirect checkout for store orders and site-factory deposits. */
+  paypal: {
+    config: () => request<{ paypal: boolean }>('/paypal/config', {}, true, 15000),
+    checkout: (data: { kind: 'order' | 'site'; ref: string }) =>
+      request<{ mode: 'redirect'; checkoutUrl: string; reference: string }>('/paypal/checkout', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+  },
+
   siteFactory: {
     config: () =>
       request<{
@@ -728,6 +738,7 @@ export const api = {
         packages: any[];
         settings: any;
         cloudflareConfigured: boolean;
+        paypal: boolean;
       }>('/site-factory/public/config', {}, true, 60000),
     checkSubdomain: (name: string) =>
       request<{

@@ -4,15 +4,16 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { LoyaltyCard } from './LoyaltyCard';
 import { saveOrder, describeOrderError } from '../utils/orderStorage';
 import { wilayas, getMunicipalities } from '../data/products';
-import { Mail, Phone, MapPin, DollarSign, Banknote, Percent, FileText } from 'lucide-react';
+import { Mail, Phone, MapPin, DollarSign, Banknote, CreditCard, Percent, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatPrice } from '../lib/utils';
 import { DeliveryCalculator } from './DeliveryCalculator';
 import { TrustBadges } from './AnnouncementBar';
 import { getSiteSettings } from '../utils/siteSettingsStorage';
 import { submitOrderToSheet } from '../utils/googleForm';
+import { api } from '../utils/api';
 
-type PaymentMethod = 'cod';
+type PaymentMethod = 'cod' | 'paypal';
 
 export function OrderForm() {
   const { items, total, deliveryFee, deliveryMethod, setDeliveryWilaya, clear } = useCart();
@@ -33,7 +34,8 @@ export function OrderForm() {
     discount: number;
     coupon: string | null;
   } | null>(null);
-  const paymentMethod: PaymentMethod = 'cod';
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cod');
+  const [paypalEnabled, setPaypalEnabled] = useState(false);
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; discount: number; type: 'percentage' | 'fixed' } | null>(null);
   const [couponError, setCouponError] = useState('');
@@ -54,6 +56,19 @@ export function OrderForm() {
     const id = Number(formData.wilaya);
     if (Number.isInteger(id) && id >= 1 && id <= 69) setDeliveryWilaya(id);
   }, [formData.wilaya, setDeliveryWilaya]);
+
+  useEffect(() => {
+    api.paypal.config().then((data) => setPaypalEnabled(Boolean(data.paypal))).catch(() => setPaypalEnabled(false));
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get('paypal');
+    if (status === 'success') {
+      toast.success(t({ ar: 'تم استلام دفع PayPal وتم تأكيد طلبك.', fr: 'Paiement PayPal reçu, commande confirmée.', en: 'PayPal payment received; order confirmed.' }));
+      window.history.replaceState({}, '', window.location.pathname + window.location.hash);
+    } else if (status === 'failed' || status === 'cancelled') {
+      toast.error(t({ ar: 'لم يكتمل دفع PayPal. يمكنك إعادة المحاولة أو الدفع عند الاستلام.', fr: 'Paiement PayPal incomplet. Réessayez ou payez à la livraison.', en: 'PayPal payment incomplete. Retry or pay on delivery.' }));
+      window.history.replaceState({}, '', window.location.pathname + window.location.hash);
+    }
+  }, [t]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -159,6 +174,15 @@ export function OrderForm() {
       });
 
       setLastOrder(savedRecord);
+
+      // Online payment: the order is already stored on the server with its
+      // verified total; the browser only sends its id to create the PayPal
+      // order, then leaves for PayPal's approval page.
+      if (paymentMethod === 'paypal') {
+        const checkout = await api.paypal.checkout({ kind: 'order', ref: savedRecord.id });
+        window.location.assign(checkout.checkoutUrl);
+        return;
+      }
 
       const wilayaName = wilayas.find((w) => w.id.toString() === formData.wilaya)?.[language === 'ar' ? 'nameAr' : language === 'fr' ? 'nameFr' : 'nameEn'] || '';
       const municipalityName = getMunicipalities(Number(formData.wilaya)).find((m) => m.id === formData.municipality)?.[language === 'ar' ? 'nameAr' : language === 'fr' ? 'nameFr' : 'nameEn'] || '';
@@ -364,9 +388,34 @@ ${discountAmount > 0 ? `🎉 ${t({ ar: 'الخصم:', fr: 'Réduction:', en: 'Di
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-sm font-semibold text-emerald-700 dark:text-emerald-300">
-                <Banknote className="w-5 h-5" />
-                {t({ ar: 'الدفع عند الاستلام', fr: 'Paiement à la livraison', en: 'Cash on Delivery' })}
+              <div>
+                <p className="mb-2 text-xs font-bold text-muted-foreground">
+                  {t({ ar: 'طريقة الدفع', fr: 'Moyen de paiement', en: 'Payment method' })}
+                </p>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod('cod')}
+                    className={`flex items-center gap-2 rounded-xl border p-3 text-start text-sm font-semibold transition ${
+                      paymentMethod === 'cod' ? 'border-primary bg-primary/5 ring-1 ring-primary/30' : 'border-border hover:border-primary/30'
+                    }`}
+                  >
+                    <Banknote className="h-5 w-5 shrink-0 text-primary" />
+                    {t({ ar: 'الدفع عند الاستلام', fr: 'Paiement à la livraison', en: 'Cash on Delivery' })}
+                  </button>
+                  {paypalEnabled && (
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('paypal')}
+                      className={`flex items-center gap-2 rounded-xl border p-3 text-start text-sm font-semibold transition ${
+                        paymentMethod === 'paypal' ? 'border-primary bg-primary/5 ring-1 ring-primary/30' : 'border-border hover:border-primary/30'
+                      }`}
+                    >
+                      <CreditCard className="h-5 w-5 shrink-0 text-primary" />
+                      {t({ ar: 'دفع آمن عبر PayPal', fr: 'Paiement sécurisé via PayPal', en: 'Secure payment via PayPal' })}
+                    </button>
+                  )}
+                </div>
               </div>
 
               <TrustBadges />

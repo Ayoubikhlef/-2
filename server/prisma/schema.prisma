@@ -161,6 +161,8 @@ model Order {
   status          String    @default("new")
   paymentMethod   String?
   paymentStatus   String?
+  providerRef     String?   @unique
+  checkoutUrl     String?   @db.Text
   trackingNumber  String?
   source          String?
   discountAmount  Float     @default(0)

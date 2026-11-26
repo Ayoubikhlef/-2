@@ -53,6 +53,7 @@ export interface FactoryConfig {
   packages: FactoryPackage[];
   settings: FactorySettings;
   cloudflareConfigured: boolean;
+  paypal: boolean;
 }
 
 export interface FactoryResult {
@@ -105,7 +106,7 @@ export interface Draft {
   products: ProductDraft[];
   subdomain: string;
   customDomain: string;
-  paymentMethod: '' | 'ccp' | 'baridimob' | 'cash' | 'whatsapp';
+  paymentMethod: '' | 'ccp' | 'baridimob' | 'cash' | 'whatsapp' | 'paypal';
 }
 
 export const MAX_SERVICES = 8;
@@ -131,6 +132,15 @@ export const CATEGORY_OPTIONS: Array<{ key: string; label: Localized }> = [
 ];
 
 export const PAYMENT_OPTIONS: Array<{ value: Draft['paymentMethod']; label: Localized; desc: Localized }> = [
+  {
+    value: 'paypal',
+    label: { ar: 'PayPal', fr: 'PayPal', en: 'PayPal' },
+    desc: {
+      ar: 'دفع آمن بالبطاقة عبر PayPal — يُأكد الدفع تلقائياً.',
+      fr: 'Paiement sécurisé via PayPal — confirmation automatique.',
+      en: 'Secure PayPal checkout — confirmed automatically.',
+    },
+  },
   {
     value: 'ccp',
     label: { ar: 'CCP / بريد الجزائر', fr: 'CCP / Algérie Poste', en: 'CCP / Algérie Poste' },

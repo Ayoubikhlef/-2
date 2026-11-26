@@ -80,9 +80,12 @@ async function paypal<T = any>(path: string, init: RequestInit = {}): Promise<T>
 export async function createPaypalOrder(input: {
   amountUsd: string;
   reference: string;
-  paymentId: string;
+  paymentId?: string;
   returnUrl: string;
   cancelUrl: string;
+  /** Optional overrides used by non-subscription checkouts. */
+  customId?: string;
+  description?: string;
 }): Promise<{ id: string; approveUrl: string }> {
   const order: any = await paypal('/v2/checkout/orders', {
     method: 'POST',
@@ -91,8 +94,8 @@ export async function createPaypalOrder(input: {
       purchase_units: [
         {
           reference_id: input.reference,
-          description: `AOS Tech Store subscription ${input.reference}`,
-          custom_id: input.paymentId,
+          description: input.description || `AOS Tech Store subscription ${input.reference}`,
+          custom_id: input.customId || input.paymentId || input.reference,
           amount: { currency_code: 'USD', value: input.amountUsd },
         },
       ],

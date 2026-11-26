@@ -720,10 +720,12 @@ export function PaymentDetails({
   settings,
   amount,
   showNote = true,
+  paypal = false,
 }: {
   settings: FactorySettings;
   amount: number;
   showNote?: boolean;
+  paypal?: boolean;
 }) {
   const { t, language } = useLanguage();
   const hasAccount = Boolean(settings.ccp || settings.baridimob);
@@ -750,7 +752,15 @@ export function PaymentDetails({
         </div>
       </div>
 
-      {hasAccount ? (
+      {paypal ? (
+        <div className="rounded-xl border border-primary/30 bg-primary/5 p-3.5 text-xs leading-relaxed text-foreground">
+          {t({
+            ar: 'بعد إرسال الطلب ستُحوّل إلى PayPal لإتمام الدفعة المقدمة، ثم يُأكد طلبك تلقائياً.',
+            fr: 'Après l’envoi, vous serez redirigé vers PayPal pour le versement, puis la commande sera confirmée automatiquement.',
+            en: 'After submitting you will be redirected to PayPal for the deposit, then your request is confirmed automatically.',
+          })}
+        </div>
+      ) : hasAccount ? (
         <div className="space-y-2">
           {settings.ccp && (
             <CopyValue

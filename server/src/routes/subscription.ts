@@ -24,6 +24,12 @@ import {
   paypalAmountDzdToUsd,
   verifyPaypalWebhook,
 } from '../services/paypal';
+import {
+  ORDER_PREFIX,
+  SITE_PREFIX,
+  completeOrderCheckout,
+  completeSiteCheckout,
+} from '../services/paypalCheckout';
 
 export const subscriptionRouter = Router();
 
@@ -305,6 +311,29 @@ subscriptionRouter.post('/paypal/webhook', async (req, res: Response) => {
   const event = req.body || {};
   const type = String(event.type || '');
   const resource = event.resource || {};
+
+  // One webhook serves subscriptions, store orders and site deposits. The
+  // custom_id prefix decides which confirmation path owns the capture.
+  const customId = String(resource?.custom_id || '');
+  if (customId.startsWith(ORDER_PREFIX) || customId.startsWith(SITE_PREFIX)) {
+    const paypalOrderId = String(
+      resource?.supplementary_data?.related_ids?.order_id ||
+        (type.startsWith('CHECKOUT.ORDER.') ? resource?.id : '') ||
+        '',
+    );
+    if (!paypalOrderId) return res.json({ ok: true, ignored: 'missing_order_id' });
+    const ref = customId.slice(customId.indexOf(':') + 1);
+    try {
+      const result = customId.startsWith(ORDER_PREFIX)
+        ? await completeOrderCheckout(ref, paypalOrderId)
+        : await completeSiteCheckout(ref, paypalOrderId);
+      return res.json({ ok: true, ...result });
+    } catch (err: any) {
+      console.error('[PayPal] generic webhook failed:', err?.message || err);
+      return res.status(500).json({ error: 'Could not complete payment' });
+    }
+  }
+
   const orderId = String(
     resource?.supplementary_data?.related_ids?.order_id ||
       resource?.custom_id ||

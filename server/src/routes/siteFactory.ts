@@ -6,6 +6,7 @@ import { AppError, BadRequest } from '../utils/errors';
 import { requireAuth, requireRole } from '../middleware/auth';
 import * as factory from '../site-factory/service';
 import { isCloudflareConfigured } from '../site-factory/cloudflare';
+import { isPaypalConfigured } from '../services/paypal';
 import { normalizeSubdomain } from '../site-factory/subdomain';
 import { isDemoTemplate, renderTemplateDemo } from '../site-factory/demo';
 
@@ -114,7 +115,7 @@ const createRequestSchema = z.object({
   products: z.array(productSchema).max(30, 'الحد الأقصى 30 منتجاً.').optional(),
   subdomain: z.string().trim().min(3, 'الاسم الفرعي قصير جداً.').max(40, 'الاسم الفرعي طويل جداً.'),
   customDomain: z.string().max(120).optional().nullable(),
-  paymentMethod: z.enum(['ccp', 'baridimob', 'cash', 'whatsapp']).optional(),
+  paymentMethod: z.enum(['ccp', 'baridimob', 'cash', 'whatsapp', 'paypal']).optional(),
   website: z.string().max(200).optional(),
 });
 
@@ -163,6 +164,7 @@ siteFactoryRouter.get('/public/config', publicLimiter, async (_req, res) => {
   res.json({
     ...catalog,
     cloudflareConfigured: isCloudflareConfigured(),
+    paypal: isPaypalConfigured(),
   });
 });
 

@@ -62,6 +62,7 @@ type SubdomainState = {
 };
 
 const PAYMENT_ICONS = {
+  paypal: Globe,
   ccp: CreditCard,
   baridimob: Smartphone,
   cash: Wallet,
@@ -584,6 +585,11 @@ export function FactoryWizard({
     setSubmitting(true);
     try {
       const result = await api.siteFactory.createRequest(buildPayload());
+      if (draft.paymentMethod === 'paypal' && config.paypal) {
+        const checkout = await api.paypal.checkout({ kind: 'site', ref: result.ref });
+        window.location.assign(checkout.checkoutUrl);
+        return;
+      }
       onSuccess(result, draft);
     } catch (err: any) {
       if (err?.status === 409) {
@@ -1598,7 +1604,7 @@ export function FactoryWizard({
                 <div>
                   <h3 className="text-sm font-black">{t({ ar: 'طريقة الدفع', fr: 'Moyen de paiement', en: 'Payment method' })}</h3>
                   <div className="mt-2 grid grid-cols-2 gap-2">
-                    {PAYMENT_OPTIONS.map((option) => {
+                    {PAYMENT_OPTIONS.filter((option) => option.value !== 'paypal' || config.paypal).map((option) => {
                       const Icon = PAYMENT_ICONS[option.value as keyof typeof PAYMENT_ICONS] || CreditCard;
                       const active = draft.paymentMethod === option.value;
                       return (
@@ -1629,7 +1635,7 @@ export function FactoryWizard({
 
                 <div className="rounded-2xl border border-border bg-muted/20 p-4">
                   <h3 className="mb-2.5 text-sm font-black">{t({ ar: 'تفاصيل الدفع', fr: 'Détails du paiement', en: 'Payment details' })}</h3>
-                  <PaymentDetails settings={settings} amount={deposit} />
+                  <PaymentDetails settings={settings} amount={deposit} paypal={draft.paymentMethod === 'paypal'} />
                 </div>
 
                 <label className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-border p-3.5 text-xs leading-relaxed">
