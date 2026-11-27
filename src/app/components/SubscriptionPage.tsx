@@ -517,6 +517,7 @@ export function SubscriptionPage() {
             return (
               <BrutalistCard
                 key={plan.id}
+                className="uv-brut-card--tall"
                 title={t(plan.name)}
                 price={`${formatDzd(plan.price, language)} / ${t({
                   ar: plan.months === 1 ? 'شهر' : `${plan.months} أشهر`,
