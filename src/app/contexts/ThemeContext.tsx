@@ -22,7 +22,7 @@ function applyTheme(theme: Theme) {
   el.classList.toggle('dark', theme === 'dark');
   el.setAttribute('data-theme', theme);
   const meta = document.querySelector('meta[name="theme-color"]');
-  if (meta) meta.setAttribute('content', theme === 'dark' ? '#0a0a0a' : '#f5f5f5');
+  if (meta) meta.setAttribute('content', theme === 'dark' ? '#070c18' : '#f5f5f5');
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {

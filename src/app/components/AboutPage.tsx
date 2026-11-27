@@ -34,7 +34,7 @@ export function AboutPage() {
           </h1>
         </div>
 
-        <div className="bg-white dark:bg-neutral-800 rounded-2xl border border-border p-6 md:p-8 space-y-6 shadow-sm">
+        <div className="bg-white dark:bg-card rounded-2xl border border-border p-6 md:p-8 space-y-6 shadow-sm">
           <p className="text-lg leading-relaxed text-muted-foreground">
             {t(content.about.content)}
           </p>
@@ -51,28 +51,28 @@ export function AboutPage() {
 
           {/* Contact Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-border">
-            <div className="flex items-start gap-3 p-4 rounded-xl bg-gray-50 dark:bg-neutral-700/50">
+            <div className="flex items-start gap-3 p-4 rounded-xl bg-gray-50 dark:bg-muted/60">
               <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5" />
               <div>
                 <p className="font-bold text-sm">{t({ ar: 'العنوان', fr: 'Adresse', en: 'Address' })}</p>
                 <p className="text-sm text-muted-foreground">{t(settings.contact.address)}</p>
               </div>
             </div>
-            <div className="flex items-start gap-3 p-4 rounded-xl bg-gray-50 dark:bg-neutral-700/50">
+            <div className="flex items-start gap-3 p-4 rounded-xl bg-gray-50 dark:bg-muted/60">
               <Phone className="w-5 h-5 text-primary shrink-0 mt-0.5" />
               <div>
                 <p className="font-bold text-sm">{t({ ar: 'الهاتف', fr: 'Téléphone', en: 'Phone' })}</p>
                 <p className="text-sm text-muted-foreground"><bdi dir="ltr">{settings.contact.phoneDisplay}</bdi></p>
               </div>
             </div>
-            <div className="flex items-start gap-3 p-4 rounded-xl bg-gray-50 dark:bg-neutral-700/50">
+            <div className="flex items-start gap-3 p-4 rounded-xl bg-gray-50 dark:bg-muted/60">
               <Mail className="w-5 h-5 text-primary shrink-0 mt-0.5" />
               <div>
                 <p className="font-bold text-sm">{t({ ar: 'البريد الإلكتروني', fr: 'Email', en: 'Email' })}</p>
                 <p className="text-sm text-muted-foreground">{settings.contact.email}</p>
               </div>
             </div>
-            <div className="flex items-start gap-3 p-4 rounded-xl bg-gray-50 dark:bg-neutral-700/50">
+            <div className="flex items-start gap-3 p-4 rounded-xl bg-gray-50 dark:bg-muted/60">
               <Clock className="w-5 h-5 text-primary shrink-0 mt-0.5" />
               <div>
                 <p className="font-bold text-sm">{t({ ar: 'ساعات العمل', fr: 'Horaires', en: 'Working Hours' })}</p>

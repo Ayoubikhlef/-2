@@ -52,7 +52,7 @@ export function Header() {
   };
 
   return (
-    <header className={`sticky top-0 z-[var(--z-header)] transition-all duration-300 ${scrolled ? 'bg-white/95 dark:bg-neutral-900/95 backdrop-blur-xl shadow-lg shadow-black/5 border-b border-border/50' : 'bg-white dark:bg-neutral-900 border-b border-border/30'}`}>
+    <header className={`sticky top-0 z-[var(--z-header)] transition-all duration-300 ${scrolled ? 'bg-white/95 dark:bg-background/95 backdrop-blur-xl shadow-lg shadow-black/5 border-b border-border/50' : 'bg-white dark:bg-background border-b border-border/30'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 2xl:max-w-[1700px] 2xl:px-6">
         <div className="flex justify-between items-center h-16 md:h-20">
           {/* Logo */}
@@ -300,7 +300,7 @@ export function Header() {
                 initial={{ opacity: 0, x: language === 'ar' ? -50 : 50 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: language === 'ar' ? -50 : 50 }}
-                className={`fixed top-0 start-0 end-0 ms-auto w-full max-w-sm h-full bg-white dark:bg-neutral-900 shadow-2xl z-[var(--z-modal)] overflow-y-auto`}
+                className={`fixed top-0 start-0 end-0 ms-auto w-full max-w-sm h-full bg-white dark:bg-card shadow-2xl z-[var(--z-modal)] overflow-y-auto`}
               >
                 <div className="p-6">
                   <div className="flex justify-between items-center mb-6">

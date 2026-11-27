@@ -212,7 +212,7 @@ export function DemoStorePage() {
       </div>
 
       {/* Store header */}
-      <section className="border-b border-border bg-white dark:bg-neutral-900">
+      <section className="border-b border-border bg-white dark:bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white font-semibold">TD</div>
@@ -305,8 +305,8 @@ export function DemoStorePage() {
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
             {visibleProducts.map((product) => (
-              <div key={product.id} className="group bg-white dark:bg-neutral-800 rounded-2xl border border-border overflow-hidden flex flex-col">
-                <div className="relative aspect-square bg-slate-100 dark:bg-neutral-900/50 overflow-hidden">
+              <div key={product.id} className="group bg-white dark:bg-card rounded-2xl border border-border overflow-hidden flex flex-col">
+                <div className="relative aspect-square bg-slate-100 dark:bg-background/50 overflow-hidden">
                   <img src={product.image} alt={t(product.name)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                   {product.badge && (
                     <span className="absolute top-2 start-2 bg-primary text-white text-[10px] font-bold px-2 py-1 rounded-md">
@@ -357,7 +357,7 @@ export function DemoStorePage() {
               { icon: ShieldCheck, title: { ar: 'دفع عند الاستلام', fr: 'Paiement à la livraison', en: 'Cash on delivery' }, text: { ar: 'تفحص المنتج قبل الدفع', fr: 'Vérifiez avant de payer', en: 'Check before paying' } },
               { icon: Phone, title: { ar: 'دعم مباشر', fr: 'Support direct', en: 'Direct support' }, text: { ar: phoneDisplay, fr: phoneDisplay, en: phoneDisplay } },
             ].map((item, idx) => (
-              <div key={idx} className="flex items-center gap-3 bg-white dark:bg-neutral-800 border border-border rounded-2xl p-4">
+              <div key={idx} className="flex items-center gap-3 bg-white dark:bg-card border border-border rounded-2xl p-4">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                   <item.icon className="w-5 h-5 text-primary" />
                 </div>
@@ -391,7 +391,7 @@ export function DemoStorePage() {
       {cartOpen && (
         <div className="fixed inset-0 z-[70]">
           <div className="absolute inset-0 bg-black/50" onClick={() => setCartOpen(false)} aria-hidden="true" />
-          <div className="absolute inset-y-0 end-0 w-full max-w-md bg-white dark:bg-neutral-900 shadow-2xl flex flex-col">
+          <div className="absolute inset-y-0 end-0 w-full max-w-md bg-white dark:bg-background shadow-2xl flex flex-col">
             <div className="flex items-center justify-between p-4 border-b border-border">
               <h3 className="font-semibold">
                 {step === 'checkout'
@@ -563,7 +563,7 @@ export function DemoStorePage() {
       )}
 
       {/* Footer note */}
-      <footer className="border-t border-border bg-gray-50 dark:bg-neutral-900/40">
+      <footer className="border-t border-border bg-gray-50 dark:bg-background/40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-2">
             <MapPin className="w-3.5 h-3.5" />

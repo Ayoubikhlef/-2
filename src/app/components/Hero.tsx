@@ -57,7 +57,7 @@ export function Hero() {
             >
               {t(content.hero.title)}
               <br />
-              <span className="text-primary">
+              <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                 {t(content.hero.brandName)}
               </span>
             </motion.h1>

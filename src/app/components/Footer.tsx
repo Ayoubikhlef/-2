@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Phone, MapPin, Mail, Facebook } from 'lucide-react';
+import { Phone, MapPin, Mail, Facebook, Clock } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { getSiteContent } from '../utils/siteContentStorage';
 import { getSiteSettings } from '../utils/siteSettingsStorage';
@@ -154,6 +154,10 @@ export function Footer() {
                 <a href={`mailto:${contact.email}`} className="hover:text-foreground transition-colors break-all">
                   {contact.email}
                 </a>
+              </li>
+              <li className="flex items-center gap-3 text-muted-foreground">
+                <Clock className="w-4 h-4 shrink-0" />
+                <span>{t(contact.workingHours)}</span>
               </li>
             </ul>
           </div>
