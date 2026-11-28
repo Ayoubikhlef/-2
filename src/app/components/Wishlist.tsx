@@ -115,7 +115,7 @@ export function Wishlist() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  className="group overflow-hidden rounded-3xl border border-border bg-card shadow-lg transition-all hover:shadow-2xl"
+                  className="card-copy group overflow-hidden rounded-3xl border border-border bg-card shadow-lg transition-all hover:shadow-2xl"
                 >
                   <div className="relative h-56 overflow-hidden bg-muted">
                     <img

@@ -156,7 +156,7 @@
 }
 
 .uv-brut-card__badge {
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 1px;
   border: 2px solid #000;
   padding: 1px 4px;
@@ -171,19 +171,19 @@
 }
 
 .uv-brut-card__product-description {
-  font-size: 10px;
-  line-height: 1.2;
+  font-size: 12px;
+  line-height: 1.35;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   margin-bottom: 12px;
   flex-grow: 1;
 }
 
 .uv-brut-card__features {
-  font-size: 10px;
-  line-height: 1.35;
+  font-size: 12px;
+  line-height: 1.4;
   margin-bottom: 10px;
-  max-height: 74px;
+  max-height: 84px;
   overflow: hidden;
 }
 
@@ -218,7 +218,7 @@
   border: 4px solid #000;
   font-family: "Helvetica", monospace;
   text-align: center;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 2px;
@@ -364,13 +364,13 @@
 
   .uv-brut-card__product-description,
   .uv-brut-card__features {
-    font-size: 8px;
+    font-size: 10.5px;
     letter-spacing: 0.3px;
     margin-bottom: 6px;
   }
 
   .uv-brut-card__features {
-    max-height: 52px;
+    max-height: 64px;
   }
 
   .uv-brut-card__buy-button {
@@ -383,6 +383,6 @@
   }
 
   .uv-brut-card__added-subtext {
-    font-size: 10px;
+    font-size: 11px;
   }
 }

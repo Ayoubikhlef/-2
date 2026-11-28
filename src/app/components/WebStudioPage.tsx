@@ -372,7 +372,7 @@ export function WebStudioPage() {
                 text: { ar: 'Facebook قد يوقف الحساب. الموقع واسم النطاق ملكك، ولا يمكن لأحد إيقافهما.', fr: 'Facebook peut suspendre un compte. Le site et le domaine vous appartiennent.', en: 'Facebook can suspend an account. Your site and domain are yours.' },
               },
             ].map((item, idx) => (
-              <div key={idx} className="bg-white dark:bg-card rounded-2xl border border-border p-5 md:p-6">
+              <div key={idx} className="card-copy bg-white dark:bg-card rounded-2xl border border-border p-5 md:p-6">
                 <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
                   <item.icon className="w-5 h-5 text-primary" />
                 </div>
@@ -415,7 +415,7 @@ export function WebStudioPage() {
                     }
                   }}
                   aria-pressed={active}
-                  className={`text-start rounded-2xl border-2 p-5 md:p-6 transition-all relative cursor-pointer ${active ? 'border-primary bg-primary/[0.04] shadow-sm' : 'border-border bg-white dark:bg-card hover:border-primary/40'}`}
+                  className={`card-copy text-start rounded-2xl border-2 p-5 md:p-6 transition-all relative cursor-pointer ${active ? 'border-primary bg-primary/[0.04] shadow-sm' : 'border-border bg-white dark:bg-card hover:border-primary/40'}`}
                 >
                   {item.popular && (
                     <span className="absolute -top-3 end-4 bg-primary text-white text-[10px] font-bold px-3 py-1 rounded-full">
@@ -451,7 +451,7 @@ export function WebStudioPage() {
 
           {/* Extras + total */}
           <div className="grid lg:grid-cols-5 gap-5">
-            <div className="lg:col-span-3 bg-white dark:bg-card rounded-2xl border border-border p-5 md:p-6">
+            <div className="card-copy lg:col-span-3 bg-white dark:bg-card rounded-2xl border border-border p-5 md:p-6">
               <h3 className="font-bold mb-1">{t({ ar: 'خيارات إضافية', fr: 'Options', en: 'Add-ons' })}</h3>
               <p className="text-xs text-muted-foreground mb-4">
                 {t({ ar: 'الخيارات المشمولة في الباقة المتكاملة لا تُحتسب مرتين.', fr: 'Les options déjà incluses dans Pro ne sont pas facturées deux fois.', en: 'Options already included in Pro are not charged twice.' })}
@@ -482,7 +482,7 @@ export function WebStudioPage() {
               </div>
             </div>
 
-            <div className="lg:col-span-2 rounded-2xl border-2 border-primary bg-primary text-white p-5 md:p-6 flex flex-col">
+            <div className="card-copy lg:col-span-2 rounded-2xl border-2 border-primary bg-primary text-white p-5 md:p-6 flex flex-col">
               <p className="text-xs font-semibold text-white/70 mb-1">{t({ ar: 'تقديرك', fr: 'Votre estimation', en: 'Your estimate' })}</p>
               <p className="text-sm font-bold mb-4">{t(tier.name)}</p>
 
@@ -544,7 +544,7 @@ export function WebStudioPage() {
               { n: '03', icon: LayoutDashboard, title: { ar: 'تصميم + برمجة', fr: 'Design + dev', en: 'Design + build' }, text: { ar: 'تتابع التقدم كل 2–3 أيام وتقدّم ملاحظاتك.', fr: 'Vous suivez l’avancement tous les 2–3 jours.', en: 'You follow progress every 2–3 days.' } },
               { n: '04', icon: Sparkles, title: { ar: 'تسليم + تكوين', fr: 'Livraison + formation', en: 'Launch + training' }, text: { ar: 'نشر الموقع، تكوين لمدة ساعة، و50% المتبقية.', fr: 'Mise en ligne, formation 1h, solde de 50 %.', en: 'Go live, 1h training, remaining 50%.' } },
             ].map((step, idx) => (
-              <div key={idx} className="relative bg-white dark:bg-card rounded-2xl border border-border p-5 md:p-6">
+              <div key={idx} className="card-copy relative bg-white dark:bg-card rounded-2xl border border-border p-5 md:p-6">
                 <span className="absolute top-4 end-4 text-3xl font-semibold text-primary/10">{step.n}</span>
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
                   <step.icon className="w-5 h-5 text-primary" />
@@ -560,7 +560,7 @@ export function WebStudioPage() {
       {/* Proof */}
       <section className="py-14 md:py-20">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="rounded-3xl border border-border bg-white dark:bg-card overflow-hidden">
+          <div className="card-copy rounded-3xl border border-border bg-white dark:bg-card overflow-hidden">
             <div className="grid md:grid-cols-2">
               <div className="p-6 md:p-8">
                 <span className="inline-flex items-center gap-2 text-xs font-bold text-emerald-600 bg-emerald-500/10 px-3 py-1.5 rounded-full mb-4">
@@ -618,7 +618,7 @@ export function WebStudioPage() {
             {faqs.map((faq, idx) => {
               const open = openFaq === idx;
               return (
-                <div key={idx} className="rounded-2xl border border-border bg-white dark:bg-card overflow-hidden">
+                <div key={idx} className="card-copy rounded-2xl border border-border bg-white dark:bg-card overflow-hidden">
                   <button
                     onClick={() => setOpenFaq(open ? null : idx)}
                     aria-expanded={open}

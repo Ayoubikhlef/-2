@@ -279,7 +279,7 @@ export function ProductPage({ slug }: { slug: string }) {
               {t({ ar: 'استفسر عبر واتساب', fr: 'Demander sur WhatsApp', en: 'Ask on WhatsApp' })}
             </a>
 
-            <div className="grid gap-3 rounded-2xl border border-border bg-card p-4 sm:grid-cols-2">
+            <div className="card-copy grid gap-3 rounded-2xl border border-border bg-card p-4 sm:grid-cols-2">
               <div className="flex items-start gap-3">
                 <Truck className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
                 <div>
@@ -358,7 +358,7 @@ export function ProductPage({ slug }: { slug: string }) {
                   <a
                     key={item.id}
                     href={productPath(item)}
-                    className="group rounded-2xl border border-border bg-card p-3 transition hover:border-primary/50 hover:shadow-lg"
+                    className="card-copy group rounded-2xl border border-border bg-card p-3 transition hover:border-primary/50 hover:shadow-lg"
                   >
                     <div className="mb-3 overflow-hidden rounded-xl bg-white dark:bg-white/5">
                       <img

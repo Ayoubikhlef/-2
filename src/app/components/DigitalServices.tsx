@@ -810,7 +810,7 @@ export function DigitalServices() {
 
         {/* Process + guarantees */}
         <div className="mt-16 grid grid-cols-1 gap-6 md:mt-24 lg:grid-cols-2">
-          <div className="rounded-3xl border border-border bg-card p-6 shadow-sm md:p-8">
+          <div className="card-copy rounded-3xl border border-border bg-card p-6 shadow-sm md:p-8">
             <span className="text-[11px] font-semibold tracking-normal text-primary">
               {t({ ar: '03 — طريقة العمل', fr: '03 — Notre méthode', en: '03 — How we work' })}
             </span>
@@ -833,7 +833,7 @@ export function DigitalServices() {
             </ol>
           </div>
 
-          <div className="rounded-3xl border border-border bg-gradient-to-br from-primary/5 via-card to-card p-6 shadow-sm md:p-8">
+          <div className="card-copy rounded-3xl border border-border bg-gradient-to-br from-primary/5 via-card to-card p-6 shadow-sm md:p-8">
             <span className="text-[11px] font-semibold tracking-normal text-primary">
               {t({ ar: '04 — ضماناتنا', fr: '04 — Nos garanties', en: '04 — Our guarantees' })}
             </span>
@@ -879,7 +879,7 @@ export function DigitalServices() {
               {DIGITAL_FAQS.map((faq) => {
                 const isOpen = openFaq === faq.id;
                 return (
-                  <div key={faq.id} className="overflow-hidden rounded-2xl border border-border bg-card">
+                  <div key={faq.id} className="card-copy overflow-hidden rounded-2xl border border-border bg-card">
                     <button
                       type="button"
                       onClick={() => setOpenFaq(isOpen ? null : faq.id)}
@@ -910,7 +910,7 @@ export function DigitalServices() {
           </div>
 
           <div ref={quoteRef} id="digital-quote" className="scroll-mt-24 lg:col-span-3">
-            <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
+            <div className="card-copy overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
               <div className="relative overflow-hidden bg-primary p-6 text-white sm:p-8">
                 <div aria-hidden="true" className="absolute -right-10 -top-10 h-36 w-36 rounded-full bg-white/10 blur-2xl" />
                 <div className="relative">

@@ -58,7 +58,7 @@ export function StatsSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
-              className="group text-center p-4 md:p-6 rounded-2xl bg-gray-50 dark:bg-muted/60 border border-border/50 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
+              className="group card-copy text-center p-4 md:p-6 rounded-2xl bg-gray-50 dark:bg-muted/60 border border-border/50 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
             >
               <div className="mx-auto mb-3 w-12 h-12 md:w-14 md:h-14 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                 <Icon className="w-6 h-6 md:w-7 md:h-7 text-primary" />

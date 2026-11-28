@@ -40,6 +40,7 @@ import {
   type FactoryTemplate,
   type Localized,
 } from './factoryUtils';
+import { CATEGORY_TINT, displayCategory } from './templateCategories';
 
 export function Field({
   label,
@@ -441,35 +442,50 @@ export function TemplateCard({
   template,
   active,
   onSelect,
+  onPreview,
 }: {
   template: FactoryTemplate;
   active: boolean;
   onSelect: () => void;
+  onPreview: () => void;
 }) {
   const { t, language } = useLanguage();
   const Icon = TEMPLATE_ICONS[template.slug] || BadgeCheck;
-  const demoUrl = `/templates/${template.slug}/`;
+  const [thumbFailed, setThumbFailed] = useState(false);
+  const bucket = displayCategory(template.category, template.slug);
+  const name = templateName(template, language);
   return (
     <div
-      className={`group relative flex flex-col rounded-2xl border-2 bg-card p-2.5 transition-all ${
+      className={`group relative flex flex-col overflow-hidden rounded-2xl bg-card transition-all ${
         active
-          ? 'border-primary shadow-lg shadow-primary/10'
-          : 'border-border hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md'
+          ? 'border-2 border-primary shadow-lg shadow-primary/10'
+          : 'border border-border hover:border-primary/40 hover:shadow-md'
       }`}
     >
-      <button type="button" onClick={onSelect} aria-pressed={active} className="w-full text-start">
-        <div className="relative">
-          <TemplatePreview slug={template.slug} accent={template.accent} />
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden rounded-xl"
-          >
-            <span className="-rotate-[22deg] select-none text-lg font-black uppercase tracking-[0.32em] text-slate-900/10">
-              AOS TECH
-            </span>
-          </span>
+      <button
+        type="button"
+        onClick={onSelect}
+        aria-pressed={active}
+        aria-label={t({ ar: `اختيار قالب ${name}`, fr: `Choisir le modèle ${name}`, en: `Select ${name} template` })}
+        className="flex w-full flex-col text-start focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
+      >
+        <div className={`relative aspect-[5/4] w-full overflow-hidden ${CATEGORY_TINT[bucket]}`}>
+          {thumbFailed ? (
+            <TemplatePreview slug={template.slug} accent={template.accent} large />
+          ) : (
+            <img
+              src={`/thumbs/${template.slug}.webp`}
+              alt={t({ ar: `معاينة قالب ${name}`, fr: `Aperçu du modèle ${name}`, en: `${name} template preview` })}
+              width={800}
+              height={640}
+              loading="lazy"
+              decoding="async"
+              onError={() => setThumbFailed(true)}
+              className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.02]"
+            />
+          )}
         </div>
-        <div className="px-1 pb-0.5 pt-2.5">
+        <div className="card-copy px-3 pb-3 pt-3">
           <div className="flex items-center gap-2">
             <span
               className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
@@ -477,7 +493,7 @@ export function TemplateCard({
             >
               <Icon className="h-4 w-4" />
             </span>
-            <h3 className="min-w-0 flex-1 truncate text-sm font-bold">{templateName(template, language)}</h3>
+            <h3 className="min-w-0 flex-1 truncate text-sm font-bold">{name}</h3>
             {active && (
               <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-white">
                 <Check className="h-3 w-3" />
@@ -487,40 +503,17 @@ export function TemplateCard({
           <p className="mt-1.5 line-clamp-2 min-h-[2.5rem] text-xs leading-relaxed text-muted-foreground">
             {templateDescription(template, language)}
           </p>
-          <div className="mt-2 flex items-center gap-2 text-[10px] font-semibold text-muted-foreground">
-            <span className="rounded-full bg-muted px-2 py-0.5">
-              {t({ ar: 'متجاوب', fr: 'Responsive', en: 'Responsive' })}
-            </span>
-            <span className="rounded-full bg-muted px-2 py-0.5">AR / FR / EN</span>
-          </div>
+          <span className="mt-2 block text-[11px] font-semibold text-muted-foreground">AR / FR / EN</span>
         </div>
       </button>
-
-      <a
-        href={demoUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        title={t({ ar: 'معاينة حية للقالب', fr: 'Aperçu en direct du modèle', en: 'Live template preview' })}
-        className="absolute end-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-full bg-slate-950/85 px-2.5 py-1 text-[11px] font-bold text-white shadow-lg ring-1 ring-white/30 backdrop-blur transition hover:scale-105 hover:bg-slate-950"
+      <button
+        type="button"
+        onClick={onPreview}
+        aria-label={t({ ar: `معاينة قالب ${name}`, fr: `Aperçu du modèle ${name}`, en: `Preview ${name} template` })}
+        className="absolute end-2 top-2 z-10 inline-flex h-11 w-11 items-center justify-center rounded-full bg-slate-950/80 text-white shadow-lg backdrop-blur transition hover:bg-slate-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       >
-        <span className="relative flex h-1.5 w-1.5">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
-        </span>
-        <Eye className="h-3 w-3" />
-        {t({ ar: 'معاينة حية', fr: 'Aperçu live', en: 'Live preview' })}
-      </a>
-
-      <a
-        href={demoUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-2.5 flex w-full items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-black text-white shadow-sm transition hover:brightness-110"
-        style={{ backgroundColor: template.accent }}
-      >
-        <Eye className="h-4 w-4" />
-        {t({ ar: 'معاينة القالب كاملاً', fr: 'Voir le modèle en entier', en: 'Preview the full template' })}
-      </a>
+        <Eye className="h-4 w-4" aria-hidden="true" />
+      </button>
     </div>
   );
 }

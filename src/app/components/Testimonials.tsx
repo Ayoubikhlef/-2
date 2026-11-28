@@ -88,7 +88,7 @@ export function Testimonials() {
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
               whileHover={{ y: -6 }}
-              className="group relative flex flex-col rounded-3xl border border-border bg-card/70 backdrop-blur-md p-6 shadow-lg hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/40 transition-all duration-300"
+              className="card-copy group relative flex flex-col rounded-3xl border border-border bg-card/70 backdrop-blur-md p-6 shadow-lg hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/40 transition-all duration-300"
             >
               <Quote className="absolute top-5 left-5 w-8 h-8 text-primary/15 group-hover:text-primary/30 transition-colors" />
               <div className="flex items-center gap-1 mb-4">

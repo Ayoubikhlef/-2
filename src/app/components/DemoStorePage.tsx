@@ -305,7 +305,7 @@ export function DemoStorePage() {
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-5">
             {visibleProducts.map((product) => (
-              <div key={product.id} className="group bg-white dark:bg-card rounded-2xl border border-border overflow-hidden flex flex-col">
+              <div key={product.id} className="card-copy group bg-white dark:bg-card rounded-2xl border border-border overflow-hidden flex flex-col">
                 <div className="relative aspect-square bg-slate-100 dark:bg-background/50 overflow-hidden">
                   <img src={product.image} alt={t(product.name)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
                   {product.badge && (
@@ -357,7 +357,7 @@ export function DemoStorePage() {
               { icon: ShieldCheck, title: { ar: 'دفع عند الاستلام', fr: 'Paiement à la livraison', en: 'Cash on delivery' }, text: { ar: 'تفحص المنتج قبل الدفع', fr: 'Vérifiez avant de payer', en: 'Check before paying' } },
               { icon: Phone, title: { ar: 'دعم مباشر', fr: 'Support direct', en: 'Direct support' }, text: { ar: phoneDisplay, fr: phoneDisplay, en: phoneDisplay } },
             ].map((item, idx) => (
-              <div key={idx} className="flex items-center gap-3 bg-white dark:bg-card border border-border rounded-2xl p-4">
+              <div key={idx} className="card-copy flex items-center gap-3 bg-white dark:bg-card border border-border rounded-2xl p-4">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                   <item.icon className="w-5 h-5 text-primary" />
                 </div>

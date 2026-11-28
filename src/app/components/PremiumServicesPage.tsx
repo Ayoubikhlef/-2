@@ -100,7 +100,7 @@ function ServiceCard({
   ];
 
   return (
-    <article className="rounded-2xl border border-border bg-card text-card-foreground shadow-sm transition-shadow hover:shadow-md">
+    <article className="card-copy rounded-2xl border border-border bg-card text-card-foreground shadow-sm transition-shadow hover:shadow-md">
       <div className="flex flex-col gap-4 p-6">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
@@ -292,7 +292,7 @@ export function PremiumServicesPage() {
 
       {/* CTA */}
       <section className="mx-auto mt-16 max-w-6xl px-4">
-        <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/15 via-card to-card p-8 text-center sm:p-10">
+        <div className="card-copy rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/15 via-card to-card p-8 text-center sm:p-10">
           <h2 className="text-2xl font-bold sm:text-3xl">
             {t({ ar: 'لديك مشروع وتحتاج خطة واضحة؟', fr: 'Un projet en tête ?', en: 'Have a project in mind?' })}
           </h2>

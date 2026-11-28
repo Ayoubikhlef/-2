@@ -32,7 +32,7 @@ export function ProductSuggestions({ productId, onSelect, max = 4 }: ProductSugg
           <button
             key={product.id}
             onClick={() => onSelect(product)}
-            className="group flex-shrink-0 w-40 bg-card rounded-xl border border-border hover:border-primary/50 hover:shadow-lg transition-all p-3 text-center"
+            className="group card-copy flex-shrink-0 w-40 bg-card rounded-xl border border-border hover:border-primary/50 hover:shadow-lg transition-all p-3 text-center"
           >
             <div className="h-24 bg-muted rounded-lg mb-2 overflow-hidden">
               <img

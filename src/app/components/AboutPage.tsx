@@ -34,7 +34,7 @@ export function AboutPage() {
           </h1>
         </div>
 
-        <div className="bg-white dark:bg-card rounded-2xl border border-border p-6 md:p-8 space-y-6 shadow-sm">
+        <div className="card-copy bg-white dark:bg-card rounded-2xl border border-border p-6 md:p-8 space-y-6 shadow-sm">
           <p className="text-lg leading-relaxed text-muted-foreground">
             {t(content.about.content)}
           </p>

@@ -26,7 +26,8 @@ import {
 import { useLanguage } from '../../contexts/LanguageContext';
 import { api } from '../../utils/api';
 import { BrutalistCard } from '../BrutalistCard';
-import { Field, ImageField, PackageFeatures, PaymentDetails, TemplateCard } from './FactoryShared';
+import { Field, ImageField, PackageFeatures, PaymentDetails } from './FactoryShared';
+import { TemplateGallery } from './TemplateGallery';
 import {
   CATEGORY_OPTIONS,
   COLOR_PRESETS,
@@ -714,9 +715,9 @@ export function FactoryWizard({
                   </h2>
                   <p className="mt-1 text-sm text-muted-foreground">
                     {t({
-                      ar: `${config.templates.length} قالباً احترافياً، كلها متجاوبة مع الهاتف وتدعم العربية والفرنسية والإنجليزية. اضغط «معاينة حية» لترى المحتوى الحقيقي قبل الطلب.`,
-                      fr: `${config.templates.length} modèles professionnels, responsives et en AR / FR / EN. Cliquez sur « Aperçu live » pour voir le contenu réel avant de commander.`,
-                      en: `${config.templates.length} professional templates, mobile-ready and available in AR / FR / EN. Click “Live preview” to see the real content before ordering.`,
+                      ar: `${config.templates.length} قالباً احترافياً، كلها متجاوبة مع الهاتف وتدعم العربية والفرنسية والإنجليزية. ابحث عن نشاطك أو اختر تصنيفاً، ثم عاين القالب قبل الطلب.`,
+                      fr: `${config.templates.length} modèles professionnels, responsives et en AR / FR / EN. Recherchez votre activité ou choisissez une catégorie, puis prévisualisez avant de commander.`,
+                      en: `${config.templates.length} professional templates, mobile-ready and available in AR / FR / EN. Search your activity or pick a category, then preview before ordering.`,
                     })}
                   </p>
                 </div>
@@ -729,9 +730,9 @@ export function FactoryWizard({
                       {t({ ar: 'شاهد القالب قبل أن تختار:', fr: 'Voyez le modèle avant de choisir :', en: 'See the template before choosing:' })}
                     </strong>{' '}
                     {t({
-                      ar: 'اضغط «معاينة حية» على أي بطاقة لفتح الموقع الحقيقي بمحتواه الكامل في نافذة جديدة — مجاناً وبدون تسجيل.',
-                      fr: 'cliquez sur « Aperçu live » sur une carte pour ouvrir le vrai site, avec tout son contenu, dans un nouvel onglet — gratuit et sans inscription.',
-                      en: 'click “Live preview” on any card to open the real site with its full content in a new tab — free, no sign-up.',
+                      ar: 'اضغط أيقونة العين على البطاقة لعرض الموقع الحقيقي داخل نافذة، مع تبديل الحاسوب والجوال والتنقل بين القوالب — مجاناً وبدون تسجيل.',
+                      fr: 'cliquez sur l’icône œil d’une carte pour voir le vrai site dans une fenêtre, avec bascule ordinateur / mobile et navigation entre les modèles — gratuit et sans inscription.',
+                      en: 'click the eye icon on a card to see the real site inside a window, with desktop/mobile switching and navigation between templates — free, no sign-up.',
                     })}
                   </p>
                 </div>
@@ -764,16 +765,11 @@ export function FactoryWizard({
                     {t({ ar: 'لا توجد قوالب متاحة حالياً. حاول لاحقاً.', fr: 'Aucun modèle disponible.', en: 'No templates available.' })}
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                    {config.templates.map((template) => (
-                      <TemplateCard
-                        key={template.id}
-                        template={template}
-                        active={draft.templateSlug === template.slug}
-                        onSelect={() => selectTemplate(template)}
-                      />
-                    ))}
-                  </div>
+                  <TemplateGallery
+                    templates={config.templates}
+                    activeSlug={draft.templateSlug}
+                    onSelect={selectTemplate}
+                  />
                 )}
                 {errors.templateSlug && (
                   <p className="mt-3 flex items-center gap-1.5 text-xs font-medium text-rose-500">

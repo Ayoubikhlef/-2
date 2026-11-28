@@ -111,7 +111,7 @@ export function Hero() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.65, duration: 0.5 }}
-              className="group mt-8 flex w-full max-w-xl items-center gap-3 rounded-2xl border border-primary/20 bg-white/80 p-3 shadow-sm backdrop-blur transition hover:-translate-y-0.5 hover:shadow-xl dark:border-white/20 dark:bg-white/10"
+              className="group card-copy mt-8 flex w-full max-w-xl items-center gap-3 rounded-2xl border border-primary/20 bg-white/80 p-3 shadow-sm backdrop-blur transition hover:-translate-y-0.5 hover:shadow-xl dark:border-white/20 dark:bg-white/10"
             >
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <Sparkles className="h-5 w-5" />
@@ -119,16 +119,9 @@ export function Hero() {
               <span className="min-w-0 flex-1 text-start">
                 <span className="block text-sm font-semibold text-slate-900 dark:text-white">
                   {t({
-                    ar: 'خدمات الذكاء الاصطناعي — سيرة، شعار، صور، فيديو وشات بوت',
-                    fr: 'Services IA — CV, logo, photos, vidéo et chatbot',
-                    en: 'AI services — CV, logo, photos, video and chatbot',
-                  })}
-                </span>
-                <span className="mt-0.5 block text-xs text-slate-600 dark:text-white/70">
-                  {t({
-                    ar: 'نسلّمك النتيجة جاهزة، بدون اشتراكات ولا إعداد معقّد.',
-                    fr: 'Résultat livré prêt à l’emploi, sans abonnement ni configuration complexe.',
-                    en: 'You get the finished result, with no subscriptions or complex setup.',
+                    ar: 'اكتشف أدوات الذكاء الاصطناعي لتطوير تجارتك الإلكترونية',
+                    fr: 'Découvrez les outils d’IA pour développer votre e-commerce',
+                    en: 'Discover AI tools to grow your e-commerce',
                   })}
                 </span>
               </span>

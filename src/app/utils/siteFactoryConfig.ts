@@ -60,6 +60,7 @@ export function fallbackFactoryConfig(): FactoryConfig {
       customDomainNote: { ...DEFAULT_FACTORY_SETTINGS.customDomainNote },
     } satisfies FactorySettings,
     cloudflareConfigured: false,
+    paypal: false,
   };
 }
 
@@ -74,6 +75,7 @@ function normalize(raw: any): FactoryConfig | null {
     packages: raw.packages as FactoryPackage[],
     settings: raw.settings as FactorySettings,
     cloudflareConfigured: Boolean(raw.cloudflareConfigured),
+    paypal: Boolean(raw.paypal),
   };
 }
 

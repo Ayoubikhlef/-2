@@ -477,3 +477,28 @@ html:not(.dark) .text-muted-foreground\/60,
 html:not(.dark) .text-muted-foreground\/80 {
   color: var(--muted-foreground);
 }
+
+/* ===== Card readability =====
+   The owner asked for larger small print on every card. Only the small
+   utilities move one step up (12 -> 14px, 14 -> 15px, 10/11 -> 12/13px);
+   headings (text-lg and above) keep their scale. */
+.card-copy .text-sm {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+}
+
+.card-copy .text-xs,
+.card-copy .text-\[13px\] {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.card-copy .text-\[11px\] {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+}
+
+.card-copy .text-\[10px\] {
+  font-size: 0.75rem;
+  line-height: 1.4;
+}

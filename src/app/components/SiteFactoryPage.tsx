@@ -420,7 +420,7 @@ export function SiteFactoryPage() {
                 text: t({ ar: 'معاينة مجانية، ثم ننشر موقعك بعد تأكيد الدفع.', fr: 'Aperçu gratuit, puis publication après confirmation du paiement.', en: 'Free preview, then we publish after payment confirmation.' }),
               },
             ].map((item, index) => (
-              <div key={item.title} className="relative rounded-2xl border border-border bg-card p-5 shadow-sm">
+              <div key={item.title} className="card-copy relative rounded-2xl border border-border bg-card p-5 shadow-sm">
                 <span className="absolute end-4 top-4 text-3xl font-semibold text-muted-foreground/10">{index + 1}</span>
                 <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
                   <item.icon className="h-5 w-5" />

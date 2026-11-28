@@ -415,7 +415,7 @@ export function SubscriptionPage() {
         {/* Account summary */}
         {user && (
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-border bg-card p-5">
+            <div className="card-copy rounded-2xl border border-border bg-card p-5">
               <div className="flex items-center gap-2 text-sm font-bold">
                 <ShieldCheck className="h-4 w-4 text-primary" />
                 {t({ ar: 'حسابك', fr: 'Votre compte', en: 'Your account' })}
@@ -437,7 +437,7 @@ export function SubscriptionPage() {
                       })}
               </p>
             </div>
-            <div className="rounded-2xl border border-border bg-card p-5">
+            <div className="card-copy rounded-2xl border border-border bg-card p-5">
               <div className="flex items-center gap-2 text-sm font-bold">
                 <Clock3 className="h-4 w-4 text-primary" />
                 {t({ ar: 'صلاحية الاشتراك', fr: 'Validité', en: 'Subscription period' })}
@@ -922,7 +922,7 @@ export function SubscriptionPage() {
               text: { ar: 'أي مشكلة في الدفع؟ راسلنا على واتساب.', fr: 'Un souci de paiement ? Écrivez-nous sur WhatsApp.', en: 'A payment problem? Message us on WhatsApp.' },
             },
           ].map((item) => (
-            <div key={item.title.en} className="rounded-2xl border border-border bg-card p-5">
+            <div key={item.title.en} className="card-copy rounded-2xl border border-border bg-card p-5">
               <item.icon className="h-5 w-5 text-primary" />
               <p className="mt-2 text-sm font-bold">{t(item.title)}</p>
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t(item.text)}</p>

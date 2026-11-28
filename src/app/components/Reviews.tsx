@@ -51,7 +51,7 @@ function ReviewCard({ review }: { review: Review }) {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-2xl border border-border bg-card p-5"
+      className="card-copy rounded-2xl border border-border bg-card p-5"
     >
       <div className="flex items-start justify-between gap-3 mb-3">
         <div>
